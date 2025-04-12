@@ -1,2 +1,1 @@
-# cognitive-mesh
-A repository for implementing Cognitive Mesh architecture on Azure
+This repository is empty. Any task executed on it should be considered a new capability and needs to be created.
