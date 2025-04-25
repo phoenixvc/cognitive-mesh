@@ -9,7 +9,7 @@ public class CognitiveMeshCoordinator
     private readonly ArgenticAgentComponent _agentSystem;
     private readonly EventGridPublisherClient _eventGridClient;
     private readonly ILogger _logger;
-    
+
     public CognitiveMeshCoordinator(
         EnhancedRAGSystem ragSystem,
         MultiPerspectiveCognition mpcSystem,
@@ -26,11 +26,11 @@ public class CognitiveMeshCoordinator
             new AzureKeyCredential(eventGridKey));
         _logger = logger;
     }
-    
+
     public async Task<CognitiveMeshResponse> ProcessQueryAsync(string query, QueryOptions options = null)
     {
         options ??= new QueryOptions();
-        
+
         // Create execution context
         var context = new ExecutionContext
         {
@@ -39,35 +39,35 @@ public class CognitiveMeshCoordinator
             Options = options,
             StartTime = DateTimeOffset.UtcNow
         };
-        
+
         try
         {
             // Log query start
             _logger.LogInformation("Processing query {QueryId}: {Query}", context.QueryId, query);
-            
+
             // Publish query received event
             await PublishEventAsync("QueryReceived", context);
-            
+
             // Step 1: Retrieve relevant knowledge
             var knowledgeTask = _ragSystem.SearchAsync(query, options.MaxKnowledgeItems);
-            
+
             // Step 2: Generate multi-perspective analysis
             var perspectivesTask = _mpcSystem.AnalyzeFromMultiplePerspectivesAsync(
                 query, options.Perspectives);
-                
+
             // Wait for both tasks to complete
             await Task.WhenAll(knowledgeTask, perspectivesTask);
-            
+
             var knowledgeResults = knowledgeTask.Result;
             var perspectiveAnalysis = perspectivesTask.Result;
-            
+
             // Update context with results
             context.KnowledgeResults = knowledgeResults;
             context.PerspectiveAnalysis = perspectiveAnalysis;
-            
+
             // Publish intermediate results event
             await PublishEventAsync("IntermediateResultsGenerated", context);
-            
+
             // Step 3: Determine if agent execution is needed
             if (options.EnableAgentExecution && RequiresAgentExecution(query, perspectiveAnalysis))
             {
@@ -78,22 +78,22 @@ public class CognitiveMeshCoordinator
                     { "knowledge", FormatKnowledgeForContext(knowledgeResults) },
                     { "perspectives", FormatPerspectivesForContext(perspectiveAnalysis) }
                 };
-                
+
                 // Create and execute plan
                 var plan = await _agentSystem.CreatePlanAsync(query, agentContext);
                 var executionResult = await _agentSystem.ExecutePlanAsync(plan);
-                
+
                 // Update context with agent results
                 context.AgentPlan = plan;
                 context.AgentResult = executionResult;
-                
+
                 // Publish agent execution event
                 await PublishEventAsync("AgentExecutionCompleted", context);
             }
-            
+
             // Step 4: Generate final response
             string finalResponse;
-            
+
             if (context.AgentResult != null)
             {
                 // Use agent result as primary response
@@ -106,7 +106,7 @@ public class CognitiveMeshCoordinator
                 finalResponse = await GenerateFinalResponseAsync(
                     query, knowledgeResults, perspectiveAnalysis);
             }
-            
+
             // Create response object
             var response = new CognitiveMeshResponse
             {
@@ -118,20 +118,20 @@ public class CognitiveMeshCoordinator
                 AgentResult = context.AgentResult,
                 ProcessingTime = DateTimeOffset.UtcNow - context.StartTime
             };
-            
+
             // Publish response generated event
             await PublishEventAsync("ResponseGenerated", context);
-            
+
             return response;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing query {QueryId}: {Message}", context.QueryId, ex.Message);
-            
+
             // Publish error event
             context.Error = ex.Message;
             await PublishEventAsync("QueryError", context);
-            
+
             // Return error response
             return new CognitiveMeshResponse
             {
@@ -142,20 +142,20 @@ public class CognitiveMeshCoordinator
             };
         }
     }
-    
+
     private bool RequiresAgentExecution(string query, MultiPerspectiveAnalysis perspectiveAnalysis)
     {
         // In a real implementation, this would use more sophisticated logic
         // For now, check if the query contains action-oriented keywords
         var actionKeywords = new[] { "find", "get", "search", "analyze", "create", "generate", "calculate" };
-        
+
         return actionKeywords.Any(keyword => query.Contains(keyword, StringComparison.OrdinalIgnoreCase));
     }
-    
+
     private string FormatKnowledgeForContext(List<KnowledgeDocument> documents)
     {
         var formattedKnowledge = new StringBuilder();
-        
+
         foreach (var doc in documents)
         {
             formattedKnowledge.AppendLine($"--- {doc.Title} ---");
@@ -163,39 +163,39 @@ public class CognitiveMeshCoordinator
             formattedKnowledge.AppendLine(doc.Content);
             formattedKnowledge.AppendLine();
         }
-        
+
         return formattedKnowledge.ToString();
     }
-    
+
     private string FormatPerspectivesForContext(MultiPerspectiveAnalysis analysis)
     {
         var formattedPerspectives = new StringBuilder();
-        
+
         foreach (var perspective in analysis.PerspectiveResults)
         {
             formattedPerspectives.AppendLine($"--- {perspective.Perspective} Perspective ---");
             formattedPerspectives.AppendLine(perspective.Analysis);
             formattedPerspectives.AppendLine();
         }
-        
+
         formattedPerspectives.AppendLine("--- Synthesis ---");
         formattedPerspectives.AppendLine(analysis.Synthesis);
-        
+
         return formattedPerspectives.ToString();
     }
-    
+
     private async Task<string> GenerateFinalResponseAsync(
-        string query, 
-        List<KnowledgeDocument> knowledgeResults, 
+        string query,
+        List<KnowledgeDocument> knowledgeResults,
         MultiPerspectiveAnalysis perspectiveAnalysis)
     {
         // Use RAG system to generate response
         var systemPrompt = "You are an advanced AI assistant that integrates factual knowledge with multiple analytical perspectives. " +
                           "Provide a comprehensive, balanced response that incorporates relevant facts and considers different viewpoints.";
-                          
+
         // Format knowledge and perspectives as context
         var context = new StringBuilder();
-        
+
         // Add knowledge
         context.AppendLine("--- Relevant Knowledge ---");
         foreach (var doc in knowledgeResults)
@@ -204,7 +204,7 @@ public class CognitiveMeshCoordinator
             context.AppendLine(doc.Content);
             context.AppendLine();
         }
-        
+
         // Add perspectives
         context.AppendLine("--- Analytical Perspectives ---");
         foreach (var perspective in perspectiveAnalysis.PerspectiveResults)
@@ -213,18 +213,18 @@ public class CognitiveMeshCoordinator
             context.AppendLine(perspective.Analysis);
             context.AppendLine();
         }
-        
+
         // Add synthesis
         context.AppendLine("--- Synthesis of Perspectives ---");
         context.AppendLine(perspectiveAnalysis.Synthesis);
-        
+
         // Generate response using RAG
         return await _ragSystem.GenerateResponseWithRAGAsync(
-            query, 
-            systemPrompt, 
+            query,
+            systemPrompt,
             context.ToString());
     }
-    
+
     private async Task<string> GenerateFinalResponseWithAgentResultAsync(
         string query,
         List<KnowledgeDocument> knowledgeResults,
@@ -234,10 +234,10 @@ public class CognitiveMeshCoordinator
         // Use RAG system to generate response
         var systemPrompt = "You are an advanced AI assistant that integrates factual knowledge, multiple analytical perspectives, " +
                           "and the results of autonomous actions. Provide a comprehensive response that synthesizes all available information.";
-                          
+
         // Format knowledge, perspectives, and agent results as context
         var context = new StringBuilder();
-        
+
         // Add knowledge
         context.AppendLine("--- Relevant Knowledge ---");
         foreach (var doc in knowledgeResults.Take(2)) // Limit to most relevant
@@ -246,41 +246,41 @@ public class CognitiveMeshCoordinator
             context.AppendLine(doc.Content);
             context.AppendLine();
         }
-        
+
         // Add perspectives synthesis
         context.AppendLine("--- Analytical Perspective Synthesis ---");
         context.AppendLine(perspectiveAnalysis.Synthesis);
         context.AppendLine();
-        
+
         // Add agent results
         context.AppendLine("--- Agent Execution Results ---");
         context.AppendLine($"Task: {agentResult.Plan.Task}");
         context.AppendLine($"Success: {agentResult.Success}");
         context.AppendLine($"Summary: {agentResult.Summary}");
         context.AppendLine();
-        
+
         // Add key step results
         context.AppendLine("Key Results:");
         foreach (var stepResult in agentResult.StepResults.Where(r => r.Success))
         {
             context.AppendLine($"- {stepResult.Step}: {TruncateResult(stepResult.Result, 200)}");
         }
-        
+
         // Generate response using RAG
         return await _ragSystem.GenerateResponseWithRAGAsync(
-            query, 
-            systemPrompt, 
+            query,
+            systemPrompt,
             context.ToString());
     }
-    
+
     private string TruncateResult(string result, int maxLength)
     {
         if (result.Length <= maxLength)
             return result;
-            
+
         return result.Substring(0, maxLength - 3) + "...";
     }
-    
+
     private async Task PublishEventAsync(string eventType, ExecutionContext context)
     {
         // Create event data
@@ -295,7 +295,7 @@ public class CognitiveMeshCoordinator
                 timestamp = DateTimeOffset.UtcNow,
                 eventType = eventType
             })));
-            
+
         // Publish event
         await _eventGridClient.SendEventAsync(eventData);
     }

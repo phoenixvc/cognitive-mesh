@@ -33,7 +33,7 @@ public class PerformanceMonitor
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to monitor performance for component: {systemComponent}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to monitor performance for component: {systemComponent}. Error: {ex.Message}");
             throw;
         }
     }
