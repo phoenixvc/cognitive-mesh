@@ -7,43 +7,54 @@ public class ArgenticAgentComponent
     private readonly string _completionDeployment;
     private readonly Dictionary<string, ToolDefinition> _availableTools;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<ArgenticAgentComponent> _logger; // P0002
     
     public ArgenticAgentComponent(
         string openAIEndpoint, 
         string openAIApiKey, 
         string completionDeployment,
-        Dictionary<string, ToolDefinition> availableTools)
+        Dictionary<string, ToolDefinition> availableTools,
+        ILogger<ArgenticAgentComponent> logger) // P0002
     {
         _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
         _completionDeployment = completionDeployment;
         _availableTools = availableTools;
         _httpClient = new HttpClient();
+        _logger = logger; // P0002
     }
     
     public async Task<PlanningResult> CreatePlanAsync(string task, Dictionary<string, string> context)
     {
-        // Step 1: Create strategic plan
-        var strategicPlan = await GenerateStrategicPlanAsync(task, context);
-        
-        // Step 2: Break down into steps
-        var steps = await GenerateStepsAsync(task, strategicPlan, context);
-        
-        // Step 3: Create tool calls for each step
-        var toolCalls = new List<ToolCallPlan>();
-        
-        foreach (var step in steps)
+        try // P0a40
         {
-            var toolCall = await PlanToolCallAsync(step, _availableTools.Values.ToList());
-            toolCalls.Add(toolCall);
+            // Step 1: Create strategic plan
+            var strategicPlan = await GenerateStrategicPlanAsync(task, context);
+            
+            // Step 2: Break down into steps
+            var steps = await GenerateStepsAsync(task, strategicPlan, context);
+            
+            // Step 3: Create tool calls for each step
+            var toolCalls = new List<ToolCallPlan>();
+            
+            foreach (var step in steps)
+            {
+                var toolCall = await PlanToolCallAsync(step, _availableTools.Values.ToList());
+                toolCalls.Add(toolCall);
+            }
+            
+            return new PlanningResult
+            {
+                Task = task,
+                StrategicPlan = strategicPlan,
+                Steps = steps,
+                ToolCalls = toolCalls
+            };
         }
-        
-        return new PlanningResult
+        catch (Exception ex) // P0a40
         {
-            Task = task,
-            StrategicPlan = strategicPlan,
-            Steps = steps,
-            ToolCalls = toolCalls
-        };
+            _logger.LogError(ex, "Error creating plan for task: {Task}", task); // P5925
+            throw;
+        }
     }
     
     private async Task<string> GenerateStrategicPlanAsync(string task, Dictionary<string, string> context)
@@ -215,53 +226,61 @@ public class ArgenticAgentComponent
         var results = new List<StepResult>();
         var allStepsSuccessful = true;
         
-        // Execute each step in sequence
-        for (int i = 0; i < plan.Steps.Count; i++)
+        try // P0a40
         {
-            var step = plan.Steps[i];
-            var toolCall = plan.ToolCalls[i];
+            // Execute each step in sequence
+            for (int i = 0; i < plan.Steps.Count; i++)
+            {
+                var step = plan.Steps[i];
+                var toolCall = plan.ToolCalls[i];
+                
+                try
+                {
+                    // Execute tool call
+                    var toolResult = await ExecuteToolCallAsync(toolCall);
+                    
+                    results.Add(new StepResult
+                    {
+                        Step = step,
+                        ToolCall = toolCall,
+                        Result = toolResult,
+                        Success = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    results.Add(new StepResult
+                    {
+                        Step = step,
+                        ToolCall = toolCall,
+                        Result = $"Error: {ex.Message}",
+                        Success = false
+                    });
+                    
+                    allStepsSuccessful = false;
+                }
+            }
             
-            try
+            // Generate summary
+            var summary = await GenerateSummaryAsync(plan, results);
+            
+            // Generate reflection
+            var reflection = await GenerateReflectionAsync(plan, results);
+            
+            return new ExecutionResult
             {
-                // Execute tool call
-                var toolResult = await ExecuteToolCallAsync(toolCall);
-                
-                results.Add(new StepResult
-                {
-                    Step = step,
-                    ToolCall = toolCall,
-                    Result = toolResult,
-                    Success = true
-                });
-            }
-            catch (Exception ex)
-            {
-                results.Add(new StepResult
-                {
-                    Step = step,
-                    ToolCall = toolCall,
-                    Result = $"Error: {ex.Message}",
-                    Success = false
-                });
-                
-                allStepsSuccessful = false;
-            }
+                Plan = plan,
+                StepResults = results,
+                Success = allStepsSuccessful,
+                Summary = summary,
+                Reflection = reflection
+            };
         }
-        
-        // Generate summary
-        var summary = await GenerateSummaryAsync(plan, results);
-        
-        // Generate reflection
-        var reflection = await GenerateReflectionAsync(plan, results);
-        
-        return new ExecutionResult
+        catch (Exception ex) // P0a40
         {
-            Plan = plan,
-            StepResults = results,
-            Success = allStepsSuccessful,
-            Summary = summary,
-            Reflection = reflection
-        };
+            _logger.LogError(ex, "Error executing plan for task: {Task}", plan.Task); // P5925
+            throw;
+        }
     }
     
     private async Task<string> ExecuteToolCallAsync(ToolCallPlan toolCall)

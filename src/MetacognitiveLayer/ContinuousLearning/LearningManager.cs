@@ -26,7 +26,7 @@ public class LearningManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to enable continuous learning for model: {modelId}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to enable continuous learning for model: {modelId}. Error: {ex.Message}");
             return false;
         }
     }
@@ -47,7 +47,7 @@ public class LearningManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to adapt model: {modelId}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to adapt model: {modelId}. Error: {ex.Message}");
             throw;
         }
     }
@@ -73,7 +73,7 @@ public class LearningManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to generate learning report for model: {modelId}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to generate learning report for model: {modelId}. Error: {ex.Message}");
             throw;
         }
     }

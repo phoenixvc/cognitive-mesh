@@ -33,7 +33,7 @@ public class ResearchAnalyst
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to conduct research on topic: {topic}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to conduct research on topic: {topic}. Error: {ex.Message}");
             throw;
         }
     }
@@ -59,7 +59,7 @@ public class ResearchAnalyst
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to analyze research on topic: {topic}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to analyze research on topic: {topic}. Error: {ex.Message}");
             throw;
         }
     }
@@ -85,7 +85,7 @@ public class ResearchAnalyst
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to generate research insights for topic: {topic}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to generate research insights for topic: {topic}. Error: {ex.Message}");
             throw;
         }
     }
