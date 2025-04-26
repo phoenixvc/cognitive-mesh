@@ -8,18 +8,21 @@ public class ArgenticAgentComponent
     private readonly Dictionary<string, ToolDefinition> _availableTools;
     private readonly HttpClient _httpClient;
     private readonly ILogger<ArgenticAgentComponent> _logger;
+    private readonly ToolIntegrator _toolIntegrator;
 
     public ArgenticAgentComponent(
         string openAIEndpoint,
         string openAIApiKey,
         string completionDeployment,
         Dictionary<string, ToolDefinition> availableTools,
+        ToolIntegrator toolIntegrator,
         ILogger<ArgenticAgentComponent> logger)
     {
         _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
         _completionDeployment = completionDeployment;
         _availableTools = availableTools;
         _httpClient = new HttpClient();
+        _toolIntegrator = toolIntegrator;
         _logger = logger;
     }
 
@@ -267,259 +270,7 @@ public class ArgenticAgentComponent
             throw new Exception($"Tool '{toolCall.ToolName}' not found");
         }
 
-        switch (toolCall.ToolName)
-        {
-            case "WebSearch":
-                return await ExecuteWebSearchAsync(toolCall.Parameters);
-
-            case "DataAnalysis":
-                return await ExecuteDataAnalysisAsync(toolCall.Parameters);
-
-            case "TextGeneration":
-                return await ExecuteTextGenerationAsync(toolCall.Parameters);
-
-            case "SentimentAnalysis":
-                return await ExecuteSentimentAnalysisAsync(toolCall.Parameters);
-
-            case "NamedEntityRecognition":
-                return await ExecuteNamedEntityRecognitionAsync(toolCall.Parameters);
-
-            case "DataVisualization":
-                return await ExecuteDataVisualizationAsync(toolCall.Parameters);
-
-            case "PredictiveAnalytics":
-                return await ExecutePredictiveAnalyticsAsync(toolCall.Parameters);
-
-            case "PatternRecognition":
-                return await ExecutePatternRecognitionAsync(toolCall.Parameters);
-
-            case "RecommendationSystem":
-                return await ExecuteRecommendationSystemAsync(toolCall.Parameters);
-
-            case "Clustering":
-                return await ExecuteClusteringAsync(toolCall.Parameters);
-
-            case "Classification":
-                return await ExecuteClassificationAsync(toolCall.Parameters);
-
-            case "WebScraping":
-                return await ExecuteWebScrapingAsync(toolCall.Parameters);
-
-            case "DataCleaning":
-                return await ExecuteDataCleaningAsync(toolCall.Parameters);
-
-            default:
-                return await CallToolApiAsync(toolDefinition.Endpoint, toolCall.Parameters);
-        }
-    }
-
-    private async Task<string> ExecuteWebSearchAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("query", out var queryObj) || queryObj is not string query)
-        {
-            throw new Exception("Missing or invalid 'query' parameter");
-        }
-
-        await Task.Delay(100);
-
-        return $"Search results for '{query}':\n" +
-               $"1. Result 1 for {query}\n" +
-               $"2. Result 2 for {query}\n" +
-               $"3. Result 3 for {query}";
-    }
-
-    private async Task<string> ExecuteDataAnalysisAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
-        {
-            throw new Exception("Missing or invalid 'data' parameter");
-        }
-
-        if (!parameters.TryGetValue("analysisType", out var analysisTypeObj) || analysisTypeObj is not string analysisType)
-        {
-            throw new Exception("Missing or invalid 'analysisType' parameter");
-        }
-
-        await Task.Delay(100);
-
-        return $"Analysis results ({analysisType}):\n" +
-               $"- Finding 1: Sample finding\n" +
-               $"- Finding 2: Sample finding\n" +
-               $"- Conclusion: Sample conclusion";
-    }
-
-    private async Task<string> ExecuteTextGenerationAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("prompt", out var promptObj) || promptObj is not string prompt)
-        {
-            throw new Exception("Missing or invalid 'prompt' parameter");
-        }
-
-        var chatCompletionOptions = new ChatCompletionsOptions
-        {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.7f,
-            MaxTokens = 500,
-            Messages =
-            {
-                new ChatRequestSystemMessage("You are a helpful assistant."),
-                new ChatRequestUserMessage(prompt)
-            }
-        };
-
-        var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-
-        return response.Value.Choices[0].Message.Content;
-    }
-
-    private async Task<string> ExecuteSentimentAnalysisAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("text", out var textObj) || textObj is not string text)
-        {
-            throw new Exception("Missing or invalid 'text' parameter");
-        }
-
-        var sentimentAnalysisEndpoint = "https://api.sentimentanalysis.com/analyze";
-        var content = new StringContent(JsonSerializer.Serialize(new { text }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(sentimentAnalysisEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    private async Task<string> ExecuteNamedEntityRecognitionAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("text", out var textObj) || textObj is not string text)
-        {
-            throw new Exception("Missing or invalid 'text' parameter");
-        }
-
-        var namedEntityRecognitionEndpoint = "https://api.namedentityrecognition.com/analyze";
-        var content = new StringContent(JsonSerializer.Serialize(new { text }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(namedEntityRecognitionEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    private async Task<string> ExecuteDataVisualizationAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
-        {
-            throw new Exception("Missing or invalid 'data' parameter");
-        }
-
-        var dataVisualizationEndpoint = "https://api.datavisualization.com/visualize";
-        var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(dataVisualizationEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    private async Task<string> ExecutePredictiveAnalyticsAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
-        {
-            throw new Exception("Missing or invalid 'data' parameter");
-        }
-
-        var predictiveAnalyticsEndpoint = "https://api.predictiveanalytics.com/analyze";
-        var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(predictiveAnalyticsEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    private async Task<string> ExecutePatternRecognitionAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
-        {
-            throw new Exception("Missing or invalid 'data' parameter");
-        }
-
-        var patternRecognitionEndpoint = "https://api.patternrecognition.com/analyze";
-        var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(patternRecognitionEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    private async Task<string> ExecuteRecommendationSystemAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
-        {
-            throw new Exception("Missing or invalid 'data' parameter");
-        }
-
-        var recommendationSystemEndpoint = "https://api.recommendationsystem.com/recommend";
-        var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(recommendationSystemEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    private async Task<string> ExecuteClusteringAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
-        {
-            throw new Exception("Missing or invalid 'data' parameter");
-        }
-
-        var clusteringEndpoint = "https://api.clustering.com/cluster";
-        var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(clusteringEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    private async Task<string> ExecuteClassificationAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
-        {
-            throw new Exception("Missing or invalid 'data' parameter");
-        }
-
-        var classificationEndpoint = "https://api.classification.com/classify";
-        var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(classificationEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    private async Task<string> ExecuteWebScrapingAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("url", out var urlObj) || urlObj is not string url)
-        {
-            throw new Exception("Missing or invalid 'url' parameter");
-        }
-
-        var webScrapingEndpoint = "https://api.webscraping.com/scrape";
-        var content = new StringContent(JsonSerializer.Serialize(new { url }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(webScrapingEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    private async Task<string> ExecuteDataCleaningAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
-        {
-            throw new Exception("Missing or invalid 'data' parameter");
-        }
-
-        var dataCleaningEndpoint = "https://api.datacleaning.com/clean";
-        var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(dataCleaningEndpoint, content);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadAsStringAsync();
+        return await _toolIntegrator.ExecuteToolAsync(toolCall.ToolName, toolCall.Parameters);
     }
 
     private async Task<string> CallToolApiAsync(string endpoint, Dictionary<string, object> parameters)
