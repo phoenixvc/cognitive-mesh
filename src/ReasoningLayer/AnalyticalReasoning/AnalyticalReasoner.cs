@@ -32,12 +32,11 @@ public class AnalyticalReasoner
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to perform data-driven analysis for data: {data}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to perform data-driven analysis for data: {data}");
             throw;
         }
     }
 }
-
 public class AnalysisResult
 {
     public string Data { get; set; }

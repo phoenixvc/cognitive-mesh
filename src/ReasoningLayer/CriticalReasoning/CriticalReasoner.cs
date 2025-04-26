@@ -37,7 +37,7 @@ public class CriticalReasoner
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to evaluate argument: {argument}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to evaluate argument: {argument}");
             throw;
         }
     }
