@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ContinuousLearning\ContinuousLearning.csproj" />
+    <ProjectReference Include="..\PerformanceMonitoring\PerformanceMonitoring.csproj" />
+    <ProjectReference Include="..\ReasoningTransparency\ReasoningTransparency.csproj" />
+    <ProjectReference Include="..\SelfEvaluation\SelfEvaluation.csproj" />
+    <ProjectReference Include="..\UncertaintyQuantification\UncertaintyQuantification.csproj" />
+  </ItemGroup>
+
+</Project>

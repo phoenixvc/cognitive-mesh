@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AnalyticalReasoning\AnalyticalReasoning.csproj" />
+    <ProjectReference Include="..\CreativeReasoning\CreativeReasoning.csproj" />
+    <ProjectReference Include="..\CriticalReasoning\CriticalReasoning.csproj" />
+    <ProjectReference Include="..\DomainSpecificReasoning\DomainSpecificReasoning.csproj" />
+    <ProjectReference Include="..\EthicalReasoning\EthicalReasoning.csproj" />
+    <ProjectReference Include="..\SystemsReasoning\SystemsReasoning.csproj" />
+  </ItemGroup>
+
+</Project>

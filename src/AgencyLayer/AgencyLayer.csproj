@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ActionPlanning\ActionPlanning.csproj" />
+    <ProjectReference Include="..\DecisionExecution\DecisionExecution.csproj" />
+    <ProjectReference Include="..\HumanCollaboration\HumanCollaboration.csproj" />
+    <ProjectReference Include="..\ProcessAutomation\ProcessAutomation.csproj" />
+    <ProjectReference Include="..\ToolIntegration\ToolIntegration.csproj" />
+  </ItemGroup>
+
+</Project>
