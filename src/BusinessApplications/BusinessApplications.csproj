@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CustomerIntelligence\CustomerIntelligence.csproj" />
+    <ProjectReference Include="..\DecisionSupport\DecisionSupport.csproj" />
+    <ProjectReference Include="..\KnowledgeManagement\KnowledgeManagement.csproj" />
+    <ProjectReference Include="..\ProcessAutomation\ProcessAutomation.csproj" />
+    <ProjectReference Include="..\ResearchAnalysis\ResearchAnalysis.csproj" />
+  </ItemGroup>
+
+</Project>
