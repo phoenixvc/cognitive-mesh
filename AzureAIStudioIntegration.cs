@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.AI.OpenAI;
+using Microsoft.Extensions.Logging;
 
 public class AzureAIStudioIntegration
 {
@@ -9,154 +10,205 @@ public class AzureAIStudioIntegration
     private readonly string _completionDeployment;
     private readonly EnhancedRAGSystem _ragSystem;
     private readonly MultiPerspectiveCognition _mpcSystem;
+    private readonly ILogger<AzureAIStudioIntegration> _logger;
 
     public AzureAIStudioIntegration(
         string openAIEndpoint,
         string openAIApiKey,
         string completionDeployment,
         EnhancedRAGSystem ragSystem,
-        MultiPerspectiveCognition mpcSystem)
+        MultiPerspectiveCognition mpcSystem,
+        ILogger<AzureAIStudioIntegration> logger)
     {
         _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
         _completionDeployment = completionDeployment;
         _ragSystem = ragSystem;
         _mpcSystem = mpcSystem;
+        _logger = logger;
     }
 
     public async Task<string> ExecuteSkillAsync(string skillName, string input)
     {
-        switch (skillName.ToLower())
+        try
         {
-            case "rag":
-                return await ExecuteRAGSkillAsync(input);
-            case "mpc":
-                return await ExecuteMPCSkillAsync(input);
-            default:
-                throw new ArgumentException($"Unknown skill: {skillName}");
+            switch (skillName.ToLower())
+            {
+                case "rag":
+                    return await ExecuteRAGSkillAsync(input);
+                case "mpc":
+                    return await ExecuteMPCSkillAsync(input);
+                default:
+                    throw new ArgumentException($"Unknown skill: {skillName}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing skill: {SkillName}", skillName);
+            throw;
         }
     }
 
     private async Task<string> ExecuteRAGSkillAsync(string input)
     {
-        var documents = await _ragSystem.SearchAsync(input, 5);
-        if (documents.Count == 0)
+        try
         {
-            return "No relevant documents found.";
-        }
-
-        var context = new System.Text.StringBuilder();
-        foreach (var doc in documents)
-        {
-            context.AppendLine($"--- Document: {doc.Title} ---");
-            context.AppendLine($"Source: {doc.Source}");
-            context.AppendLine(doc.Content);
-            context.AppendLine();
-        }
-
-        var systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
-                           "If the answer cannot be found in the context, say that you don't know.";
-
-        var chatCompletionOptions = new ChatCompletionsOptions
-        {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.3f,
-            MaxTokens = 800,
-            Messages =
+            var documents = await _ragSystem.SearchAsync(input, 5);
+            if (documents.Count == 0)
             {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage($"Context:\n{context}\n\nQuestion: {input}")
+                return "No relevant documents found.";
             }
-        };
 
-        var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        return response.Value.Choices[0].Message.Content;
+            var context = new System.Text.StringBuilder();
+            foreach (var doc in documents)
+            {
+                context.AppendLine($"--- Document: {doc.Title} ---");
+                context.AppendLine($"Source: {doc.Source}");
+                context.AppendLine(doc.Content);
+                context.AppendLine();
+            }
+
+            var systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
+                               "If the answer cannot be found in the context, say that you don't know.";
+
+            var chatCompletionOptions = new ChatCompletionsOptions
+            {
+                DeploymentName = _completionDeployment,
+                Temperature = 0.3f,
+                MaxTokens = 800,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(systemPrompt),
+                    new ChatRequestUserMessage($"Context:\n{context}\n\nQuestion: {input}")
+                }
+            };
+
+            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+            return response.Value.Choices[0].Message.Content;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing RAG skill with input: {Input}", input);
+            throw;
+        }
     }
 
     private async Task<string> ExecuteMPCSkillAsync(string input)
     {
-        var perspectives = new List<string> { "analytical", "creative", "critical", "practical" };
-        var analysis = await _mpcSystem.AnalyzeFromMultiplePerspectivesAsync(input, perspectives);
-
-        var response = new System.Text.StringBuilder();
-        response.AppendLine("--- Multi-Perspective Analysis ---");
-        foreach (var result in analysis.PerspectiveResults)
+        try
         {
-            response.AppendLine($"--- {result.Perspective} Perspective ---");
-            response.AppendLine(result.Analysis);
-            response.AppendLine();
-        }
-        response.AppendLine("--- Synthesis ---");
-        response.AppendLine(analysis.Synthesis);
+            var perspectives = new List<string> { "analytical", "creative", "critical", "practical" };
+            var analysis = await _mpcSystem.AnalyzeFromMultiplePerspectivesAsync(input, perspectives);
 
-        return response.ToString();
+            var response = new System.Text.StringBuilder();
+            response.AppendLine("--- Multi-Perspective Analysis ---");
+            foreach (var result in analysis.PerspectiveResults)
+            {
+                response.AppendLine($"--- {result.Perspective} Perspective ---");
+                response.AppendLine(result.Analysis);
+                response.AppendLine();
+            }
+            response.AppendLine("--- Synthesis ---");
+            response.AppendLine(analysis.Synthesis);
+
+            return response.ToString();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing MPC skill with input: {Input}", input);
+            throw;
+        }
     }
 
     public async Task<string> ExecutePlanAsync(string planName, string input)
     {
-        switch (planName.ToLower())
+        try
         {
-            case "rag":
-                return await ExecuteRAGPlanAsync(input);
-            case "mpc":
-                return await ExecuteMPCPlanAsync(input);
-            default:
-                throw new ArgumentException($"Unknown plan: {planName}");
+            switch (planName.ToLower())
+            {
+                case "rag":
+                    return await ExecuteRAGPlanAsync(input);
+                case "mpc":
+                    return await ExecuteMPCPlanAsync(input);
+                default:
+                    throw new ArgumentException($"Unknown plan: {planName}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing plan: {PlanName}", planName);
+            throw;
         }
     }
 
     private async Task<string> ExecuteRAGPlanAsync(string input)
     {
-        var documents = await _ragSystem.SearchAsync(input, 5);
-        if (documents.Count == 0)
+        try
         {
-            return "No relevant documents found.";
-        }
-
-        var context = new System.Text.StringBuilder();
-        foreach (var doc in documents)
-        {
-            context.AppendLine($"--- Document: {doc.Title} ---");
-            context.AppendLine($"Source: {doc.Source}");
-            context.AppendLine(doc.Content);
-            context.AppendLine();
-        }
-
-        var systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
-                           "If the answer cannot be found in the context, say that you don't know.";
-
-        var chatCompletionOptions = new ChatCompletionsOptions
-        {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.3f,
-            MaxTokens = 800,
-            Messages =
+            var documents = await _ragSystem.SearchAsync(input, 5);
+            if (documents.Count == 0)
             {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage($"Context:\n{context}\n\nQuestion: {input}")
+                return "No relevant documents found.";
             }
-        };
 
-        var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        return response.Value.Choices[0].Message.Content;
+            var context = new System.Text.StringBuilder();
+            foreach (var doc in documents)
+            {
+                context.AppendLine($"--- Document: {doc.Title} ---");
+                context.AppendLine($"Source: {doc.Source}");
+                context.AppendLine(doc.Content);
+                context.AppendLine();
+            }
+
+            var systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
+                               "If the answer cannot be found in the context, say that you don't know.";
+
+            var chatCompletionOptions = new ChatCompletionsOptions
+            {
+                DeploymentName = _completionDeployment,
+                Temperature = 0.3f,
+                MaxTokens = 800,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(systemPrompt),
+                    new ChatRequestUserMessage($"Context:\n{context}\n\nQuestion: {input}")
+                }
+            };
+
+            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+            return response.Value.Choices[0].Message.Content;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing RAG plan with input: {Input}", input);
+            throw;
+        }
     }
 
     private async Task<string> ExecuteMPCPlanAsync(string input)
     {
-        var perspectives = new List<string> { "analytical", "creative", "critical", "practical" };
-        var analysis = await _mpcSystem.AnalyzeFromMultiplePerspectivesAsync(input, perspectives);
-
-        var response = new System.Text.StringBuilder();
-        response.AppendLine("--- Multi-Perspective Analysis ---");
-        foreach (var result in analysis.PerspectiveResults)
+        try
         {
-            response.AppendLine($"--- {result.Perspective} Perspective ---");
-            response.AppendLine(result.Analysis);
-            response.AppendLine();
-        }
-        response.AppendLine("--- Synthesis ---");
-        response.AppendLine(analysis.Synthesis);
+            var perspectives = new List<string> { "analytical", "creative", "critical", "practical" };
+            var analysis = await _mpcSystem.AnalyzeFromMultiplePerspectivesAsync(input, perspectives);
 
-        return response.ToString();
+            var response = new System.Text.StringBuilder();
+            response.AppendLine("--- Multi-Perspective Analysis ---");
+            foreach (var result in analysis.PerspectiveResults)
+            {
+                response.AppendLine($"--- {result.Perspective} Perspective ---");
+                response.AppendLine(result.Analysis);
+                response.AppendLine();
+            }
+            response.AppendLine("--- Synthesis ---");
+            response.AppendLine(analysis.Synthesis);
+
+            return response.ToString();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing MPC plan with input: {Input}", input);
+            throw;
+        }
     }
 
     public void RegisterPlugins()
@@ -182,38 +234,46 @@ public class RAGPlugin : IPlugin
 
     public async Task<string> ExecuteAsync(string input)
     {
-        var documents = await _ragSystem.SearchAsync(input, 5);
-        if (documents.Count == 0)
+        try
         {
-            return "No relevant documents found.";
-        }
-
-        var context = new System.Text.StringBuilder();
-        foreach (var doc in documents)
-        {
-            context.AppendLine($"--- Document: {doc.Title} ---");
-            context.AppendLine($"Source: {doc.Source}");
-            context.AppendLine(doc.Content);
-            context.AppendLine();
-        }
-
-        var systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
-                           "If the answer cannot be found in the context, say that you don't know.";
-
-        var chatCompletionOptions = new ChatCompletionsOptions
-        {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.3f,
-            MaxTokens = 800,
-            Messages =
+            var documents = await _ragSystem.SearchAsync(input, 5);
+            if (documents.Count == 0)
             {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage($"Context:\n{context}\n\nQuestion: {input}")
+                return "No relevant documents found.";
             }
-        };
 
-        var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        return response.Value.Choices[0].Message.Content;
+            var context = new System.Text.StringBuilder();
+            foreach (var doc in documents)
+            {
+                context.AppendLine($"--- Document: {doc.Title} ---");
+                context.AppendLine($"Source: {doc.Source}");
+                context.AppendLine(doc.Content);
+                context.AppendLine();
+            }
+
+            var systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
+                               "If the answer cannot be found in the context, say that you don't know.";
+
+            var chatCompletionOptions = new ChatCompletionsOptions
+            {
+                DeploymentName = _completionDeployment,
+                Temperature = 0.3f,
+                MaxTokens = 800,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(systemPrompt),
+                    new ChatRequestUserMessage($"Context:\n{context}\n\nQuestion: {input}")
+                }
+            };
+
+            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+            return response.Value.Choices[0].Message.Content;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing RAG plugin with input: {Input}", input);
+            throw;
+        }
     }
 }
 
@@ -228,21 +288,29 @@ public class MPCPlugin : IPlugin
 
     public async Task<string> ExecuteAsync(string input)
     {
-        var perspectives = new List<string> { "analytical", "creative", "critical", "practical" };
-        var analysis = await _mpcSystem.AnalyzeFromMultiplePerspectivesAsync(input, perspectives);
-
-        var response = new System.Text.StringBuilder();
-        response.AppendLine("--- Multi-Perspective Analysis ---");
-        foreach (var result in analysis.PerspectiveResults)
+        try
         {
-            response.AppendLine($"--- {result.Perspective} Perspective ---");
-            response.AppendLine(result.Analysis);
-            response.AppendLine();
-        }
-        response.AppendLine("--- Synthesis ---");
-        response.AppendLine(analysis.Synthesis);
+            var perspectives = new List<string> { "analytical", "creative", "critical", "practical" };
+            var analysis = await _mpcSystem.AnalyzeFromMultiplePerspectivesAsync(input, perspectives);
 
-        return response.ToString();
+            var response = new System.Text.StringBuilder();
+            response.AppendLine("--- Multi-Perspective Analysis ---");
+            foreach (var result in analysis.PerspectiveResults)
+            {
+                response.AppendLine($"--- {result.Perspective} Perspective ---");
+                response.AppendLine(result.Analysis);
+                response.AppendLine();
+            }
+            response.AppendLine("--- Synthesis ---");
+            response.AppendLine(analysis.Synthesis);
+
+            return response.ToString();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing MPC plugin with input: {Input}", input);
+            throw;
+        }
     }
 }
 

@@ -33,7 +33,7 @@ public class TransparencyManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to generate transparency report for reasoning process: {reasoningProcess}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to generate transparency report for reasoning process: {reasoningProcess}. Error: {ex.Message}");
             throw;
         }
     }
