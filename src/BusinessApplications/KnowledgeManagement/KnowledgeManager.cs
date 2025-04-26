@@ -26,7 +26,7 @@ public class KnowledgeManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to add knowledge with ID: {knowledgeId}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to add knowledge with ID: {knowledgeId}. Error: {ex.Message}");
             return false;
         }
     }
@@ -47,7 +47,7 @@ public class KnowledgeManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to retrieve knowledge with ID: {knowledgeId}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to retrieve knowledge with ID: {knowledgeId}. Error: {ex.Message}");
             throw;
         }
     }
@@ -66,7 +66,7 @@ public class KnowledgeManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to update knowledge with ID: {knowledgeId}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to update knowledge with ID: {knowledgeId}. Error: {ex.Message}");
             return false;
         }
     }
@@ -85,7 +85,7 @@ public class KnowledgeManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to delete knowledge with ID: {knowledgeId}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to delete knowledge with ID: {knowledgeId}. Error: {ex.Message}");
             return false;
         }
     }

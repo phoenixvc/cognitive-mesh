@@ -8,16 +8,19 @@ public class MetacognitiveOversightComponent
     private readonly OpenAIClient _openAIClient;
     private readonly string _completionDeployment;
     private readonly TelemetryClient _telemetryClient;
-    
+    private readonly ILogger<MetacognitiveOversightComponent> _logger;
+
     public MetacognitiveOversightComponent(
         string openAIEndpoint, 
         string openAIApiKey, 
         string completionDeployment,
-        TelemetryClient telemetryClient)
+        TelemetryClient telemetryClient,
+        ILogger<MetacognitiveOversightComponent> logger)
     {
         _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
         _completionDeployment = completionDeployment;
         _telemetryClient = telemetryClient;
+        _logger = logger;
     }
     
     public async Task<MetacognitiveEvaluation> EvaluateResponseAsync(
@@ -71,6 +74,11 @@ public class MetacognitiveOversightComponent
             _telemetryClient.TrackMetric("MetacognitiveEvaluation.Completeness", completeness.Score);
             
             return evaluation;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error evaluating response for query: {Query}", query);
+            throw;
         }
         finally
         {
@@ -324,7 +332,7 @@ public class MetacognitiveOversightComponent
         
         if (match.Success && double.TryParse(match.Groups[1].Value, out var score))
         {
-            return Math.Min(Math.Max(score, 0.0), 1.0); // Clamp between 0 and 1
+            return Math.min(Math.max(score, 0.0), 1.0); // Clamp between 0 and 1
         }
         
         // Fallback: scan for any number between 0 and 1

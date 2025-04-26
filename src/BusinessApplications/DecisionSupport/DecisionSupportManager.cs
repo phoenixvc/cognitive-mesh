@@ -32,7 +32,7 @@ public class DecisionSupportManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to provide decision support for scenario: {scenario}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to provide decision support for scenario: {scenario}. Error: {ex.Message}");
             throw;
         }
     }
@@ -57,7 +57,7 @@ public class DecisionSupportManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to analyze scenario: {scenario}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to analyze scenario: {scenario}. Error: {ex.Message}");
             throw;
         }
     }
@@ -82,7 +82,7 @@ public class DecisionSupportManager
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to generate recommendations for scenario: {scenario}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to generate recommendations for scenario: {scenario}. Error: {ex.Message}");
             throw;
         }
     }

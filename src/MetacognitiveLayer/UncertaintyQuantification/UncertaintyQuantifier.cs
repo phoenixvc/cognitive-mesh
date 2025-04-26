@@ -33,7 +33,7 @@ public class UncertaintyQuantifier
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to quantify uncertainty for prediction: {prediction}. Error: {ex.Message}");
+            _logger.LogError(ex, $"Failed to quantify uncertainty for prediction: {prediction}. Error: {ex.Message}");
             throw;
         }
     }
