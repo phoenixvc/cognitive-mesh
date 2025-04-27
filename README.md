@@ -22,7 +22,7 @@ The project is structured as follows:
   * `src/BusinessApplications/ProcessAutomation`: Contains the `src/BusinessApplications/ProcessAutomation/BusinessProcessAutomator.cs` file.
   * `src/BusinessApplications/ResearchAnalysis`: Contains the `src/BusinessApplications/ResearchAnalysis/ResearchAnalyst.cs` file.
 
-* `src/FoundationLayer`: Contains components related to Azure Blob Storage, Azure Cosmos DB, document processing, enterprise connectors, knowledge graph, semantic search, and vector database.
+* `src/FoundationLayer`: Contains components related to Azure Blob Storage, Azure Cosmos DB, document processing, enterprise connectors, knowledge graph, semantic search, vector database, and OneLake integration.
   * `src/FoundationLayer/AzureBlobStorage`: Contains the `src/FoundationLayer/AzureBlobStorage/BlobStorageManager.cs` file.
   * `src/FoundationLayer/AzureCosmosDB`: Contains the `src/FoundationLayer/AzureCosmosDB/CosmosDBManager.cs` file.
   * `src/FoundationLayer/DocumentProcessing`: Contains the `DocumentProcessor.cs` file.
@@ -30,6 +30,7 @@ The project is structured as follows:
   * `src/FoundationLayer/KnowledgeGraph`: Contains the `src/FoundationLayer/KnowledgeGraph/KnowledgeGraphManager.cs` file.
   * `src/FoundationLayer/SemanticSearch`: Contains the `src/FoundationLayer/SemanticSearch/SemanticSearchManager.cs` file.
   * `src/FoundationLayer/VectorDatabase`: Contains the `src/FoundationLayer/VectorDatabase/VectorDatabaseManager.cs` file.
+  * `src/FoundationLayer/OneLakeIntegration`: Contains the `src/FoundationLayer/OneLakeIntegration/OneLakeIntegrationManager.cs` file.
 
 * `src/MetacognitiveLayer`: Contains components related to continuous learning, performance monitoring, reasoning transparency, self-evaluation, and uncertainty quantification.
   * `src/MetacognitiveLayer/ContinuousLearning`: Contains the `src/MetacognitiveLayer/ContinuousLearning/LearningManager.cs` file.
@@ -68,6 +69,104 @@ To get started with the Cognitive Mesh project, follow these steps:
 3. Build the solution to restore the NuGet packages and compile the projects.
 
 4. Run the tests to ensure everything is working correctly.
+
+## OneLake Integration
+
+The Cognitive Mesh project now includes integration with OneLake, providing enhanced storage management capabilities. The `OneLakeIntegrationManager` class offers methods for uploading, downloading, and deleting files in OneLake.
+
+### Usage Examples
+
+#### Uploading a File
+
+```csharp
+using System.IO;
+using Microsoft.Extensions.Logging;
+using OneLakeIntegration;
+
+public class Example
+{
+    private readonly OneLakeIntegrationManager _oneLakeIntegrationManager;
+
+    public Example(OneLakeIntegrationManager oneLakeIntegrationManager)
+    {
+        _oneLakeIntegrationManager = oneLakeIntegrationManager;
+    }
+
+    public async Task UploadFileAsync()
+    {
+        using var fileStream = File.OpenRead("path/to/your/file.txt");
+        bool result = await _oneLakeIntegrationManager.UploadFileAsync("your-container-name", "file.txt", fileStream);
+
+        if (result)
+        {
+            Console.WriteLine("File uploaded successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Failed to upload file.");
+        }
+    }
+}
+```
+
+#### Downloading a File
+
+```csharp
+using System.IO;
+using Microsoft.Extensions.Logging;
+using OneLakeIntegration;
+
+public class Example
+{
+    private readonly OneLakeIntegrationManager _oneLakeIntegrationManager;
+
+    public Example(OneLakeIntegrationManager oneLakeIntegrationManager)
+    {
+        _oneLakeIntegrationManager = oneLakeIntegrationManager;
+    }
+
+    public async Task DownloadFileAsync()
+    {
+        Stream fileStream = await _oneLakeIntegrationManager.DownloadFileAsync("your-container-name", "file.txt");
+
+        using var file = File.Create("path/to/save/file.txt");
+        await fileStream.CopyToAsync(file);
+
+        Console.WriteLine("File downloaded successfully.");
+    }
+}
+```
+
+#### Deleting a File
+
+```csharp
+using Microsoft.Extensions.Logging;
+using OneLakeIntegration;
+
+public class Example
+{
+    private readonly OneLakeIntegrationManager _oneLakeIntegrationManager;
+
+    public Example(OneLakeIntegrationManager oneLakeIntegrationManager)
+    {
+        _oneLakeIntegrationManager = oneLakeIntegrationManager;
+    }
+
+    public async Task DeleteFileAsync()
+    {
+        bool result = await _oneLakeIntegrationManager.DeleteFileAsync("your-container-name", "file.txt");
+
+        if (result)
+        {
+            Console.WriteLine("File deleted successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Failed to delete file.");
+        }
+    }
+}
+```
 
 ## Contributing
 

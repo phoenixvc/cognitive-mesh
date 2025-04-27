@@ -3,30 +3,47 @@ using System.IO;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
+using OneLake.SDK;
 
 public class BlobStorageManager
 {
     private readonly BlobServiceClient _blobServiceClient;
+    private readonly OneLakeClient _oneLakeClient;
     private readonly ILogger<BlobStorageManager> _logger;
 
-    public BlobStorageManager(string connectionString, ILogger<BlobStorageManager> logger)
+    public BlobStorageManager(string azureConnectionString, string oneLakeConnectionString, ILogger<BlobStorageManager> logger)
     {
-        _blobServiceClient = new BlobServiceClient(connectionString);
+        _blobServiceClient = new BlobServiceClient(azureConnectionString);
+        _oneLakeClient = new OneLakeClient(oneLakeConnectionString);
         _logger = logger;
     }
 
-    public async Task<bool> UploadBlobAsync(string containerName, string blobName, Stream content)
+    public async Task<bool> UploadBlobAsync(string containerName, string blobName, Stream content, bool useOneLake = false)
     {
         try
         {
-            _logger.LogInformation($"Uploading blob: {blobName} to container: {containerName}");
+            if (useOneLake)
+            {
+                _logger.LogInformation($"Uploading blob: {blobName} to OneLake container: {containerName}");
 
-            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-            var blobClient = containerClient.GetBlobClient(blobName);
+                var containerClient = _oneLakeClient.GetContainerClient(containerName);
+                var blobClient = containerClient.GetFileClient(blobName);
 
-            await blobClient.UploadAsync(content, overwrite: true);
+                await blobClient.UploadAsync(content, overwrite: true);
 
-            _logger.LogInformation($"Successfully uploaded blob: {blobName} to container: {containerName}");
+                _logger.LogInformation($"Successfully uploaded blob: {blobName} to OneLake container: {containerName}");
+            }
+            else
+            {
+                _logger.LogInformation($"Uploading blob: {blobName} to Azure container: {containerName}");
+
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = containerClient.GetBlobClient(blobName);
+
+                await blobClient.UploadAsync(content, overwrite: true);
+
+                _logger.LogInformation($"Successfully uploaded blob: {blobName} to Azure container: {containerName}");
+            }
             return true;
         }
         catch (Exception ex)
@@ -36,19 +53,34 @@ public class BlobStorageManager
         }
     }
 
-    public async Task<Stream> DownloadBlobAsync(string containerName, string blobName)
+    public async Task<Stream> DownloadBlobAsync(string containerName, string blobName, bool useOneLake = false)
     {
         try
         {
-            _logger.LogInformation($"Downloading blob: {blobName} from container: {containerName}");
+            if (useOneLake)
+            {
+                _logger.LogInformation($"Downloading blob: {blobName} from OneLake container: {containerName}");
 
-            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-            var blobClient = containerClient.GetBlobClient(blobName);
+                var containerClient = _oneLakeClient.GetContainerClient(containerName);
+                var blobClient = containerClient.GetFileClient(blobName);
 
-            var response = await blobClient.DownloadAsync();
+                var response = await blobClient.DownloadAsync();
 
-            _logger.LogInformation($"Successfully downloaded blob: {blobName} from container: {containerName}");
-            return response.Value.Content;
+                _logger.LogInformation($"Successfully downloaded blob: {blobName} from OneLake container: {containerName}");
+                return response.Value.Content;
+            }
+            else
+            {
+                _logger.LogInformation($"Downloading blob: {blobName} from Azure container: {containerName}");
+
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = containerClient.GetBlobClient(blobName);
+
+                var response = await blobClient.DownloadAsync();
+
+                _logger.LogInformation($"Successfully downloaded blob: {blobName} from Azure container: {containerName}");
+                return response.Value.Content;
+            }
         }
         catch (Exception ex)
         {
@@ -57,18 +89,32 @@ public class BlobStorageManager
         }
     }
 
-    public async Task<bool> DeleteBlobAsync(string containerName, string blobName)
+    public async Task<bool> DeleteBlobAsync(string containerName, string blobName, bool useOneLake = false)
     {
         try
         {
-            _logger.LogInformation($"Deleting blob: {blobName} from container: {containerName}");
+            if (useOneLake)
+            {
+                _logger.LogInformation($"Deleting blob: {blobName} from OneLake container: {containerName}");
 
-            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-            var blobClient = containerClient.GetBlobClient(blobName);
+                var containerClient = _oneLakeClient.GetContainerClient(containerName);
+                var blobClient = containerClient.GetFileClient(blobName);
 
-            await blobClient.DeleteIfExistsAsync();
+                await blobClient.DeleteIfExistsAsync();
 
-            _logger.LogInformation($"Successfully deleted blob: {blobName} from container: {containerName}");
+                _logger.LogInformation($"Successfully deleted blob: {blobName} from OneLake container: {containerName}");
+            }
+            else
+            {
+                _logger.LogInformation($"Deleting blob: {blobName} from Azure container: {containerName}");
+
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = containerClient.GetBlobClient(blobName);
+
+                await blobClient.DeleteIfExistsAsync();
+
+                _logger.LogInformation($"Successfully deleted blob: {blobName} from Azure container: {containerName}");
+            }
             return true;
         }
         catch (Exception ex)

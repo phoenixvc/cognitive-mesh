@@ -13,6 +13,7 @@
     <ProjectReference Include="..\KnowledgeGraph\KnowledgeGraph.csproj" />
     <ProjectReference Include="..\SemanticSearch\SemanticSearch.csproj" />
     <ProjectReference Include="..\VectorDatabase\VectorDatabase.csproj" />
+    <ProjectReference Include="..\OneLakeIntegration\OneLakeIntegration.csproj" />
   </ItemGroup>
 
 </Project>
