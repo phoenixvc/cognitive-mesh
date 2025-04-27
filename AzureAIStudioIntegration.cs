@@ -11,6 +11,7 @@ public class AzureAIStudioIntegration
     private readonly EnhancedRAGSystem _ragSystem;
     private readonly MultiPerspectiveCognition _mpcSystem;
     private readonly ILogger<AzureAIStudioIntegration> _logger;
+    private readonly FeatureFlagManager _featureFlagManager;
 
     public AzureAIStudioIntegration(
         string openAIEndpoint,
@@ -18,13 +19,15 @@ public class AzureAIStudioIntegration
         string completionDeployment,
         EnhancedRAGSystem ragSystem,
         MultiPerspectiveCognition mpcSystem,
-        ILogger<AzureAIStudioIntegration> logger)
+        ILogger<AzureAIStudioIntegration> logger,
+        FeatureFlagManager featureFlagManager)
     {
         _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
         _completionDeployment = completionDeployment;
         _ragSystem = ragSystem;
         _mpcSystem = mpcSystem;
         _logger = logger;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<string> ExecuteSkillAsync(string skillName, string input)

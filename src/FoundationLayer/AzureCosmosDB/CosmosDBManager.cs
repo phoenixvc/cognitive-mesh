@@ -9,12 +9,14 @@ public class CosmosDBManager
     private readonly CosmosClient _cosmosClient;
     private readonly Container _container;
     private readonly ILogger<CosmosDBManager> _logger;
+    private readonly FeatureFlagManager _featureFlagManager;
 
-    public CosmosDBManager(string connectionString, string databaseName, string containerName, ILogger<CosmosDBManager> logger)
+    public CosmosDBManager(string connectionString, string databaseName, string containerName, ILogger<CosmosDBManager> logger, FeatureFlagManager featureFlagManager)
     {
         _cosmosClient = new CosmosClient(connectionString);
         _container = _cosmosClient.GetContainer(databaseName, containerName);
         _logger = logger;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<bool> AddItemAsync<T>(T item, string partitionKey)
