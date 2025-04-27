@@ -9,6 +9,7 @@ public class ArgenticAgentComponent
     private readonly HttpClient _httpClient;
     private readonly ILogger<ArgenticAgentComponent> _logger;
     private readonly ToolIntegrator _toolIntegrator;
+    private readonly FeatureFlagManager _featureFlagManager;
 
     public ArgenticAgentComponent(
         string openAIEndpoint,
@@ -16,7 +17,8 @@ public class ArgenticAgentComponent
         string completionDeployment,
         Dictionary<string, ToolDefinition> availableTools,
         ToolIntegrator toolIntegrator,
-        ILogger<ArgenticAgentComponent> logger)
+        ILogger<ArgenticAgentComponent> logger,
+        FeatureFlagManager featureFlagManager)
     {
         _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
         _completionDeployment = completionDeployment;
@@ -24,6 +26,7 @@ public class ArgenticAgentComponent
         _httpClient = new HttpClient();
         _toolIntegrator = toolIntegrator;
         _logger = logger;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<PlanningResult> CreatePlanAsync(string task, Dictionary<string, string> context)

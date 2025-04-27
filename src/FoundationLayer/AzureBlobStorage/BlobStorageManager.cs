@@ -10,19 +10,21 @@ public class BlobStorageManager
     private readonly BlobServiceClient _blobServiceClient;
     private readonly OneLakeClient _oneLakeClient;
     private readonly ILogger<BlobStorageManager> _logger;
+    private readonly FeatureFlagManager _featureFlagManager;
 
-    public BlobStorageManager(string azureConnectionString, string oneLakeConnectionString, ILogger<BlobStorageManager> logger)
+    public BlobStorageManager(string azureConnectionString, string oneLakeConnectionString, ILogger<BlobStorageManager> logger, FeatureFlagManager featureFlagManager)
     {
         _blobServiceClient = new BlobServiceClient(azureConnectionString);
         _oneLakeClient = new OneLakeClient(oneLakeConnectionString);
         _logger = logger;
+        _featureFlagManager = featureFlagManager;
     }
 
-    public async Task<bool> UploadBlobAsync(string containerName, string blobName, Stream content, bool useOneLake = false)
+    public async Task<bool> UploadBlobAsync(string containerName, string blobName, Stream content)
     {
         try
         {
-            if (useOneLake)
+            if (_featureFlagManager.UseOneLake)
             {
                 _logger.LogInformation($"Uploading blob: {blobName} to OneLake container: {containerName}");
 
@@ -53,11 +55,11 @@ public class BlobStorageManager
         }
     }
 
-    public async Task<Stream> DownloadBlobAsync(string containerName, string blobName, bool useOneLake = false)
+    public async Task<Stream> DownloadBlobAsync(string containerName, string blobName)
     {
         try
         {
-            if (useOneLake)
+            if (_featureFlagManager.UseOneLake)
             {
                 _logger.LogInformation($"Downloading blob: {blobName} from OneLake container: {containerName}");
 
@@ -89,11 +91,11 @@ public class BlobStorageManager
         }
     }
 
-    public async Task<bool> DeleteBlobAsync(string containerName, string blobName, bool useOneLake = false)
+    public async Task<bool> DeleteBlobAsync(string containerName, string blobName)
     {
         try
         {
-            if (useOneLake)
+            if (_featureFlagManager.UseOneLake)
             {
                 _logger.LogInformation($"Deleting blob: {blobName} from OneLake container: {containerName}");
 

@@ -8,6 +8,7 @@ public class CausalUnderstandingComponent
     private readonly string _completionDeployment;
     private readonly CosmosClient _cosmosClient;
     private readonly Container _causalGraphContainer;
+    private readonly FeatureFlagManager _featureFlagManager;
     
     public CausalUnderstandingComponent(
         string openAIEndpoint, 
@@ -15,12 +16,14 @@ public class CausalUnderstandingComponent
         string completionDeployment,
         string cosmosConnectionString,
         string databaseName,
-        string containerName)
+        string containerName,
+        FeatureFlagManager featureFlagManager)
     {
         _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
         _completionDeployment = completionDeployment;
         _cosmosClient = new CosmosClient(cosmosConnectionString);
         _causalGraphContainer = _cosmosClient.GetContainer(databaseName, containerName);
+        _featureFlagManager = featureFlagManager;
     }
     
     public async Task<CausalGraph> ExtractCausalRelationsAsync(string text, string domainId)
