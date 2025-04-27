@@ -9,6 +9,7 @@ public class CognitiveMeshCoordinator
     private readonly ArgenticAgentComponent _agentSystem;
     private readonly EventGridPublisherClient _eventGridClient;
     private readonly ILogger _logger;
+    private readonly FeatureFlagManager _featureFlagManager;
 
     public CognitiveMeshCoordinator(
         EnhancedRAGSystem ragSystem,
@@ -16,7 +17,8 @@ public class CognitiveMeshCoordinator
         ArgenticAgentComponent agentSystem,
         string eventGridEndpoint,
         string eventGridKey,
-        ILogger<CognitiveMeshCoordinator> logger)
+        ILogger<CognitiveMeshCoordinator> logger,
+        FeatureFlagManager featureFlagManager)
     {
         _ragSystem = ragSystem;
         _mpcSystem = mpcSystem;
@@ -25,6 +27,7 @@ public class CognitiveMeshCoordinator
             new Uri(eventGridEndpoint),
             new AzureKeyCredential(eventGridKey));
         _logger = logger;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<CognitiveMeshResponse> ProcessQueryAsync(string query, QueryOptions options = null)
