@@ -2,14 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Azure.AI.OpenAI;
+using Azure.Messaging.EventGrid;
 
 public class TransparencyManager
 {
     private readonly ILogger<TransparencyManager> _logger;
+    private readonly OpenAIClient _openAIClient;
+    private readonly EventGridPublisherClient _eventGridClient;
 
-    public TransparencyManager(ILogger<TransparencyManager> logger)
+    public TransparencyManager(ILogger<TransparencyManager> logger, OpenAIClient openAIClient, EventGridPublisherClient eventGridClient)
     {
         _logger = logger;
+        _openAIClient = openAIClient;
+        _eventGridClient = eventGridClient;
     }
 
     public async Task<TransparencyReport> ProvideTransparencyAsync(string reasoningProcess, List<string> steps)
@@ -34,6 +40,40 @@ public class TransparencyManager
         catch (Exception ex)
         {
             _logger.LogError(ex, $"Failed to generate transparency report for reasoning process: {reasoningProcess}. Error: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task<string> GenerateTransparencyScoreAsync(string reasoningProcess, List<string> steps)
+    {
+        try
+        {
+            var transparencyReport = await ProvideTransparencyAsync(reasoningProcess, steps);
+
+            var systemPrompt = "You are a transparency scoring system. Generate a detailed transparency score based on the provided reasoning process and steps.";
+            var userPrompt = $"Reasoning Process: {reasoningProcess}\nSteps: {string.Join(", ", steps)}\nTransparency Score: {transparencyReport.TransparencyScore}";
+
+            var chatCompletionOptions = new ChatCompletionsOptions
+            {
+                DeploymentName = "your-deployment-name",
+                Temperature = 0.3f,
+                MaxTokens = 800,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(systemPrompt),
+                    new ChatRequestUserMessage(userPrompt)
+                }
+            };
+
+            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+            var score = response.Value.Choices[0].Message.Content;
+
+            _logger.LogInformation($"Generated transparency score for reasoning process: {reasoningProcess}");
+            return score;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Failed to generate transparency score for reasoning process: {reasoningProcess}. Error: {ex.Message}");
             throw;
         }
     }
