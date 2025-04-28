@@ -23,12 +23,20 @@ public class CosmosDBManager
     {
         try
         {
-            _logger.LogInformation($"Adding item to Cosmos DB: {item}");
+            if (_featureFlagManager.EnableADK)
+            {
+                _logger.LogInformation($"Adding item to Cosmos DB: {item}");
 
-            await _container.CreateItemAsync(item, new PartitionKey(partitionKey));
+                await _container.CreateItemAsync(item, new PartitionKey(partitionKey));
 
-            _logger.LogInformation($"Successfully added item to Cosmos DB: {item}");
-            return true;
+                _logger.LogInformation($"Successfully added item to Cosmos DB: {item}");
+                return true;
+            }
+            else
+            {
+                _logger.LogInformation("Feature not enabled.");
+                return false;
+            }
         }
         catch (Exception ex)
         {
@@ -41,12 +49,20 @@ public class CosmosDBManager
     {
         try
         {
-            _logger.LogInformation($"Retrieving item from Cosmos DB with ID: {id}");
+            if (_featureFlagManager.EnableLangGraph)
+            {
+                _logger.LogInformation($"Retrieving item from Cosmos DB with ID: {id}");
 
-            var response = await _container.ReadItemAsync<T>(id, new PartitionKey(partitionKey));
+                var response = await _container.ReadItemAsync<T>(id, new PartitionKey(partitionKey));
 
-            _logger.LogInformation($"Successfully retrieved item from Cosmos DB with ID: {id}");
-            return response.Resource;
+                _logger.LogInformation($"Successfully retrieved item from Cosmos DB with ID: {id}");
+                return response.Resource;
+            }
+            else
+            {
+                _logger.LogInformation("Feature not enabled.");
+                return default;
+            }
         }
         catch (Exception ex)
         {
@@ -59,12 +75,20 @@ public class CosmosDBManager
     {
         try
         {
-            _logger.LogInformation($"Updating item in Cosmos DB with ID: {id}");
+            if (_featureFlagManager.EnableCrewAI)
+            {
+                _logger.LogInformation($"Updating item in Cosmos DB with ID: {id}");
 
-            await _container.UpsertItemAsync(item, new PartitionKey(partitionKey));
+                await _container.UpsertItemAsync(item, new PartitionKey(partitionKey));
 
-            _logger.LogInformation($"Successfully updated item in Cosmos DB with ID: {id}");
-            return true;
+                _logger.LogInformation($"Successfully updated item in Cosmos DB with ID: {id}");
+                return true;
+            }
+            else
+            {
+                _logger.LogInformation("Feature not enabled.");
+                return false;
+            }
         }
         catch (Exception ex)
         {
@@ -77,12 +101,20 @@ public class CosmosDBManager
     {
         try
         {
-            _logger.LogInformation($"Deleting item from Cosmos DB with ID: {id}");
+            if (_featureFlagManager.EnableSemanticKernel)
+            {
+                _logger.LogInformation($"Deleting item from Cosmos DB with ID: {id}");
 
-            await _container.DeleteItemAsync<object>(id, new PartitionKey(partitionKey));
+                await _container.DeleteItemAsync<object>(id, new PartitionKey(partitionKey));
 
-            _logger.LogInformation($"Successfully deleted item from Cosmos DB with ID: {id}");
-            return true;
+                _logger.LogInformation($"Successfully deleted item from Cosmos DB with ID: {id}");
+                return true;
+            }
+            else
+            {
+                _logger.LogInformation("Feature not enabled.");
+                return false;
+            }
         }
         catch (Exception ex)
         {

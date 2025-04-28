@@ -46,6 +46,42 @@ public class BlobStorageManager
 
                 _logger.LogInformation($"Successfully uploaded blob: {blobName} to Azure container: {containerName}");
             }
+
+            if (_featureFlagManager.EnableADK)
+            {
+                // Add logic for ADK framework
+            }
+
+            if (_featureFlagManager.EnableLangGraph)
+            {
+                // Add logic for LangGraph framework
+            }
+
+            if (_featureFlagManager.EnableCrewAI)
+            {
+                // Add logic for CrewAI framework
+            }
+
+            if (_featureFlagManager.EnableSemanticKernel)
+            {
+                // Add logic for SemanticKernel framework
+            }
+
+            if (_featureFlagManager.EnableAutoGen)
+            {
+                // Add logic for AutoGen framework
+            }
+
+            if (_featureFlagManager.EnableSmolagents)
+            {
+                // Add logic for Smolagents framework
+            }
+
+            if (_featureFlagManager.EnableAutoGPT)
+            {
+                // Add logic for AutoGPT framework
+            }
+
             return true;
         }
         catch (Exception ex)
@@ -83,6 +119,41 @@ public class BlobStorageManager
                 _logger.LogInformation($"Successfully downloaded blob: {blobName} from Azure container: {containerName}");
                 return response.Value.Content;
             }
+
+            if (_featureFlagManager.EnableADK)
+            {
+                // Add logic for ADK framework
+            }
+
+            if (_featureFlagManager.EnableLangGraph)
+            {
+                // Add logic for LangGraph framework
+            }
+
+            if (_featureFlagManager.EnableCrewAI)
+            {
+                // Add logic for CrewAI framework
+            }
+
+            if (_featureFlagManager.EnableSemanticKernel)
+            {
+                // Add logic for SemanticKernel framework
+            }
+
+            if (_featureFlagManager.EnableAutoGen)
+            {
+                // Add logic for AutoGen framework
+            }
+
+            if (_featureFlagManager.EnableSmolagents)
+            {
+                // Add logic for Smolagents framework
+            }
+
+            if (_featureFlagManager.EnableAutoGPT)
+            {
+                // Add logic for AutoGPT framework
+            }
         }
         catch (Exception ex)
         {
@@ -117,6 +188,42 @@ public class BlobStorageManager
 
                 _logger.LogInformation($"Successfully deleted blob: {blobName} from Azure container: {containerName}");
             }
+
+            if (_featureFlagManager.EnableADK)
+            {
+                // Add logic for ADK framework
+            }
+
+            if (_featureFlagManager.EnableLangGraph)
+            {
+                // Add logic for LangGraph framework
+            }
+
+            if (_featureFlagManager.EnableCrewAI)
+            {
+                // Add logic for CrewAI framework
+            }
+
+            if (_featureFlagManager.EnableSemanticKernel)
+            {
+                // Add logic for SemanticKernel framework
+            }
+
+            if (_featureFlagManager.EnableAutoGen)
+            {
+                // Add logic for AutoGen framework
+            }
+
+            if (_featureFlagManager.EnableSmolagents)
+            {
+                // Add logic for Smolagents framework
+            }
+
+            if (_featureFlagManager.EnableAutoGPT)
+            {
+                // Add logic for AutoGPT framework
+            }
+
             return true;
         }
         catch (Exception ex)
