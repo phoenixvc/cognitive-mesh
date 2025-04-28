@@ -10,11 +10,13 @@ public class CognitiveMeshSecurity
 {
     private readonly SecretClient _secretClient;
     private readonly ILogger<CognitiveMeshSecurity> _logger;
+    private readonly FeatureFlagManager _featureFlagManager;
 
-    public CognitiveMeshSecurity(string keyVaultUri, ILogger<CognitiveMeshSecurity> logger)
+    public CognitiveMeshSecurity(string keyVaultUri, ILogger<CognitiveMeshSecurity> logger, FeatureFlagManager featureFlagManager)
     {
         _secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
         _logger = logger;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<string> GetSecretAsync(string secretName)
@@ -80,16 +82,34 @@ public class CognitiveMeshSecurity
 
     public void ConfigurePrivateLink()
     {
+        if (!_featureFlagManager.EnableEnterpriseIntegration)
+        {
+            _logger.LogWarning("Enterprise integration feature is disabled. Skipping Private Link configuration.");
+            return;
+        }
+
         // Implement logic to configure Azure Private Link
     }
 
     public void ConfigureKeyVault()
     {
+        if (!_featureFlagManager.EnableEnterpriseIntegration)
+        {
+            _logger.LogWarning("Enterprise integration feature is disabled. Skipping Key Vault configuration.");
+            return;
+        }
+
         // Implement logic to configure Azure Key Vault
     }
 
     public void ConfigureDomainSpecificDataProductManagement()
     {
+        if (!_featureFlagManager.EnableEnterpriseIntegration)
+        {
+            _logger.LogWarning("Enterprise integration feature is disabled. Skipping domain-specific data product management configuration.");
+            return;
+        }
+
         // Implement logic to configure domain-specific data product management
     }
 }

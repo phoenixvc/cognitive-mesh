@@ -9,12 +9,14 @@ public class SystemsReasoner
     private readonly ILogger<SystemsReasoner> _logger;
     private readonly OpenAIClient _openAIClient;
     private readonly string _completionDeployment;
+    private readonly FeatureFlagManager _featureFlagManager;
 
-    public SystemsReasoner(ILogger<SystemsReasoner> logger, OpenAIClient openAIClient, string completionDeployment)
+    public SystemsReasoner(ILogger<SystemsReasoner> logger, OpenAIClient openAIClient, string completionDeployment, FeatureFlagManager featureFlagManager)
     {
         _logger = logger;
         _openAIClient = openAIClient;
         _completionDeployment = completionDeployment;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<SystemsAnalysisResult> AnalyzeComplexSystemsAsync(string systemDescription)
@@ -23,11 +25,24 @@ public class SystemsReasoner
         {
             _logger.LogInformation($"Starting systems analysis for system: {systemDescription}");
 
-            // Simulate systems analysis logic
-            var analysisResult = await GenerateSystemsAnalysisResultAsync(systemDescription);
+            // Check feature flag before performing specific actions
+            if (_featureFlagManager.EnableMultiAgent)
+            {
+                // Simulate systems analysis logic
+                var analysisResult = await GenerateSystemsAnalysisResultAsync(systemDescription);
 
-            _logger.LogInformation($"Successfully performed systems analysis for system: {systemDescription}");
-            return analysisResult;
+                _logger.LogInformation($"Successfully performed systems analysis for system: {systemDescription}");
+                return analysisResult;
+            }
+            else
+            {
+                _logger.LogWarning("Multi-agent feature is disabled. Skipping systems analysis.");
+                return new SystemsAnalysisResult
+                {
+                    SystemDescription = systemDescription,
+                    AnalysisReport = "Multi-agent feature is disabled. Analysis not performed."
+                };
+            }
         }
         catch (Exception ex)
         {
