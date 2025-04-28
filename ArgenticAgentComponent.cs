@@ -33,29 +33,53 @@ public class ArgenticAgentComponent
     {
         try
         {
-            var strategicPlan = await GenerateStrategicPlanAsync(task, context);
-            var steps = await GenerateStepsAsync(task, strategicPlan, context);
-            var toolCalls = new List<ToolCallPlan>();
-
-            foreach (var step in steps)
+            if (_featureFlagManager.EnableLangGraph)
             {
-                var toolCall = await PlanToolCallAsync(step, _availableTools.Values.ToList());
-                toolCalls.Add(toolCall);
+                // Initialize LangGraph orchestrator with modular workflow
+                var orchestrator = new LangGraph.AgentOrchestrator(
+                    workflowType: "graph",
+                    tools: new LangGraph.ToolRegistry(prebuilt: true, custom: true, openapi: true),
+                    evaluationGuardrails: true,
+                    multimodalSupport: true,
+                    cloudIntegration: _featureFlagManager.UseOneLake
+                );
+
+                // Set up Gemini/Vertex AI integration if cloud enabled
+                if (_featureFlagManager.UseOneLake)
+                {
+                    orchestrator.IntegrateGemini();
+                }
+
+                // Use orchestrator for multi-agent workflows and real-time automation
+                return await orchestrator.CreatePlanAsync(task, context);
             }
-
-            // Integrate with Microsoft Fabric data endpoints
-            await IntegrateWithFabricDataEndpointsAsync(context);
-
-            // Orchestrate Data Factory pipelines
-            await OrchestrateDataFactoryPipelinesAsync(context);
-
-            return new PlanningResult
+            else
             {
-                Task = task,
-                StrategicPlan = strategicPlan,
-                Steps = steps,
-                ToolCalls = toolCalls
-            };
+                // Fallback: basic agent logic
+                var strategicPlan = await GenerateStrategicPlanAsync(task, context);
+                var steps = await GenerateStepsAsync(task, strategicPlan, context);
+                var toolCalls = new List<ToolCallPlan>();
+
+                foreach (var step in steps)
+                {
+                    var toolCall = await PlanToolCallAsync(step, _availableTools.Values.ToList());
+                    toolCalls.Add(toolCall);
+                }
+
+                // Integrate with Microsoft Fabric data endpoints
+                await IntegrateWithFabricDataEndpointsAsync(context);
+
+                // Orchestrate Data Factory pipelines
+                await OrchestrateDataFactoryPipelinesAsync(context);
+
+                return new PlanningResult
+                {
+                    Task = task,
+                    StrategicPlan = strategicPlan,
+                    Steps = steps,
+                    ToolCalls = toolCalls
+                };
+            }
         }
         catch (Exception ex)
         {

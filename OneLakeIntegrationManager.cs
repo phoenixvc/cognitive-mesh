@@ -8,26 +8,36 @@ public class OneLakeIntegrationManager
 {
     private readonly OneLakeClient _oneLakeClient;
     private readonly ILogger<OneLakeIntegrationManager> _logger;
+    private readonly FeatureFlagManager _featureFlagManager;
 
-    public OneLakeIntegrationManager(string oneLakeConnectionString, ILogger<OneLakeIntegrationManager> logger)
+    public OneLakeIntegrationManager(string oneLakeConnectionString, ILogger<OneLakeIntegrationManager> logger, FeatureFlagManager featureFlagManager)
     {
         _oneLakeClient = new OneLakeClient(oneLakeConnectionString);
         _logger = logger;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<bool> UploadFileAsync(string containerName, string fileName, Stream content)
     {
         try
         {
-            _logger.LogInformation($"Uploading file: {fileName} to OneLake container: {containerName}");
+            if (_featureFlagManager.EnableADK)
+            {
+                _logger.LogInformation($"Uploading file: {fileName} to OneLake container: {containerName}");
 
-            var containerClient = _oneLakeClient.GetContainerClient(containerName);
-            var fileClient = containerClient.GetFileClient(fileName);
+                var containerClient = _oneLakeClient.GetContainerClient(containerName);
+                var fileClient = containerClient.GetFileClient(fileName);
 
-            await fileClient.UploadAsync(content, overwrite: true);
+                await fileClient.UploadAsync(content, overwrite: true);
 
-            _logger.LogInformation($"Successfully uploaded file: {fileName} to OneLake container: {containerName}");
-            return true;
+                _logger.LogInformation($"Successfully uploaded file: {fileName} to OneLake container: {containerName}");
+                return true;
+            }
+            else
+            {
+                _logger.LogInformation("Feature not enabled.");
+                return false;
+            }
         }
         catch (Exception ex)
         {
@@ -40,15 +50,23 @@ public class OneLakeIntegrationManager
     {
         try
         {
-            _logger.LogInformation($"Downloading file: {fileName} from OneLake container: {containerName}");
+            if (_featureFlagManager.EnableLangGraph)
+            {
+                _logger.LogInformation($"Downloading file: {fileName} from OneLake container: {containerName}");
 
-            var containerClient = _oneLakeClient.GetContainerClient(containerName);
-            var fileClient = containerClient.GetFileClient(fileName);
+                var containerClient = _oneLakeClient.GetContainerClient(containerName);
+                var fileClient = containerClient.GetFileClient(fileName);
 
-            var response = await fileClient.DownloadAsync();
+                var response = await fileClient.DownloadAsync();
 
-            _logger.LogInformation($"Successfully downloaded file: {fileName} from OneLake container: {containerName}");
-            return response.Value.Content;
+                _logger.LogInformation($"Successfully downloaded file: {fileName} from OneLake container: {containerName}");
+                return response.Value.Content;
+            }
+            else
+            {
+                _logger.LogInformation("Feature not enabled.");
+                return null;
+            }
         }
         catch (Exception ex)
         {
@@ -61,15 +79,23 @@ public class OneLakeIntegrationManager
     {
         try
         {
-            _logger.LogInformation($"Deleting file: {fileName} from OneLake container: {containerName}");
+            if (_featureFlagManager.EnableCrewAI)
+            {
+                _logger.LogInformation($"Deleting file: {fileName} from OneLake container: {containerName}");
 
-            var containerClient = _oneLakeClient.GetContainerClient(containerName);
-            var fileClient = containerClient.GetFileClient(fileName);
+                var containerClient = _oneLakeClient.GetContainerClient(containerName);
+                var fileClient = containerClient.GetFileClient(fileName);
 
-            await fileClient.DeleteIfExistsAsync();
+                await fileClient.DeleteIfExistsAsync();
 
-            _logger.LogInformation($"Successfully deleted file: {fileName} from OneLake container: {containerName}");
-            return true;
+                _logger.LogInformation($"Successfully deleted file: {fileName} from OneLake container: {containerName}");
+                return true;
+            }
+            else
+            {
+                _logger.LogInformation("Feature not enabled.");
+                return false;
+            }
         }
         catch (Exception ex)
         {

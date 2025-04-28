@@ -12,17 +12,24 @@ public class SemanticSearchManager
     private readonly OpenAIClient _openAIClient;
     private readonly string _embeddingDeployment;
     private readonly string _completionDeployment;
+    private readonly FeatureFlagManager _featureFlagManager;
 
-    public SemanticSearchManager(SearchClient searchClient, OpenAIClient openAIClient, string embeddingDeployment, string completionDeployment)
+    public SemanticSearchManager(SearchClient searchClient, OpenAIClient openAIClient, string embeddingDeployment, string completionDeployment, FeatureFlagManager featureFlagManager)
     {
         _searchClient = searchClient;
         _openAIClient = openAIClient;
         _embeddingDeployment = embeddingDeployment;
         _completionDeployment = completionDeployment;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<List<KnowledgeDocument>> PerformSemanticSearchAsync(string query, int limit = 5, string filter = null)
     {
+        if (!_featureFlagManager.EnableSemanticKernel)
+        {
+            return new List<KnowledgeDocument> { new KnowledgeDocument { Title = "Feature not enabled.", Content = "The Semantic Kernel feature is not enabled." } };
+        }
+
         // Generate embedding for query
         var embeddingResponse = await _openAIClient.GetEmbeddingsAsync(
             _embeddingDeployment,

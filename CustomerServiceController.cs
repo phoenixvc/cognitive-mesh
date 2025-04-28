@@ -16,17 +16,20 @@ public class CustomerServiceController : ControllerBase
     private readonly ILogger<CustomerServiceController> _logger;
     private readonly CustomerDataService _customerService;
     private readonly ProductDataService _productService;
+    private readonly FeatureFlagManager _featureFlagManager;
     
     public CustomerServiceController(
         CognitiveMeshCoordinator coordinator,
         CustomerDataService customerService,
         ProductDataService productService,
-        ILogger<CustomerServiceController> logger)
+        ILogger<CustomerServiceController> logger,
+        FeatureFlagManager featureFlagManager)
     {
         _coordinator = coordinator;
         _customerService = customerService;
         _productService = productService;
         _logger = logger;
+        _featureFlagManager = featureFlagManager;
     }
     
     [HttpPost("inquiry")]
@@ -35,6 +38,11 @@ public class CustomerServiceController : ControllerBase
     {
         try
         {
+            if (!_featureFlagManager.EnableADK)
+            {
+                return BadRequest("Feature not enabled.");
+            }
+
             // Get customer context if available
             CustomerContext customerContext = null;
             if (!string.IsNullOrEmpty(request.CustomerId))
@@ -131,6 +139,11 @@ public class CustomerServiceController : ControllerBase
     {
         try
         {
+            if (!_featureFlagManager.EnableLangGraph)
+            {
+                return BadRequest("Feature not enabled.");
+            }
+
             // Get product information
             var productInfo = await _productService.GetProductInfoAsync(request.ProductId);
             
@@ -201,6 +214,11 @@ public class CustomerServiceController : ControllerBase
     {
         try
         {
+            if (!_featureFlagManager.EnableCrewAI)
+            {
+                return BadRequest("Feature not enabled.");
+            }
+
             // Get customer context if available
             CustomerContext customerContext = null;
             if (!string.IsNullOrEmpty(request.CustomerId))
