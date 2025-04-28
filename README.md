@@ -168,6 +168,242 @@ public class Example
 }
 ```
 
+## ADK Integration
+
+The Cognitive Mesh project now includes integration with the ADK framework, providing advanced agent orchestration and dynamic routing capabilities. The `ArgenticAgentComponent` and `CognitiveMeshCoordinator` classes have been updated to conditionally initialize and use ADK features based on the `enable_ADK` feature flag.
+
+### Feature Flag
+
+The `enable_ADK` feature flag controls whether the ADK framework is enabled. When this flag is set to `true`, the ADK features are initialized and used. When the flag is set to `false`, the system falls back to basic agent logic.
+
+### Configuration
+
+The feature flag can be set in the `appsettings.json` file or through an environment variable.
+
+#### Example `appsettings.json` Configuration
+
+```json
+{
+  "FeatureFlags": {
+    "enable_ADK": true
+  }
+}
+```
+
+### Usage Examples
+
+#### Conditional Initialization
+
+In the `ArgenticAgentComponent` class, the ADK features are conditionally initialized based on the `enable_ADK` feature flag.
+
+```csharp
+public async Task<PlanningResult> CreatePlanAsync(string task, Dictionary<string, string> context)
+{
+    if (_featureFlagManager.EnableADK)
+    {
+        // Initialize ADK orchestrator with modular workflow
+        var orchestrator = new ADK.AgentOrchestrator(
+            workflowType: "sequential",
+            tools: new ADK.ToolRegistry(prebuilt: true, custom: true, openapi: true),
+            evaluationGuardrails: true,
+            multimodalSupport: true,
+            cloudIntegration: _featureFlagManager.UseOneLake
+        );
+
+        // Set up Gemini/Vertex AI integration if cloud enabled
+        if (_featureFlagManager.UseOneLake)
+        {
+            orchestrator.IntegrateGemini();
+        }
+
+        // Use orchestrator for multi-agent workflows and real-time automation
+        return await orchestrator.CreatePlanAsync(task, context);
+    }
+    else
+    {
+        // Fallback: basic agent logic
+        var strategicPlan = await GenerateStrategicPlanAsync(task, context);
+        var steps = await GenerateStepsAsync(task, strategicPlan, context);
+        var toolCalls = new List<ToolCallPlan>();
+
+        foreach (var step in steps)
+        {
+            var toolCall = await PlanToolCallAsync(step, _availableTools.Values.ToList());
+            toolCalls.Add(toolCall);
+        }
+
+        // Integrate with Microsoft Fabric data endpoints
+        await IntegrateWithFabricDataEndpointsAsync(context);
+
+        // Orchestrate Data Factory pipelines
+        await OrchestrateDataFactoryPipelinesAsync(context);
+
+        return new PlanningResult
+        {
+            Task = task,
+            StrategicPlan = strategicPlan,
+            Steps = steps,
+            ToolCalls = toolCalls
+        };
+    }
+}
+```
+
+#### Conditional Execution
+
+In the `CognitiveMeshCoordinator` class, the ADK features are conditionally executed based on the `enable_ADK` feature flag.
+
+```csharp
+public async Task<CognitiveMeshResponse> ProcessQueryAsync(string query, QueryOptions options = null)
+{
+    options ??= new QueryOptions();
+
+    // Create execution context
+    var context = new ExecutionContext
+    {
+        QueryId = Guid.NewGuid().ToString(),
+        Query = query,
+        Options = options,
+        StartTime = DateTimeOffset.UtcNow
+    };
+
+    try
+    {
+        // Log query start
+        _logger.LogInformation("Processing query {QueryId}: {Query}", context.QueryId, query);
+
+        // Publish query received event
+        await PublishEventAsync("QueryReceived", context);
+
+        // Step 1: Retrieve relevant knowledge
+        var knowledgeTask = _ragSystem.SearchAsync(query, options.MaxKnowledgeItems);
+
+        // Step 2: Generate multi-perspective analysis
+        var perspectivesTask = _mpcSystem.AnalyzeFromMultiplePerspectivesAsync(
+            query, options.Perspectives);
+
+        // Wait for both tasks to complete
+        await Task.WhenAll(knowledgeTask, perspectivesTask);
+
+        var knowledgeResults = knowledgeTask.Result;
+        var perspectiveAnalysis = perspectivesTask.Result;
+
+        // Update context with results
+        context.KnowledgeResults = knowledgeResults;
+        context.PerspectiveAnalysis = perspectiveAnalysis;
+
+        // Publish intermediate results event
+        await PublishEventAsync("IntermediateResultsGenerated", context);
+
+        // Step 3: Determine if agent execution is needed
+        if (options.EnableAgentExecution && RequiresAgentExecution(query, perspectiveAnalysis))
+        {
+            if (_featureFlagManager.EnableADK)
+            {
+                // Initialize ADK orchestrator with modular workflow
+                var orchestrator = new ADK.AgentOrchestrator(
+                    workflowType: "sequential",
+                    tools: new ADK.ToolRegistry(prebuilt: true, custom: true, openapi: true),
+                    evaluationGuardrails: true,
+                    multimodalSupport: true,
+                    cloudIntegration: _featureFlagManager.CloudEnabled
+                );
+
+                // Set up Gemini/Vertex AI integration if cloud enabled
+                if (_featureFlagManager.CloudEnabled)
+                {
+                    orchestrator.IntegrateGemini();
+                }
+
+                // Use orchestrator for multi-agent workflows and real-time automation
+                var agentContext = new Dictionary<string, string>
+                {
+                    { "query", query },
+                    { "knowledge", FormatKnowledgeForContext(knowledgeResults) },
+                    { "perspectives", FormatPerspectivesForContext(perspectiveAnalysis) }
+                };
+
+                var plan = await orchestrator.CreatePlanAsync(query, agentContext);
+                var executionResult = await orchestrator.ExecutePlanAsync(plan);
+
+                context.AgentPlan = plan;
+                context.AgentResult = executionResult;
+
+                await PublishEventAsync("AgentExecutionCompleted", context);
+            }
+            else
+            {
+                // Fallback: basic agent logic
+                var agentContext = new Dictionary<string, string>
+                {
+                    { "query", query },
+                    { "knowledge", FormatKnowledgeForContext(knowledgeResults) },
+                    { "perspectives", FormatPerspectivesForContext(perspectiveAnalysis) }
+                };
+
+                var plan = await _agentSystem.CreatePlanAsync(query, agentContext);
+                var executionResult = await _agentSystem.ExecutePlanAsync(plan);
+
+                context.AgentPlan = plan;
+                context.AgentResult = executionResult;
+
+                await PublishEventAsync("AgentExecutionCompleted", context);
+            }
+        }
+
+        // Step 4: Generate final response
+        string finalResponse;
+
+        if (context.AgentResult != null)
+        {
+            // Use agent result as primary response
+            finalResponse = await GenerateFinalResponseWithAgentResultAsync(
+                query, knowledgeResults, perspectiveAnalysis, context.AgentResult);
+        }
+        else
+        {
+            // Generate response from knowledge and perspectives
+            finalResponse = await GenerateFinalResponseAsync(
+                query, knowledgeResults, perspectiveAnalysis);
+        }
+
+        // Create response object
+        var response = new CognitiveMeshResponse
+        {
+            QueryId = context.QueryId,
+            Query = query,
+            Response = finalResponse,
+            KnowledgeResults = knowledgeResults,
+            PerspectiveAnalysis = perspectiveAnalysis,
+            AgentResult = context.AgentResult,
+            ProcessingTime = DateTimeOffset.UtcNow - context.StartTime
+        };
+
+        // Publish response generated event
+        await PublishEventAsync("ResponseGenerated", context);
+
+        return response;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error processing query {QueryId}: {Message}", context.QueryId, ex.Message);
+
+        // Publish error event
+        context.Error = ex.Message;
+        await PublishEventAsync("QueryError", context);
+
+        // Return error response
+        return new CognitiveMeshResponse
+        {
+            QueryId = context.QueryId,
+            Query = query,
+            Error = ex.Message,
+            ProcessingTime = DateTimeOffset.UtcNow - context.StartTime
+        };
+    }
+}
+```
+
 ## Contributing
 
 We welcome contributions to the Cognitive Mesh project. If you would like to contribute, please follow these guidelines:

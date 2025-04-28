@@ -37,16 +37,33 @@ public class AzureAIStudioIntegration
             switch (skillName.ToLower())
             {
                 case "rag":
-                    return await ExecuteRAGSkillAsync(input);
+                    if (_featureFlagManager.EnableADK)
+                    {
+                        return await ExecuteRAGSkillAsync(input);
+                    }
+                    break;
                 case "mpc":
-                    return await ExecuteMPCSkillAsync(input);
+                    if (_featureFlagManager.EnableLangGraph)
+                    {
+                        return await ExecuteMPCSkillAsync(input);
+                    }
+                    break;
                 case "document-ingestion":
-                    return await ExecuteDocumentIngestionSkillAsync(input);
+                    if (_featureFlagManager.EnableCrewAI)
+                    {
+                        return await ExecuteDocumentIngestionSkillAsync(input);
+                    }
+                    break;
                 case "semantic-search":
-                    return await ExecuteSemanticSearchSkillAsync(input);
+                    if (_featureFlagManager.EnableSemanticKernel)
+                    {
+                        return await ExecuteSemanticSearchSkillAsync(input);
+                    }
+                    break;
                 default:
                     throw new ArgumentException($"Unknown skill: {skillName}");
             }
+            return "Feature not enabled.";
         }
         catch (Exception ex)
         {
@@ -197,12 +214,21 @@ public class AzureAIStudioIntegration
             switch (planName.ToLower())
             {
                 case "rag":
-                    return await ExecuteRAGPlanAsync(input);
+                    if (_featureFlagManager.EnableAutoGen)
+                    {
+                        return await ExecuteRAGPlanAsync(input);
+                    }
+                    break;
                 case "mpc":
-                    return await ExecuteMPCPlanAsync(input);
+                    if (_featureFlagManager.EnableSmolagents)
+                    {
+                        return await ExecuteMPCPlanAsync(input);
+                    }
+                    break;
                 default:
                     throw new ArgumentException($"Unknown plan: {planName}");
             }
+            return "Feature not enabled.";
         }
         catch (Exception ex)
         {
