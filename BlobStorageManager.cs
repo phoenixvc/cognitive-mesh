@@ -125,4 +125,28 @@ public class BlobStorageManager
             return false;
         }
     }
+
+    public async Task<bool> PerformEnterpriseIntegrationAsync(string containerName, string blobName, Stream content)
+    {
+        if (!_featureFlagManager.EnableEnterpriseIntegration)
+        {
+            _logger.LogWarning("Enterprise integration feature is disabled. Skipping enterprise integration.");
+            return false;
+        }
+
+        // Perform enterprise integration logic here
+        return true;
+    }
+
+    public async Task<bool> PerformModularSkillsActivationAsync(string containerName, string blobName, Stream content)
+    {
+        if (!_featureFlagManager.EnableModularSkills)
+        {
+            _logger.LogWarning("Modular skills feature is disabled. Skipping modular skills activation.");
+            return false;
+        }
+
+        // Perform modular skills activation logic here
+        return true;
+    }
 }
