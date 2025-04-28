@@ -40,6 +40,10 @@ public class AzureAIStudioIntegration
                     return await ExecuteRAGSkillAsync(input);
                 case "mpc":
                     return await ExecuteMPCSkillAsync(input);
+                case "document-ingestion":
+                    return await ExecuteDocumentIngestionSkillAsync(input);
+                case "semantic-search":
+                    return await ExecuteSemanticSearchSkillAsync(input);
                 default:
                     throw new ArgumentException($"Unknown skill: {skillName}");
             }
@@ -118,6 +122,70 @@ public class AzureAIStudioIntegration
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error executing MPC skill with input: {Input}", input);
+            throw;
+        }
+    }
+
+    private async Task<string> ExecuteDocumentIngestionSkillAsync(string input)
+    {
+        try
+        {
+            var document = new KnowledgeDocument
+            {
+                Content = input
+            };
+
+            await _ragSystem.IndexDocumentAsync(document);
+
+            return "Document ingested and indexed successfully.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing document ingestion skill with input: {Input}", input);
+            throw;
+        }
+    }
+
+    private async Task<string> ExecuteSemanticSearchSkillAsync(string input)
+    {
+        try
+        {
+            var documents = await _ragSystem.SearchAsync(input, 5);
+            if (documents.Count == 0)
+            {
+                return "No relevant documents found.";
+            }
+
+            var context = new System.Text.StringBuilder();
+            foreach (var doc in documents)
+            {
+                context.AppendLine($"--- Document: {doc.Title} ---");
+                context.AppendLine($"Source: {doc.Source}");
+                context.AppendLine(doc.Content);
+                context.AppendLine();
+            }
+
+            var systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
+                               "If the answer cannot be found in the context, say that you don't know.";
+
+            var chatCompletionOptions = new ChatCompletionsOptions
+            {
+                DeploymentName = _completionDeployment,
+                Temperature = 0.3f,
+                MaxTokens = 800,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(systemPrompt),
+                    new ChatRequestUserMessage($"Context:\n{context}\n\nQuestion: {input}")
+                }
+            };
+
+            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+            return response.Value.Choices[0].Message.Content;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing semantic search skill with input: {Input}", input);
             throw;
         }
     }
@@ -223,6 +291,14 @@ public class AzureAIStudioIntegration
         // Register MPC plugin
         var mpcPlugin = new MPCPlugin(_mpcSystem);
         PluginRegistry.Register("mpc", mpcPlugin);
+
+        // Register Document Ingestion plugin
+        var documentIngestionPlugin = new DocumentIngestionPlugin(_ragSystem);
+        PluginRegistry.Register("document-ingestion", documentIngestionPlugin);
+
+        // Register Semantic Search plugin
+        var semanticSearchPlugin = new SemanticSearchPlugin(_ragSystem);
+        PluginRegistry.Register("semantic-search", semanticSearchPlugin);
     }
 }
 
@@ -312,6 +388,90 @@ public class MPCPlugin : IPlugin
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error executing MPC plugin with input: {Input}", input);
+            throw;
+        }
+    }
+}
+
+public class DocumentIngestionPlugin : IPlugin
+{
+    private readonly EnhancedRAGSystem _ragSystem;
+
+    public DocumentIngestionPlugin(EnhancedRAGSystem ragSystem)
+    {
+        _ragSystem = ragSystem;
+    }
+
+    public async Task<string> ExecuteAsync(string input)
+    {
+        try
+        {
+            var document = new KnowledgeDocument
+            {
+                Content = input
+            };
+
+            await _ragSystem.IndexDocumentAsync(document);
+
+            return "Document ingested and indexed successfully.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing document ingestion plugin with input: {Input}", input);
+            throw;
+        }
+    }
+}
+
+public class SemanticSearchPlugin : IPlugin
+{
+    private readonly EnhancedRAGSystem _ragSystem;
+
+    public SemanticSearchPlugin(EnhancedRAGSystem ragSystem)
+    {
+        _ragSystem = ragSystem;
+    }
+
+    public async Task<string> ExecuteAsync(string input)
+    {
+        try
+        {
+            var documents = await _ragSystem.SearchAsync(input, 5);
+            if (documents.Count == 0)
+            {
+                return "No relevant documents found.";
+            }
+
+            var context = new System.Text.StringBuilder();
+            foreach (var doc in documents)
+            {
+                context.AppendLine($"--- Document: {doc.Title} ---");
+                context.AppendLine($"Source: {doc.Source}");
+                context.AppendLine(doc.Content);
+                context.AppendLine();
+            }
+
+            var systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
+                               "If the answer cannot be found in the context, say that you don't know.";
+
+            var chatCompletionOptions = new ChatCompletionsOptions
+            {
+                DeploymentName = _completionDeployment,
+                Temperature = 0.3f,
+                MaxTokens = 800,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(systemPrompt),
+                    new ChatRequestUserMessage($"Context:\n{context}\n\nQuestion: {input}")
+                }
+            };
+
+            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+            return response.Value.Choices[0].Message.Content;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing semantic search plugin with input: {Input}", input);
             throw;
         }
     }

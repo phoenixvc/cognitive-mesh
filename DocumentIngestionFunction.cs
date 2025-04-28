@@ -35,11 +35,20 @@ public class DocumentIngestionFunction
         // Process and index document
         await _ragSystem.IndexDocumentAsync(document);
         
+        // Integrate with Fabric's data endpoints
+        await IntegrateWithFabricDataEndpointsAsync(document);
+        
         // Create response
         var response = req.CreateResponse(HttpStatusCode.OK);
         response.Headers.Add("Content-Type", "application/json");
         await response.WriteStringAsync(JsonSerializer.Serialize(new { id = document.Id, message = "Document indexed successfully" }));
         
         return response;
+    }
+    
+    private async Task IntegrateWithFabricDataEndpointsAsync(KnowledgeDocument document)
+    {
+        // Implement logic to leverage Fabric’s prebuilt Azure AI services for document ingestion, enrichment, and vectorization
+        await Task.CompletedTask;
     }
 }
