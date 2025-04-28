@@ -33,29 +33,53 @@ public class ArgenticAgentComponent
     {
         try
         {
-            var strategicPlan = await GenerateStrategicPlanAsync(task, context);
-            var steps = await GenerateStepsAsync(task, strategicPlan, context);
-            var toolCalls = new List<ToolCallPlan>();
-
-            foreach (var step in steps)
+            if (_featureFlagManager.EnableLangGraph)
             {
-                var toolCall = await PlanToolCallAsync(step, _availableTools.Values.ToList());
-                toolCalls.Add(toolCall);
+                // Initialize LangGraph orchestrator with modular workflow
+                var orchestrator = new LangGraph.AgentOrchestrator(
+                    workflowType: "graph",
+                    tools: new LangGraph.ToolRegistry(prebuilt: true, custom: true, openapi: true),
+                    evaluationGuardrails: true,
+                    multimodalSupport: true,
+                    cloudIntegration: _featureFlagManager.UseOneLake
+                );
+
+                // Set up Gemini/Vertex AI integration if cloud enabled
+                if (_featureFlagManager.UseOneLake)
+                {
+                    orchestrator.IntegrateGemini();
+                }
+
+                // Use orchestrator for multi-agent workflows and real-time automation
+                return await orchestrator.CreatePlanAsync(task, context);
             }
-
-            // Integrate with Microsoft Fabric data endpoints
-            await IntegrateWithFabricDataEndpointsAsync(context);
-
-            // Orchestrate Data Factory pipelines
-            await OrchestrateDataFactoryPipelinesAsync(context);
-
-            return new PlanningResult
+            else
             {
-                Task = task,
-                StrategicPlan = strategicPlan,
-                Steps = steps,
-                ToolCalls = toolCalls
-            };
+                // Fallback: basic agent logic
+                var strategicPlan = await GenerateStrategicPlanAsync(task, context);
+                var steps = await GenerateStepsAsync(task, strategicPlan, context);
+                var toolCalls = new List<ToolCallPlan>();
+
+                foreach (var step in steps)
+                {
+                    var toolCall = await PlanToolCallAsync(step, _availableTools.Values.ToList());
+                    toolCalls.Add(toolCall);
+                }
+
+                // Integrate with Microsoft Fabric data endpoints
+                await IntegrateWithFabricDataEndpointsAsync(context);
+
+                // Orchestrate Data Factory pipelines
+                await OrchestrateDataFactoryPipelinesAsync(context);
+
+                return new PlanningResult
+                {
+                    Task = task,
+                    StrategicPlan = strategicPlan,
+                    Steps = steps,
+                    ToolCalls = toolCalls
+                };
+            }
         }
         catch (Exception ex)
         {
@@ -376,6 +400,73 @@ public class ArgenticAgentComponent
     {
         // Implement logic to orchestrate Data Factory pipelines
         // Example: Create and execute Data Factory pipelines for data ingestion, transformation, and enrichment
+        await Task.CompletedTask;
+    }
+
+    public async Task<string> SelectAndActivateFrameworkAsync(string requestedFeature)
+    {
+        var enabledFrameworks = new List<string>();
+
+        if (_featureFlagManager.EnableADK && ADK.SupportsFeature(requestedFeature))
+        {
+            enabledFrameworks.Add("ADK");
+        }
+        if (_featureFlagManager.EnableLangGraph && LangGraph.SupportsFeature(requestedFeature))
+        {
+            enabledFrameworks.Add("LangGraph");
+        }
+        if (_featureFlagManager.EnableCrewAI && CrewAI.SupportsFeature(requestedFeature))
+        {
+            enabledFrameworks.Add("CrewAI");
+        }
+        if (_featureFlagManager.EnableSemanticKernel && SemanticKernel.SupportsFeature(requestedFeature))
+        {
+            enabledFrameworks.Add("SemanticKernel");
+        }
+        if (_featureFlagManager.EnableAutoGen && AutoGen.SupportsFeature(requestedFeature))
+        {
+            enabledFrameworks.Add("AutoGen");
+        }
+        if (_featureFlagManager.EnableSmolagents && Smolagents.SupportsFeature(requestedFeature))
+        {
+            enabledFrameworks.Add("Smolagents");
+        }
+        if (_featureFlagManager.EnableAutoGPT && AutoGPT.SupportsFeature(requestedFeature))
+        {
+            enabledFrameworks.Add("AutoGPT");
+        }
+
+        if (enabledFrameworks.Count == 0)
+        {
+            return "No frameworks enabled for this feature.";
+        }
+        else if (enabledFrameworks.Count == 1)
+        {
+            var selectedFramework = enabledFrameworks[0];
+            await ActivateFrameworkAsync(selectedFramework, requestedFeature);
+            _logger.LogInformation($"Selected {selectedFramework} for {requestedFeature}");
+            return $"Selected {selectedFramework} for {requestedFeature}";
+        }
+        else
+        {
+            // Present options to user or select based on priority/strengths
+            var selectedFramework = SelectFrameworkBasedOnPriority(enabledFrameworks, requestedFeature);
+            await ActivateFrameworkAsync(selectedFramework, requestedFeature);
+            _logger.LogInformation($"Selected {selectedFramework} for {requestedFeature}");
+            return $"Selected {selectedFramework} for {requestedFeature}";
+        }
+    }
+
+    private string SelectFrameworkBasedOnPriority(List<string> enabledFrameworks, string requestedFeature)
+    {
+        // Implement logic to select framework based on priority/strengths
+        // For now, return the first framework in the list
+        return enabledFrameworks[0];
+    }
+
+    private async Task ActivateFrameworkAsync(string framework, string requestedFeature)
+    {
+        // Implement logic to activate the selected framework
         await Task.CompletedTask;
     }
 }
