@@ -9,12 +9,14 @@ public class AnalyticalReasoner
     private readonly ILogger<AnalyticalReasoner> _logger;
     private readonly OpenAIClient _openAIClient;
     private readonly string _completionDeployment;
+    private readonly FeatureFlagManager _featureFlagManager;
 
-    public AnalyticalReasoner(ILogger<AnalyticalReasoner> logger, OpenAIClient openAIClient, string completionDeployment)
+    public AnalyticalReasoner(ILogger<AnalyticalReasoner> logger, OpenAIClient openAIClient, string completionDeployment, FeatureFlagManager featureFlagManager)
     {
         _logger = logger;
         _openAIClient = openAIClient;
         _completionDeployment = completionDeployment;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<AnalyticalResult> PerformDataDrivenAnalysisAsync(string dataQuery)
@@ -23,11 +25,24 @@ public class AnalyticalReasoner
         {
             _logger.LogInformation($"Starting data-driven analysis for query: {dataQuery}");
 
-            // Simulate data-driven analysis logic
-            var analysisResult = await GenerateAnalysisResultAsync(dataQuery);
+            // Check feature flag before performing specific actions
+            if (_featureFlagManager.EnableMultiAgent)
+            {
+                // Simulate data-driven analysis logic
+                var analysisResult = await GenerateAnalysisResultAsync(dataQuery);
 
-            _logger.LogInformation($"Successfully performed data-driven analysis for query: {dataQuery}");
-            return analysisResult;
+                _logger.LogInformation($"Successfully performed data-driven analysis for query: {dataQuery}");
+                return analysisResult;
+            }
+            else
+            {
+                _logger.LogWarning("Multi-agent feature is disabled. Skipping data-driven analysis.");
+                return new AnalyticalResult
+                {
+                    Query = dataQuery,
+                    AnalysisReport = "Multi-agent feature is disabled. Analysis not performed."
+                };
+            }
         }
         catch (Exception ex)
         {

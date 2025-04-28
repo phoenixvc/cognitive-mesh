@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 public class CognitiveMeshMonitoring
 {
     private readonly TelemetryClient _telemetryClient;
+    private readonly FeatureFlagManager _featureFlagManager;
 
-    public CognitiveMeshMonitoring(TelemetryClient telemetryClient)
+    public CognitiveMeshMonitoring(TelemetryClient telemetryClient, FeatureFlagManager featureFlagManager)
     {
         _telemetryClient = telemetryClient;
+        _featureFlagManager = featureFlagManager;
     }
 
     public IOperationHolder<RequestTelemetry> StartQueryOperation(string query)
@@ -49,5 +51,17 @@ public class CognitiveMeshMonitoring
             Message = message
         };
         _telemetryClient.TrackEvent(telemetry);
+    }
+
+    public void TrackFeatureFlagUsage(string featureFlagName)
+    {
+        if (_featureFlagManager.GetType().GetProperty(featureFlagName)?.GetValue(_featureFlagManager) is bool isEnabled && isEnabled)
+        {
+            var telemetry = new EventTelemetry("FeatureFlagUsage")
+            {
+                Properties = { { "FeatureFlag", featureFlagName }, { "Status", "Enabled" } }
+            };
+            _telemetryClient.TrackEvent(telemetry);
+        }
     }
 }
