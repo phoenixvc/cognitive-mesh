@@ -6,23 +6,33 @@ using Microsoft.Extensions.Logging;
 public class VectorDatabaseManager
 {
     private readonly ILogger<VectorDatabaseManager> _logger;
+    private readonly FeatureFlagManager _featureFlagManager;
 
-    public VectorDatabaseManager(ILogger<VectorDatabaseManager> logger)
+    public VectorDatabaseManager(ILogger<VectorDatabaseManager> logger, FeatureFlagManager featureFlagManager)
     {
         _logger = logger;
+        _featureFlagManager = featureFlagManager;
     }
 
     public async Task<bool> StoreVectorAsync(string documentId, float[] vector)
     {
         try
         {
-            _logger.LogInformation($"Storing vector for document: {documentId}");
+            if (_featureFlagManager.EnableADK)
+            {
+                _logger.LogInformation($"Storing vector for document: {documentId}");
 
-            // Simulate vector storage logic
-            await Task.Delay(1000);
+                // Simulate vector storage logic
+                await Task.Delay(1000);
 
-            _logger.LogInformation($"Successfully stored vector for document: {documentId}");
-            return true;
+                _logger.LogInformation($"Successfully stored vector for document: {documentId}");
+                return true;
+            }
+            else
+            {
+                _logger.LogInformation("Feature not enabled.");
+                return false;
+            }
         }
         catch (Exception ex)
         {
@@ -35,15 +45,23 @@ public class VectorDatabaseManager
     {
         try
         {
-            _logger.LogInformation($"Retrieving vector for document: {documentId}");
+            if (_featureFlagManager.EnableLangGraph)
+            {
+                _logger.LogInformation($"Retrieving vector for document: {documentId}");
 
-            // Simulate vector retrieval logic
-            await Task.Delay(1000);
+                // Simulate vector retrieval logic
+                await Task.Delay(1000);
 
-            var vector = new float[] { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f };
+                var vector = new float[] { 0.1f, 0.2f, 0.3f, 0.4f, 0.5f };
 
-            _logger.LogInformation($"Successfully retrieved vector for document: {documentId}");
-            return vector;
+                _logger.LogInformation($"Successfully retrieved vector for document: {documentId}");
+                return vector;
+            }
+            else
+            {
+                _logger.LogInformation("Feature not enabled.");
+                return null;
+            }
         }
         catch (Exception ex)
         {
