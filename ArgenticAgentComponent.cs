@@ -43,6 +43,12 @@ public class ArgenticAgentComponent
                 toolCalls.Add(toolCall);
             }
 
+            // Integrate with Microsoft Fabric data endpoints
+            await IntegrateWithFabricDataEndpointsAsync(context);
+
+            // Orchestrate Data Factory pipelines
+            await OrchestrateDataFactoryPipelinesAsync(context);
+
             return new PlanningResult
             {
                 Task = task,
@@ -357,6 +363,20 @@ public class ArgenticAgentComponent
         var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
 
         return response.Value.Choices[0].Message.Content;
+    }
+
+    private async Task IntegrateWithFabricDataEndpointsAsync(Dictionary<string, string> context)
+    {
+        // Implement logic to integrate with Microsoft Fabric data endpoints
+        // Example: Connect to OneLake, Data Warehouses, Power BI, KQL databases, Data Factory pipelines, and Data Mesh domains
+        await Task.CompletedTask;
+    }
+
+    private async Task OrchestrateDataFactoryPipelinesAsync(Dictionary<string, string> context)
+    {
+        // Implement logic to orchestrate Data Factory pipelines
+        // Example: Create and execute Data Factory pipelines for data ingestion, transformation, and enrichment
+        await Task.CompletedTask;
     }
 }
 
