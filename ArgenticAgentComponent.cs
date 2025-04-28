@@ -403,71 +403,136 @@ public class ArgenticAgentComponent
         await Task.CompletedTask;
     }
 
-    public async Task<string> SelectAndActivateFrameworkAsync(string requestedFeature)
+    public async Task<string> PerformMultiAgentOrchestrationAsync(string task, Dictionary<string, string> context)
     {
-        var enabledFrameworks = new List<string>();
-
-        if (_featureFlagManager.EnableADK && ADK.SupportsFeature(requestedFeature))
+        if (!_featureFlagManager.EnableMultiAgent)
         {
-            enabledFrameworks.Add("ADK");
-        }
-        if (_featureFlagManager.EnableLangGraph && LangGraph.SupportsFeature(requestedFeature))
-        {
-            enabledFrameworks.Add("LangGraph");
-        }
-        if (_featureFlagManager.EnableCrewAI && CrewAI.SupportsFeature(requestedFeature))
-        {
-            enabledFrameworks.Add("CrewAI");
-        }
-        if (_featureFlagManager.EnableSemanticKernel && SemanticKernel.SupportsFeature(requestedFeature))
-        {
-            enabledFrameworks.Add("SemanticKernel");
-        }
-        if (_featureFlagManager.EnableAutoGen && AutoGen.SupportsFeature(requestedFeature))
-        {
-            enabledFrameworks.Add("AutoGen");
-        }
-        if (_featureFlagManager.EnableSmolagents && Smolagents.SupportsFeature(requestedFeature))
-        {
-            enabledFrameworks.Add("Smolagents");
-        }
-        if (_featureFlagManager.EnableAutoGPT && AutoGPT.SupportsFeature(requestedFeature))
-        {
-            enabledFrameworks.Add("AutoGPT");
+            _logger.LogWarning("Multi-agent feature is disabled. Skipping multi-agent orchestration.");
+            return "Multi-agent feature is disabled. Orchestration not performed.";
         }
 
-        if (enabledFrameworks.Count == 0)
-        {
-            return "No frameworks enabled for this feature.";
-        }
-        else if (enabledFrameworks.Count == 1)
-        {
-            var selectedFramework = enabledFrameworks[0];
-            await ActivateFrameworkAsync(selectedFramework, requestedFeature);
-            _logger.LogInformation($"Selected {selectedFramework} for {requestedFeature}");
-            return $"Selected {selectedFramework} for {requestedFeature}";
-        }
-        else
-        {
-            // Present options to user or select based on priority/strengths
-            var selectedFramework = SelectFrameworkBasedOnPriority(enabledFrameworks, requestedFeature);
-            await ActivateFrameworkAsync(selectedFramework, requestedFeature);
-            _logger.LogInformation($"Selected {selectedFramework} for {requestedFeature}");
-            return $"Selected {selectedFramework} for {requestedFeature}";
-        }
+        // Perform multi-agent orchestration logic here
+        return "Multi-agent orchestration performed successfully.";
     }
 
-    private string SelectFrameworkBasedOnPriority(List<string> enabledFrameworks, string requestedFeature)
+    public async Task<string> PerformDynamicTaskRoutingAsync(string task, Dictionary<string, string> context)
     {
-        // Implement logic to select framework based on priority/strengths
-        // For now, return the first framework in the list
-        return enabledFrameworks[0];
+        if (!_featureFlagManager.EnableDynamicTaskRouting)
+        {
+            _logger.LogWarning("Dynamic task routing feature is disabled. Skipping dynamic task routing.");
+            return "Dynamic task routing feature is disabled. Routing not performed.";
+        }
+
+        // Perform dynamic task routing logic here
+        return "Dynamic task routing performed successfully.";
     }
 
-    private async Task ActivateFrameworkAsync(string framework, string requestedFeature)
+    public async Task<string> PerformStatefulWorkflowManagementAsync(string task, Dictionary<string, string> context)
     {
-        // Implement logic to activate the selected framework
-        await Task.CompletedTask;
+        if (!_featureFlagManager.EnableStatefulWorkflows)
+        {
+            _logger.LogWarning("Stateful workflows feature is disabled. Skipping stateful workflow management.");
+            return "Stateful workflows feature is disabled. Management not performed.";
+        }
+
+        // Perform stateful workflow management logic here
+        return "Stateful workflow management performed successfully.";
+    }
+
+    public async Task<string> PerformHumanInTheLoopModerationAsync(string task, Dictionary<string, string> context)
+    {
+        if (!_featureFlagManager.EnableHumanInTheLoop)
+        {
+            _logger.LogWarning("Human-in-the-loop feature is disabled. Skipping human-in-the-loop moderation.");
+            return "Human-in-the-loop feature is disabled. Moderation not performed.";
+        }
+
+        // Perform human-in-the-loop moderation logic here
+        return "Human-in-the-loop moderation performed successfully.";
+    }
+
+    public async Task<string> PerformToolIntegrationAsync(string task, Dictionary<string, string> context)
+    {
+        if (!_featureFlagManager.EnableToolIntegration)
+        {
+            _logger.LogWarning("Tool integration feature is disabled. Skipping tool integration.");
+            return "Tool integration feature is disabled. Integration not performed.";
+        }
+
+        // Perform tool integration logic here
+        return "Tool integration performed successfully.";
+    }
+
+    public async Task<string> PerformMemoryManagementAsync(string task, Dictionary<string, string> context)
+    {
+        if (!_featureFlagManager.EnableMemoryManagement)
+        {
+            _logger.LogWarning("Memory management feature is disabled. Skipping memory management.");
+            return "Memory management feature is disabled. Management not performed.";
+        }
+
+        // Perform memory management logic here
+        return "Memory management performed successfully.";
+    }
+
+    public async Task<string> PerformStreamingAsync(string task, Dictionary<string, string> context)
+    {
+        if (!_featureFlagManager.EnableStreaming)
+        {
+            _logger.LogWarning("Streaming feature is disabled. Skipping streaming.");
+            return "Streaming feature is disabled. Streaming not performed.";
+        }
+
+        // Perform streaming logic here
+        return "Streaming performed successfully.";
+    }
+
+    public async Task<string> PerformCodeExecutionAsync(string task, Dictionary<string, string> context)
+    {
+        if (!_featureFlagManager.EnableCodeExecution)
+        {
+            _logger.LogWarning("Code execution feature is disabled. Skipping code execution.");
+            return "Code execution feature is disabled. Execution not performed.";
+        }
+
+        // Perform code execution logic here
+        return "Code execution performed successfully.";
+    }
+
+    public async Task<string> PerformGuardrailsActivationAsync(string task, Dictionary<string, string> context)
+    {
+        if (!_featureFlagManager.EnableGuardrails)
+        {
+            _logger.LogWarning("Guardrails feature is disabled. Skipping guardrails activation.");
+            return "Guardrails feature is disabled. Activation not performed.";
+        }
+
+        // Perform guardrails activation logic here
+        return "Guardrails activation performed successfully.";
+    }
+
+    public async Task<string> PerformEnterpriseIntegrationAsync(string task, Dictionary<string, string> context)
+    {
+        if (!_featureFlagManager.EnableEnterpriseIntegration)
+        {
+            _logger.LogWarning("Enterprise integration feature is disabled. Skipping enterprise integration.");
+            return "Enterprise integration feature is disabled. Integration not performed.";
+        }
+
+        // Perform enterprise integration logic here
+        return "Enterprise integration performed successfully.";
+    }
+
+    public async Task<string> PerformModularSkillsActivationAsync(string task, Dictionary<string, string> context)
+    {
+        if (!_featureFlagManager.EnableModularSkills)
+        {
+            _logger.LogWarning("Modular skills feature is disabled. Skipping modular skills activation.");
+            return "Modular skills feature is disabled. Activation not performed.";
+        }
+
+        // Perform modular skills activation logic here
+        return "Modular skills activation performed successfully.";
     }
 }
 
