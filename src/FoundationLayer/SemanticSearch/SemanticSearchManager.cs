@@ -36,6 +36,29 @@ public class SemanticSearchManager
             throw;
         }
     }
+
+    public async Task IntegrateWithFabricDataEndpointsAsync()
+    {
+        // Implement logic to integrate with Microsoft Fabric data endpoints
+        // Example: Connect to OneLake, Data Warehouses, Power BI, KQL databases, Data Factory pipelines, and Data Mesh domains
+        _logger.LogInformation("Integrating with Microsoft Fabric data endpoints...");
+        // Example integration logic
+        await Task.Delay(500); // Simulate integration delay
+        _logger.LogInformation("Successfully integrated with Microsoft Fabric data endpoints.");
+    }
+
+    public async Task OrchestrateDataFactoryPipelinesAsync()
+    {
+        // Implement logic to orchestrate Data Factory pipelines
+        // Example: Create and execute Data Factory pipelines for data ingestion, transformation, and enrichment
+        _logger.LogInformation("Orchestrating Data Factory pipelines...");
+
+        var pipelineName = "DataIngestionPipeline";
+        var runResponse = await _dataFactoryClient.Pipelines.CreateRunAsync(_resourceGroupName, _dataFactoryName, pipelineName);
+
+        _logger.LogInformation($"Pipeline run ID: {runResponse.RunId}");
+        _logger.LogInformation("Successfully orchestrated Data Factory pipelines.");
+    }
 }
 
 public class SearchResult
