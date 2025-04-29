@@ -46,4 +46,46 @@ public class LearningManager
 
         return report;
     }
+
+    public async Task EnableADKAsync()
+    {
+        // Implement logic to enable ADK framework
+        await Task.CompletedTask;
+    }
+
+    public async Task EnableLangGraphAsync()
+    {
+        // Implement logic to enable LangGraph framework
+        await Task.CompletedTask;
+    }
+
+    public async Task EnableCrewAIAsync()
+    {
+        // Implement logic to enable CrewAI framework
+        await Task.CompletedTask;
+    }
+
+    public async Task EnableSemanticKernelAsync()
+    {
+        // Implement logic to enable Semantic Kernel framework
+        await Task.CompletedTask;
+    }
+
+    public async Task EnableAutoGenAsync()
+    {
+        // Implement logic to enable AutoGen framework
+        await Task.CompletedTask;
+    }
+
+    public async Task EnableSmolagentsAsync()
+    {
+        // Implement logic to enable Smolagents framework
+        await Task.CompletedTask;
+    }
+
+    public async Task EnableAutoGPTAsync()
+    {
+        // Implement logic to enable AutoGPT framework
+        await Task.CompletedTask;
+    }
 }
