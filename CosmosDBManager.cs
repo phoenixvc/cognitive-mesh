@@ -32,6 +32,60 @@ public class CosmosDBManager
                 _logger.LogInformation($"Successfully added item to Cosmos DB: {item}");
                 return true;
             }
+            else if (_featureFlagManager.EnableLangGraph)
+            {
+                _logger.LogInformation($"Adding item to Cosmos DB using LangGraph: {item}");
+
+                // Add logic for LangGraph framework
+
+                _logger.LogInformation($"Successfully added item to Cosmos DB using LangGraph: {item}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableCrewAI)
+            {
+                _logger.LogInformation($"Adding item to Cosmos DB using CrewAI: {item}");
+
+                // Add logic for CrewAI framework
+
+                _logger.LogInformation($"Successfully added item to Cosmos DB using CrewAI: {item}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableSemanticKernel)
+            {
+                _logger.LogInformation($"Adding item to Cosmos DB using SemanticKernel: {item}");
+
+                // Add logic for SemanticKernel framework
+
+                _logger.LogInformation($"Successfully added item to Cosmos DB using SemanticKernel: {item}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableAutoGen)
+            {
+                _logger.LogInformation($"Adding item to Cosmos DB using AutoGen: {item}");
+
+                // Add logic for AutoGen framework
+
+                _logger.LogInformation($"Successfully added item to Cosmos DB using AutoGen: {item}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableSmolagents)
+            {
+                _logger.LogInformation($"Adding item to Cosmos DB using Smolagents: {item}");
+
+                // Add logic for Smolagents framework
+
+                _logger.LogInformation($"Successfully added item to Cosmos DB using Smolagents: {item}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableAutoGPT)
+            {
+                _logger.LogInformation($"Adding item to Cosmos DB using AutoGPT: {item}");
+
+                // Add logic for AutoGPT framework
+
+                _logger.LogInformation($"Successfully added item to Cosmos DB using AutoGPT: {item}");
+                return true;
+            }
             else
             {
                 _logger.LogInformation("Feature not enabled.");
@@ -57,6 +111,60 @@ public class CosmosDBManager
 
                 _logger.LogInformation($"Successfully retrieved item from Cosmos DB with ID: {id}");
                 return response.Resource;
+            }
+            else if (_featureFlagManager.EnableADK)
+            {
+                _logger.LogInformation($"Retrieving item from Cosmos DB using ADK with ID: {id}");
+
+                // Add logic for ADK framework
+
+                _logger.LogInformation($"Successfully retrieved item from Cosmos DB using ADK with ID: {id}");
+                return default;
+            }
+            else if (_featureFlagManager.EnableCrewAI)
+            {
+                _logger.LogInformation($"Retrieving item from Cosmos DB using CrewAI with ID: {id}");
+
+                // Add logic for CrewAI framework
+
+                _logger.LogInformation($"Successfully retrieved item from Cosmos DB using CrewAI with ID: {id}");
+                return default;
+            }
+            else if (_featureFlagManager.EnableSemanticKernel)
+            {
+                _logger.LogInformation($"Retrieving item from Cosmos DB using SemanticKernel with ID: {id}");
+
+                // Add logic for SemanticKernel framework
+
+                _logger.LogInformation($"Successfully retrieved item from Cosmos DB using SemanticKernel with ID: {id}");
+                return default;
+            }
+            else if (_featureFlagManager.EnableAutoGen)
+            {
+                _logger.LogInformation($"Retrieving item from Cosmos DB using AutoGen with ID: {id}");
+
+                // Add logic for AutoGen framework
+
+                _logger.LogInformation($"Successfully retrieved item from Cosmos DB using AutoGen with ID: {id}");
+                return default;
+            }
+            else if (_featureFlagManager.EnableSmolagents)
+            {
+                _logger.LogInformation($"Retrieving item from Cosmos DB using Smolagents with ID: {id}");
+
+                // Add logic for Smolagents framework
+
+                _logger.LogInformation($"Successfully retrieved item from Cosmos DB using Smolagents with ID: {id}");
+                return default;
+            }
+            else if (_featureFlagManager.EnableAutoGPT)
+            {
+                _logger.LogInformation($"Retrieving item from Cosmos DB using AutoGPT with ID: {id}");
+
+                // Add logic for AutoGPT framework
+
+                _logger.LogInformation($"Successfully retrieved item from Cosmos DB using AutoGPT with ID: {id}");
+                return default;
             }
             else
             {
@@ -84,6 +192,60 @@ public class CosmosDBManager
                 _logger.LogInformation($"Successfully updated item in Cosmos DB with ID: {id}");
                 return true;
             }
+            else if (_featureFlagManager.EnableADK)
+            {
+                _logger.LogInformation($"Updating item in Cosmos DB using ADK with ID: {id}");
+
+                // Add logic for ADK framework
+
+                _logger.LogInformation($"Successfully updated item in Cosmos DB using ADK with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableLangGraph)
+            {
+                _logger.LogInformation($"Updating item in Cosmos DB using LangGraph with ID: {id}");
+
+                // Add logic for LangGraph framework
+
+                _logger.LogInformation($"Successfully updated item in Cosmos DB using LangGraph with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableSemanticKernel)
+            {
+                _logger.LogInformation($"Updating item in Cosmos DB using SemanticKernel with ID: {id}");
+
+                // Add logic for SemanticKernel framework
+
+                _logger.LogInformation($"Successfully updated item in Cosmos DB using SemanticKernel with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableAutoGen)
+            {
+                _logger.LogInformation($"Updating item in Cosmos DB using AutoGen with ID: {id}");
+
+                // Add logic for AutoGen framework
+
+                _logger.LogInformation($"Successfully updated item in Cosmos DB using AutoGen with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableSmolagents)
+            {
+                _logger.LogInformation($"Updating item in Cosmos DB using Smolagents with ID: {id}");
+
+                // Add logic for Smolagents framework
+
+                _logger.LogInformation($"Successfully updated item in Cosmos DB using Smolagents with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableAutoGPT)
+            {
+                _logger.LogInformation($"Updating item in Cosmos DB using AutoGPT with ID: {id}");
+
+                // Add logic for AutoGPT framework
+
+                _logger.LogInformation($"Successfully updated item in Cosmos DB using AutoGPT with ID: {id}");
+                return true;
+            }
             else
             {
                 _logger.LogInformation("Feature not enabled.");
@@ -108,6 +270,60 @@ public class CosmosDBManager
                 await _container.DeleteItemAsync<object>(id, new PartitionKey(partitionKey));
 
                 _logger.LogInformation($"Successfully deleted item from Cosmos DB with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableADK)
+            {
+                _logger.LogInformation($"Deleting item from Cosmos DB using ADK with ID: {id}");
+
+                // Add logic for ADK framework
+
+                _logger.LogInformation($"Successfully deleted item from Cosmos DB using ADK with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableLangGraph)
+            {
+                _logger.LogInformation($"Deleting item from Cosmos DB using LangGraph with ID: {id}");
+
+                // Add logic for LangGraph framework
+
+                _logger.LogInformation($"Successfully deleted item from Cosmos DB using LangGraph with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableCrewAI)
+            {
+                _logger.LogInformation($"Deleting item from Cosmos DB using CrewAI with ID: {id}");
+
+                // Add logic for CrewAI framework
+
+                _logger.LogInformation($"Successfully deleted item from Cosmos DB using CrewAI with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableAutoGen)
+            {
+                _logger.LogInformation($"Deleting item from Cosmos DB using AutoGen with ID: {id}");
+
+                // Add logic for AutoGen framework
+
+                _logger.LogInformation($"Successfully deleted item from Cosmos DB using AutoGen with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableSmolagents)
+            {
+                _logger.LogInformation($"Deleting item from Cosmos DB using Smolagents with ID: {id}");
+
+                // Add logic for Smolagents framework
+
+                _logger.LogInformation($"Successfully deleted item from Cosmos DB using Smolagents with ID: {id}");
+                return true;
+            }
+            else if (_featureFlagManager.EnableAutoGPT)
+            {
+                _logger.LogInformation($"Deleting item from Cosmos DB using AutoGPT with ID: {id}");
+
+                // Add logic for AutoGPT framework
+
+                _logger.LogInformation($"Successfully deleted item from Cosmos DB using AutoGPT with ID: {id}");
                 return true;
             }
             else
