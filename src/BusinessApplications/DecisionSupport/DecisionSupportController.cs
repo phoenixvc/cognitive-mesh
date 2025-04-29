@@ -1,180 +1,318 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
-using Azure.Messaging.EventGrid;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
 
 [ApiController]
 [Route("api/[controller]")]
 public class DecisionSupportController : ControllerBase
 {
-    private readonly DecisionSupportManager _decisionSupportManager;
-    private readonly DataVisualizationTool _dataVisualizationTool;
+    private readonly CognitiveMeshCoordinator _coordinator;
+    private readonly CausalUnderstandingComponent _causalComponent;
     private readonly ILogger<DecisionSupportController> _logger;
-    private readonly IHubContext<FeedbackHub> _hubContext;
-    private readonly EventGridPublisherClient _eventGridClient;
+    private readonly FeatureFlagManager _featureFlagManager;
 
     public DecisionSupportController(
-        DecisionSupportManager decisionSupportManager,
-        DataVisualizationTool dataVisualizationTool,
+        CognitiveMeshCoordinator coordinator,
+        CausalUnderstandingComponent causalComponent,
         ILogger<DecisionSupportController> logger,
-        IHubContext<FeedbackHub> hubContext,
-        EventGridPublisherClient eventGridClient)
+        FeatureFlagManager featureFlagManager)
     {
-        _decisionSupportManager = decisionSupportManager;
-        _dataVisualizationTool = dataVisualizationTool;
+        _coordinator = coordinator;
+        _causalComponent = causalComponent;
         _logger = logger;
-        _hubContext = hubContext;
-        _eventGridClient = eventGridClient;
+        _featureFlagManager = featureFlagManager;
     }
 
-    [HttpPost("feedback")]
+    [HttpPost("analyze")]
     [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> CollectFeedback([FromBody] UserFeedback feedback)
+    public async Task<IActionResult> AnalyzeSituation([FromBody] SituationAnalysisRequest request)
     {
         try
         {
-            await _decisionSupportManager.StoreFeedbackAsync(feedback.ScenarioId, feedback);
-            await _hubContext.Clients.All.SendAsync("ReceiveFeedback", feedback);
-            var eventGridEvent = new EventGridEvent(
-                subject: "NewFeedback",
-                eventType: "FeedbackReceived",
-                dataVersion: "1.0",
-                data: feedback);
-            await _eventGridClient.SendEventAsync(eventGridEvent);
-            return Ok("Feedback collected successfully");
+            if (!_featureFlagManager.EnableADK)
+            {
+                return BadRequest("Feature not enabled.");
+            }
+
+            // Analyze situation from multiple perspectives
+            var analysisQuery = $"Analyze this situation from multiple perspectives: {request.Situation}";
+
+            var options = new QueryOptions
+            {
+                Perspectives = request.Perspectives ?? new List<string> { "analytical", "critical", "creative", "practical" }
+            };
+
+            var analysisResponse = await _coordinator.ProcessQueryAsync(analysisQuery, options);
+
+            // Extract key factors
+            var factorsQuery = $"Identify the key factors and their relationships in this situation: {request.Situation}";
+            var factorsResponse = await _coordinator.ProcessQueryAsync(factorsQuery);
+
+            // Generate causal understanding
+            var causalAnalysis = await _causalComponent.ExtractCausalRelationsAsync(
+                request.Situation + "\n" + factorsResponse.Response,
+                "decision-support");
+
+            // Perform causal reasoning
+            var causalReasoning = await _causalComponent.PerformCausalReasoningAsync(
+                $"What are the likely outcomes and their causes in this situation: {request.Situation}?",
+                "decision-support");
+
+            // Compile result
+            var result = new SituationAnalysisResponse
+            {
+                SituationId = Guid.NewGuid().ToString(),
+                MultiPerspectiveAnalysis = analysisResponse.Response,
+                KeyFactors = factorsResponse.Response,
+                CausalReasoning = causalReasoning,
+                Entities = causalAnalysis.Entities
+                    .Select(e => new EntityInfo
+                    {
+                        Name = e.Name,
+                        Type = e.Type,
+                        Description = e.Description
+                    })
+                    .ToList(),
+                Relationships = causalAnalysis.Relationships
+                    .Select(r => {
+                        var causeEntity = causalAnalysis.Entities.FirstOrDefault(e => e.Id == r.CauseEntityId);
+                        var effectEntity = causalAnalysis.Entities.FirstOrDefault(e => e.Id == r.EffectEntityId);
+
+                        return new RelationshipInfo
+                        {
+                            CauseEntity = causeEntity?.Name,
+                            EffectEntity = effectEntity?.Name,
+                            Type = r.RelationshipType,
+                            Strength = r.Strength,
+                            Evidence = r.Evidence
+                        };
+                    })
+                    .ToList()
+            };
+
+            return Ok(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error collecting feedback");
-            return StatusCode(500, "An error occurred while collecting feedback");
+            _logger.LogError(ex, "Error processing situation analysis");
+            return StatusCode(500, "An error occurred while processing your request");
         }
     }
 
-    [HttpGet("feedback/analysis")]
+    [HttpPost("options")]
     [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> AnalyzeFeedback()
+    public async Task<IActionResult> GenerateOptions([FromBody] OptionsGenerationRequest request)
     {
         try
         {
-            await _decisionSupportManager.AnalyzeFeedbackAsync();
-            return Ok("Feedback analysis completed successfully");
+            if (!_featureFlagManager.EnableLangGraph)
+            {
+                return BadRequest("Feature not enabled.");
+            }
+
+            // Generate options
+            var optionsQuery = $"Generate {request.NumberOfOptions} options for addressing this situation: {request.Situation}";
+            var optionsResponse = await _coordinator.ProcessQueryAsync(optionsQuery);
+
+            // Analyze options from multiple perspectives
+            var analysisOptions = new List<OptionAnalysis>();
+            var parsedOptions = ParseOptions(optionsResponse.Response);
+
+            foreach (var option in parsedOptions)
+            {
+                var analysisQuery = $"Analyze this option from multiple perspectives: {option}. " +
+                                   $"Situation context: {request.Situation}";
+
+                var perspectives = new QueryOptions
+                {
+                    Perspectives = new List<string> { "analytical", "critical", "creative", "practical" }
+                };
+
+                var analysisResponse = await _coordinator.ProcessQueryAsync(analysisQuery, perspectives);
+
+                // Evaluate pros and cons
+                var prosConsQuery = $"List the pros and cons of this option: {option}. " +
+                                   $"Situation context: {request.Situation}";
+
+                var prosConsResponse = await _coordinator.ProcessQueryAsync(prosConsQuery);
+
+                // Predict outcomes
+                var outcomesQuery = $"Predict potential outcomes if this option is chosen: {option}. " +
+                                   $"Situation context: {request.Situation}";
+
+                var outcomesResponse = await _coordinator.ProcessQueryAsync(outcomesQuery);
+
+                analysisOptions.Add(new OptionAnalysis
+                {
+                    Option = option,
+                    Analysis = analysisResponse.Response,
+                    ProsAndCons = prosConsResponse.Response,
+                    PotentialOutcomes = outcomesResponse.Response
+                });
+            }
+
+            // Generate comparison
+            var comparisonQuery = $"Compare and contrast these options for addressing the situation:\n" +
+                                 $"Situation: {request.Situation}\n" +
+                                 $"Options:\n{string.Join("\n", parsedOptions.Select((o, i) => $"{i+1}. {o}"))}";
+
+            var comparisonResponse = await _coordinator.ProcessQueryAsync(comparisonQuery);
+
+            // Compile result
+            var result = new OptionsGenerationResponse
+            {
+                Situation = request.Situation,
+                Options = analysisOptions,
+                Comparison = comparisonResponse.Response
+            };
+
+            return Ok(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error analyzing feedback");
-            return StatusCode(500, "An error occurred while analyzing feedback");
+            _logger.LogError(ex, "Error processing options generation");
+            return StatusCode(500, "An error occurred while processing your request");
         }
     }
 
-    [HttpPost("visualize")]
+    [HttpPost("scenarios")]
     [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> GenerateVisualization([FromBody] VisualizationRequest request)
+    public async Task<IActionResult> ExploreScenarios([FromBody] ScenarioExplorationRequest request)
     {
         try
         {
-            var visualization = await _dataVisualizationTool.GenerateVisualizationAsync(request.Data);
-            return Ok(visualization);
+            if (!_featureFlagManager.EnableCrewAI)
+            {
+                return BadRequest("Feature not enabled.");
+            }
+
+            // Generate scenarios
+            var scenariosQuery = $"Generate {request.NumberOfScenarios} possible future scenarios for this situation: " +
+                                $"{request.Situation}. " +
+                                $"Consider these key uncertainties: {string.Join(", ", request.KeyUncertainties)}.";
+
+            var scenariosResponse = await _coordinator.ProcessQueryAsync(scenariosQuery);
+
+            // Parse scenarios
+            var parsedScenarios = ParseScenarios(scenariosResponse.Response);
+
+            // Analyze each scenario
+            var analyzedScenarios = new List<ScenarioAnalysis>();
+
+            foreach (var scenario in parsedScenarios)
+            {
+                // Analyze implications
+                var implicationsQuery = $"Analyze the implications of this scenario: {scenario}. " +
+                                       $"Situation context: {request.Situation}";
+
+                var implicationsResponse = await _coordinator.ProcessQueryAsync(implicationsQuery);
+
+                // Identify early indicators
+                var indicatorsQuery = $"What early indicators would suggest this scenario is becoming more likely: {scenario}?";
+                var indicatorsResponse = await _coordinator.ProcessQueryAsync(indicatorsQuery);
+
+                // Recommend preparations
+                var preparationsQuery = $"What preparations should be made for this scenario: {scenario}?";
+                var preparationsResponse = await _coordinator.ProcessQueryAsync(preparationsQuery);
+
+                analyzedScenarios.Add(new ScenarioAnalysis
+                {
+                    Scenario = scenario,
+                    Implications = implicationsResponse.Response,
+                    EarlyIndicators = indicatorsResponse.Response,
+                    RecommendedPreparations = preparationsResponse.Response
+                });
+            }
+
+            // Generate strategic recommendations
+            var recommendationsQuery = $"Based on these scenarios, what strategic recommendations would you make? " +
+                                      $"Situation: {request.Situation}\n" +
+                                      $"Scenarios:\n{string.Join("\n", parsedScenarios.Select((s, i) => $"{i+1}. {s}"))}";
+
+            var recommendationsResponse = await _coordinator.ProcessQueryAsync(recommendationsQuery);
+
+            // Compile result
+            var result = new ScenarioExplorationResponse
+            {
+                Situation = request.Situation,
+                Scenarios = analyzedScenarios,
+                StrategicRecommendations = recommendationsResponse.Response
+            };
+
+            return Ok(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating visualization");
-            return StatusCode(500, "An error occurred while generating visualization");
+            _logger.LogError(ex, "Error processing scenario exploration");
+            return StatusCode(500, "An error occurred while processing your request");
         }
     }
 
-    [HttpPost("visualize/report")]
-    [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> GenerateVisualizationReport([FromBody] VisualizationReportRequest request)
+    private List<string> ParseOptions(string optionsText)
     {
-        try
+        var options = new List<string>();
+
+        // Split by numbered points or bullet points
+        var lines = optionsText.Split('\n');
+        var currentOption = new StringBuilder();
+
+        foreach (var line in lines)
         {
-            var report = await _dataVisualizationTool.GenerateVisualizationReportAsync(request.Data, request.Format);
-            return File(report, "application/octet-stream", $"report.{request.Format}");
+            var trimmedLine = line.Trim();
+
+            // Check if this is a new option
+            if (Regex.IsMatch(trimmedLine, @"^(\d+\.|Option \d+:|•|\*|-)\s") && currentOption.Length > 0)
+            {
+                // Add previous option to list
+                options.Add(currentOption.ToString().Trim());
+                currentOption.Clear();
+            }
+
+            // Append to current option
+            currentOption.AppendLine(trimmedLine);
         }
-        catch (Exception ex)
+
+        // Add final option if any
+        if (currentOption.Length > 0)
         {
-            _logger.LogError(ex, "Error generating visualization report");
-            return StatusCode(500, "An error occurred while generating visualization report");
+            options.Add(currentOption.ToString().Trim());
         }
+
+        return options;
     }
 
-    [HttpPost("integrate")]
-    [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> IntegrateExternalData([FromBody] ExternalDataRequest request)
+    private List<string> ParseScenarios(string scenariosText)
     {
-        try
+        var scenarios = new List<string>();
+
+        // Split by numbered points or scenario headings
+        var lines = scenariosText.Split('\n');
+        var currentScenario = new StringBuilder();
+
+        foreach (var line in lines)
         {
-            await _decisionSupportManager.IntegrateExternalDataAsync(request.DataSource);
-            return Ok("External data integrated successfully");
+            var trimmedLine = line.Trim();
+
+            // Check if this is a new scenario
+            if ((Regex.IsMatch(trimmedLine, @"^(\d+\.|Scenario \d+:|\*|-)\s") ||
+                 trimmedLine.StartsWith("# ") ||
+                 trimmedLine.StartsWith("## ")) &&
+                currentScenario.Length > 0)
+            {
+                // Add previous scenario to list
+                scenarios.Add(currentScenario.ToString().Trim());
+                currentScenario.Clear();
+            }
+
+            // Append to current scenario
+            currentScenario.AppendLine(trimmedLine);
         }
-        catch (Exception ex)
+
+        // Add final scenario if any
+        if (currentScenario.Length > 0)
         {
-            _logger.LogError(ex, "Error integrating external data");
-            return StatusCode(500, "An error occurred while integrating external data");
+            scenarios.Add(currentScenario.ToString().Trim());
         }
+
+        return scenarios;
     }
-
-    [HttpGet("recommendations")]
-    [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> GetRecommendations([FromQuery] string scenario, [FromQuery] Dictionary<string, string> context)
-    {
-        try
-        {
-            var recommendations = await _decisionSupportManager.GenerateRecommendationsAsync(scenario, context);
-            return Ok(recommendations);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating recommendations");
-            return StatusCode(500, "An error occurred while generating recommendations");
-        }
-    }
-
-    [HttpGet("feedback/visualize")]
-    [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> VisualizeFeedback()
-    {
-        try
-        {
-            var feedbackData = await _decisionSupportManager.GetFeedbackDataAsync();
-            var visualization = await _dataVisualizationTool.GenerateVisualizationAsync(feedbackData);
-            return Ok(visualization);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error visualizing feedback");
-            return StatusCode(500, "An error occurred while visualizing feedback");
-        }
-    }
-}
-
-public class VisualizationRequest
-{
-    public string Data { get; set; }
-}
-
-public class VisualizationReportRequest
-{
-    public string Data { get; set; }
-    public string Format { get; set; }
-}
-
-public class ExternalDataRequest
-{
-    public string DataSource { get; set; }
-}
-
-public class UserFeedback
-{
-    public string ScenarioId { get; set; }
-    public int Rating { get; set; }
-    public string Comments { get; set; }
-}
-
-public class FeedbackHub : Hub
-{
 }
