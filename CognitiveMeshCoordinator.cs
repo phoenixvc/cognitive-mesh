@@ -353,6 +353,7 @@ public class CognitiveMeshCoordinator
         if (_featureFlagManager.EnableSmolagents && _featureFlagManager.EnableSmolagentsModular && Smolagents.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("Smolagents");
         if (_featureFlagManager.EnableAutoGPT && _featureFlagManager.EnableAutoGPTAutonomous && AutoGPT.SupportsFeature(requestedFeature))
+
             enabledFrameworks.Add("AutoGPT");
 
         if (enabledFrameworks.Count == 0)
