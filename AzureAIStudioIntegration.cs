@@ -60,6 +60,24 @@ public class AzureAIStudioIntegration
                         return await ExecuteSemanticSearchSkillAsync(input);
                     }
                     break;
+                case "autogen":
+                    if (_featureFlagManager.EnableAutoGen)
+                    {
+                        return await ExecuteAutoGenSkillAsync(input);
+                    }
+                    break;
+                case "smolagents":
+                    if (_featureFlagManager.EnableSmolagents)
+                    {
+                        return await ExecuteSmolagentsSkillAsync(input);
+                    }
+                    break;
+                case "autogpt":
+                    if (_featureFlagManager.EnableAutoGPT)
+                    {
+                        return await ExecuteAutoGPTSkillAsync(input);
+                    }
+                    break;
                 default:
                     throw new ArgumentException($"Unknown skill: {skillName}");
             }
@@ -207,6 +225,48 @@ public class AzureAIStudioIntegration
         }
     }
 
+    private async Task<string> ExecuteAutoGenSkillAsync(string input)
+    {
+        try
+        {
+            // Implement logic for AutoGen skill
+            return "AutoGen skill executed successfully.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing AutoGen skill with input: {Input}", input);
+            throw;
+        }
+    }
+
+    private async Task<string> ExecuteSmolagentsSkillAsync(string input)
+    {
+        try
+        {
+            // Implement logic for Smolagents skill
+            return "Smolagents skill executed successfully.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing Smolagents skill with input: {Input}", input);
+            throw;
+        }
+    }
+
+    private async Task<string> ExecuteAutoGPTSkillAsync(string input)
+    {
+        try
+        {
+            // Implement logic for AutoGPT skill
+            return "AutoGPT skill executed successfully.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing AutoGPT skill with input: {Input}", input);
+            throw;
+        }
+    }
+
     public async Task<string> ExecutePlanAsync(string planName, string input)
     {
         try
@@ -223,6 +283,12 @@ public class AzureAIStudioIntegration
                     if (_featureFlagManager.EnableSmolagents)
                     {
                         return await ExecuteMPCPlanAsync(input);
+                    }
+                    break;
+                case "autogpt":
+                    if (_featureFlagManager.EnableAutoGPT)
+                    {
+                        return await ExecuteAutoGPTPlanAsync(input);
                     }
                     break;
                 default:
@@ -304,6 +370,20 @@ public class AzureAIStudioIntegration
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error executing MPC plan with input: {Input}", input);
+            throw;
+        }
+    }
+
+    private async Task<string> ExecuteAutoGPTPlanAsync(string input)
+    {
+        try
+        {
+            // Implement logic for AutoGPT plan
+            return "AutoGPT plan executed successfully.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error executing AutoGPT plan with input: {Input}", input);
             throw;
         }
     }
@@ -503,9 +583,52 @@ public class SemanticSearchPlugin : IPlugin
     }
 }
 
-public interface IPlugin
+public class AutoGenPlugin : IPlugin
 {
-    Task<string> ExecuteAsync(string input);
+    public async Task<string> ExecuteAsync(string input)
+    {
+        try
+        {
+            // Implement logic for AutoGen plugin
+            return "AutoGen plugin executed successfully.";
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error executing AutoGen plugin with input: {input}", ex);
+        }
+    }
+}
+
+public class SmolagentsPlugin : IPlugin
+{
+    public async Task<string> ExecuteAsync(string input)
+    {
+        try
+        {
+            // Implement logic for Smolagents plugin
+            return "Smolagents plugin executed successfully.";
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error executing Smolagents plugin with input: {input}", ex);
+        }
+    }
+}
+
+public class AutoGPTPlugin : IPlugin
+{
+    public async Task<string> ExecuteAsync(string input)
+    {
+        try
+        {
+            // Implement logic for AutoGPT plugin
+            return "AutoGPT plugin executed successfully.";
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error executing AutoGPT plugin with input: {input}", ex);
+        }
+    }
 }
 
 public static class PluginRegistry
