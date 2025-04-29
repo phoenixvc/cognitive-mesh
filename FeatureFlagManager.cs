@@ -56,4 +56,28 @@ public class FeatureFlagManager
     public bool EnableAutoGPTAutonomous => _configuration.GetValue<bool>("FeatureFlags:enable_AutoGPT_Autonomous");
     public bool EnableAutoGPTMemory => _configuration.GetValue<bool>("FeatureFlags:enable_AutoGPT_Memory");
     public bool EnableAutoGPTInternetAccess => _configuration.GetValue<bool>("FeatureFlags:enable_AutoGPT_InternetAccess");
+
+    public bool EnableLangGraphStatefulWorkflows => _configuration.GetValue<bool>("FeatureFlags:enable_LangGraph_StatefulWorkflows");
+    public bool EnableLangGraphStreamingWorkflows => _configuration.GetValue<bool>("FeatureFlags:enable_LangGraph_StreamingWorkflows");
+    public bool EnableLangGraphHITLWorkflows => _configuration.GetValue<bool>("FeatureFlags:enable_LangGraph_HITLWorkflows");
+
+    public bool EnableCrewAIMultiAgent => _configuration.GetValue<bool>("FeatureFlags:enable_CrewAI_MultiAgent");
+    public bool EnableCrewAIDynamicTaskRouting => _configuration.GetValue<bool>("FeatureFlags:enable_CrewAI_DynamicTaskRouting");
+    public bool EnableCrewAIStatefulWorkflows => _configuration.GetValue<bool>("FeatureFlags:enable_CrewAI_StatefulWorkflows");
+
+    public bool EnableSemanticKernelMultiAgent => _configuration.GetValue<bool>("FeatureFlags:enable_SemanticKernel_MultiAgent");
+    public bool EnableSemanticKernelDynamicTaskRouting => _configuration.GetValue<bool>("FeatureFlags:enable_SemanticKernel_DynamicTaskRouting");
+    public bool EnableSemanticKernelStatefulWorkflows => _configuration.GetValue<bool>("FeatureFlags:enable_SemanticKernel_StatefulWorkflows");
+
+    public bool EnableAutoGenMultiAgent => _configuration.GetValue<bool>("FeatureFlags:enable_AutoGen_MultiAgent");
+    public bool EnableAutoGenDynamicTaskRouting => _configuration.GetValue<bool>("FeatureFlags:enable_AutoGen_DynamicTaskRouting");
+    public bool EnableAutoGenStatefulWorkflows => _configuration.GetValue<bool>("FeatureFlags:enable_AutoGen_StatefulWorkflows");
+
+    public bool EnableSmolagentsMultiAgent => _configuration.GetValue<bool>("FeatureFlags:enable_Smolagents_MultiAgent");
+    public bool EnableSmolagentsDynamicTaskRouting => _configuration.GetValue<bool>("FeatureFlags:enable_Smolagents_DynamicTaskRouting");
+    public bool EnableSmolagentsStatefulWorkflows => _configuration.GetValue<bool>("FeatureFlags:enable_Smolagents_StatefulWorkflows");
+
+    public bool EnableAutoGPTMultiAgent => _configuration.GetValue<bool>("FeatureFlags:enable_AutoGPT_MultiAgent");
+    public bool EnableAutoGPTDynamicTaskRouting => _configuration.GetValue<bool>("FeatureFlags:enable_AutoGPT_DynamicTaskRouting");
+    public bool EnableAutoGPTStatefulWorkflows => _configuration.GetValue<bool>("FeatureFlags:enable_AutoGPT_StatefulWorkflows");
 }
