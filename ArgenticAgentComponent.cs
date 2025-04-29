@@ -29,6 +29,12 @@ public class ArgenticAgentComponent
         _featureFlagManager = featureFlagManager;
     }
 
+    /// <summary>
+    /// Creates a plan for the given task using the available tools and context.
+    /// </summary>
+    /// <param name="task">The task to create a plan for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A PlanningResult containing the plan.</returns>
     public async Task<PlanningResult> CreatePlanAsync(string task, Dictionary<string, string> context)
     {
         try
@@ -88,6 +94,12 @@ public class ArgenticAgentComponent
         }
     }
 
+    /// <summary>
+    /// Generates a strategic plan for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to generate a strategic plan for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the strategic plan.</returns>
     private async Task<string> GenerateStrategicPlanAsync(string task, Dictionary<string, string> context)
     {
         var contextText = new StringBuilder();
@@ -119,6 +131,13 @@ public class ArgenticAgentComponent
         return response.Value.Choices[0].Message.Content;
     }
 
+    /// <summary>
+    /// Generates a list of steps for the given task, strategic plan, and context.
+    /// </summary>
+    /// <param name="task">The task to generate steps for.</param>
+    /// <param name="strategicPlan">The strategic plan for the task.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A list of strings containing the steps.</returns>
     private async Task<List<string>> GenerateStepsAsync(string task, string strategicPlan, Dictionary<string, string> context)
     {
         var contextText = new StringBuilder();
@@ -152,6 +171,11 @@ public class ArgenticAgentComponent
         return ParseSteps(stepsText);
     }
 
+    /// <summary>
+    /// Parses the given steps text into a list of steps.
+    /// </summary>
+    /// <param name="stepsText">The steps text to parse.</param>
+    /// <returns>A list of strings containing the steps.</returns>
     private List<string> ParseSteps(string stepsText)
     {
         var steps = new List<string>();
@@ -176,6 +200,12 @@ public class ArgenticAgentComponent
         return steps;
     }
 
+    /// <summary>
+    /// Plans a tool call for the given step and available tools.
+    /// </summary>
+    /// <param name="step">The step to plan a tool call for.</param>
+    /// <param name="availableTools">The available tools.</param>
+    /// <returns>A ToolCallPlan containing the tool call plan.</returns>
     private async Task<ToolCallPlan> PlanToolCallAsync(string step, List<ToolDefinition> availableTools)
     {
         var toolsText = new StringBuilder();
@@ -239,6 +269,11 @@ public class ArgenticAgentComponent
         };
     }
 
+    /// <summary>
+    /// Executes the given plan and returns the execution result.
+    /// </summary>
+    /// <param name="plan">The plan to execute.</param>
+    /// <returns>An ExecutionResult containing the execution result.</returns>
     public async Task<ExecutionResult> ExecutePlanAsync(PlanningResult plan)
     {
         var results = new List<StepResult>();
@@ -296,6 +331,11 @@ public class ArgenticAgentComponent
         }
     }
 
+    /// <summary>
+    /// Executes the given tool call and returns the result.
+    /// </summary>
+    /// <param name="toolCall">The tool call to execute.</param>
+    /// <returns>A string containing the result of the tool call.</returns>
     private async Task<string> ExecuteToolCallAsync(ToolCallPlan toolCall)
     {
         if (!_availableTools.TryGetValue(toolCall.ToolName, out var toolDefinition))
@@ -306,6 +346,12 @@ public class ArgenticAgentComponent
         return await _toolIntegrator.ExecuteToolAsync(toolCall.ToolName, toolCall.Parameters);
     }
 
+    /// <summary>
+    /// Calls the tool API with the given endpoint and parameters.
+    /// </summary>
+    /// <param name="endpoint">The endpoint of the tool API.</param>
+    /// <param name="parameters">The parameters for the tool API call.</param>
+    /// <returns>A string containing the result of the tool API call.</returns>
     private async Task<string> CallToolApiAsync(string endpoint, Dictionary<string, object> parameters)
     {
         var content = new StringContent(
@@ -319,6 +365,12 @@ public class ArgenticAgentComponent
         return await response.Content.ReadAsStringAsync();
     }
 
+    /// <summary>
+    /// Generates a summary of the execution results.
+    /// </summary>
+    /// <param name="plan">The plan that was executed.</param>
+    /// <param name="results">The results of the execution.</param>
+    /// <returns>A string containing the summary of the execution results.</returns>
     private async Task<string> GenerateSummaryAsync(PlanningResult plan, List<StepResult> results)
     {
         var resultsText = new StringBuilder();
@@ -354,6 +406,12 @@ public class ArgenticAgentComponent
         return response.Value.Choices[0].Message.Content;
     }
 
+    /// <summary>
+    /// Generates a reflection on the execution results.
+    /// </summary>
+    /// <param name="plan">The plan that was executed.</param>
+    /// <param name="results">The results of the execution.</param>
+    /// <returns>A string containing the reflection on the execution results.</returns>
     private async Task<string> GenerateReflectionAsync(PlanningResult plan, List<StepResult> results)
     {
         var resultsText = new StringBuilder();
@@ -389,6 +447,11 @@ public class ArgenticAgentComponent
         return response.Value.Choices[0].Message.Content;
     }
 
+    /// <summary>
+    /// Integrates with Microsoft Fabric data endpoints.
+    /// </summary>
+    /// <param name="context">The context for the integration.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task IntegrateWithFabricDataEndpointsAsync(Dictionary<string, string> context)
     {
         // Implement logic to integrate with Microsoft Fabric data endpoints
@@ -396,6 +459,11 @@ public class ArgenticAgentComponent
         await Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Orchestrates Data Factory pipelines.
+    /// </summary>
+    /// <param name="context">The context for the orchestration.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task OrchestrateDataFactoryPipelinesAsync(Dictionary<string, string> context)
     {
         // Implement logic to orchestrate Data Factory pipelines
@@ -403,6 +471,12 @@ public class ArgenticAgentComponent
         await Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Performs multi-agent orchestration for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform multi-agent orchestration for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the multi-agent orchestration.</returns>
     public async Task<string> PerformMultiAgentOrchestrationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableMultiAgent)
@@ -415,6 +489,12 @@ public class ArgenticAgentComponent
         return "Multi-agent orchestration performed successfully.";
     }
 
+    /// <summary>
+    /// Performs dynamic task routing for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform dynamic task routing for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the dynamic task routing.</returns>
     public async Task<string> PerformDynamicTaskRoutingAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableDynamicTaskRouting)
@@ -427,6 +507,12 @@ public class ArgenticAgentComponent
         return "Dynamic task routing performed successfully.";
     }
 
+    /// <summary>
+    /// Performs stateful workflow management for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform stateful workflow management for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the stateful workflow management.</returns>
     public async Task<string> PerformStatefulWorkflowManagementAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableStatefulWorkflows)
@@ -439,6 +525,12 @@ public class ArgenticAgentComponent
         return "Stateful workflow management performed successfully.";
     }
 
+    /// <summary>
+    /// Performs human-in-the-loop moderation for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform human-in-the-loop moderation for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the human-in-the-loop moderation.</returns>
     public async Task<string> PerformHumanInTheLoopModerationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableHumanInTheLoop)
@@ -451,6 +543,12 @@ public class ArgenticAgentComponent
         return "Human-in-the-loop moderation performed successfully.";
     }
 
+    /// <summary>
+    /// Performs tool integration for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform tool integration for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the tool integration.</returns>
     public async Task<string> PerformToolIntegrationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableToolIntegration)
@@ -463,6 +561,12 @@ public class ArgenticAgentComponent
         return "Tool integration performed successfully.";
     }
 
+    /// <summary>
+    /// Performs memory management for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform memory management for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the memory management.</returns>
     public async Task<string> PerformMemoryManagementAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableMemoryManagement)
@@ -475,6 +579,12 @@ public class ArgenticAgentComponent
         return "Memory management performed successfully.";
     }
 
+    /// <summary>
+    /// Performs streaming for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform streaming for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the streaming.</returns>
     public async Task<string> PerformStreamingAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableStreaming)
@@ -487,6 +597,12 @@ public class ArgenticAgentComponent
         return "Streaming performed successfully.";
     }
 
+    /// <summary>
+    /// Performs code execution for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform code execution for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the code execution.</returns>
     public async Task<string> PerformCodeExecutionAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableCodeExecution)
@@ -499,6 +615,12 @@ public class ArgenticAgentComponent
         return "Code execution performed successfully.";
     }
 
+    /// <summary>
+    /// Performs guardrails activation for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform guardrails activation for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the guardrails activation.</returns>
     public async Task<string> PerformGuardrailsActivationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableGuardrails)
@@ -511,6 +633,12 @@ public class ArgenticAgentComponent
         return "Guardrails activation performed successfully.";
     }
 
+    /// <summary>
+    /// Performs enterprise integration for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform enterprise integration for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the enterprise integration.</returns>
     public async Task<string> PerformEnterpriseIntegrationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableEnterpriseIntegration)
@@ -523,6 +651,12 @@ public class ArgenticAgentComponent
         return "Enterprise integration performed successfully.";
     }
 
+    /// <summary>
+    /// Performs modular skills activation for the given task and context.
+    /// </summary>
+    /// <param name="task">The task to perform modular skills activation for.</param>
+    /// <param name="context">The context for the task.</param>
+    /// <returns>A string containing the result of the modular skills activation.</returns>
     public async Task<string> PerformModularSkillsActivationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableModularSkills)

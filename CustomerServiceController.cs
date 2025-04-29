@@ -325,7 +325,7 @@ public class CustomerServiceController : ControllerBase
         
         foreach (var line in lines)
         {
-            var trimmedLine = line.Trim();
+            var trimmedLine = line.trim();
             
             if (Regex.IsMatch(trimmedLine, @"^\d+\.\s") || 
                 trimmedLine.StartsWith("- ") || 
