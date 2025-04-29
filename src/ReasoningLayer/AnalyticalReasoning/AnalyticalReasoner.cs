@@ -11,13 +11,15 @@ public class AnalyticalReasoner
     private readonly DataFactoryClient _dataFactoryClient;
     private readonly string _dataFactoryName;
     private readonly string _resourceGroupName;
+    private readonly AnalysisResultGenerator _analysisResultGenerator;
 
-    public AnalyticalReasoner(ILogger<AnalyticalReasoner> logger, DataFactoryClient dataFactoryClient, string dataFactoryName, string resourceGroupName)
+    public AnalyticalReasoner(ILogger<AnalyticalReasoner> logger, DataFactoryClient dataFactoryClient, string dataFactoryName, string resourceGroupName, AnalysisResultGenerator analysisResultGenerator)
     {
         _logger = logger;
         _dataFactoryClient = dataFactoryClient;
         _dataFactoryName = dataFactoryName;
         _resourceGroupName = resourceGroupName;
+        _analysisResultGenerator = analysisResultGenerator;
     }
 
     public async Task<AnalysisResult> PerformDataDrivenAnalysisAsync(string data)
@@ -35,11 +37,7 @@ public class AnalyticalReasoner
             // Orchestrate Data Factory pipelines
             await OrchestrateDataFactoryPipelinesAsync(data);
 
-            var result = new AnalysisResult
-            {
-                Data = data,
-                Insights = "Sample insights from data-driven analysis"
-            };
+            var result = await _analysisResultGenerator.GenerateAnalysisResultAsync(data);
 
             _logger.LogInformation($"Successfully performed data-driven analysis for data: {data}");
             return result;
