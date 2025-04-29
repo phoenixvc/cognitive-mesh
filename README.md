@@ -55,9 +55,18 @@ The project is structured as follows:
 
 The solution file `CognitiveMesh.sln` has been created in the root directory. It includes projects for each layer and feature in the `src` directory, as well as test projects in the `tests` directory.
 
-## Getting Started
+## Prerequisites
 
-To get started with the Cognitive Mesh project, follow these steps:
+To build and run the Cognitive Mesh project, you will need the following tools and software:
+
+* .NET 6.0 SDK or later
+* Visual Studio 2019 or later (or Visual Studio Code)
+* Azure Subscription (for Azure services integration)
+* Azure CLI (for managing Azure resources)
+
+## Quick Start
+
+Follow these steps to set up and run the Cognitive Mesh project locally:
 
 1. Clone the repository:
    ```sh
@@ -69,6 +78,10 @@ To get started with the Cognitive Mesh project, follow these steps:
 3. Build the solution to restore the NuGet packages and compile the projects.
 
 4. Run the tests to ensure everything is working correctly.
+
+5. Configure the necessary Azure services and update the `appsettings.json` file with your Azure credentials and settings.
+
+6. Start the project by running the desired application (e.g., `CustomerServiceController`, `DecisionSupportController`).
 
 ## OneLake Integration
 
@@ -427,3 +440,52 @@ We welcome contributions to the Cognitive Mesh project. If you would like to con
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+## Changelog
+
+### [Unreleased]
+
+- Added integration with OneLake for enhanced storage management.
+- Added integration with ADK framework for advanced agent orchestration.
+- Improved error handling and logging in `CustomerServiceController` and `DecisionSupportController`.
+- Added comments to `AnalyticalReasoner` and `ArgenticAgentComponent` for better code readability.
+- Refactored `CognitiveMeshCoordinator` to reduce complexity and improve readability.
+- Added more detailed explanations and examples in `docs/IntegrationPlan.md`.
+
+## FAQ
+
+### What is the Cognitive Mesh project?
+
+The Cognitive Mesh project is a comprehensive solution that integrates various layers and components to provide advanced cognitive capabilities.
+
+### How do I get started with the Cognitive Mesh project?
+
+Follow the steps in the "Quick Start" section to set up and run the project locally.
+
+### What are the prerequisites for building and running the project?
+
+You will need .NET 6.0 SDK or later, Visual Studio 2019 or later (or Visual Studio Code), an Azure Subscription, and Azure CLI.
+
+### How can I contribute to the project?
+
+Follow the guidelines in the "Contributing" section to contribute to the project.
+
+### Where can I find more information about the Azure services used in the project?
+
+Refer to the official documentation for Azure services and libraries used in the project:
+
+- [Azure Blob Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/)
+- [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/)
+- [Azure Data Factory](https://docs.microsoft.com/en-us/azure/data-factory/)
+- [Azure OpenAI](https://docs.microsoft.com/en-us/azure/cognitive-services/openai/)
+- [Azure Text Analytics](https://docs.microsoft.com/en-us/azure/cognitive-services/text-analytics/)
+- [Azure Translator](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/)
+- [Azure AI Search](https://docs.microsoft.com/en-us/azure/search/)
+- [Azure AI Studio](https://docs.microsoft.com/en-us/azure/machine-learning/)
+- [Azure Service Fabric](https://docs.microsoft.com/en-us/azure/service-fabric/)
+- [Azure DevOps](https://docs.microsoft.com/en-us/azure/devops/)
+
+## Badges
+
+![Build Status](https://img.shields.io/github/workflow/status/phoenixvc/cognitive-mesh/CI)
+![License](https://img.shields.io/github/license/phoenixvc/cognitive-mesh)

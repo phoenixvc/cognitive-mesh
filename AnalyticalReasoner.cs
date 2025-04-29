@@ -19,6 +19,11 @@ public class AnalyticalReasoner
         _featureFlagManager = featureFlagManager;
     }
 
+    /// <summary>
+    /// Performs a data-driven analysis based on the provided query.
+    /// </summary>
+    /// <param name="dataQuery">The data query to analyze.</param>
+    /// <returns>An AnalyticalResult containing the analysis report.</returns>
     public async Task<AnalyticalResult> PerformDataDrivenAnalysisAsync(string dataQuery)
     {
         try
@@ -51,6 +56,11 @@ public class AnalyticalReasoner
         }
     }
 
+    /// <summary>
+    /// Generates an analysis result based on the provided data query.
+    /// </summary>
+    /// <param name="dataQuery">The data query to analyze.</param>
+    /// <returns>An AnalyticalResult containing the analysis report.</returns>
     private async Task<AnalyticalResult> GenerateAnalysisResultAsync(string dataQuery)
     {
         var systemPrompt = "You are an analytical system that performs data-driven analysis based on the provided query. " +
