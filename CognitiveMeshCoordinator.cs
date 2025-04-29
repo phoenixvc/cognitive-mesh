@@ -340,19 +340,20 @@ public class CognitiveMeshCoordinator
     {
         var enabledFrameworks = new List<string>();
 
-        if (_featureFlagManager.EnableADK && _featureFlagManager.EnableADK_WorkflowAgents && ADK.SupportsFeature(requestedFeature))
+        if (_featureFlagManager.EnableADK && _featureFlagManager.EnableADKWorkflowAgents && ADK.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("ADK");
-        if (_featureFlagManager.EnableLangGraph && _featureFlagManager.EnableLangGraph_Stateful && LangGraph.SupportsFeature(requestedFeature))
+        if (_featureFlagManager.EnableLangGraph && _featureFlagManager.EnableLangGraphStateful && LangGraph.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("LangGraph");
-        if (_featureFlagManager.EnableCrewAI && _featureFlagManager.EnableCrewAI_DynamicPlanning && CrewAI.SupportsFeature(requestedFeature))
+        if (_featureFlagManager.EnableCrewAI && _featureFlagManager.EnableCrewAIDynamicPlanning && CrewAI.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("CrewAI");
-        if (_featureFlagManager.EnableSemanticKernel && _featureFlagManager.EnableSemanticKernel_Automation && SemanticKernel.SupportsFeature(requestedFeature))
+        if (_featureFlagManager.EnableSemanticKernel && _featureFlagManager.EnableSemanticKernelAutomation && SemanticKernel.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("SemanticKernel");
-        if (_featureFlagManager.EnableAutoGen && _featureFlagManager.EnableAutoGen_Conversations && AutoGen.SupportsFeature(requestedFeature))
+        if (_featureFlagManager.EnableAutoGen && _featureFlagManager.EnableAutoGenConversations && AutoGen.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("AutoGen");
-        if (_featureFlagManager.EnableSmolagents && _featureFlagManager.EnableSmolagents_Modular && Smolagents.SupportsFeature(requestedFeature))
+        if (_featureFlagManager.EnableSmolagents && _featureFlagManager.EnableSmolagentsModular && Smolagents.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("Smolagents");
-        if (_featureFlagManager.EnableAutoGPT && _featureFlagManager.EnableAutoGPT_Autonomous && AutoGPT.SupportsFeature(requestedFeature))
+        if (_featureFlagManager.EnableAutoGPT && _featureFlagManager.EnableAutoGPTAutonomous && AutoGPT.SupportsFeature(requestedFeature))
+
             enabledFrameworks.Add("AutoGPT");
 
         if (enabledFrameworks.Count == 0)
@@ -376,8 +377,15 @@ public class CognitiveMeshCoordinator
 
     private string SelectFrameworkBasedOnPriority(List<string> enabledFrameworks, string requestedFeature)
     {
-        // Implement logic to select framework based on priority/strengths
-        // For now, return the first framework in the list
+        // Example: Define priorities based on technical fit, business value, and operational considerations
+        var priorityList = new List<string> { "LangGraph", "CrewAI", "SemanticKernel", "ADK", "AutoGen", "Smolagents", "AutoGPT" };
+
+        foreach (var fw in priorityList)
+        {
+            if (enabledFrameworks.Contains(fw))
+                return fw;
+        }
+        // fallback: first enabled
         return enabledFrameworks[0];
     }
 
