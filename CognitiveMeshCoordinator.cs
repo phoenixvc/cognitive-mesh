@@ -340,39 +340,23 @@ public class CognitiveMeshCoordinator
     {
         var enabledFrameworks = new List<string>();
 
-        if (_featureFlagManager.EnableADK && ADK.SupportsFeature(requestedFeature))
-        {
+        if (_featureFlagManager.EnableADK && _featureFlagManager.EnableADK_WorkflowAgents && ADK.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("ADK");
-        }
-        if (_featureFlagManager.EnableLangGraph && LangGraph.SupportsFeature(requestedFeature))
-        {
+        if (_featureFlagManager.EnableLangGraph && _featureFlagManager.EnableLangGraph_Stateful && LangGraph.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("LangGraph");
-        }
-        if (_featureFlagManager.EnableCrewAI && CrewAI.SupportsFeature(requestedFeature))
-        {
+        if (_featureFlagManager.EnableCrewAI && _featureFlagManager.EnableCrewAI_DynamicPlanning && CrewAI.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("CrewAI");
-        }
-        if (_featureFlagManager.EnableSemanticKernel && SemanticKernel.SupportsFeature(requestedFeature))
-        {
+        if (_featureFlagManager.EnableSemanticKernel && _featureFlagManager.EnableSemanticKernel_Automation && SemanticKernel.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("SemanticKernel");
-        }
-        if (_featureFlagManager.EnableAutoGen && AutoGen.SupportsFeature(requestedFeature))
-        {
+        if (_featureFlagManager.EnableAutoGen && _featureFlagManager.EnableAutoGen_Conversations && AutoGen.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("AutoGen");
-        }
-        if (_featureFlagManager.EnableSmolagents && Smolagents.SupportsFeature(requestedFeature))
-        {
+        if (_featureFlagManager.EnableSmolagents && _featureFlagManager.EnableSmolagents_Modular && Smolagents.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("Smolagents");
-        }
-        if (_featureFlagManager.EnableAutoGPT && AutoGPT.SupportsFeature(requestedFeature))
-        {
+        if (_featureFlagManager.EnableAutoGPT && _featureFlagManager.EnableAutoGPT_Autonomous && AutoGPT.SupportsFeature(requestedFeature))
             enabledFrameworks.Add("AutoGPT");
-        }
 
         if (enabledFrameworks.Count == 0)
-        {
             return "No frameworks enabled for this feature.";
-        }
         else if (enabledFrameworks.Count == 1)
         {
             var selectedFramework = enabledFrameworks[0];
@@ -382,7 +366,7 @@ public class CognitiveMeshCoordinator
         }
         else
         {
-            // Present options to user or select based on priority/strengths
+            // Present options or select based on priority
             var selectedFramework = SelectFrameworkBasedOnPriority(enabledFrameworks, requestedFeature);
             await ActivateFrameworkAsync(selectedFramework, requestedFeature);
             _logger.LogInformation($"Selected {selectedFramework} for {requestedFeature}");

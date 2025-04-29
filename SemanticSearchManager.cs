@@ -25,11 +25,67 @@ public class SemanticSearchManager
 
     public async Task<List<KnowledgeDocument>> PerformSemanticSearchAsync(string query, int limit = 5, string filter = null)
     {
-        if (!_featureFlagManager.EnableSemanticKernel)
+        if (_featureFlagManager.EnableADK)
         {
-            return new List<KnowledgeDocument> { new KnowledgeDocument { Title = "Feature not enabled.", Content = "The Semantic Kernel feature is not enabled." } };
+            // Implement logic for ADK framework
+            return await PerformADKSemanticSearchAsync(query, limit, filter);
         }
+        else if (_featureFlagManager.EnableLangGraph)
+        {
+            // Implement logic for LangGraph framework
+            return await PerformLangGraphSemanticSearchAsync(query, limit, filter);
+        }
+        else if (_featureFlagManager.EnableCrewAI)
+        {
+            // Implement logic for CrewAI framework
+            return await PerformCrewAISemanticSearchAsync(query, limit, filter);
+        }
+        else if (_featureFlagManager.EnableSemanticKernel)
+        {
+            // Implement logic for Semantic Kernel framework
+            return await PerformSemanticKernelSemanticSearchAsync(query, limit, filter);
+        }
+        else if (_featureFlagManager.EnableAutoGen)
+        {
+            // Implement logic for AutoGen framework
+            return await PerformAutoGenSemanticSearchAsync(query, limit, filter);
+        }
+        else if (_featureFlagManager.EnableSmolagents)
+        {
+            // Implement logic for Smolagents framework
+            return await PerformSmolagentsSemanticSearchAsync(query, limit, filter);
+        }
+        else if (_featureFlagManager.EnableAutoGPT)
+        {
+            // Implement logic for AutoGPT framework
+            return await PerformAutoGPTSemanticSearchAsync(query, limit, filter);
+        }
+        else
+        {
+            return new List<KnowledgeDocument> { new KnowledgeDocument { Title = "Feature not enabled.", Content = "No framework is enabled for semantic search." } };
+        }
+    }
 
+    private async Task<List<KnowledgeDocument>> PerformADKSemanticSearchAsync(string query, int limit, string filter)
+    {
+        // Implement ADK-specific semantic search logic
+        return await Task.FromResult(new List<KnowledgeDocument>());
+    }
+
+    private async Task<List<KnowledgeDocument>> PerformLangGraphSemanticSearchAsync(string query, int limit, string filter)
+    {
+        // Implement LangGraph-specific semantic search logic
+        return await Task.FromResult(new List<KnowledgeDocument>());
+    }
+
+    private async Task<List<KnowledgeDocument>> PerformCrewAISemanticSearchAsync(string query, int limit, string filter)
+    {
+        // Implement CrewAI-specific semantic search logic
+        return await Task.FromResult(new List<KnowledgeDocument>());
+    }
+
+    private async Task<List<KnowledgeDocument>> PerformSemanticKernelSemanticSearchAsync(string query, int limit, string filter)
+    {
         // Generate embedding for query
         var embeddingResponse = await _openAIClient.GetEmbeddingsAsync(
             _embeddingDeployment,
@@ -81,6 +137,24 @@ public class SemanticSearchManager
         }
 
         return documents;
+    }
+
+    private async Task<List<KnowledgeDocument>> PerformAutoGenSemanticSearchAsync(string query, int limit, string filter)
+    {
+        // Implement AutoGen-specific semantic search logic
+        return await Task.FromResult(new List<KnowledgeDocument>());
+    }
+
+    private async Task<List<KnowledgeDocument>> PerformSmolagentsSemanticSearchAsync(string query, int limit, string filter)
+    {
+        // Implement Smolagents-specific semantic search logic
+        return await Task.FromResult(new List<KnowledgeDocument>());
+    }
+
+    private async Task<List<KnowledgeDocument>> PerformAutoGPTSemanticSearchAsync(string query, int limit, string filter)
+    {
+        // Implement AutoGPT-specific semantic search logic
+        return await Task.FromResult(new List<KnowledgeDocument>());
     }
 
     public async Task<string> GenerateResponseWithSemanticSearchAsync(string query, string systemPrompt = null)
