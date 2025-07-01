@@ -1,0 +1,131 @@
+# Common API Examples
+# This file contains example request/response payloads for the API
+
+examples:
+  # Authentication Examples
+  authTokenRequest:
+    summary: Authentication Token Request
+    value:
+      email: user@example.com
+      password: your-secure-password
+
+  authTokenResponse:
+    summary: Authentication Token Response
+    value:
+      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+      expiresIn: 3600
+      tokenType: "Bearer"
+
+  # Champion Discovery Examples
+  championMatchRequest:
+    summary: Champion Match Request
+    value:
+      skills: ["machine learning", "python", "data analysis"]
+      experienceLevel: "intermediate"
+      maxResults: 5
+
+  championMatchResponse:
+    summary: Champion Match Response
+    value:
+      matches:
+        - userId: "usr_789012"
+          name: "Alex Johnson"
+          skills:
+            - "machine learning"
+            - "python"
+            - "data science"
+            - "deep learning"
+          matchScore: 0.92
+          availability: "part-time"
+          timezone: "UTC-05:00"
+      searchId: "srch_123456"
+      timestamp: "2023-07-15T14:30:00Z"
+
+  # Error Response Examples
+  errorBadRequest:
+    summary: Bad Request Error
+    value:
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Invalid input data",
+        details: [
+          {
+            field: "email",
+            issue: "Invalid email format",
+            location: "body"
+          }
+        ],
+        requestId: "req_1234567890"
+      }
+
+  errorUnauthorized:
+    summary: Unauthorized Error
+    value:
+      error: {
+        code: "UNAUTHORIZED",
+        message: "Authentication required",
+        requestId: "req_0987654321"
+      }
+
+  errorNotFound:
+    summary: Not Found Error
+    value:
+      error: {
+        code: "RESOURCE_NOT_FOUND",
+        message: "The requested resource was not found",
+        resource: "/users/12345",
+        requestId: "req_1122334455"
+      }
+
+  # Pagination Example
+  paginatedResponse:
+    summary: Paginated Response
+    value:
+      data: []
+      pagination:
+        totalItems: 125
+        itemCount: 10
+        itemsPerPage: 10
+        totalPages: 13
+        currentPage: 1
+      links:
+        first: "/api/v1/resource?page=1&limit=10"
+        previous: null
+        next: "/api/v1/resource?page=2&limit=10"
+        last: "/api/v1/resource?page=13&limit=10"
+
+  # Timestamp Examples
+  timestampExample:
+    summary: Timestamp Object
+    value:
+      createdAt: "2023-07-15T10:30:00Z"
+      updatedAt: "2023-07-15T11:45:00Z"
+
+  # User Profile Example
+  userProfile:
+    summary: User Profile
+    value:
+      id: "usr_123456"
+      email: "user@example.com"
+      firstName: "John"
+      lastName: "Doe"
+      avatar: "https://example.com/avatars/john-doe.jpg"
+      bio: "Passionate about AI and machine learning."
+      skills:
+        - "python"
+        - "machine learning"
+        - "data analysis"
+      timezone: "America/New_York"
+      preferences:
+        notifications:
+          email: true
+          push: true
+          frequency: "daily"
+        privacy:
+          profileVisibility: "public"
+          showEmail: false
+          showLastSeen: true
+      metadata:
+        accountCreated: "2023-01-15T08:30:00Z"
+        lastLogin: "2023-07-15T14:20:00Z"
+        loginCount: 42

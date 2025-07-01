@@ -1,0 +1,109 @@
+name: API Documentation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/api-docs.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/api-docs.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate OpenAPI
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      working-directory: ./docs
+      run: npm ci
+    
+    - name: Build OpenAPI spec
+      working-directory: ./docs
+      run: npm run build
+    
+    - name: Validate OpenAPI spec
+      working-directory: ./docs
+      run: npm run validate
+    
+    - name: Run tests
+      working-directory: ./docs
+      run: npm test
+    
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: coverage-report
+        path: ./docs/coverage
+        retention-days: 5
+
+  deploy:
+    name: Deploy Documentation
+    needs: validate
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      working-directory: ./docs
+      run: npm ci
+    
+    - name: Build OpenAPI spec
+      working-directory: ./docs
+      run: npm run build
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/.redocly
+        keep_files: true
+        force_orphan: true
+        enable_jekyll: false
+        user_name: 'GitHub Action'
+        user_email: 'action@github.com'
+        commit_message: 'Deploy API documentation'
+      env:
+        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+
+  notify:
+    name: Notify on Failure
+    if: failure()
+    needs: [validate, deploy]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Send notification
+      if: failure()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_COLOR: '#FF0000'
+        SLACK_TITLE: 'API Documentation Build Failed'
+        SLACK_MESSAGE: 'Build failed in ${{ github.workflow }}. Check the logs for details.'
+        SLACK_USERNAME: 'GitHub Actions'
+        SLACK_ICON: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
