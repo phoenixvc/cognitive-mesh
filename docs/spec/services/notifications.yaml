@@ -1,0 +1,413 @@
+paths:
+  /notifications:
+    post:
+      summary: Send a notification
+      description: Creates and sends a notification to one or more recipients
+      operationId: sendNotification
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+      responses:
+        '202':
+          description: Notification accepted for processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List notifications
+      description: Retrieves a paginated list of notifications for the current user
+      operationId: listNotifications
+      tags:
+        - Notifications
+      parameters:
+        - $ref: '#/components/parameters/PaginationQuery'
+        - name: status
+          in: query
+          description: Filter by notification status
+          schema:
+            type: string
+            enum: [unread, read, archived]
+        - name: type
+          in: query
+          description: Filter by notification type
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          description: Filter notifications after this date
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Filter notifications before this date
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+
+  /notifications/{notificationId}:
+    get:
+      summary: Get notification by ID
+      description: Retrieves a specific notification by its ID
+      operationId: getNotification
+      tags:
+        - Notifications
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationDetails'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Update notification status
+      description: Updates the status of a notification (e.g., mark as read)
+      operationId: updateNotification
+      tags:
+        - Notifications
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [read, unread, archived]
+      responses:
+        '200':
+          description: Notification updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /notifications/preferences:
+    get:
+      summary: Get notification preferences
+      description: Retrieves the current user's notification preferences
+      operationId: getNotificationPreferences
+      tags:
+        - Notifications
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+
+    put:
+      summary: Update notification preferences
+      description: Updates the current user's notification preferences
+      operationId: updateNotificationPreferences
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferences'
+      responses:
+        '200':
+          description: Preferences updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+components:
+  schemas:
+    NotificationRequest:
+      type: object
+      required:
+        - recipients
+        - subject
+        - content
+      properties:
+        recipients:
+          type: array
+          items:
+            oneOf:
+              - type: string
+                format: email
+              - type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                  email:
+                    type: string
+                    format: email
+                  phone:
+                    type: string
+          minItems: 1
+          description: List of recipient identifiers (user IDs, emails, or objects with contact info)
+        subject:
+          type: string
+          maxLength: 200
+          example: "Action Required: Review Pending Approval"
+        content:
+          type: object
+          required:
+            - text
+          properties:
+            text:
+              type: string
+              description: Plain text content
+            html:
+              type: string
+              description: HTML formatted content
+            markdown:
+              type: string
+              description: Markdown formatted content
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+          default: normal
+        category:
+          type: string
+          example: "approvals"
+          description: Category for grouping and filtering
+        data:
+          type: object
+          additionalProperties: true
+          description: Additional data to include with the notification
+        scheduleAt:
+          type: string
+          format: date-time
+          description: When to send the notification (for scheduling)
+        expiresAt:
+          type: string
+          format: date-time
+          description: When the notification should expire
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationAction'
+
+    NotificationResponse:
+      type: object
+      properties:
+        notificationId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, sent, delivered, failed]
+        timestamp:
+          type: string
+          format: date-time
+        details:
+          type: object
+          additionalProperties: true
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        subject:
+          type: string
+        preview:
+          type: string
+          description: Short preview of the notification content
+        category:
+          type: string
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        status:
+          type: string
+          enum: [unread, read, archived]
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationAction'
+
+    NotificationDetails:
+      allOf:
+        - $ref: '#/components/schemas/Notification'
+        - type: object
+          properties:
+            content:
+              type: object
+              properties:
+                text:
+                  type: string
+                html:
+                  type: string
+                markdown:
+                  type: string
+            data:
+              type: object
+              additionalProperties: true
+            metadata:
+              type: object
+              properties:
+                sentAt:
+                  type: string
+                  format: date-time
+                readAt:
+                  type: string
+                  format: date-time
+                  nullable: true
+                deliveredAt:
+                  type: string
+                  format: date-time
+                  nullable: true
+
+    NotificationAction:
+      type: object
+      required:
+        - id
+        - label
+        - type
+      properties:
+        id:
+          type: string
+          example: "approve_request"
+        label:
+          type: string
+          example: "Approve"
+        type:
+          type: string
+          enum: [button, link, dismiss]
+          example: "button"
+        url:
+          type: string
+          format: uri
+          description: URL to navigate to when the action is taken
+        method:
+          type: string
+          enum: [GET, POST, PUT, DELETE]
+          default: GET
+        body:
+          type: object
+          additionalProperties: true
+          description: Payload to send with the action
+        style:
+          type: string
+          enum: [primary, secondary, success, danger, warning, info, light, dark]
+          default: "primary"
+
+    NotificationPreferences:
+      type: object
+      properties:
+        channels:
+          type: object
+          properties:
+            email:
+              type: boolean
+              default: true
+            push:
+              type: boolean
+              default: true
+            sms:
+              type: boolean
+              default: false
+            inApp:
+              type: boolean
+              default: true
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationCategoryPreference'
+        quietHours:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: false
+            startTime:
+              type: string
+              format: time
+              example: "22:00"
+            endTime:
+              type: string
+              format: time
+              example: "08:00"
+            timezone:
+              type: string
+              example: "America/New_York"
+
+    NotificationCategoryPreference:
+      type: object
+      required:
+        - category
+        - enabled
+      properties:
+        category:
+          type: string
+          example: "approvals"
+        enabled:
+          type: boolean
+          default: true
+        channels:
+          type: object
+          properties:
+            email:
+              type: boolean
+              default: true
+            push:
+              type: boolean
+              default: true
+            sms:
+              type: boolean
+              default: false
+            inApp:
+              type: boolean
+              default: true

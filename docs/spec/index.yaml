@@ -1,0 +1,109 @@
+# Main entry point for the OpenAPI specification
+# This file serves as the root document that combines all components and paths
+
+openapi: 3.0.3
+
+info:
+  title: Cognitive Mesh API
+  description: |
+    # Cognitive Mesh API
+    
+    The Cognitive Mesh API provides programmatic access to the Cognitive Mesh platform,
+    enabling integration with various services including champion discovery, community
+    analytics, learning resources, innovation tracking, and more.
+    
+    ## Authentication
+    
+    The API uses JWT (JSON Web Tokens) for authentication. Include the token in the
+    `Authorization` header as a bearer token:
+    
+    ```
+    Authorization: Bearer <your-jwt-token>
+    ```
+    
+    ## Rate Limiting
+    
+    - **Standard**: 1000 requests per minute per API key
+    - **Burst**: 100 requests per second
+    
+    ## Versioning
+    
+    The API follows semantic versioning (e.g., v1.0.0). The current version is specified
+    in the URL path (e.g., `/api/v1/...`).
+  version: 1.0.0
+  contact:
+    name: Cognitive Mesh Support
+    email: support@cognitivemesh.com
+    url: https://cognitivemesh.com/support
+  license:
+    name: Proprietary
+    url: https://cognitivemesh.com/terms
+  termsOfService: https://cognitivemesh.com/terms
+
+externalDocs:
+  description: API Documentation
+  url: https://docs.cognitivemesh.com/api
+
+servers:
+  - url: https://api.cognitivemesh.com/v1
+    description: Production API server
+  - url: https://staging-api.cognitivemesh.com/v1
+    description: Staging/Test API server
+  - url: http://localhost:3000/v1
+    description: Local development server
+
+tags:
+  - name: Champion Discovery
+    description: Endpoints for champion discovery and matchmaking
+  - name: Community
+    description: Community analytics and engagement metrics
+  - name: Learning
+    description: Learning resources and experiment management
+  - name: Innovation
+    description: Innovation tracking and network analysis
+  - name: Approvals
+    description: User consent and approval workflows
+  - name: Provenance
+    description: Data lineage and audit trails
+  - name: Notifications
+    description: User notifications and preferences
+
+# Import paths from service files
+paths:
+  $ref: './services/champion-discovery.yaml#/paths'
+  $ref: './services/community-pulse.yaml#/paths'
+  $ref: './services/learning-catalyst.yaml#/paths'
+  $ref: './services/innovation-spread.yaml#/paths'
+  $ref: './services/approval-consent.yaml#/paths'
+  $ref: './services/provenance.yaml#/paths'
+  $ref: './services/notifications.yaml#/paths'
+
+# Import components from common files
+components:
+  schemas:
+    - $ref: './common/components.yaml#/components/schemas'
+    - $ref: './common/errorResponses.yaml#/components/schemas'
+  
+  securitySchemes:
+    - $ref: './common/securitySchemes.yaml#/components/securitySchemes'
+  
+  responses:
+    - $ref: './common/errorResponses.yaml#/components/responses'
+  
+  parameters:
+    - $ref: './common/components.yaml#/components/parameters'
+
+# Security requirements applied by default to all operations
+security:
+  - bearerAuth: []
+  - apiKey: []
+
+# Import all service files to include their components
+services:
+  - $ref: './services/champion-discovery.yaml'
+  - $ref: './services/community-pulse.yaml'
+  - $ref: './services/learning-catalyst.yaml'
+  - $ref: './services/innovation-spread.yaml'
+  - $ref: './services/approval-consent.yaml'
+  - $ref: './services/provenance.yaml'
+  - $ref: './services/notifications.yaml'

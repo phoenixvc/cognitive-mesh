@@ -1,0 +1,42 @@
+{
+  "name": "cognitive-mesh-api-docs",
+  "version": "1.0.0",
+  "description": "OpenAPI documentation for Cognitive Mesh API",
+  "main": "tools/build-openapi.js",
+  "scripts": {
+    "build": "node tools/build-openapi.js",
+    "build:watch": "nodemon --watch spec --ext yaml,yml --exec npm run build",
+    "validate": "swagger-cli validate spec/index.yaml",
+    "test": "npm run validate && npm run build",
+    "serve": "npx @redocly/cli preview-docs",
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "openapi",
+    "swagger",
+    "api",
+    "documentation"
+  ],
+  "author": "Cognitive Mesh Team",
+  "license": "Proprietary",
+  "devDependencies": {
+    "@redocly/cli": "^1.0.2",
+    "commander": "^11.0.0",
+    "husky": "^8.0.3",
+    "js-yaml": "^4.1.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1",
+    "swagger-cli": "^4.0.4"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "printWidth": 100,
+    "proseWrap": "always"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run validate"
+    }
+  }
+}
