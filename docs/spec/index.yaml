@@ -68,30 +68,53 @@ tags:
   - name: Notifications
     description: User notifications and preferences
 
-# Import paths from service files
+# Paths will be imported from service files
 paths:
-  $ref: './services/champion-discovery.yaml#/paths'
-  $ref: './services/community-pulse.yaml#/paths'
-  $ref: './services/learning-catalyst.yaml#/paths'
-  $ref: './services/innovation-spread.yaml#/paths'
-  $ref: './services/approval-consent.yaml#/paths'
-  $ref: './services/provenance.yaml#/paths'
-  $ref: './services/notifications.yaml#/paths'
+  # Paths from champion-discovery.yaml
+  /champion-discovery/matches:
+    $ref: './services/champion-discovery.yaml#/paths//champion-discovery/matches'
+  
+  # Paths from community-pulse.yaml
+  /community/analytics:
+    $ref: './services/community-pulse.yaml#/paths//community/analytics'
+  
+  # Paths from learning-catalyst.yaml
+  /learning/experiments:
+    $ref: './services/learning-catalyst.yaml#/paths//learning/experiments'
+  
+  # Paths from innovation-spread.yaml
+  /innovation/network:
+    $ref: './services/innovation-spread.yaml#/paths//innovation/network'
+  
+  # Paths from approval-consent.yaml
+  /approvals/requests:
+    $ref: './services/approval-consent.yaml#/paths//approvals/requests'
+  
+  # Paths from provenance.yaml
+  /provenance/records:
+    $ref: './services/provenance.yaml#/paths//provenance/records'
+  
+  # Paths from notifications.yaml
+  /notifications:
+    $ref: './services/notifications.yaml#/paths//notifications'
 
-# Import components from common files
+# Components section
 components:
+  # Schemas from common components
   schemas:
-    - $ref: './common/components.yaml#/components/schemas'
-    - $ref: './common/errorResponses.yaml#/components/schemas'
+    $ref: './common/components.yaml#/components/schemas'
   
+  # Security schemes
   securitySchemes:
-    - $ref: './common/securitySchemes.yaml#/components/securitySchemes'
+    $ref: './common/securitySchemes.yaml#/components/securitySchemes'
   
+  # Common responses
   responses:
-    - $ref: './common/errorResponses.yaml#/components/responses'
+    $ref: './common/errorResponses.yaml#/components/responses'
   
+  # Common parameters
   parameters:
-    - $ref: './common/components.yaml#/components/parameters'
+    $ref: './common/components.yaml#/components/parameters'
 
 # Security requirements applied by default to all operations
 security:

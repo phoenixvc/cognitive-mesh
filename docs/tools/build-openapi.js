@@ -83,46 +83,97 @@ async function buildOpenAPI() {
     log(`Loading index file: ${indexFile}`, 'debug');
     let spec = loadYaml(indexFile);
     
-    // Process $ref imports in the index file
+    // Process path references
     if (spec.paths && typeof spec.paths === 'object') {
-      log('Processing paths...', 'debug');
+      log('Processing path references...', 'debug');
       const paths = {};
       
-      for (const [key, ref] of Object.entries(spec.paths)) {
-        if (typeof ref === 'object' && ref.$ref) {
-          const refPath = path.join(SPEC_DIR, ref.$ref);
-          log(`  - Loading path reference: ${ref.$ref}`, 'debug');
-          const pathContent = loadYaml(refPath);
-          Object.assign(paths, pathContent);
+      for (const [pathKey, pathItem] of Object.entries(spec.paths)) {
+        if (pathItem && typeof pathItem === 'object' && pathItem.$ref) {
+          // Handle $ref in path items
+          const refParts = pathItem.$ref.split('#');
+          const refPath = path.join(SPEC_DIR, refParts[0]);
+          const refPointer = refParts[1] || '';
+          
+          log(`  - Loading path ${pathKey} from: ${refPath}${refPointer ? '#' + refPointer : ''}`, 'debug');
+          
+          try {
+            const refContent = loadYaml(refPath);
+            // Extract the referenced content using the JSON Pointer
+            const pointerParts = refPointer.split('/').filter(Boolean);
+            let content = refContent;
+            
+            for (const part of pointerParts) {
+              if (content && content[part] !== undefined) {
+                content = content[part];
+              } else {
+                throw new Error(`Invalid reference: ${part} not found`);
+              }
+            }
+            
+            paths[pathKey] = content;
+          } catch (error) {
+            log(`  ⚠️  Warning: Could not load path ${pathKey}: ${error.message}`, 'debug');
+          }
         } else {
-          paths[key] = ref;
+          // Direct path definition
+          paths[pathKey] = pathItem;
         }
       }
       
       spec.paths = paths;
     }
     
-    // Process components
+    // Process component references
     if (spec.components && typeof spec.components === 'object') {
-      log('Processing components...', 'debug');
+      log('Processing component references...', 'debug');
       const components = {};
       
-      for (const [key, refs] of Object.entries(spec.components)) {
-        if (Array.isArray(refs)) {
-          components[key] = {};
+      for (const [componentType, ref] of Object.entries(spec.components)) {
+        if (ref && typeof ref === 'object' && ref.$ref) {
+          // Handle $ref in component types (schemas, securitySchemes, etc.)
+          const refParts = ref.$ref.split('#');
+          const refPath = path.join(SPEC_DIR, refParts[0]);
+          const refPointer = refParts[1] || '';
           
-          for (const ref of refs) {
-            if (typeof ref === 'object' && ref.$ref) {
-              const refPath = path.join(SPEC_DIR, ref.$ref);
-              log(`  - Loading component reference: ${ref.$ref}`, 'debug');
-              const componentContent = loadYaml(refPath);
-              components[key] = deepMerge(components[key], componentContent);
+          log(`  - Loading ${componentType} from: ${refPath}${refPointer ? '#' + refPointer : ''}`, 'debug');
+          
+          try {
+            const refContent = loadYaml(refPath);
+            
+            // If no pointer is provided, use the entire document
+            if (!refPointer) {
+              components[componentType] = refContent;
+            } else {
+              // Extract the referenced content using the JSON Pointer
+              const pointerParts = refPointer.split('/').filter(Boolean);
+              let content = refContent;
+              
+              for (const part of pointerParts) {
+                if (content && content[part] !== undefined) {
+                  content = content[part];
+                } else {
+                  throw new Error(`Invalid reference: ${part} not found`);
+                }
+              }
+              
+              components[componentType] = content;
             }
+          } catch (error) {
+            log(`  ⚠️  Warning: Could not load ${componentType}: ${error.message}`, 'debug');
           }
+        } else if (ref && typeof ref === 'object') {
+          // Direct component definition
+          components[componentType] = ref;
         }
       }
       
-      spec.components = components;
+      // Only replace components if we have valid ones
+      if (Object.keys(components).length > 0) {
+        spec.components = components;
+      } else {
+        delete spec.components;
+      }
     }
     
     // Process services
