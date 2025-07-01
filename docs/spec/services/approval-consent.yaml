@@ -1,0 +1,345 @@
+paths:
+  /approvals/requests:
+    post:
+      summary: Submit a new approval request
+      description: Creates a new approval request for user consent
+      operationId: createApprovalRequest
+      tags:
+        - Approvals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequestCreate'
+      responses:
+        '201':
+          description: Approval request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    get:
+      summary: List approval requests
+      description: Retrieves a list of approval requests with filtering options
+      operationId: listApprovalRequests
+      tags:
+        - Approvals
+      parameters:
+        - $ref: '#/components/parameters/PaginationQuery'
+        - name: status
+          in: query
+          description: Filter by approval status
+          schema:
+            type: string
+            enum: [pending, approved, rejected, expired]
+        - name: type
+          in: query
+          description: Filter by request type
+          schema:
+            type: string
+        - name: requesterId
+          in: query
+          description: Filter by requester ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApprovalRequestSummary'
+
+  /approvals/requests/{requestId}:
+    get:
+      summary: Get approval request details
+      description: Retrieves detailed information about a specific approval request
+      operationId: getApprovalRequest
+      tags:
+        - Approvals
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequestDetails'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Update approval request
+      description: Updates an approval request (e.g., approve, reject, cancel)
+      operationId: updateApprovalRequest
+      tags:
+        - Approvals
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequestUpdate'
+      responses:
+        '200':
+          description: Approval request updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequestDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /approvals/consents:
+    get:
+      summary: List user consents
+      description: Retrieves a list of consents given by the current user
+      operationId: listUserConsents
+      tags:
+        - Approvals
+      parameters:
+        - $ref: '#/components/parameters/PaginationQuery'
+        - name: status
+          in: query
+          description: Filter by consent status
+          schema:
+            type: string
+            enum: [active, revoked, expired]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserConsent'
+
+  /approvals/consents/{consentId}:
+    delete:
+      summary: Revoke consent
+      description: Revokes a previously given consent
+      operationId: revokeConsent
+      tags:
+        - Approvals
+      parameters:
+        - name: consentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Consent revoked successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  schemas:
+    ApprovalRequestCreate:
+      type: object
+      required:
+        - type
+        - subject
+        - requestedPermissions
+      properties:
+        type:
+          type: string
+          example: "data_access"
+          description: Type of approval request
+        subject:
+          type: object
+          description: Subject of the approval request
+          properties:
+            type:
+              type: string
+              example: "user"
+            id:
+              type: string
+              example: "123e4567-e89b-12d3-a456-426614174000"
+        requestedPermissions:
+          type: array
+          items:
+            type: string
+          example: ["read:profile", "read:activity"]
+        description:
+          type: string
+          example: "Requesting access to profile and activity data"
+        expirationDate:
+          type: string
+          format: date-time
+          example: "2025-12-31T23:59:59Z"
+        metadata:
+          type: object
+          additionalProperties: true
+
+    ApprovalRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [pending, approved, rejected, expired, cancelled]
+          example: "pending"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-07-01T12:00:00Z"
+        expiresAt:
+          type: string
+          format: date-time
+          example: "2025-07-08T12:00:00Z"
+        links:
+          type: object
+          properties:
+            self:
+              type: string
+              format: uri
+              example: "/approvals/requests/550e8400-e29b-41d4-a716-446655440000"
+            approve:
+              type: string
+              format: uri
+              example: "/approvals/requests/550e8400-e29b-41d4-a716-446655440000/approve"
+            reject:
+              type: string
+              format: uri
+              example: "/approvals/requests/550e8400-e29b-41d4-a716-446655440000/reject"
+
+    ApprovalRequestSummary:
+      allOf:
+        - $ref: '#/components/schemas/ApprovalRequest'
+        - type: object
+          properties:
+            type:
+              type: string
+              example: "data_access"
+            description:
+              type: string
+              example: "Requesting access to profile and activity data"
+            requester:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+
+    ApprovalRequestDetails:
+      allOf:
+        - $ref: '#/components/schemas/ApprovalRequestSummary'
+        - type: object
+          properties:
+            requestedPermissions:
+              type: array
+              items:
+                type: string
+              example: ["read:profile", "read:activity"]
+            metadata:
+              type: object
+              additionalProperties: true
+            history:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApprovalEvent'
+
+    ApprovalRequestUpdate:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [approve, reject, cancel]
+          example: "approve"
+        reason:
+          type: string
+          example: "Approved for research purposes"
+        scopes:
+          type: array
+          items:
+            type: string
+          example: ["read:profile"]
+
+    ApprovalEvent:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-07-01T12:30:00Z"
+        action:
+          type: string
+          example: "requested"
+        actor:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    UserConsent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        requestId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [active, revoked, expired]
+          example: "active"
+        grantedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        grantedPermissions:
+          type: array
+          items:
+            type: string
+          example: ["read:profile"]
+        requestDetails:
+          $ref: '#/components/schemas/ApprovalRequestSummary'
