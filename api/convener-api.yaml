@@ -1,0 +1,214 @@
+openapi: 3.0.3
+info:
+  title: Cognitive Mesh Convener Backend API
+  version: 1.0.0
+  description: |
+    API endpoints for Convener services in the Cognitive Mesh platform,
+    including champion discovery, community pulse, learning catalyst,
+    innovation spread, approval/consent, provenance tracking, and notifications.
+servers:
+  - url: https://api.cognitivemesh.local/v1
+    description: Local development server
+security:
+  - bearerAuth: []
+paths:
+  /championDiscovery:
+    get:
+      summary: Retrieve scoring and matchmaking results for champions
+      tags:
+        - ChampionDiscovery
+      responses:
+        '200':
+          description: Array of champion matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChampionMatch'
+  /communityPulse:
+    get:
+      summary: Fetch aggregated community metrics and safety indicators
+      tags:
+        - CommunityPulse
+      responses:
+        '200':
+          description: Community pulse metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityPulseMetrics'
+  /learningCatalyst:
+    post:
+      summary: Submit or query learning catalyst experiments and resource curation
+      tags:
+        - LearningCatalyst
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningExperiment'
+      responses:
+        '200':
+          description: Learning experiment task accepted or query result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningExperimentResponse'
+  /innovationSpread:
+    get:
+      summary: Track innovation virality and breakthrough events
+      tags:
+        - InnovationSpread
+      responses:
+        '200':
+          description: Innovation spread report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InnovationSpreadReport'
+  /approvalConsent:
+    post:
+      summary: Submit user approval or consent decision for AI-driven actions
+      tags:
+        - ApprovalConsent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequest'
+      responses:
+        '200':
+          description: Approval decision recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalResponse'
+  /provenance:
+    get:
+      summary: Retrieve provenance metadata for a given record or widget
+      tags:
+        - Provenance
+      parameters:
+        - in: query
+          name: recordId
+          required: true
+          schema:
+            type: string
+          description: Identifier for the record or widget
+      responses:
+        '200':
+          description: Provenance data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProvenanceRecord'
+  /notifications:
+    post:
+      summary: Push a notification or event into the Convener notification system
+      tags:
+        - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationEvent'
+      responses:
+        '202':
+          description: Notification accepted for processing
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ChampionMatch:
+      type: object
+      properties:
+        championId:
+          type: string
+        score:
+          type: number
+        relevanceFactors:
+          type: object
+          description: Factors influencing match score
+    CommunityPulseMetrics:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        safetyIndex:
+          type: number
+        engagementLevel:
+          type: number
+    LearningExperiment:
+      type: object
+      properties:
+        experimentId:
+          type: string
+        resources:
+          type: array
+          items:
+            type: string
+        parameters:
+          type: object
+    LearningExperimentResponse:
+      type: object
+      properties:
+        experimentId:
+          type: string
+        status:
+          type: string
+    InnovationSpreadReport:
+      type: object
+      properties:
+        reportId:
+          type: string
+        viralEvents:
+          type: array
+          items:
+            type: string
+    ApprovalRequest:
+      type: object
+      properties:
+        actionId:
+          type: string
+        decision:
+          type: string
+          enum: [approve, reject]
+        comments:
+          type: string
+    ApprovalResponse:
+      type: object
+      properties:
+        actionId:
+          type: string
+        recordedAt:
+          type: string
+          format: date-time
+    ProvenanceRecord:
+      type: object
+      properties:
+        recordId:
+          type: string
+        source:
+          type: string
+        fetchedAt:
+          type: string
+          format: date-time
+    NotificationEvent:
+      type: object
+      properties:
+        eventId:
+          type: string
+        type:
+          type: string
+        payload:
+          type: object

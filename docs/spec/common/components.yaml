@@ -1,0 +1,87 @@
+components:
+  schemas:
+    # Common Metadata
+    Timestamp:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - createdAt
+
+    # Pagination
+    Pagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 100
+        itemCount:
+          type: integer
+          example: 10
+        itemsPerPage:
+          type: integer
+          example: 10
+        totalPages:
+          type: integer
+          example: 10
+        currentPage:
+          type: integer
+          example: 1
+
+    # Error Response
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          example: "Invalid input data"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "email"
+              message:
+                type: string
+                example: "must be a valid email address"
+
+    # Common Query Parameters
+    PaginationQuery:
+      in: query
+      name: pagination
+      schema:
+        type: object
+        properties:
+          page:
+            type: integer
+            minimum: 1
+            default: 1
+          limit:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      style: deepObject
+      explode: true
+
+    SortQuery:
+      in: query
+      name: sort
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: '^[+-]?[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*$'
+        example: ["createdAt,-priority"]
+      style: form
+      explode: false
