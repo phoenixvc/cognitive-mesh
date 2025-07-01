@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+
+namespace CognitiveMesh.BusinessApplications.CustomerIntelligence.Models
+{
 public class InteractionRecord
 {
     public string Id { get; set; }
@@ -9,3 +14,5 @@ public class InteractionRecord
     public Dictionary<string, double> EvaluationScores { get; set; }
     public DateTimeOffset Timestamp { get; set; }
 }
+
+} // namespace CognitiveMesh.BusinessApplications.CustomerIntelligence.Models
