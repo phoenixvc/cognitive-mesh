@@ -5,8 +5,15 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
+  <!-- NuGet packages required by SystemsReasoner -->
   <ItemGroup>
-    <Compile Include="SystemsReasoner.cs" />
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0-preview.5.24306.7" />
+  </ItemGroup>
+
+  <!-- Reference to FeatureFlagManager implementation -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\FoundationLayer\EnterpriseConnectors\EnterpriseConnectors.csproj" />
   </ItemGroup>
 
 </Project>

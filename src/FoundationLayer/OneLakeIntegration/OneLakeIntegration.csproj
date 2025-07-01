@@ -6,8 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OneLake.SDK" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <!-- Removed OneLake.SDK as it doesn't exist on public NuGet feeds -->
+    <!-- Updated logging package to a version available for .NET 9 previews -->
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0-preview.5.24306.7" />
+  </ItemGroup>
+
+  <!-- Reference EnterpriseConnectors so we can use FeatureFlagManager -->
+  <ItemGroup>
+    <ProjectReference Include="..\EnterpriseConnectors\EnterpriseConnectors.csproj" />
   </ItemGroup>
 
 </Project>

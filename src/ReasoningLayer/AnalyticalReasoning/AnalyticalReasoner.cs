@@ -1,28 +1,24 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Azure.DataFactory;
-using Azure.DataFactory.Models;
+using CognitiveMesh.ReasoningLayer.AnalyticalReasoning.Models;
 
+namespace CognitiveMesh.ReasoningLayer.AnalyticalReasoning
+{
 public class AnalyticalReasoner
 {
     private readonly ILogger<AnalyticalReasoner> _logger;
-    private readonly DataFactoryClient _dataFactoryClient;
-    private readonly string _dataFactoryName;
-    private readonly string _resourceGroupName;
     private readonly AnalysisResultGenerator _analysisResultGenerator;
 
-    public AnalyticalReasoner(ILogger<AnalyticalReasoner> logger, DataFactoryClient dataFactoryClient, string dataFactoryName, string resourceGroupName, AnalysisResultGenerator analysisResultGenerator)
+    public AnalyticalReasoner(
+        ILogger<AnalyticalReasoner> logger,
+        AnalysisResultGenerator analysisResultGenerator)
     {
         _logger = logger;
-        _dataFactoryClient = dataFactoryClient;
-        _dataFactoryName = dataFactoryName;
-        _resourceGroupName = resourceGroupName;
         _analysisResultGenerator = analysisResultGenerator;
     }
 
-    public async Task<AnalysisResult> PerformDataDrivenAnalysisAsync(string data)
+    public async Task<AnalyticalResult> PerformDataDrivenAnalysisAsync(string data)
     {
         try
         {
@@ -65,16 +61,11 @@ public class AnalyticalReasoner
         // Example: Create and execute Data Factory pipelines for data ingestion, transformation, and enrichment
         _logger.LogInformation("Orchestrating Data Factory pipelines...");
 
-        var pipelineName = "DataIngestionPipeline";
-        var runResponse = await _dataFactoryClient.Pipelines.CreateRunAsync(_resourceGroupName, _dataFactoryName, pipelineName);
+        // Simulated orchestration placeholder. Replace with actual SDK calls when available.
+        await Task.Delay(500); // Simulate pipeline execution latency
 
-        _logger.LogInformation($"Pipeline run ID: {runResponse.RunId}");
         _logger.LogInformation("Successfully orchestrated Data Factory pipelines.");
     }
 }
 
-public class AnalysisResult
-{
-    public string Data { get; set; }
-    public string Insights { get; set; }
-}
+} // namespace

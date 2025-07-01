@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using CognitiveMesh.BusinessApplications.DecisionSupport;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -315,4 +316,4 @@ public class DecisionSupportController : ControllerBase
 
         return scenarios;
     }
-}
+}

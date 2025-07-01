@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using CognitiveMesh.BusinessApplications.ResearchAnalysis;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -194,13 +195,6 @@ public class KnowledgeWorkController : ControllerBase
             
         return content.Substring(0, maxLength - 3) + "...";
     }
-}
-
-public class ResearchRequest
-{
-    public string Topic { get; set; }
-    public List<string> FocusAreas { get; set; } = new List<string>();
-    public int Depth { get; set; } = 2; // 1=Basic, 2=Standard, 3=Deep
 }
 
 public class ResearchResult

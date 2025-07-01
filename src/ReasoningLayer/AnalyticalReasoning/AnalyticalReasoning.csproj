@@ -5,8 +5,11 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
+  <!-- External dependencies required by analytical reasoning components -->
   <ItemGroup>
-    <Compile Include="AnalyticalReasoner.cs" />
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.0.0" />
+    <!-- Removed Azure.DataFactory (package not available) -->
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0-preview.5.24306.7" />
   </ItemGroup>
 
 </Project>

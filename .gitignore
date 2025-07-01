@@ -13,6 +13,9 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 
+# Build artifacts folder
+build/
+
 # Visual Studio files
 .vs/
 .vscode/
@@ -43,6 +46,22 @@ TestResults/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Test output files
+test_*.txt
+test_*.log
+*_output.txt
+*_output_*.txt
+*_transcript.txt
+*_errors.txt
+*_build.log
+msbuild.*
+*.log
+*.binlog
+
+# Build output
+build_output.txt
+build_errors.txt
 
 # Misc
 .DS_Store
