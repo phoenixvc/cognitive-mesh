@@ -1,144 +1,206 @@
 # Convener Backend Architecture PRD
 
-## TL;DR
-The Convener backend is a suite of micro-services that power the **Champion Discovery**, **Community Pulse**, **Innovation Spread**, and **Learning Catalyst** features surfaced through Convener widgets in the Cognitive Mesh dashboard.  
-Services are API-first, stateless where possible, enforce strict tenant isolation, and inherit all requirements in the **Global Non-Functional Requirements Appendix** (`global-nfr.md`).  
-This PRD defines business goals, user stories, functional & non-functional requirements, public APIs, and delivery milestones for the GA release.
+### TL;DR  
+The Convener backend is a secure, API-driven platform that underpins champion discovery, community monitoring, innovation tracking, and psychological-safety insights.  Acting as the orchestration layer for all Convener widgets and dashboard integrations, it enables organisations to measure and enhance collective intelligence and innovation while strictly enforcing privacy, consent, and provenance.
 
 ---
 
-## Goals
+## Goals  
 
-### Business Goals
-* Unlock data-driven insights that accelerate knowledge sharing and innovation across large enterprises.  
-* Provide an extensible backend platform that other verticals (e.g., Decision Support, Customer Intelligence) can reuse.  
-* Meet enterprise security, compliance (SOC 2, GDPR), and 99.9 % availability targets.
+### Business Goals  
+* Accelerate collaboration and innovation workflows that deliver measurable outcomes.  
+* Provide objective, data-driven measurement of collective intelligence and the factors driving successful team interactions.  
+* Protect community trust through psychological-safety safeguards and transparent data practices.  
+* Offer reliable, extensible APIs to power all Convener widgets and mesh integrations.
 
-### User Goals
-* **Knowledge Champions** find and connect with experts quickly.  
-* **Community Managers** monitor engagement and sentiment in real-time.  
-* **Innovation Leaders** track idea diffusion and adoption hotspots.  
-* **Learners** receive personalized content and skill gap analysis.
+### User Goals  
+* **Community Managers** receive real-time champion and connector recommendations.  
+* **Team Leads** build high-performing, cross-functional teams via collaboration suggestions.  
+* **End Users** see how their contributions catalyse learning and innovation and control what data is shared.  
+* **Compliance Officers** can audit provenance, access, and approval logs quickly.
 
-### Non-Goals
-* UI or widget rendering logic (covered in `convener-widget.md`).  
-* Data ingestion connectors for non-standard, on-prem proprietary systems (handled by Foundation Layer).
+### Out-of-Scope  
+* UI / dashboard layout (handled in `convener-widget.md`).  
+* Low-level dashboard or plugin framework infrastructure.  
+* Generic mesh platform APIs unrelated to social catalysis, discovery, or learning.
 
 ---
 
-## User Stories
+## User Stories  
 
 | Persona | Story | Priority |
 |---------|-------|----------|
-| Champion Seeker | “As a project lead I want to query *Top 5 champions* for ‘MLOps’ so I can invite them to a Tiger Team.” | Must |
-| Community Manager | “I need to view sentiment trend of #engineering Slack channel over the last 30 days.” | Must |
-| Innovation Lead | “Show me diffusion map for Idea-123 across business units.” | Should |
-| L&D Partner | “Recommend learning paths for employees with skill gap ‘Azure AI Studio’.” | Must |
-| Admin | “Approve or revoke data-source access for Convener services.” | Must |
-| Auditor | “Export last 90 days of Convener audit logs for compliance.” | Must |
+| Community Manager | “See top champions and connectors so I can accelerate project outcomes.” | Must |
+| Community Manager | “View engagement and psychological-safety pulse to support at-risk members.” | Must |
+| Team Lead | “Get collaborator recommendations based on expertise and participation.” | Must |
+| Team Lead | “Receive notifications of successful innovation patterns to replicate.” | Should |
+| End User | “See where my contributions catalysed learning/innovation so I feel recognised.” | Must |
+| End User | “Control and see transparency of shared social/learning data.” | Must |
+| Compliance Officer | “Audit provenance, access, and approvals to ensure policy compliance.” | Must |
 
 ---
 
-## Functional Requirements
+## Functional Requirements  
 
-### 1. Champion Discovery Service
-* **Endpoint**: `GET /v1/champions`
-* **Inputs**: skill/tags, timeframe, maxResults.
-* **Output**: ranked list with influence score & provenance metadata.
+| Service | Priority | Key Responsibilities |
+|---------|----------|----------------------|
+| **Champion Discovery** | Must | Rank champions/connectors using interaction data, endorsements, event signals. |
+| **Community Pulse** | Must | Aggregate engagement, sentiment, psychological-safety metrics by team / org / cohort. |
+| **Learning Catalyst** | Should | Curate, tag, and push learning logs; link contributions to outcomes. |
+| **Innovation Spread Engine** | Should | Detect, log, and propagate innovations; track adoption lineage. |
+| **Approval / Consent** | Must | Manage explicit user/admin approvals for sharing or recommendations. |
+| **Provenance Event Logging** | Must | Persist provenance logs for every system action or recommendation. |
+| **Notification / Push** | Should | Dispatch real-time signals and feedback requests to widgets/users. |
 
-### 2. Community Pulse Service
-* **Endpoint**: `GET /v1/community-pulse`
-* **Inputs**: channelId, timeframe.
-* **Output**: sentiment scores, engagement metrics, trending topics.
-
-### 3. Innovation Spread Service
-* **Endpoint**: `GET /v1/innovation-spread/{ideaId}`
-* **Output**: adoption curve, network graph nodes & edges.
-
-### 4. Learning Catalyst Service
-* **Endpoint**: `POST /v1/learning-catalyst/recommend`
-* **Inputs**: userId, desiredSkills[].
-* **Output**: learning resources, skill gap scores.
-
-### 5. Data Ingestion
-* Batch + near-real-time pipelines from HRIS, LMS, Slack/Teams, Git, JIRA.
-
-### 6. Auditing & Telemetry
-* Emit OpenTelemetry traces; write immutable audit events to `convener-audit` store.
-
-### 7. Tenant Isolation
-* Row-level security via `TenantId` claim on every query.
+### Acceptance Criteria Highlights  
+* **Champion Discovery** returns accurate, auditable rankings; provenance 100 %.  
+* **Community Pulse** refreshes metrics within 5 min; tenant-scoped.  
+* **Approval / Consent** blocks any personal data exposure without explicit consent.  
+* **Notification Service** delivers ≥ 95 % messages within 500 ms on active sessions.
 
 ---
 
-## Non-Functional Requirements Compliance
+## Feature Prioritisation  
 
-| Category (see `global-nfr.md`) | Compliance | Notes |
-|--------------------------------|------------|-------|
-| Security | ✅ | TLS 1.2+, AES-256, Azure Key Vault secrets |
-| Telemetry & Audit | ✅ | OpenTelemetry + WORM audit storage |
-| Versioning | ✅ | All endpoints v1; semantic version header |
-| Privacy/GDPR | ✅ | Data minimization + user consent scopes |
-| Availability SLA | ✅ | 99.9 % with multi-AZ deployment |
-| Performance | ✅ | P95 < 200 ms for read endpoints |
-| Rate Limiting | ✅ | 30 r/s global, 10 r/s per-tenant burst |
-| Disaster Recovery | ✅ | < 30 min RTO, < 5 min RPO |
-| Accessibility (API) | n/a | UI handled in widget layer |
+| Feature | Priority | Future Opportunity |
+|---------|----------|--------------------|
+| Champion Discovery | Must | Ingest external community signals |
+| Community Pulse | Must | Deep-dive analytics & trend projections |
+| Approval / Consent | Must | Org-level consent policies; MFA approval |
+| Provenance Logging | Must | Real-time public provenance feeds |
+| Learning Catalyst | Should | Personalised learning-plan recommendations |
+| Innovation Spread | Should | ROI analytics; automated replication |
+| Notification / Push | Should | Omnichannel delivery (email, SMS, in-app) |
 
 ---
 
-## Public API Specification
-* Bundled OpenAPI 3 document: [`../openapi.yaml`](../openapi.yaml)
-* Service-specific YAMLs:
-  * `docs/spec/services/champion-discovery.yaml`
-  * `docs/spec/services/community-pulse.yaml`
-  * `docs/spec/services/innovation-spread.yaml`
-  * `docs/spec/services/learning-catalyst.yaml`
+## API & Data Contracts  
+
+* **Bundled OpenAPI**: [`../openapi.yaml`](../openapi.yaml) – canonical, version-controlled spec.  
+* All endpoints require JWT auth + tenant boundary check; versioned `/v1/`, `/v2/`; n-1 compatibility.  
+* Every response includes provenance & audit fields.
+
+### Core Endpoints (v1)  
+
+| Path | Verb | Description |
+|------|------|-------------|
+| `/champions/discover` | GET | Ranked champions list |
+| `/pulse/aggregate` | GET | Engagement & risk metrics |
+| `/learning/catalysts` | POST | Curated catalyst events |
+| `/innovation/spread` | GET | Innovation lineage & metrics |
+| `/approvals/request` | POST | Request user/admin approval |
+| `/provenance/events` | GET | Query provenance log |
 
 ---
 
-## Architecture Overview
-* **Gateway**: Azure API Management enforcing auth, quotas, request validation.  
-* **Compute**: .NET 9 micro-services running on Azure AKS with HPA.  
-* **Data Storage**:  
-  * Graph DB (Cosmos DB Gremlin) – expertise graph & idea diffusion.  
-  * Postgres Flexible Server – relational metrics & configs.  
-  * Vector store (Azure AI Search) – semantic embeddings for skills & content.  
-* **Event Bus**: Azure Service Bus for ingestion and async workflows.  
-* **Security**: Azure AD OAuth2; service-to-service mTLS; Key Vault secrets.  
-* **Observability**: OpenTelemetry → Azure Monitor / Grafana.  
-* **CI/CD**: GitHub Actions → Azure Container Registry → AKS blue/green.
+## Architecture & Onion Model Mapping  
+
+```text
+┌─────────────────────────┐
+│        Consumers        │  ← Widgets / external callers
+└────────────┬────────────┘
+             ▼
+┌─────────────────────────┐
+│ Infrastructure Layer    │  ← Web API controllers, EF/DB, Azure Service Bus
+└────────────┬────────────┘
+             ▼
+┌─────────────────────────┐
+│ Application Layer       │  ← Use-case services: ChampionDiscoveryService,
+│                         │     PulseAggregationService, etc.
+└────────────┬────────────┘
+             ▼
+┌─────────────────────────┐
+│ Domain Layer            │  ← Domain services, aggregates, business rules
+└────────────┬────────────┘
+             ▼
+┌─────────────────────────┐
+│ Core Domain Entities    │  ← Champion, Interaction, Innovation, PulseMetric
+└─────────────────────────┘
+```
+
+* **Infrastructure**: Azure API Management, AKS micro-services, Cosmos DB Gremlin, Postgres, Azure AI Search, Service Bus.  
+* **Application**: Coordinators applying orchestration, HITL approvals, aggregation, scoring.  
+* **Domain**: Pure C# domain services (e.g., `ChampionScorer`, `SentimentAggregator`) – no external refs.  
+* **Core Entities**: Immutable value objects & aggregates (Champion, Community, Innovation, LearningEvent).
 
 ---
 
-## Milestones & Timeline
+## Data, Privacy & Security  
 
-| Phase | Duration | Deliverables | Acceptance Criteria |
-|-------|----------|--------------|---------------------|
-| **M1 – Service Skeletons** | 2 wks | Repo, CI/CD, gateway, empty endpoints | Pods deploy; `/healthz` 200 OK |
-| **M2 – Champion Discovery MVP** | 2 wks | Ranking algo v1, Cosmos graph, API spec | P95 latency < 300 ms, unit tests 90 % |
-| **M3 – Community Pulse & Sentiment** | 3 wks | NLP pipeline, sentiment model, REST API | Sentiment accuracy ≥ 80 % on test set |
-| **M4 – Innovation Spread** | 2 wks | Diffusion analytics, adoption API | Adoption curve exported CSV |
-| **M5 – Learning Catalyst** | 3 wks | Recommendation engine, skills DB | Top-5 recs relevance NDCG ≥ 0.7 |
-| **M6 – Hardening & DR** | 2 wks | Pen-test fixes, chaos drills, docs | 0 high-sev vulns; DR runbook pass |
-| **GA** | — | Prod rollout & widget integration | All SLAs met for 30 days |
+* **Storage**: Tenant-isolated Postgres, partitioned event logs with FK provenance.  
+* **Encryption**: TLS 1.2+ in transit, AES-256 at rest (Key Vault-backed keys).  
+* **Consent Enforcement**: Policy engine checks consent tokens before data access or outbound share.  
+* **Rate Limiting**: Global & per-tenant quotas with exponential back-off.  
+* **Observability**: OpenTelemetry traces, Grafana dashboards (latency, error, quota).
 
 ---
 
-## Risks & Mitigations
+## NFR Compliance (inherits `global-nfr.md`)  
 
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| Ingested data quality low | Poor recommendations | Implement data validation & fallback defaults |
-| Privacy regulation change | Compliance breach | Regular legal review; feature flags for region lockout |
-| NLP model drift | Sentiment accuracy drops | Scheduled model re-training pipeline |
+| Category | Compliance Highlights |
+|----------|-----------------------|
+| Security | TLS 1.2+, AES-256, mTLS, pen-testing quarterly |
+| Telemetry | OpenTelemetry, WORM audit storage |
+| Availability | ≥ 99.9 %, multi-AZ failover, hourly hot backups |
+| Performance | P95 < 200 ms read; < 500 ms notification |
+| DR | RPO ≤ 1 h, RTO ≤ 2 h, quarterly DR drills |
+| Accessibility | API only (UI handled in widget layer) |
 
 ---
 
-## Open Questions
-1. Do we require real-time champion ranking updates (< 5 s) or is hourly batch acceptable?  
-2. Will certain tenants disallow central analytics? Need optional BYOK graph store?  
-3. SLA for Diffusion graph export (sync vs async)?
+## Processing Flows (Sequence)  
+
+### Champion Matchmaking  
+1. Widget ⟶ `GET /champions/discover`  
+2. App Layer calls Domain `ChampionScorer`  
+3. Scores persisted, provenance log written  
+4. Response returned to widget
+
+### Pulse Aggregation  
+1. Widget ⟶ `GET /pulse/aggregate`  
+2. App Layer aggregates metrics, calls `SentimentAggregator`  
+3. Risk flags computed, logged  
+4. Widget displays results
+
+*Detailed diagrams in shared architecture repo.*
+
+---
+
+## Error & Resilience  
+
+* Cached last-known data served during outages.  
+* Graceful degradation: if sentiment API down → return “metrics unavailable”.  
+* Incident response: Sev 1 ack ≤ 5 min, mitigation ≤ 30 min.  
+* Chaos-engineering: node kill, DB failover drills quarterly.
+
+---
+
+## Milestones  
+
+| Phase | Weeks | Key Deliverables |
+|-------|-------|------------------|
+| **MVP** | 1-4 | Champion Discovery, Community Pulse, Approval/Consent APIs + tracing |
+| **Post-MVP** | 5-8 | Learning Catalyst, Innovation Spread, notifications, enhanced analytics |
+| **Hardening** | 9-10 | Pen-test remediation, DR drills, performance tuning |
+| **GA** | — | Production rollout; widgets integrated; SLAs met for 30 days |
+
+---
+
+## Risks & Mitigations  
+
+| Risk | Mitigation |
+|------|------------|
+| Data drift in champion scoring | Scheduled re-training + human-in-the-loop corrections |
+| Privacy breach / consent failure | Strict consent pipeline + real-time privacy monitoring |
+| High load scalability | Auto-scaling, quotas, chaos drills |
+| Signal fatigue | Feedback loop, analytics-driven signal tuning |
+
+---
+
+## Open Questions  
+1. Real-time vs hourly champion scoring refresh?  
+2. Optional BYOK graph store for regulated tenants?  
+3. Async vs sync export for diffusion graphs?
 
 ---
 
