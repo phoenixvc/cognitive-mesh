@@ -1,14 +1,21 @@
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-public abstract class BaseTool
+namespace CognitiveMesh.AgencyLayer.ToolIntegration
 {
-    protected readonly ILogger<BaseTool> _logger;
-
-    protected BaseTool(ILogger<BaseTool> logger)
+    public abstract class BaseTool
     {
-        _logger = logger;
-    }
+        protected readonly ILogger _logger;
 
-    public abstract Task<string> ExecuteAsync(Dictionary<string, object> parameters);
+        protected BaseTool(ILogger logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        public abstract string Name { get; }
+        public abstract string Description { get; }
+        public abstract Task<string> ExecuteAsync(Dictionary<string, object> parameters);
+    }
 }

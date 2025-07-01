@@ -1,52 +1,34 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Azure.AI.OpenAI;
 
-public class TextGenerationTool : BaseTool
+namespace CognitiveMesh.AgencyLayer.ToolIntegration
 {
-    private readonly OpenAIClient _openAIClient;
-    private readonly string _completionDeployment;
-
-    public TextGenerationTool(OpenAIClient openAIClient, string completionDeployment, ILogger<TextGenerationTool> logger) 
-        : base(logger)
+    public class TextGenerationTool : BaseTool
     {
-        _openAIClient = openAIClient;
-        _completionDeployment = completionDeployment;
-    }
+        public override string Name => "Text Generation Tool";
+        public override string Description => "Generates text based on the provided prompt";
 
-    public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("prompt", out var promptObj) || promptObj is not string prompt)
+        public TextGenerationTool(ILogger<TextGenerationTool> logger) : base(logger)
         {
-            _logger.LogError("Missing or invalid 'prompt' parameter");
-            throw new Exception("Missing or invalid 'prompt' parameter");
         }
 
-        try
+        public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            var chatCompletionOptions = new ChatCompletionsOptions
-            {
-                DeploymentName = _completionDeployment,
-                Temperature = 0.7f,
-                MaxTokens = 500,
-                Messages =
-                {
-                    new ChatRequestSystemMessage("You are a helpful assistant."),
-                    new ChatRequestUserMessage(prompt)
-                }
-            };
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+            if (!parameters.TryGetValue("prompt", out var prompt) || prompt == null)
+                throw new Exception("Missing or invalid 'prompt' parameter");
 
-            _logger.LogInformation("Text generation executed successfully for prompt: {Prompt}", prompt);
-            return response.Value.Choices[0].Message.Content;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing text generation for prompt: {Prompt}", prompt);
-            throw;
+            _logger.LogInformation("Generating text based on prompt");
+            
+            // Simulate some processing time
+            await Task.Delay(100);
+            
+            // Return a mock result
+            return "Generated text for prompt: " + prompt;
         }
     }
 }

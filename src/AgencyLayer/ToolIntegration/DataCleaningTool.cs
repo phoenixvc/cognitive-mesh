@@ -1,38 +1,34 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
-public class DataCleaningTool : BaseTool
+namespace CognitiveMesh.AgencyLayer.ToolIntegration
 {
-    public DataCleaningTool(ILogger<DataCleaningTool> logger) : base(logger)
+    public class DataCleaningTool : BaseTool
     {
-    }
+        public override string Name => "Data Cleaning Tool";
+        public override string Description => "Cleans and preprocesses the provided data";
 
-    public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
+        public DataCleaningTool(ILogger<DataCleaningTool> logger) : base(logger)
         {
-            _logger.LogError("Missing or invalid 'data' parameter");
-            throw new Exception("Missing or invalid 'data' parameter");
         }
 
-        try
+        public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            var cleanedData = CleanData(data);
-            _logger.LogInformation("Data cleaning executed successfully for data: {Data}", data);
-            return cleanedData;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing data cleaning for data: {Data}", data);
-            throw;
-        }
-    }
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-    private string CleanData(string data)
-    {
-        // Simulate data cleaning logic
-        return data.Trim().Replace("  ", " ");
+            if (!parameters.TryGetValue("data", out var data) || data == null)
+                throw new Exception("Missing or invalid 'data' parameter");
+
+            _logger.LogInformation("Cleaning data");
+            
+            // Simulate some processing time
+            await Task.Delay(100);
+            
+            // Return a mock result
+            return "Cleaned data: " + data;
+        }
     }
 }

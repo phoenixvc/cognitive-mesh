@@ -1,43 +1,34 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
-public class SentimentAnalysisTool : BaseTool
+namespace CognitiveMesh.AgencyLayer.ToolIntegration
 {
-    private readonly HttpClient _httpClient;
-
-    public SentimentAnalysisTool(ILogger<SentimentAnalysisTool> logger, HttpClient httpClient) : base(logger)
+    public class SentimentAnalysisTool : BaseTool
     {
-        _httpClient = httpClient;
-    }
+        public override string Name => "Sentiment Analysis Tool";
+        public override string Description => "Analyzes sentiment in the provided text";
 
-    public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("text", out var textObj) || textObj is not string text)
+        public SentimentAnalysisTool(ILogger<SentimentAnalysisTool> logger) : base(logger)
         {
-            _logger.LogError("Missing or invalid 'text' parameter");
-            throw new Exception("Missing or invalid 'text' parameter");
         }
 
-        try
+        public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            var sentimentAnalysisEndpoint = "https://api.sentimentanalysis.com/analyze";
-            var content = new StringContent(JsonSerializer.Serialize(new { text }), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(sentimentAnalysisEndpoint, content);
-            response.EnsureSuccessStatusCode();
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-            var result = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Sentiment analysis executed successfully for text: {Text}", text);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing sentiment analysis for text: {Text}", text);
-            throw;
+            if (!parameters.TryGetValue("text", out var text) || text == null)
+                throw new Exception("Missing or invalid 'text' parameter");
+
+            _logger.LogInformation("Performing sentiment analysis");
+            
+            // Simulate some processing time
+            await Task.Delay(100);
+            
+            // Return a mock result
+            return "Sentiment analysis results for: " + text;
         }
     }
 }

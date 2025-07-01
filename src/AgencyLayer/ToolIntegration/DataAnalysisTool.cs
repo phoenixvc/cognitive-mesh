@@ -1,44 +1,34 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
-public class DataAnalysisTool : BaseTool
+namespace CognitiveMesh.AgencyLayer.ToolIntegration
 {
-    public DataAnalysisTool(ILogger<DataAnalysisTool> logger) : base(logger)
+    public class DataAnalysisTool : BaseTool
     {
-    }
+        public override string Name => "Data Analysis Tool";
+        public override string Description => "Performs data analysis on the provided data";
 
-    public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
+        public DataAnalysisTool(ILogger<DataAnalysisTool> logger) : base(logger)
         {
-            _logger.LogError("Missing or invalid 'data' parameter");
-            throw new Exception("Missing or invalid 'data' parameter");
         }
 
-        if (!parameters.TryGetValue("analysisType", out var analysisTypeObj) || analysisTypeObj is not string analysisType)
+        public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            _logger.LogError("Missing or invalid 'analysisType' parameter");
-            throw new Exception("Missing or invalid 'analysisType' parameter");
-        }
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-        try
-        {
-            await Task.Delay(100); // Simulate data analysis delay
+            if (!parameters.TryGetValue("data", out var data) || data == null)
+                throw new Exception("Missing or invalid 'data' parameter");
 
-            var results = $"Analysis results ({analysisType}):\n" +
-                          $"- Finding 1: Sample finding\n" +
-                          $"- Finding 2: Sample finding\n" +
-                          $"- Conclusion: Sample conclusion";
-
-            _logger.LogInformation("Data analysis executed successfully for analysis type: {AnalysisType}", analysisType);
-            return results;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing data analysis for analysis type: {AnalysisType}", analysisType);
-            throw;
+            _logger.LogInformation("Performing data analysis");
+            
+            // Simulate some processing time
+            await Task.Delay(100);
+            
+            // Return a mock result
+            return "Data analysis results for: " + data;
         }
     }
 }

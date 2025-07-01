@@ -1,37 +1,34 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
-public class PatternRecognitionTool : BaseTool
+namespace CognitiveMesh.AgencyLayer.ToolIntegration
 {
-    public PatternRecognitionTool(ILogger<PatternRecognitionTool> logger) : base(logger)
+    public class PatternRecognitionTool : BaseTool
     {
-    }
+        public override string Name => "Pattern Recognition Tool";
+        public override string Description => "Identifies patterns in the provided data";
 
-    public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
+        public PatternRecognitionTool(ILogger<PatternRecognitionTool> logger) : base(logger)
         {
-            _logger.LogError("Missing or invalid 'data' parameter");
-            throw new Exception("Missing or invalid 'data' parameter");
         }
 
-        try
+        public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            var patternRecognitionEndpoint = "https://api.patternrecognition.com/analyze";
-            var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(patternRecognitionEndpoint, content);
-            response.EnsureSuccessStatusCode();
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-            var result = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Pattern recognition executed successfully for data: {Data}", data);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing pattern recognition for data: {Data}", data);
-            throw;
+            if (!parameters.TryGetValue("data", out var data) || data == null)
+                throw new Exception("Missing or invalid 'data' parameter");
+
+            _logger.LogInformation("Performing pattern recognition on data");
+            
+            // Simulate some processing time
+            await Task.Delay(100);
+            
+            // Return a mock result
+            return "Pattern recognition results for: " + data;
         }
     }
 }

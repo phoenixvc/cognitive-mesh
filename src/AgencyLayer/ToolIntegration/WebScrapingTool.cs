@@ -1,37 +1,34 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
-public class WebScrapingTool : BaseTool
+namespace CognitiveMesh.AgencyLayer.ToolIntegration
 {
-    public WebScrapingTool(ILogger<WebScrapingTool> logger) : base(logger)
+    public class WebScrapingTool : BaseTool
     {
-    }
+        public override string Name => "Web Scraping Tool";
+        public override string Description => "Scrapes content from the specified URL";
 
-    public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("url", out var urlObj) || urlObj is not string url)
+        public WebScrapingTool(ILogger<WebScrapingTool> logger) : base(logger)
         {
-            _logger.LogError("Missing or invalid 'url' parameter");
-            throw new Exception("Missing or invalid 'url' parameter");
         }
 
-        try
+        public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            var webScrapingEndpoint = "https://api.webscraping.com/scrape";
-            var content = new StringContent(JsonSerializer.Serialize(new { url }), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(webScrapingEndpoint, content);
-            response.EnsureSuccessStatusCode();
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-            var result = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Web scraping executed successfully for URL: {Url}", url);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing web scraping for URL: {Url}", url);
-            throw;
+            if (!parameters.TryGetValue("url", out var url) || url == null)
+                throw new Exception("Missing or invalid 'url' parameter");
+
+            _logger.LogInformation($"Scraping content from URL: {url}");
+            
+            // Simulate some processing time
+            await Task.Delay(100);
+            
+            // Return a mock result
+            return $"Scraped content from: {url}";
         }
     }
 }

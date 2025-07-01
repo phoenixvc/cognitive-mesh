@@ -1,0 +1,6 @@
+Test run for C:\Dev\PhoenixVC\cognitive-mesh\tests\AgencyLayer\ToolIntegration\bin\Debug\net9.0\ToolIntegrationTests.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.12.0 (x64)
+
+The test source file "C:\Dev\PhoenixVC\cognitive-mesh\tests\AgencyLayer\ToolIntegration\bin\Debug\net9.0\ToolIntegrationTests.dll" provided was not found.
+
+Workload updates are available. Run `dotnet workload list` for more information.

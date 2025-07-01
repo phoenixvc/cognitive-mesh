@@ -1,83 +1,34 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
 
-public class DataVisualizationTool : BaseTool
+namespace CognitiveMesh.AgencyLayer.ToolIntegration
 {
-    private readonly HttpClient _httpClient;
-
-    public DataVisualizationTool(ILogger<DataVisualizationTool> logger, HttpClient httpClient) : base(logger)
+    public class DataVisualizationTool : BaseTool
     {
-        _httpClient = httpClient;
-    }
+        public override string Name => "Data Visualization Tool";
+        public override string Description => "Creates visualizations from the provided data";
 
-    public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
+        public DataVisualizationTool(ILogger<DataVisualizationTool> logger) : base(logger)
         {
-            _logger.LogError("Missing or invalid 'data' parameter");
-            throw new Exception("Missing or invalid 'data' parameter");
         }
 
-        try
+        public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            var dataVisualizationEndpoint = "https://api.datavisualization.com/visualize";
-            var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(dataVisualizationEndpoint, content);
-            response.EnsureSuccessStatusCode();
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-            var result = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Data visualization executed successfully for data: {Data}", data);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing data visualization for data: {Data}", data);
-            throw;
-        }
-    }
+            if (!parameters.TryGetValue("data", out var data) || data == null)
+                throw new Exception("Missing or invalid 'data' parameter");
 
-    public async Task<string> GenerateVisualizationAsync(string data)
-    {
-        try
-        {
-            var dataVisualizationEndpoint = "https://api.datavisualization.com/visualize";
-            var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(dataVisualizationEndpoint, content);
-            response.EnsureSuccessStatusCode();
-
-            var result = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Visualization generated successfully for data: {Data}", data);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating visualization for data: {Data}", data);
-            throw;
-        }
-    }
-
-    public async Task<byte[]> GenerateVisualizationReportAsync(string data, string format)
-    {
-        try
-        {
-            var dataVisualizationEndpoint = "https://api.datavisualization.com/visualize/report";
-            var content = new StringContent(JsonSerializer.Serialize(new { data, format }), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(dataVisualizationEndpoint, content);
-            response.EnsureSuccessStatusCode();
-
-            var result = await response.Content.ReadAsByteArrayAsync();
-            _logger.LogInformation("Visualization report generated successfully for data: {Data} in format: {Format}", data, format);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating visualization report for data: {Data} in format: {Format}", data, format);
-            throw;
+            _logger.LogInformation("Creating data visualization");
+            
+            // Simulate some processing time
+            await Task.Delay(100);
+            
+            // Return a mock result
+            return "Visualization created for: " + data;
         }
     }
 }

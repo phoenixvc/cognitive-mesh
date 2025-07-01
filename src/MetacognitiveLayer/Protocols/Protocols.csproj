@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>CognitiveMesh.MetacognitiveLayer.Protocols</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AgencyLayer\ToolIntegration\ToolIntegration.csproj" />
+    <ProjectReference Include="..\..\FoundationLayer\FoundationLayer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DuckDB.NET.Data" Version="0.9.2" />
+    <PackageReference Include="JsonSchema.Net" Version="5.4.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0-preview.5.24302.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0-preview.5.24302.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0-preview.5.24302.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0-preview.5.24302.2" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0-preview.5.24302.2" />
+    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.7.4" />
+    <PackageReference Include="NRedisStack" Version="0.11.0" />
+    <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

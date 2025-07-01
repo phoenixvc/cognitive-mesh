@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CognitiveMesh.AgencyLayer.ToolIntegration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -19,17 +20,29 @@ public class ClassificationToolTests
     [Fact]
     public async Task ExecuteAsync_ValidData_ReturnsResults()
     {
-        // Arrange
-        var parameters = new Dictionary<string, object>
+        try
         {
-            { "data", "sample data" }
-        };
+            Console.WriteLine("Starting test: ExecuteAsync_ValidData_ReturnsResults");
+            // Arrange
+            var parameters = new Dictionary<string, object>
+            {
+                { "data", "sample data" }
+            };
 
-        // Act
-        var result = await _classificationTool.ExecuteAsync(parameters);
+            Console.WriteLine("Calling ExecuteAsync with parameters");
+            // Act
+            var result = await _classificationTool.ExecuteAsync(parameters);
+            Console.WriteLine($"ExecuteAsync completed with result: {result}");
 
-        // Assert
-        Assert.Contains("Classification results", result);
+            // Assert
+            Assert.Contains("Classification results", result);
+            Console.WriteLine("Test completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Test failed with exception: {ex}");
+            throw;
+        }
     }
 
     [Fact]

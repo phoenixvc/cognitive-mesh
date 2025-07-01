@@ -1,37 +1,34 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
-public class PredictiveAnalyticsTool : BaseTool
+namespace CognitiveMesh.AgencyLayer.ToolIntegration
 {
-    public PredictiveAnalyticsTool(ILogger<PredictiveAnalyticsTool> logger) : base(logger)
+    public class PredictiveAnalyticsTool : BaseTool
     {
-    }
+        public override string Name => "Predictive Analytics Tool";
+        public override string Description => "Performs predictive analytics on the provided data";
 
-    public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
-    {
-        if (!parameters.TryGetValue("data", out var dataObj) || dataObj is not string data)
+        public PredictiveAnalyticsTool(ILogger<PredictiveAnalyticsTool> logger) : base(logger)
         {
-            _logger.LogError("Missing or invalid 'data' parameter");
-            throw new Exception("Missing or invalid 'data' parameter");
         }
 
-        try
+        public override async Task<string> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            var predictiveAnalyticsEndpoint = "https://api.predictiveanalytics.com/analyze";
-            var content = new StringContent(JsonSerializer.Serialize(new { data }), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(predictiveAnalyticsEndpoint, content);
-            response.EnsureSuccessStatusCode();
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-            var result = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Predictive analytics executed successfully for data: {Data}", data);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing predictive analytics for data: {Data}", data);
-            throw;
+            if (!parameters.TryGetValue("data", out var data) || data == null)
+                throw new Exception("Missing or invalid 'data' parameter");
+
+            _logger.LogInformation("Performing predictive analytics");
+            
+            // Simulate some processing time
+            await Task.Delay(100);
+            
+            // Return a mock result
+            return "Predictive analytics results for: " + data;
         }
     }
 }

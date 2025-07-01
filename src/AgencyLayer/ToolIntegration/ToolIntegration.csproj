@@ -1,32 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="BaseTool.cs" />
-    <Compile Include="ClassificationTool.cs" />
-    <Compile Include="ClusteringTool.cs" />
-    <Compile Include="DataAnalysisTool.cs" />
-    <Compile Include="DataCleaningTool.cs" />
-    <Compile Include="DataVisualizationTool.cs" />
-    <Compile Include="NamedEntityRecognitionTool.cs" />
-    <Compile Include="PatternRecognitionTool.cs" />
-    <Compile Include="PredictiveAnalyticsTool.cs" />
-    <Compile Include="RecommendationSystemTool.cs" />
-    <Compile Include="SentimentAnalysisTool.cs" />
-    <Compile Include="TextGenerationTool.cs" />
-    <Compile Include="ToolIntegrator.cs" />
-    <Compile Include="WebScrapingTool.cs" />
-    <Compile Include="WebSearchTool.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0" />
-    <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
 </Project>
