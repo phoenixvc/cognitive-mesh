@@ -1,0 +1,275 @@
+paths:
+  /innovation/trends:
+    get:
+      summary: Get innovation adoption trends
+      description: >
+        Retrieves metrics and visualizations showing the spread and adoption
+        of innovations across the community
+      operationId: getInnovationTrends
+      tags:
+        - Innovation
+      parameters:
+        - name: timeRange
+          in: query
+          description: Time range for trend analysis
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, 1y]
+            default: 30d
+        - name: segmentBy
+          in: query
+          description: Segment metrics by community dimension
+          schema:
+            type: string
+            enum: [none, region, skill, tenure]
+            default: none
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InnovationTrends'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /innovation/network:
+    get:
+      summary: Get innovation network graph
+      description: Returns a graph of how innovations spread through the network
+      operationId: getInnovationNetwork
+      tags:
+        - Innovation
+      parameters:
+        - name: innovationId
+          in: query
+          description: Filter by specific innovation ID
+          schema:
+            type: string
+            format: uuid
+        - name: depth
+          in: query
+          description: Network traversal depth
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+            default: 2
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InnovationNetwork'
+
+  /innovation/catalysts:
+    get:
+      summary: Identify innovation catalysts
+      description: >
+        Identifies key individuals and groups driving innovation adoption
+      operationId: getInnovationCatalysts
+      tags:
+        - Innovation
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InnovationCatalyst'
+
+components:
+  schemas:
+    InnovationTrends:
+      type: object
+      required:
+        - timeRange
+        - innovations
+      properties:
+        timeRange:
+          type: string
+          example: "30d"
+        innovations:
+          type: array
+          items:
+            $ref: '#/components/schemas/InnovationTrend'
+        metrics:
+          type: object
+          properties:
+            adoptionRate:
+              type: number
+              format: float
+              example: 0.42
+            viralCoefficient:
+              type: number
+              format: float
+              example: 1.8
+            timeToAdopt:
+              type: string
+              format: duration
+              example: "P7DT12H"
+
+    InnovationTrend:
+      type: object
+      required:
+        - id
+        - name
+        - adoptionRate
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          example: "New ML Framework"
+        description:
+          type: string
+        adoptionRate:
+          type: number
+          format: float
+          example: 0.35
+        dailyAdoption:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              count:
+                type: integer
+        categories:
+          type: array
+          items:
+            type: string
+          example: ["machine-learning", "frameworks"]
+
+    InnovationNetwork:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/NetworkNodeUser'
+              - $ref: '#/components/schemas/NetworkNodeInnovation'
+              - $ref: '#/components/schemas/NetworkNodeGroup'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetworkLink'
+
+    NetworkNodeUser:
+      type: object
+      required:
+        - id
+        - type
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [user]
+        name:
+          type: string
+        role:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+
+    NetworkNodeInnovation:
+      type: object
+      required:
+        - id
+        - type
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [innovation]
+        name:
+          type: string
+        category:
+          type: string
+        adoptionCount:
+          type: integer
+
+    NetworkNodeGroup:
+      type: object
+      required:
+        - id
+        - type
+        - name
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [group]
+        name:
+          type: string
+        memberCount:
+          type: integer
+
+    NetworkLink:
+      type: object
+      required:
+        - source
+        - target
+        - type
+      properties:
+        source:
+          type: string
+        target:
+          type: string
+        type:
+          type: string
+          enum: [adopted, influenced, collaborated, mentored]
+        strength:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    InnovationCatalyst:
+      type: object
+      required:
+        - userId
+        - name
+        - catalystScore
+      properties:
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+        role:
+          type: string
+        catalystScore:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        innovationsIntroduced:
+          type: integer
+        averageAdoptionRate:
+          type: number
+          format: float
+        networkInfluence:
+          type: number
+          format: float
+        lastActive:
+          type: string
+          format: date-time

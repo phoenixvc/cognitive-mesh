@@ -1,0 +1,161 @@
+paths:
+  /champion-discovery/matches:
+    get:
+      summary: Retrieve scoring and matchmaking results for champions
+      description: >
+        Returns a paginated list of champion matches with their relevance scores.
+        Matches are sorted by relevance score in descending order.
+      operationId: getChampionMatches
+      tags:
+        - Champion Discovery
+      parameters:
+        - $ref: '#/components/parameters/PaginationQuery'
+        - $ref: '#/components/parameters/SortQuery'
+        - name: minScore
+          in: query
+          description: Minimum relevance score (0-1)
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 1
+            default: 0.5
+        - name: skills
+          in: query
+          description: Filter by required skills (comma-separated)
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Pagination'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ChampionMatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /champion-discovery/matches/{championId}:
+    get:
+      summary: Get detailed match information for a specific champion
+      operationId: getChampionMatchDetails
+      tags:
+        - Champion Discovery
+      parameters:
+        - name: championId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID of the champion
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChampionMatchDetails'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  schemas:
+    ChampionMatch:
+      type: object
+      required:
+        - championId
+        - score
+        - skills
+      properties:
+        championId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          example: "Alex Johnson"
+        score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          example: 0.87
+          description: Match relevance score (0-1)
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: "skill-ai-ml"
+              name:
+                type: string
+                example: "Machine Learning"
+              matchScore:
+                type: number
+                format: float
+                minimum: 0
+                maximum: 1
+                example: 0.92
+        lastActive:
+          type: string
+          format: date-time
+          example: "2025-06-30T15:45:00Z"
+
+    ChampionMatchDetails:
+      allOf:
+        - $ref: '#/components/schemas/ChampionMatch'
+        - type: object
+          properties:
+            bio:
+              type: string
+              example: "Senior AI Researcher with 10+ years of experience..."
+            availability:
+              type: string
+              enum: [available, limited, unavailable]
+              example: "available"
+            contactInfo:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                linkedIn:
+                  type: string
+                  format: uri
+            projects:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  role:
+                    type: string
+                  duration:
+                    type: string
+            feedbackScore:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 5
+              example: 4.7

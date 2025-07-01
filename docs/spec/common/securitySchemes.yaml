@@ -1,0 +1,37 @@
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        JWT Token Authentication. 
+        Include the token in the Authorization header as: `Bearer <token>`
+        
+        Example: `Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for programmatic access
+
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.cognitivemesh.com/oauth2/authorize
+          tokenUrl: https://auth.cognitivemesh.com/oauth2/token
+          scopes:
+            openid: OpenID Connect
+            profile: Read user profile
+            email: Read user email
+            offline_access: Offline access
+
+  security:
+    - bearerAuth: []
+    - apiKey: []
+    - oauth2:
+        - openid
+        - profile
+        - email

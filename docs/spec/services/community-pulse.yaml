@@ -1,0 +1,229 @@
+paths:
+  /community-pulse/metrics:
+    get:
+      summary: Fetch aggregated community metrics and safety indicators
+      description: >
+        Returns comprehensive metrics about community health, engagement, and safety.
+        Data can be filtered by time range and community segments.
+      operationId: getCommunityPulse
+      tags:
+        - Community
+      parameters:
+        - name: timeRange
+          in: query
+          description: Time range for metrics (e.g., 24h, 7d, 30d)
+          schema:
+            type: string
+            enum: [24h, 7d, 30d, 90d, all]
+            default: 7d
+        - name: segmentBy
+          in: query
+          description: Segment metrics by specific dimension
+          schema:
+            type: string
+            enum: [none, skill, region, experience]
+            default: none
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityPulseMetrics'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /community-pulse/sentiment:
+    get:
+      summary: Get community sentiment analysis
+      description: Returns sentiment analysis across community interactions
+      operationId: getCommunitySentiment
+      tags:
+        - Community
+      parameters:
+        - name: timeRange
+          in: query
+          description: Time range for sentiment analysis
+          schema:
+            type: string
+            enum: [24h, 7d, 30d]
+            default: 7d
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunitySentiment'
+
+  /community-pulse/health:
+    get:
+      summary: Get community health indicators
+      description: Returns key indicators of community health and activity
+      operationId: getCommunityHealth
+      tags:
+        - Community
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityHealth'
+
+components:
+  schemas:
+    CommunityPulseMetrics:
+      type: object
+      required:
+        - timestamp
+        - timeRange
+        - metrics
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-07-01T12:00:00Z"
+        timeRange:
+          type: string
+          example: "7d"
+        metrics:
+          type: object
+          properties:
+            activeUsers:
+              type: integer
+              example: 1245
+              description: Number of active users in the time period
+            newUsers:
+              type: integer
+              example: 143
+              description: New users who joined in the time period
+            engagementRate:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              example: 0.42
+              description: Percentage of active users who engaged with content
+            contentCreated:
+              type: integer
+              example: 342
+              description: Number of new content items created
+            interactions:
+              type: integer
+              example: 1245
+              description: Total interactions (likes, comments, shares)
+            safetyScore:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              example: 0.92
+              description: Community safety score (higher is better)
+            sentiment:
+              type: object
+              properties:
+                positive:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 1
+                  example: 0.68
+                neutral:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 1
+                  example: 0.25
+                negative:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 1
+                  example: 0.07
+        segments:
+          type: array
+          items:
+            type: object
+            properties:
+              segmentKey:
+                type: string
+                example: "machine-learning"
+              segmentName:
+                type: string
+                example: "Machine Learning"
+              metrics:
+                $ref: '#/components/schemas/CommunityPulseMetrics/properties/metrics'
+
+    CommunitySentiment:
+      type: object
+      properties:
+        timeRange:
+          type: string
+          example: "7d"
+        sentimentScores:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                example: "2025-06-25"
+              score:
+                type: number
+                format: float
+                minimum: -1
+                maximum: 1
+                example: 0.42
+        topics:
+          type: array
+          items:
+            type: object
+            properties:
+              topic:
+                type: string
+                example: "neural networks"
+              sentiment:
+                type: number
+                format: float
+                minimum: -1
+                maximum: 1
+                example: 0.65
+              volume:
+                type: integer
+                example: 42
+
+    CommunityHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, critical]
+          example: "healthy"
+        indicators:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "response_time"
+              value:
+                type: number
+                example: 125
+              status:
+                type: string
+                enum: [ok, warning, error]
+                example: "ok"
+              threshold:
+                type: number
+                example: 200
+        lastUpdated:
+          type: string
+          format: date-time
+          example: "2025-07-01T12:00:00Z"
