@@ -1,0 +1,44 @@
+[
+  {
+    "id": "user-1",
+    "name": "Test User 1",
+    "email": "user1@example.com",
+    "role": "admin",
+    "createdAt": "2023-01-01T00:00:00Z",
+    "lastLogin": "2023-07-01T12:00:00Z",
+    "active": true,
+    "permissions": ["read", "write", "delete"],
+    "metadata": {
+      "department": "Engineering",
+      "team": "Backend"
+    }
+  },
+  {
+    "id": "user-2",
+    "name": "Test User 2",
+    "email": "user2@example.com",
+    "role": "user",
+    "createdAt": "2023-01-15T00:00:00Z",
+    "lastLogin": "2023-07-01T11:30:00Z",
+    "active": true,
+    "permissions": ["read"],
+    "metadata": {
+      "department": "Marketing",
+      "team": "Content"
+    }
+  },
+  {
+    "id": "user-3",
+    "name": "Test User 3",
+    "email": "user3@example.com",
+    "role": "manager",
+    "createdAt": "2023-02-01T00:00:00Z",
+    "lastLogin": "2023-06-30T09:15:00Z",
+    "active": false,
+    "permissions": ["read", "write"],
+    "metadata": {
+      "department": "Sales",
+      "team": "Enterprise"
+    }
+  }
+]

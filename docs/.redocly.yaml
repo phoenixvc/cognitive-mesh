@@ -83,7 +83,7 @@ rules:
   spec-components-security-schemes-oauth2-flows-scope-required-http: error
   spec-components-security-schemes-oauth2-flows-scope-required-mutual-tls: error
   spec-components-security-schemes-oauth2-flows-scope-required-openid-connect: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2: error
+  # Removed duplicate: spec-components-security-schemes-oauth2-flows-scope-required-oauth2: error
   spec-components-security-schemes-oauth2-flows-scope-required-oauth2-implicit: error
   spec-components-security-schemes-oauth2-flows-scope-required-oauth2-password: error
   spec-components-security-schemes-oauth2-flows-scope-required-oauth2-client-credentials: error
