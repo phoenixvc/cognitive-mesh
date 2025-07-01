@@ -93,35 +93,64 @@ The Convener backend is a secure, API-driven platform that underpins champion di
 
 ---
 
-## Architecture & Onion Model Mapping  
+## Distributed Architecture Mapping  
+
+Convener functionality is distributed across the *existing* Cognitive-Mesh
+layers rather than being implemented in a standalone sub-layer.
 
 ```text
-┌─────────────────────────┐
-│        Consumers        │  ← Widgets / external callers
-└────────────┬────────────┘
-             ▼
-┌─────────────────────────┐
-│ Infrastructure Layer    │  ← Web API controllers, EF/DB, Azure Service Bus
-└────────────┬────────────┘
-             ▼
-┌─────────────────────────┐
-│ Application Layer       │  ← Use-case services: ChampionDiscoveryService,
-│                         │     PulseAggregationService, etc.
-└────────────┬────────────┘
-             ▼
-┌─────────────────────────┐
-│ Domain Layer            │  ← Domain services, aggregates, business rules
-└────────────┬────────────┘
-             ▼
-┌─────────────────────────┐
-│ Core Domain Entities    │  ← Champion, Interaction, Innovation, PulseMetric
-└─────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                        Consumers                            │
+│          (Widgets / External Callers / Agents)              │
+└───────────────┬─────────────────────────────────────────────┘
+                ▼
+┌─────────────────────────────────────────────────────────────┐
+│  BusinessApplications (API Orchestration & Approval Flows) │
+│  • REST / gRPC endpoints (`/champions`, `/pulse`, …)       │
+│  • Approval / Consent Service                               │
+│  • Notification / Push Service                             │
+└───────────────┬─────────────────────────────────────────────┘
+                ▼
+┌─────────────────────────────────────────────────────────────┐
+│        MetacognitiveLayer (Monitoring & Trends)            │
+│  • Community Pulse Service – sentiment & safety indices     │
+│  • Learning Catalyst Orchestrator – experiment outcomes     │
+└───────────────┬─────────────────────────────────────────────┘
+                ▼
+┌─────────────────────────────────────────────────────────────┐
+│         ReasoningLayer (Algorithms & Scoring)              │
+│  • Champion Discovery Engine – endorsement ranking          │
+│  • Innovation Spread Detector – virality / pattern mining   │
+│  • Competitive Reality Check – external benchmark models    │
+└───────────────┬─────────────────────────────────────────────┘
+                ▼
+┌─────────────────────────────────────────────────────────────┐
+│      FoundationLayer (Data Ingestion & Persistence)        │
+│  • Raw social / learning event capture & tenant streams     │
+│  • Secure Postgres / Event Store for provenance logs        │
+│  • Authentication & multi-tenancy enforcement               │
+└───────────────┬─────────────────────────────────────────────┘
+                ▼
+┌─────────────────────────────────────────────────────────────┐
+│            AgencyLayer (Automation & Nudgers)              │
+│  • Event-driven agents that trigger champion nudges         │
+│  • CLI / SDK runners for batch discovery or audits          │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-* **Infrastructure**: Azure API Management, AKS micro-services, Cosmos DB Gremlin, Postgres, Azure AI Search, Service Bus.  
-* **Application**: Coordinators applying orchestration, HITL approvals, aggregation, scoring.  
-* **Domain**: Pure C# domain services (e.g., `ChampionScorer`, `SentimentAggregator`) – no external refs.  
-* **Core Entities**: Immutable value objects & aggregates (Champion, Community, Innovation, LearningEvent).
+### Layer Responsibilities & Convener Components
+
+| Layer | Convener Responsibilities |
+|-------|---------------------------|
+| **FoundationLayer** | Raw event capture (social interactions, endorsements, learning logs); tenant-scoped streams; secure provenance storage. |
+| **ReasoningLayer** | Champion Discovery algorithms; Innovation Spread detection; Competitive benchmarks. |
+| **MetacognitiveLayer** | Community Pulse metrics; Learning Catalyst outcome correlation; trend analysis. |
+| **BusinessApplications** | Public REST/gRPC endpoints; approval & consent workflows; notification fan-out. |
+| **AgencyLayer** | Automation agents (“nudgers”) that, once consented, trigger workflows (e-mail champs, create collaboration spaces). |
+
+This distributed approach maintains **architectural consistency**, maximises
+code reuse, and keeps each Convener capability in the layer best suited to its
+responsibility.
 
 ---
 
