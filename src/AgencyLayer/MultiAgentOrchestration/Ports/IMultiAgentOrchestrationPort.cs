@@ -28,6 +28,27 @@ namespace CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Ports.Models
     }
 
     /// <summary>
+    /// Represents the lifecycle status of an agent within the registry.
+    /// </summary>
+    public enum AgentStatus
+    {
+        /// <summary>
+        /// Agent is fully supported and available for orchestration.
+        /// </summary>
+        Active,
+
+        /// <summary>
+        /// Agent is still usable but scheduled for removal; orchestration should prefer newer versions.
+        /// </summary>
+        Deprecated,
+
+        /// <summary>
+        /// Agent is no longer available for new orchestrations.
+        /// </summary>
+        Retired
+    }
+
+    /// <summary>
     /// Defines the collaboration strategy for a group of agents working on a single task.
     /// This enables the coordination of emergent behaviors.
     /// </summary>
@@ -86,11 +107,21 @@ namespace CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Ports.Models
     /// </summary>
     public class AgentDefinition
     {
+        /// <summary>
+        /// Unique identifier for the agent definition (populated on registration).
+        /// </summary>
+        public Guid AgentId { get; set; }
+
         public string AgentType { get; set; } // e.g., "ChampionNudger", "VelocityRecalibrator"
         public string Description { get; set; }
         public List<string> Capabilities { get; set; } = new();
         public AutonomyLevel DefaultAutonomyLevel { get; set; } = AutonomyLevel.RecommendOnly;
         public AuthorityScope DefaultAuthorityScope { get; set; } = new();
+
+        /// <summary>
+        /// Lifecycle status of the agent (Active, Deprecated, Retired).
+        /// </summary>
+        public AgentStatus Status { get; set; } = AgentStatus.Active;
     }
 
     /// <summary>
@@ -219,5 +250,36 @@ namespace CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Ports
         /// <param name="tenantId">The tenant scope for the query.</param>
         /// <returns>The current status and progress of the task.</returns>
         Task<AgentTask> GetAgentTaskStatusAsync(string taskId, string tenantId);
+
+        // -----------------------------------------------------------------
+        // ---------  Additional Registry Management Operations ------------
+        // -----------------------------------------------------------------
+
+        /// <summary>
+        /// Retrieves a registered agent definition by its unique identifier.
+        /// </summary>
+        /// <param name="agentId">The unique ID of the agent definition.</param>
+        Task<AgentDefinition> GetAgentByIdAsync(Guid agentId);
+
+        /// <summary>
+        /// Lists all agent definitions in the registry.
+        /// </summary>
+        /// <param name="includeRetired">
+        /// If <c>true</c>, retired agents are included in the result set; otherwise they are filtered out.
+        /// </param>
+        Task<IEnumerable<AgentDefinition>> ListAgentsAsync(bool includeRetired = false);
+
+        /// <summary>
+        /// Updates an existing agent definition (non–breaking changes only).
+        /// </summary>
+        /// <param name="definition">The updated agent definition.</param>
+        Task UpdateAgentAsync(AgentDefinition definition);
+
+        /// <summary>
+        /// Retires an agent definition, making it unavailable for new orchestrations.
+        /// </summary>
+        /// <param name="agentId">The unique ID of the agent definition to retire.</param>
+        /// <returns><c>true</c> if the agent was successfully retired, otherwise <c>false</c>.</returns>
+        Task<bool> RetireAgentAsync(Guid agentId);
     }
 }
