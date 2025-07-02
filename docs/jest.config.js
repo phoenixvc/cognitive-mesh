@@ -7,8 +7,15 @@ module.exports = {
     'tools/**/*.js',
     '!**/node_modules/**',
     '!**/vendor/**',
+    '!**/coverage/**',
+    '!**/__tests__/**',
+    '!**/jest.config.js',
+    '!**/jest.setup.js',
   ],
-  coverageReporters: ['text', 'lcov'],
+  coverageReporters: ['text', 'lcov', 'html'],
+  coveragePathIgnorePatterns: [
+    'node_modules/'
+  ],
   coverageThreshold: {
     global: {
       branches: 80,
@@ -17,6 +24,6 @@ module.exports = {
       statements: 80,
     },
   },
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  verbose: true,
   testTimeout: 10000, // 10 seconds
 };
