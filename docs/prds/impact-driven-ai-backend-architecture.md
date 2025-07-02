@@ -1,432 +1,465 @@
-# Impact-Driven AI Backend Architecture PRD
+# Impact-Driven AI Backend Architecture PRD (Hexagonal, Layered)
 
-### Executive Summary
+### TL;DR
 
-The backend architecture delivers APIs and intelligent services for
-tracking real impact, modeling team culture, assessing psychological
-safety, and enabling AI collaboration. Its goal is to produce measurable
-business and community outcomes through scalable, reliable interfaces
-for user-facing widgets integrated into the mesh platform.
-
-------------------------------------------------------------------------
-
-## Goals
-
-### Business Goals
-
-- Achieve clear improvements in team workflows and measure productivity
-  gains across all teams eligible to use the mesh platform.
-
-- Enable faster sharing and adoption of innovative, high-impact
-  solutions and ideas both within and between organizations.
-
-- Promote positive changes in organizational culture and safety by
-  providing actionable insights and highlighting important trends.
-
-- Provide platform APIs with high reliability, strong security, and
-  scalable performance to support essential integrations for mesh
-  clients, meeting enterprise standards for uptime and compliance.
-
-### User Goals
-
-- Enable teams to track and celebrate real impact and value creation,
-  not just system usage
-
-- Surface and amplify authentic passions, expertise, and culture,
-  fostering deeper community alignment
-
-- Equip users with tools for psychological safety, feedback, and risk
-  mitigation in collaborative environments
-
-- Ensure transparency and provenance for all AI-driven insights and
-  automation across workflows
-
-### Non-Goals
-
-- Building or specifying the front-end widget/plugin code (this is
-  handled in a separate PRD)
-
-- Orchestrating bespoke AI/ML models not already covered in platform
-  architecture
-
-- Supporting “off-mesh” integrations with non-sanctioned third-party
-  systems
+This Impact-Driven AI backend architecture is decomposed across the
+mesh’s layered model using a hexagonal (ports-and-adapters) approach.
+Each mesh layer embodies a focused core: FoundationLayer
+(event/provenance logging), ReasoningLayer (scoring, passion/culture
+inference), MetacognitiveLayer (safety/culture analytics), AgencyLayer
+(multi-agent orchestration), and BusinessApplications (API/consent
+shell). Every layer exposes clear domain ports and is integrated by
+standardized adapters (API, DB, eventbus, observability), ensuring
+robust, observable, and testable mesh-wide orchestration.
 
 ------------------------------------------------------------------------
 
-## User Stories
+## 1. Hexagonal Architecture & Mesh Layer Map (+ Diagram)
 
-- **Mesh Platform Admin**
+**Layered Hexagonal Overview**
 
-  - As a Platform Admin, I want to onboard a new organization, so that
-    its impact and culture metrics are measured from day one.
+- **FoundationLayer**: Handles event capture and provenance
+  logging—tenant-scoped, secure, fully auditable.
 
-  - As a Platform Admin, I want audit trails and control over API
-    versioning, so that I can prove compliance and integration
-    stability.
+- **ReasoningLayer**: Hosts all pure inference/ML—impact scoring,
+  virality, passion/culture modeling, humanity enrichment.
 
-- **Business Lead**
+- **MetacognitiveLayer**: Aggregates and analyzes psychological safety
+  and culture health at aggregate/team/temporal levels.
 
-  - As a Business Lead, I want to view a real-time dashboard of process
-    impact, so that I can prioritize high-ROI initiatives.
+- **AgencyLayer**: Multi-agent orchestration, “nudge bots,” automated
+  execution engines.
 
-  - As a Business Lead, I want to see cross-team champion discovery, so
-    that I can foster organic knowledge transfer.
+- **BusinessApplications**: External APIs (REST/gRPC), consent/approval
+  logic, workflow orchestration, widget/event push.
 
-- **Team Member**
+**Hexagonal Model**
 
-  - As a Team Member, I want my unique passions and experiences to shape
-    my AI-augmented workflows, so that my work feels more meaningful.
+- **Core**: Each layer has its own pure domain engines, uncoupled from
+  the outside world.
 
-  - As a Team Member, I want assurance that my feedback and concerns
-    regarding psychological safety are heard and acted upon.
+- **Ports**: Well-specified interfaces for external access (e.g.
+  scoring, consent, notifications).
 
-- **Mesh Plugin Developer**
+- **Adapters**: For protocols (REST, gRPC, CLI), storage, observability,
+  and eventbus integration.
 
-  - As a Developer, I want reliable, stable APIs for event orchestration
-    and measurement, so that I can focus on user experience.
+**Architecture Diagram (Textual Representation)**
 
-  - As a Developer, I want detailed endpoint documentation and change
-    notifications, so that my solutions don’t break when APIs evolve.
+User/Widget Event  
+↓  
+**\[BusinessApplications Layer]**
 
-------------------------------------------------------------------------
+- ConsentPort / ApprovalPort
 
-## Functional Requirements
+- REST/gRPC API Adapter  
+  ↓  
+  **\[FoundationLayer]**
 
-- **Impact Measurement Services** (Priority: Must)
+- EventCapturePort
 
-  - **ImpactFirstMeasurementEngine**: /v1/measurement/impact
+- ProvenanceLoggerPort
 
-    - Tracks workflow augmentation events, virality of solutions,
-      interaction depth, calendar coverage, and key business outcomes.
+- DB Adapter (secure, tenant-scoped)  
+  ↓  
+  **\[ReasoningLayer]**
 
-    - Acceptance: *Given* a user action routed through the workflow,
-      *When* measurement is triggered, *Then* the event is logged,
-      scored, and accessible in less than 500ms.
+- ImpactScoringPort
 
-- **Passion and Culture Modeling** (Priority: Must)
+- PassionMatchPort
 
-  - **PassionDrivenAIOrchestrator**: /v1/orchestrator/passions
+- HumanityEnrichmentPort  
+  ↓  
+  **\[MetacognitiveLayer]**
 
-    - Parses user profiles, detects genuine passions, verifies
-      authenticity, and matches users to relevant communities or
-      initiatives.
+- SafetyMetricsPort
 
-    - Acceptance: *Given* an updated user profile, *When* orchestrator
-      is invoked, *Then* passions and authenticity are scored, and a
-      matchmaking action is proposed, with a full audit record.
+- HealthTrendAnalyticsPort  
+  ↓  
+  **\[AgencyLayer]**
 
-- **Safety and Culture Health** (Priority: Must)
+- MultiAgentOrchestrationPort
 
-  - **PsychologicalSafetyCultureEngine**: /v1/pulse/safety
+- AgentNotificationAdapter  
+  ↓
 
-    - Tracks team and group health metrics, detects risk signals,
-      forecasts cultural drift, and surfaces opportunities for learning
-      or celebration.
+- Outbound Adapters: Notification/Event Push, Audit/Observability
+  Metrics
 
-    - Acceptance: *Given* a team’s ongoing interactions, *When* risk or
-      positive trends emerge, *Then* a timely alert and recommended
-      action are surfaced.
+- Data & consent/provenance tags traverse all layers
 
-- **Humanity-First Enrichment** (Priority: Should)
+**Key Data Flow and SLA Touchpoints**
 
-  - **HumanityFirstEnrichmentEngine**: /v1/enrichment/humanity
+- Consent check and OpenAPI validation at ingress
 
-    - Captures and blends unique experiences/context, amplifying
-      individuality and the “human fingerprint” within team workflows.
+- <100ms event log/provenance
 
-    - Acceptance: *Given* a request for enrichment, *When* unique inputs
-      are available, *Then* the response is personalized and contains
-      provenance tags.
+- <200ms impact scoring
 
-- **Collaborative Intelligence APIs** (Priority: Could)
-
-  - **Multi-AgentCollabAPIs**: /v1/collab/agents
-
-    - Allows user- or app-initiated orchestration of creative, critical,
-      synthesis, and facilitator “AI agents” for group problem-solving.
-
-    - Acceptance: *Given* a multi-agent task is launched, *When* agents
-      complete their pipelines, *Then* outcomes are synced with audit
-      summary and surfaced to calling client.
-
-Each of these features supports full endpoint documentation, schema
-versioning, unit/integration tests, and a checklist of security/consent
-requirements.
+- Near real-time analytics and notification fan-out
 
 ------------------------------------------------------------------------
 
-## User Experience
+## 2. Domain Cores: Layered Logic
 
-**Entry Point & First-Time User Experience**
+**Mapped Engines and Mesh Layers**
 
-- Organization Admins invite users, who are onboarded via secure API
-  registration.
+- **FoundationLayer**
 
-- Mesh widgets (outside the scope of this backend PRD) call backend
-  endpoints through authenticated App registrations.
+  - *EventCaptureEngine*: Accepts all workflow/interaction events.
 
-**Core Experience**
+  - *ProvenanceLogger*: Anchors every change with tenant/biz/consent
+    info.
 
-- **Step 1:** Widget (e.g., “Impact Dashboard”) authenticates and
-  requests latest impact data.
+- **ReasoningLayer**
 
-  - If API token or SSO handshake fails, clear error is returned.
+  - *ImpactFirstMeasurementEngine*: Scores impact, virality, workflow
+    depth.
 
-  - Success response includes calculated metrics, confidence, and
-    provenance hashes.
+  - *PassionDrivenAIOrchestrator*: LLM/ML-driven community matchmaking.
 
-- **Step 2:** Widget or process submits new workflow event for
-  measurement.
+  - *HumanityFirstEnrichmentEngine*: Personalizes and tags outputs.
 
-  - Validated at endpoint, securely logged, and processed for scoring in
-    real time.
+- **MetacognitiveLayer**
 
-  - Errors in payload validation produce descriptive error messages with
-    correction hints.
+  - *PsychologicalSafetyCultureEngine*: Aggregates health/risk, surfaces
+    signals.
 
-- **Step 3:** On-demand or scheduled passion/culture analysis is
-  triggered.
+- **AgencyLayer**
 
-  - Engine parses relevant profiles, discovers/updates matches, and
-    returns signed payloads for UI use.
+  - *MultiAgentCollabOrchestrator*: Orchestrates multi-agent tasks and
+    agent-to-agent messaging.
 
-- **Step 4:** Psychological safety pulse polled or streamed by mesh
-  plugin.
-
-  - Service provides both aggregated trends and actionable event
-    records.
-
-  - Safety alerts are tagged as “urgent,” “routine,” or “celebration,”
-    per policy.
-
-- **Step 5:** Any agent orchestration launched by clients follows a
-  sandwich pattern:
-
-  - Input/goal submission → orchestrator executes backend pipeline →
-    returns result artifact and audit provenance.
-
-**Advanced Features & Edge Cases**
-
-- APIs handle rate limit excesses with 429s and detailed back-off
-  headers.
-
-- All error states include root cause, friendly display string, and
-  correlation IDs.
-
-- If backend lags/loses data—widgets display “Last fetched X mins ago”
-  and offer manual retry.
-
-- DR/Failover: Primary endpoints automatically reroute to backup region
-  on failure.
-
-**UI/UX Highlights**
-
-- All endpoints expose consent and privacy hooks—downstream widget must
-  reflect these clearly.
-
-- API responses always embed origin, timestamp, and
-  confidence/provenance on computed data.
-
-- Accessibility, i18n, and time zone normalization are standard in all
-  timestamped payloads.
+**Domain logic per engine remains *pure*, tested headless and isolated
+from outside protocols. Integration is achieved *only* via ports and
+adapters.**
 
 ------------------------------------------------------------------------
 
-## Narrative
+## 3. Ports: Interfaces and Acceptance Criteria (MoSCoW/SLA)
 
-At the heart of the Cognitive Mesh, organizations face the challenge
-that traditional measurement tools only capture activity—not true
-impact. Employees crave workflows that celebrate real outcomes and
-amplify what makes each person unique, all while feeling safe to take
-creative risks. The Impact-Driven AI Backend Architecture transforms
-this landscape by moving beyond mere logins: it orchestrates
-measurements that matter, identifies and nurtures authentic passions,
-and keeps a finger on the pulse of every team’s culture and
-psychological safety.
+<table style="min-width: 125px">
+<tbody>
+<tr>
+<th><p>Port Name</p></th>
+<th><p>Layer</p></th>
+<th><p>MoSCoW</p></th>
+<th><p>Acceptance Criteria Example (Given/When/Then)</p></th>
+<th><p>SLA/Notes</p></th>
+</tr>
+&#10;<tr>
+<td><p>CapturePort</p></td>
+<td><p>Foundation</p></td>
+<td><p>Must</p></td>
+<td><p>Given valid event, When ingested, Then event and provenance
+logged &lt;100ms</p></td>
+<td><p>Strict audit trail</p></td>
+</tr>
+<tr>
+<td><p>ProvenanceLoggerPort</p></td>
+<td><p>Foundation</p></td>
+<td><p>Must</p></td>
+<td><p>Given transaction, When logged, Then includes consent and actor
+data</p></td>
+<td><p>Immutable, queryable</p></td>
+</tr>
+<tr>
+<td><p>ImpactScoringPort</p></td>
+<td><p>Reasoning</p></td>
+<td><p>Must</p></td>
+<td><p>Given event, When scored, Then result returned &lt;200ms</p></td>
+<td><p>Async bulk (Should)</p></td>
+</tr>
+<tr>
+<td><p>PassionMatchPort</p></td>
+<td><p>Reasoning</p></td>
+<td><p>Should</p></td>
+<td><p>Given profile, When requested, Then recommendation in
+&lt;300ms</p></td>
+<td><p>Batch mode possible</p></td>
+</tr>
+<tr>
+<td><p>HumanityEnrichmentPort</p></td>
+<td><p>Reasoning</p></td>
+<td><p>Could</p></td>
+<td><p>Given user/context, When called, Then enrichment result (track
+provenance)</p></td>
+<td><p>A/B testing enabled</p></td>
+</tr>
+<tr>
+<td><p>SafetyMetricsPort</p></td>
+<td><p>Metacognitive</p></td>
+<td><p>Must</p></td>
+<td><p>Given hourly/weekly event flow, When rolled up, Then surface
+trend alert</p></td>
+<td><p>&lt;60s for trends</p></td>
+</tr>
+<tr>
+<td><p>MultiAgentOrchestrationPort</p></td>
+<td><p>Agency</p></td>
+<td><p>Should</p></td>
+<td><p>Given agent workflow, When triggered, Then orchestration decision
+to AI agent</p></td>
+<td><p>Pluggable agents</p></td>
+</tr>
+<tr>
+<td><p>ConsentPort</p></td>
+<td><p>BusinessApp</p></td>
+<td><p>Must</p></td>
+<td><p>Given user action, When initiated, Then consent flow logged
+before action</p></td>
+<td><p>Audit attached</p></td>
+</tr>
+<tr>
+<td><p>ApprovalPort</p></td>
+<td><p>BusinessApp</p></td>
+<td><p>Must</p></td>
+<td><p>Given request, When approval needed, Then workflow blocked until
+approval</p></td>
+<td><p>Real-time updates</p></td>
+</tr>
+</tbody>
+</table>
 
-Leaders finally see not just who logs in, but who actually moves the
-needle. Team members feel recognized for their unique
-contributions—passion isn’t just a buzzword, but a visible, amplifiable
-signal. Risk and fatigue don’t go undetected; the system anticipates and
-calls for celebration or intervention well before crises arise. Above
-all, every insight and recommendation comes with full provenance,
-transparency, and user control. The backend’s robust architecture
-ensures every client, widget, and user across the mesh benefits from
-real, actionable intelligence—driving sustainable business and human
-outcomes at every level.
-
-------------------------------------------------------------------------
-
-## Success Metrics
-
-### User-Centric Metrics
-
-- Adoption rate of widgets consuming impact/culture APIs
-
-- User satisfaction with passion-matching accuracy (via CSAT or pulse
-  surveys)
-
-- Time-to-feedback on psychological safety alerts
-
-### Business Metrics
-
-- Demonstrated lift in critical workflow adoption as proven by impact
-  engine events
-
-- Rate of viral spread for high-value solutions identified by the
-  measurement engine
-
-- Quantity and velocity of cross-team innovation proposals
-
-### Technical Metrics
-
-- API endpoint uptime (goal: ≥99.9% for all production services)
-
-- Average request/response latency (<500ms for read, <700ms for
-  write/compute)
-
-- Percentage of events processed within SLOs (goal: 99% within 1s)
-
-- Audit event consistency and trace completeness
-
-### Tracking Plan
-
-- Track every endpoint call (API, timestamp, widget/global context,
-  org/tenant ID)
-
-- Log each error or exception by type, payload, and affected user (with
-  correlation ID)
-
-- Monitor passion/orchestration and safety engine requests versus
-  successful completions
-
-- Instrument workflow augmentation and solution virality events with
-  OpenTelemetry tags
-
-------------------------------------------------------------------------
-
-## Technical Considerations
-
-### Technical Needs
-
-- Central orchestration platform with secure API gateway,
-  authentication, and fine-grained rate limiting
-
-- ImpactFirstMeasurementEngine, PassionDrivenAIOrchestrator,
-  PsychologicalSafetyCultureEngine, HumanityFirstEnrichmentEngine,
-  Multi-AgentCollabAPIs—each running as microservices with observable,
-  documented public interfaces
-
-- Event streaming and pub/sub support for real-time or batch processing
-
-- Integration with platform’s secrets manager for config and credential
-  handling
-
-### Integration Points
-
-- All mesh user widgets and plugins as primary API clients
-
-- Authentication broker (SSO/OAuth)
-
-- System event bus and monitoring/telemetry frameworks
-
-- Enterprise logging and audit systems
-
-- Internal or external API consumers, subject to access policy
-
-### Data Storage & Privacy
-
-- All PII and sensitive org data encrypted at rest and in transit (TLS
-  1.2+/AES-256)
-
-- Event logs, audit trails, and provenance records retained as per data
-  retention/sovereignty policy
-
-- Full GDPR/SOC2/CCPA compliance; explicit per-tenant boundaries and
-  configurable data residency/geofencing
-
-### Scalability & Performance
-
-- Auto-scaling support for variable org/tenant loads (hundreds to
-  millions of events/day)
-
-- Load balancing and DR/failover architecture with RPO/RTO as specified
-  in NFR appendix
-
-- Support for both orchestration spikes and prolonged analysis jobs
-
-### Potential Challenges
-
-- Achieving low-latency, high-availability at large scale without
-  sacrificing auditability
-
-- Managing cross-service dependencies for multi-agent or “sandwich”
-  orchestration flows
-
-- Ensuring “drifting” signals (impact, passion, safety) remain accurate
-  and actionable
-
-- Updating API contracts while minimizing client/mesh widget disruption
+All ports are API contract-bound, with provided test harness coverage.
 
 ------------------------------------------------------------------------
 
-## Milestones & Sequencing
+## 4. Adapters: Inbound & Outbound (+ Error Handling, Fallbacks)
 
-### Project Estimate
+- **Inbound Adapters**
 
-- Medium effort: 2–4 weeks for MVP, assuming modular codebase and high
-  alignment with widget PRD.
+  - REST/gRPC Adapters: OpenAPI-synced, accessible via mesh/gateway,
+    performs input validation, retries once (w/backoff) on transient
+    error, circuit-breaker on 3x retry fail.
 
-- Full integration, rollout, and operational hardening: 4–8 weeks total.
+  - CLI/Eventbus: For scheduled or bulk ingest scenarios, also used for
+    internal mesh service automation.
 
-### Team Size & Composition
+- **Outbound Adapters**
 
-- Small, agile team: 2–3 core engineers (backend/API, orchestration), 1
-  product owner, 1 designer (part-time advisory for API/UX traceability
-  and provenance), 1 SRE-on-call for DR/deployment.
+  - DB/Repository Adapter: Ensures atomic persistent write, retry on
+    timeout, fallback to append-only queue if relational/database
+    downstream is down (alert triggers after 5 mins).
 
-### Suggested Phases
+  - Notification/Event Adapter: Triggers widgets, agents, or downstream
+    integrators. Retries 3x with exponential backoff, fails to queued
+    fallback and posts error to observability channel.
 
-**Phase 1: Planning & API Contract Finalization (0.5 weeks)**
+  - Observability/Telemetry Adapter: Pushes latency, error, event
+    metadata to mesh metrics system; emits traces for any call > SLA by
+    >10%.
 
-- Deliverables: Final API schemas, documentation, and OpenAPI spec
-  reviewed by widget/UX teams
+- **Error Handling Highlights**
 
-- Dependencies: Input from mesh widget PRD, design on data structures
+  - Every adapter defines its retry, timeout, and error-path logic per
+    port.
 
-**Phase 2: Core Engine Development (1.5 weeks)**
-
-- Deliverables: ImpactFirstMeasurementEngine,
-  PassionDrivenAIOrchestrator, PsychologicalSafetyCultureEngine MVPs
-  with endpoints live in dev/test
-
-- Dependencies: Secure config, authentication infra readiness
-
-**Phase 3: Integration & Orchestration (1 week)**
-
-- Deliverables: Orchestration flows, agent API, sandwich pipeline
-  readiness, connected with at least one pilot widget
-
-- Dependencies: Pilot widget/plugin team coordination
-
-**Phase 4: Compliance, Observability & DR (0.5 week)**
-
-- Deliverables: Telemetry, audit logging, rate limiting, DR/backup,
-  observability dashboards
-
-- Dependencies: Platform security/compliance policies
-
-**Phase 5: Feedback, Hardening & Launch (1 week)**
-
-- Deliverables: Integrated platform and widget QA, performance testing,
-  external beta launch
-
-- Dependencies: Stakeholder and beta tester alignment
+  - Every user/action returns clear error states up the stack (with
+    provenance and consent meta).
 
 ------------------------------------------------------------------------
 
-*Reference: All API and service implementations must adhere to the
-“Global NFR” appendix for security, observability, rate limits,
-auditability, incident response, and platform DR. See separate NFR
-document for policy details and compliance checklists.*
+## 5. Data Contracts, Provenance & Consent
+
+- **Data Contracts**
+
+  - All public-facing APIs versioned and described in a living OpenAPI
+    spec.
+
+  - Contracts cover every request/response (event, score, consent) and
+    include required/optional schema fields.
+
+- **Provenance & Consent**
+
+  - Provenance: Every data mutation, scoring, or orchestration logs
+    origin, actor, consent, and evidence IDs.
+
+  - Consent: All actions requiring user/legal consent must log explicit
+    consent; included as meta in request and surfaced to all downstream
+    layers.
+
+- **Contract Testing**
+
+  - Every event/adapter path verified by contract/integration test
+    suite, preventing drift and silent failure.
+
+  - Provenance trail validated at API and storage boundary.
+
+------------------------------------------------------------------------
+
+## 6. End-to-End Layered Sequence Diagram
+
+**Event/Workflow Step-by-Step**
+
+1.  **Widget/User Event** initiated
+
+2.  Hits **BusinessApplications Layer** via REST/gRPC adapter
+
+    - Consent/approval checked (ConsentPort/ApprovalPort)
+
+    - API input validated (OpenAPI)
+
+3.  Event passed through **FoundationLayer**
+
+    - CapturePort ingests, ProvenanceLogger writes audit/tenant/consent
+      record
+
+4.  Routed to **ReasoningLayer**
+
+    - ImpactScoringPort processes, ML/LLM model invoked, returns score
+
+    - PassionMatch/HumanityEnrichment as needed, all outputs tagged with
+      provenance
+
+5.  Flows to **MetacognitiveLayer**
+
+    - SafetyMetricsPort aggregates, updates team/org health and trends,
+      emits risk signal if triggered
+
+6.  Invokes **AgencyLayer**
+
+    - MultiAgentOrchestrationPort decides: trigger agent/AI action,
+      escalate/notify
+
+7.  **Outbound Adapters**:
+
+    - Notification sent to widgets, agents, or dashboards (via
+      NotificationAdapter)
+
+    - Observability metrics and provenance trail pushed to
+      tracing/logging infra
+
+8.  **Widget/UI** receives update, user receives feedback/alert/score
+
+**Latency/Boundary Touchpoints**
+
+- Consent verified on entry
+
+- <100ms logging/provenance (Foundation)
+
+- <200ms scoring (Reasoning)
+
+- Real-time aggregates (Metacognitive)
+
+- Immediate notification or queued fallback (Agency/BusinessApp)
+
+------------------------------------------------------------------------
+
+## 7. Non-Functional Requirements: Layered + Global
+
+- **Global Inheritance:**
+
+  - All layers inherit baseline NFRs: security, authentication, privacy,
+    audit, data sovereignty.
+
+  - Observability/metrics/trace required for every port/adaptor
+    boundary.
+
+- **Layer-Specific Additions:**
+
+  - Foundation/Reasoning strict SLAs (<100ms log, <200ms scoring).
+
+  - Metacognitive proactive escalation on risk/trend spike.
+
+  - Every critical call emits traces; calls >10% slower than SLA
+    flagged to alerting system.
+
+------------------------------------------------------------------------
+
+## 8. Caching, Recovery, Versioning & State
+
+- **Caching**
+
+  - Scoring/metrics results may be cached by Reasoning/Metacognitive for
+    hot queries (TTL default 10min, invalidated by event or user
+    override).
+
+  - Consent/approval state cached short-lived (max 1hr) for user/session
+    flows.
+
+  - Agent workflow results cached per agent config; long-term persisted.
+
+- **Recovery**
+
+  - All failed adapter calls (DB, events, notification) stored to
+    retry-queue (FIFO, max 24h retry window).
+
+  - Hot/cold cluster restart acceptance: must resume without data loss,
+    orphaned provenance, or missed notifications.
+
+- **Versioning**
+
+  - Major/minor versioning on each API (semver), contract compatibility
+    tests at release.
+
+  - Contract drift is a CI-blocker; every breaking change flagged and
+    must have an explicit migration/compatibility path.
+
+------------------------------------------------------------------------
+
+## 9. Risks, Testing, and Mitigations
+
+- **Risks**
+
+  - Port/API drift between Reasoning and BusinessApp layers
+
+  - Adapter-level bottlenecks (e.g., if event notification spikes,
+    queue/rate-limits may drop SLA)
+
+  - Consent not propagating to all downstream audit logs
+
+  - Provenance failures or non-auditable event paths
+
+- **Mitigations**
+
+  - Mandatory contract and integration test harness spanning all
+    layer/port/adaptor combos
+
+  - Synthetic user flow monitoring from widget to consent to scoring to
+    notification
+
+  - Fast failover for adapter bottlenecks, with fallback/alerting for
+    persistent errors
+
+  - Recovery and replay logic: all orphaned events/data reprocessed on
+    recovery
+
+------------------------------------------------------------------------
+
+## 10. Milestones & Cross-Mesh Evolution
+
+- **MVP (Weeks 1–3, Small Team: 2–3 individuals)**
+
+  - FoundationLayer and ReasoningLayer deployed with complete ingress,
+    logging, scoring, and provenance flows.
+
+  - Consent/approval adapters functional; contract and integration tests
+    green.
+
+  - Widget(s) connect to API; end-to-end data flow/observability signed
+    off by product and engineering.
+
+- **Phase 2 (Weeks 4–6)**
+
+  - Integrate Metacognitive and Agency layers
+
+  - Event fan-out for (risk) trend escalation and agent orchestration
+
+  - Mesh-wide SLA monitoring and dashboard integration
+
+  - Enhanced fallback, bulk event ingestion, and multi-agent testing
+
+- **Continuous**
+
+  - API/contract evolution and backward compatibility checks
+
+  - Expansion of coverage to new mesh widgets, plug-in agents, and
+    sector-specific apps
+
+  - SLA compliance, privacy audits, full provenance validation per
+    release
+
+------------------------------------------------------------------------
+
+**End of Document**
