@@ -6,28 +6,32 @@ namespace CognitiveMesh.UILayer.AgencyWidgets.Models
 {
     /// <summary>
     /// Defines the degree of independent decision-making an agent can exercise.
-    /// This is a foundational concept from the Agent Framework, adapted for UI consumption.
+    /// This is a foundational concept from the Agent Framework, adapted for UI consumption
+    /// and displayed in the Agency Mode Banner and AAA Control Center.
     /// </summary>
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum AutonomyLevel
     {
         /// <summary>
         /// A special mode where human authorship is paramount, and AI assistance is minimal and explicit.
+        /// Represents the highest level of Cognitive Sovereignty.
         /// </summary>
         SovereigntyFirst,
 
         /// <summary>
-        /// The agent can only analyze and provide recommendations. A human must approve action.
+        /// The agent can only analyze and provide recommendations. A human must approve any action.
         /// </summary>
         RecommendOnly,
 
         /// <summary>
-        /// The agent can propose and prepare an action, but requires explicit confirmation before execution.
+        /// The agent can propose and prepare an action but requires explicit user confirmation before execution.
+        /// This is a balanced, hybrid mode.
         /// </summary>
         ActWithConfirmation,
 
         /// <summary>
         /// The agent can act independently within its defined authority scope without requiring confirmation for each action.
+        /// Represents the highest level of agentic autonomy.
         /// </summary>
         FullyAutonomous
     }
@@ -37,8 +41,20 @@ namespace CognitiveMesh.UILayer.AgencyWidgets.Models
     /// </summary>
     public class SovereigntyStatus
     {
-        public string AuthorshipState { get; set; } // e.g., "Human-Authored", "AI-Assisted", "Agent-Driven"
+        /// <summary>
+        /// A human-readable string describing the current authorship state.
+        /// e.g., "Human-Authored", "AI-Assisted", "Agent-Driven"
+        /// </summary>
+        public string AuthorshipState { get; set; }
+
+        /// <summary>
+        /// Indicates if a user or admin has manually overridden the system's default agency mode.
+        /// </summary>
         public bool IsOverrideActive { get; set; }
+
+        /// <summary>
+        /// The reason provided for the active override, if applicable.
+        /// </summary>
         public string OverrideReason { get; set; }
     }
 
@@ -53,10 +69,22 @@ namespace CognitiveMesh.UILayer.AgencyWidgets.Models
         public SovereigntyStatus Sovereignty { get; set; }
         public DateTimeOffset LastChecked { get; set; }
     }
+    
+    /// <summary>
+    /// A view model representing the detailed authority scope of an agent,
+    /// designed for display in the AAA Control Center.
+    /// </summary>
+    public class AuthorityScopeViewModel
+    {
+        public List<string> AllowedApiEndpoints { get; set; } = new();
+        public string MaxResourceConsumption { get; set; }
+        public string MaxBudget { get; set; }
+        public List<string> DataAccessPolicies { get; set; } = new();
+    }
 
     /// <summary>
     /// Represents the contextual information used by the backend router to make a decision.
-    /// This is displayed in the AAA Control Center to provide transparency.
+    /// This is displayed in the AAA Control Center and Policy Decision Table Viewer to provide transparency.
     /// </summary>
     public class PolicyContext
     {
@@ -99,6 +127,7 @@ namespace CognitiveMesh.UILayer.AgencyWidgets.Models
 
     /// <summary>
     /// A standardized error format for all UI components, as specified in the PRD.
+    /// Used by the shared overlay/pattern library.
     /// </summary>
     public class ErrorEnvelope
     {
