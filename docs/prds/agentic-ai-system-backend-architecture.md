@@ -368,6 +368,58 @@ operational resilience built in.
 
 - Ensuring graceful degradation and audit completeness during major
   outages
+------------------------------------------------------------------------
+
+## Advanced Integration & Orchestration
+
+While the **Agent Orchestration & Execution** port manages intra-mesh
+agent lifecycles, large-scale enterprise deployments also require
+co-ordinating *external* line-of-business systems, heterogeneous clouds,
+and legacy services.  The following capabilities extend the core
+orchestrator to meet those needs:
+
+1. **External System Integration Framework**
+   - API Gateway endpoints with adaptive throttling, JWT/OIDC
+     verification, and protocol translation (REST ↔ gRPC ↔ MQ).
+   - Native service-mesh side-cars (Istio/Linkerd) for mTLS, retries,
+     circuit-breaking, and traffic shaping between mesh micro-services
+     and external APIs.
+
+2. **Enterprise Integration Patterns**
+   - Optional **ESB** connector for organisations that still mandate a
+     central bus (e.g., SAP PI, MuleSoft).
+   - Support for BPM / workflow engines (Camunda, Azure Logic Apps) via
+     pluggable adapters.
+   - Message-queuing (Azure Service Bus, RabbitMQ) and topic routing for
+     asynchronous, decoupled communication.
+
+3. **Cross-Service Orchestration**
+   - Composition of multiple service calls with **distributed
+     transactions** and **Saga patterns** to guarantee consistency
+     across micro-services even under partial failure.
+   - Correlation IDs propagated end-to-end for observability and audit.
+
+4. **Event-Driven Architecture Enhancements**
+   - Enhanced **event-sourcing** and **CQRS** ports enabling
+     append-only, immutable state changes plus real-time projection
+     updates.
+   - Native integration with **event-streaming** platforms (Kafka,
+     Azure Event Hub) for high-throughput agent telemetry and business
+     events.
+
+5. **Workflow Orchestration Engine**
+   - Declarative **workflow templates** (YAML/BPMN) describing complex
+     business flows that mix agents, human approvals, and external
+     systems.
+   - Parallel / fan-out execution with compensation steps modelled as
+     first-class nodes.
+   - SLA / timeout monitoring with automatic escalation back to
+     `NotificationAdapter` and the Consent/Authority ports.
+
+These extensions share the same error-envelope, retry, and circuit
+breaker semantics described above, ensuring a **uniform resilience
+model** across pure agent workflows *and* hybrid enterprise
+integrations.
 
 ------------------------------------------------------------------------
 
