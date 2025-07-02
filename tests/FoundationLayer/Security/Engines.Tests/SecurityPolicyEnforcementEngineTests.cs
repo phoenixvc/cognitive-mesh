@@ -213,5 +213,75 @@ namespace CognitiveMesh.FoundationLayer.Security.Tests.Engines
             result.Errors.Should().NotBeEmpty();
             result.Errors[0].Should().Contain("Invalid JSON");
         }
+
+        [Fact]
+        public async Task GenerateComplianceReportAsync_ForGdprReport_ReturnsValidReport()
+        {
+            // Arrange
+            var request = new ComplianceReportRequest
+            {
+                ReportType = "GDPR-Access-Log",
+                StartDate = DateTime.UtcNow.AddDays(-30),
+                EndDate = DateTime.UtcNow
+            };
+
+            // Act
+            var result = await _engine.GenerateComplianceReportAsync(request);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.ReportData.Should().NotBeNullOrEmpty();
+            result.ReportData.Should().Contain("GDPR Data Access Log");
+            
+            // Verify the report contains valid JSON
+            var report = JsonSerializer.Deserialize<JsonElement>(result.ReportData);
+            report.GetProperty("reportTitle").GetString().Should().Be("GDPR Data Access Log");
+            report.GetProperty("entries").GetArrayLength().Should().BeGreaterThan(0);
+        }
+
+        [Fact]
+        public async Task GenerateComplianceReportAsync_ForLeastPrivilegeReport_ReturnsValidReport()
+        {
+            // Arrange
+            var request = new ComplianceReportRequest
+            {
+                ReportType = "Least-Privilege-Violations",
+                StartDate = DateTime.UtcNow.AddDays(-30),
+                EndDate = DateTime.UtcNow
+            };
+
+            // Act
+            var result = await _engine.GenerateComplianceReportAsync(request);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.ReportData.Should().NotBeNullOrEmpty();
+            result.ReportData.Should().Contain("Least Privilege Violation Report");
+            
+            // Verify the report contains valid JSON
+            var report = JsonSerializer.Deserialize<JsonElement>(result.ReportData);
+            report.GetProperty("reportTitle").GetString().Should().Be("Least Privilege Violation Report");
+            report.GetProperty("violations").GetArrayLength().Should().BeGreaterOrEqualTo(0);
+        }
+
+        [Fact]
+        public async Task GenerateComplianceReportAsync_WithInvalidReportType_ReturnsEmptyReport()
+        {
+            // Arrange
+            var request = new ComplianceReportRequest
+            {
+                ReportType = "Invalid-Report-Type",
+                StartDate = DateTime.UtcNow.AddDays(-30),
+                EndDate = DateTime.UtcNow
+            };
+
+            // Act
+            var result = await _engine.GenerateComplianceReportAsync(request);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.ReportData.Should().NotBeNull();
+            result.ReportData.Should().Be("{\"error\":\"Unsupported report type: Invalid-Report-Type\"}");
+        }
     }
 }

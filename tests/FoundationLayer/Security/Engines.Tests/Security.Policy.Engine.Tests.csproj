@@ -5,6 +5,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutput>../../../../coverage/</CoverletOutput>
+    <CoverletOutputFormat>json;lcov;opencover</CoverletOutputFormat>
+    <Exclude>[xunit.*]*</Exclude>
+    <ExcludeByAttribute>System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage</ExcludeByAttribute>
+    <ExcludeByFile>**/obj/**/*.cs</ExcludeByFile>
+    <IncludeTestAssembly>false</IncludeTestAssembly>
+    <Threshold>80</Threshold>
+    <ThresholdType>line;branch;method</ThresholdType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,10 +26,24 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="coverlet.msbuild" Version="6.0.0" />
+    <PackageReference Include="ReportGenerator" Version="5.2.0" />
+    <PackageReference Include="xunit.runner.reporters" Version="2.4.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\FoundationLayer\Security\Security.csproj" />
   </ItemGroup>
+
+  <Target Name="GenerateReport" AfterTargets="Test">
+    <ItemGroup>
+      <CoverageFiles Include="$(CoverletOutput)coverage.opencover.xml" />
+    </ItemGroup>
+    <ReportGenerator ReportFiles="@(CoverageFiles)" 
+                    TargetDirectory="$(CoverletOutput)report" 
+                    ReportTypes="Html;Badges"
+                    AssemblyFilters="-*Tests"
+                    ClassFilters="-*Test*;-xunit.*" />
+  </Target>
 
 </Project>
