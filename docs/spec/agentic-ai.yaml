@@ -1,0 +1,1353 @@
+openapi: 3.0.0
+info:
+  title: Cognitive Mesh Agentic AI System Backend API
+  description: API for managing agent registry, authority, consent, and orchestration within the Cognitive Mesh platform.
+  version: 1.0.0
+servers:
+  - url: /api/v1/agent
+    description: Agentic AI System Backend API base path
+tags:
+  - name: Agent Registry
+    description: Operations related to agent definitions and lifecycle management.
+  - name: Agent Orchestration
+    description: Operations for executing tasks with multi-agent systems.
+  - name: Agent Authority
+    description: Operations for managing agent permissions and scope.
+  - name: Agent Consent
+    description: Operations for managing user consent for agent actions.
+security:
+  - bearerAuth: []
+paths:
+  /registry:
+    post:
+      tags:
+        - Agent Registry
+      summary: Register a new agent definition
+      description: Registers a new agent definition in the system. Requires Admin access.
+      operationId: registerAgent
+      security:
+        - bearerAuth: [AdminAccess]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentDefinition'
+      responses:
+        '201':
+          description: Agent registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentDefinition'
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    get:
+      tags:
+        - Agent Registry
+      summary: List all registered agents
+      description: Retrieves a list of all registered agent definitions.
+      operationId: listAgents
+      parameters:
+        - name: includeRetired
+          in: query
+          description: Whether to include retired agents in the results.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: A list of agent definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentDefinition'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /registry/{agentId}:
+    get:
+      tags:
+        - Agent Registry
+      summary: Get agent details by ID
+      description: Retrieves the details of a specific agent definition by its unique ID.
+      operationId: getAgentDetails
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          description: The unique identifier of the agent.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Agent details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentDefinition'
+        '401':
+          description: Unauthorized.
+        '404':
+          description: Agent not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    put:
+      tags:
+        - Agent Registry
+      summary: Update an existing agent definition
+      description: Updates an existing agent definition. Requires Admin access.
+      operationId: updateAgent
+      security:
+        - bearerAuth: [AdminAccess]
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          description: The unique identifier of the agent to update.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentDefinition'
+      responses:
+        '204':
+          description: Agent updated successfully.
+        '400':
+          description: Invalid payload or ID mismatch.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Agent not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    delete:
+      tags:
+        - Agent Registry
+      summary: Retire an agent
+      description: Retires an agent, making it unavailable for new tasks. Requires Admin access.
+      operationId: retireAgent
+      security:
+        - bearerAuth: [AdminAccess]
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          description: The unique identifier of the agent to retire.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Agent retired successfully.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Agent not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /orchestrate:
+    post:
+      tags:
+        - Agent Orchestration
+      summary: Execute a complex task with agents
+      description: Executes a complex task by assembling and coordinating a team of agents.
+      operationId: executeTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentExecutionRequest'
+      responses:
+        '200':
+          description: Task executed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentExecutionResponse'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /authority/{agentType}:
+    put:
+      tags:
+        - Agent Authority
+      summary: Configure authority scope for an agent type
+      description: Configures the authority scope for a specific agent type. Requires Admin access.
+      operationId: configureAuthority
+      security:
+        - bearerAuth: [AdminAccess]
+      parameters:
+        - name: agentType
+          in: path
+          required: true
+          description: The type of the agent (e.g., "ChampionNudger").
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorityScope'
+      responses:
+        '204':
+          description: Authority configured successfully.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /authority/override:
+    post:
+      tags:
+        - Agent Authority
+      summary: Create an authority override
+      description: Creates a temporary override of an agent's authority scope. Requires Admin access.
+      operationId: createAuthorityOverride
+      security:
+        - bearerAuth: [AdminAccess]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorityOverrideRequest'
+      responses:
+        '200':
+          description: Override created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorityOverrideResponse'
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Agent not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /authority/override/{overrideToken}:
+    delete:
+      tags:
+        - Agent Authority
+      summary: Revoke an authority override
+      description: Revokes a previously created authority override. Requires Admin access.
+      operationId: revokeAuthorityOverride
+      security:
+        - bearerAuth: [AdminAccess]
+      parameters:
+        - name: overrideToken
+          in: path
+          required: true
+          description: The token of the override to revoke.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Override revoked successfully.
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Override not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /authority/validate:
+    post:
+      tags:
+        - Agent Authority
+      summary: Validate an action against an agent's authority
+      description: Validates whether an action is allowed by an agent's authority scope.
+      operationId: validateActionAuthority
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateAuthorityRequest'
+      responses:
+        '200':
+          description: Validation result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorityValidationResult'
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /consent:
+    post:
+      tags:
+        - Agent Consent
+      summary: Record a consent decision
+      description: Records a user's consent decision for an agent action.
+      operationId: recordConsent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentRequest'
+      responses:
+        '201':
+          description: Consent recorded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentRecord'
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /consent/validate:
+    post:
+      tags:
+        - Agent Consent
+      summary: Validate if consent exists
+      description: Validates whether a user has given consent for a specific agent action.
+      operationId: validateConsent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateConsentRequest'
+      responses:
+        '200':
+          description: Validation result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateConsentResponse'
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /consent/user/{userId}:
+    get:
+      tags:
+        - Agent Consent
+      summary: Get user's consent records
+      description: Retrieves all consent records for a specific user.
+      operationId: getUserConsents
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the user.
+          schema:
+            type: string
+        - name: tenantId
+          in: query
+          required: true
+          description: The ID of the tenant.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User's consent records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsentRecord'
+        '401':
+          description: Unauthorized.
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /consent/revoke:
+    post:
+      tags:
+        - Agent Consent
+      summary: Revoke consent
+      description: Revokes a previously granted consent.
+      operationId: revokeConsent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeConsentRequest'
+      responses:
+        '204':
+          description: Consent revoked successfully.
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /consent/preferences:
+    put:
+      tags:
+        - Agent Consent
+      summary: Set agent consent preferences
+      description: Sets a user's preferences for agent consent.
+      operationId: setAgentConsentPreferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentConsentPreferences'
+      responses:
+        '204':
+          description: Preferences set successfully.
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    get:
+      tags:
+        - Agent Consent
+      summary: Get agent consent preferences
+      description: Retrieves a user's preferences for agent consent.
+      operationId: getAgentConsentPreferences
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          description: The ID of the user.
+          schema:
+            type: string
+        - name: tenantId
+          in: query
+          required: true
+          description: The ID of the tenant.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User's agent consent preferences.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConsentPreferences'
+        '401':
+          description: Unauthorized.
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /consent/emergency-override:
+    post:
+      tags:
+        - Agent Consent
+      summary: Activate emergency override
+      description: Activates an emergency override for agent consent. Requires Admin access.
+      operationId: activateEmergencyOverride
+      security:
+        - bearerAuth: [AdminAccess]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyOverrideRequest'
+      responses:
+        '204':
+          description: Emergency override activated successfully.
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+        '403':
+          description: Forbidden.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorEnvelope:
+      type: object
+      description: Standard error envelope for all agent-related APIs.
+      properties:
+        errorCode:
+          type: string
+          description: Systematic, unique error identifier (e.g., "INVALID_PAYLOAD", "CONSENT_MISSING").
+          example: INVALID_PAYLOAD
+        message:
+          type: string
+          description: User-facing and developer-facing summary of the error.
+          example: The request payload is invalid or malformed.
+        correlationId:
+          type: string
+          format: uuid
+          description: Event and audit correlation ID for tracing related events across the system.
+          example: 92e3b8a3-5f7d-4c1a-8b2e-1f3c4d5e6f7a
+        details:
+          type: object
+          description: Optional extended debug or remediation data.
+          nullable: true
+    AgentDefinition:
+      type: object
+      description: Represents the definition of an agent type, including its capabilities and default settings.
+      properties:
+        agentId:
+          type: string
+          format: uuid
+          description: Unique identifier for the agent definition.
+          readOnly: true
+        agentType:
+          type: string
+          description: Type of the agent (e.g., "ChampionNudger", "VelocityRecalibrator").
+          example: ChampionNudger
+        description:
+          type: string
+          description: A brief description of the agent's purpose.
+          nullable: true
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: List of capabilities the agent possesses.
+          example: ["DataAnalysis", "ReportGeneration"]
+        defaultAutonomyLevel:
+          $ref: '#/components/schemas/AutonomyLevel'
+          description: The default autonomy level for this agent.
+        defaultAuthorityScope:
+          $ref: '#/components/schemas/AuthorityScope'
+          description: The default authority scope for this agent.
+        status:
+          $ref: '#/components/schemas/AgentStatus'
+          description: Lifecycle status of the agent.
+      required:
+        - agentType
+        - defaultAutonomyLevel
+        - defaultAuthorityScope
+        - status
+    AutonomyLevel:
+      type: string
+      description: Defines the degree of independent decision-making an agent can exercise.
+      enum:
+        - RecommendOnly
+        - ActWithConfirmation
+        - FullyAutonomous
+    AgentStatus:
+      type: string
+      description: Represents the lifecycle status of an agent within the registry.
+      enum:
+        - Active
+        - Deprecated
+        - Retired
+    AuthorityScope:
+      type: object
+      description: Defines the specific scope and limitations of an agent's actions.
+      properties:
+        allowedApiEndpoints:
+          type: array
+          items:
+            type: string
+          description: A list of API endpoints or ports the agent is allowed to call.
+          example: ["/data/read", "/report/*"]
+        maxResourceConsumption:
+          type: number
+          format: double
+          description: Maximum computational resources (e.g., CPU seconds, memory GB) the agent can consume per task.
+          example: 100.5
+        maxBudget:
+          type: number
+          format: float
+          description: Maximum budget the agent can expend per task, if applicable.
+          example: 500.00
+        dataAccessPolicies:
+          type: array
+          items:
+            type: string
+          description: The data access policies that apply to this agent (e.g., "read:pii", "write:operational-data").
+          example: ["read:public", "write:operational-data"]
+    AgentExecutionRequest:
+      type: object
+      description: Represents a request to execute a task using a team of agents.
+      properties:
+        task:
+          $ref: '#/components/schemas/AgentTask'
+          description: The task detailing the goal and context for the agents.
+        tenantId:
+          type: string
+          description: The ID of the tenant initiating the request.
+          example: tenant123
+        requestingUserId:
+          type: string
+          description: The ID of the user requesting the task execution.
+          example: user456
+      required:
+        - task
+        - tenantId
+        - requestingUserId
+    AgentTask:
+      type: object
+      description: Represents a task assigned to a team of agents.
+      properties:
+        taskId:
+          type: string
+          format: uuid
+          description: Unique identifier for the task.
+          readOnly: true
+        goal:
+          type: string
+          description: The high-level goal of the task.
+          example: Generate a quarterly financial report.
+        context:
+          type: object
+          additionalProperties: true
+          description: Additional context relevant to the task.
+          example:
+            quarter: Q1
+            year: 2024
+        constraints:
+          type: array
+          items:
+            type: string
+          description: Constraints or limitations for the task execution.
+          example: ["Must use public data only", "Complete by EOD"]
+        coordinationPattern:
+          $ref: '#/components/schemas/CoordinationPattern'
+          description: The strategy for coordinating agents on this task.
+        requiredAgentTypes:
+          type: array
+          items:
+            type: string
+          description: List of agent types required for this task.
+          example: ["DataAnalystAgent", "ReportGeneratorAgent"]
+      required:
+        - goal
+        - coordinationPattern
+        - requiredAgentTypes
+    CoordinationPattern:
+      type: string
+      description: Defines the collaboration strategy for a group of agents working on a single task.
+      enum:
+        - Parallel
+        - Hierarchical
+        - Competitive
+        - CollaborativeSwarm
+    AgentExecutionResponse:
+      type: object
+      description: Represents the result of an executed agent task.
+      properties:
+        taskId:
+          type: string
+          format: uuid
+          description: The ID of the task that was executed.
+        isSuccess:
+          type: boolean
+          description: Indicates if the task execution was successful.
+        result:
+          type: object
+          description: The primary result of the task.
+          nullable: true
+        summary:
+          type: string
+          description: A summary of the task execution.
+          nullable: true
+        agentIdsInvolved:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: List of agent IDs that were involved in the task execution.
+        auditTrailId:
+          type: string
+          format: uuid
+          description: The ID of the audit trail for this task.
+          nullable: true
+      required:
+        - taskId
+        - isSuccess
+    DeprecationNotice:
+      type: object
+      description: Represents information about an agent's deprecation.
+      properties:
+        sunsetDate:
+          type: string
+          format: date-time
+          description: The date when the agent will be retired (sunset date).
+        migrationPath:
+          type: string
+          description: Information about the recommended migration path.
+          nullable: true
+        reason:
+          type: string
+          description: The reason for deprecation.
+        replacementAgentId:
+          type: string
+          format: uuid
+          description: The ID of the replacement agent, if any.
+          nullable: true
+        additionalInfo:
+          type: object
+          additionalProperties: true
+          description: Additional information about the deprecation.
+    AgentSearchCriteria:
+      type: object
+      description: Represents search criteria for finding agents.
+      properties:
+        requiredCapabilities:
+          type: array
+          items:
+            type: string
+          description: The capabilities that agents must have.
+        agentTypes:
+          type: array
+          items:
+            type: string
+          description: The agent types to include.
+        minimumAutonomyLevel:
+          $ref: '#/components/schemas/AutonomyLevel'
+          description: The minimum autonomy level required.
+          nullable: true
+        activeOnly:
+          type: boolean
+          description: Whether to include only active agents.
+          default: true
+        maxResults:
+          type: integer
+          format: int32
+          description: The maximum number of results to return.
+          default: 100
+        searchText:
+          type: string
+          description: Free-text search terms.
+          nullable: true
+    ValidationResult:
+      type: object
+      description: Represents the result of validating an agent definition.
+      properties:
+        isValid:
+          type: boolean
+          description: Whether the validation was successful.
+        errors:
+          type: array
+          items:
+            type: string
+          description: A list of validation errors, if any.
+        warnings:
+          type: array
+          items:
+            type: string
+          description: A list of validation warnings, if any.
+    AgentVersionRecord:
+      type: object
+      description: Represents a record of an agent version.
+      properties:
+        agentId:
+          type: string
+          format: uuid
+          description: The unique identifier of the agent.
+        version:
+          type: string
+          description: The version number.
+        createdAt:
+          type: string
+          format: date-time
+          description: The date when this version was created.
+        status:
+          $ref: '#/components/schemas/AgentStatus'
+          description: The status of this version.
+        createdBy:
+          type: string
+          description: The user who created this version.
+        changeDescription:
+          type: string
+          description: A summary of changes in this version.
+          nullable: true
+    AuthorityValidationResult:
+      type: object
+      description: Represents the result of validating an action against an agent's authority scope.
+      properties:
+        isAuthorized:
+          type: boolean
+          description: Whether the action is authorized within the agent's authority scope.
+        denialReason:
+          type: string
+          description: The reason why the action is not authorized, if applicable.
+          nullable: true
+        constraints:
+          type: object
+          additionalProperties: true
+          description: Any constraints that apply to the authorized action.
+        requiresConsent:
+          type: boolean
+          description: Whether the action requires explicit consent before execution.
+        consentType:
+          type: string
+          description: The type of consent required, if applicable.
+          nullable: true
+    AuthorityPolicyTemplate:
+      type: object
+      description: Represents an authority policy template that can be applied to agents.
+      properties:
+        policyId:
+          type: string
+          description: The unique identifier of the policy template.
+        name:
+          type: string
+          description: The name of the policy template.
+        description:
+          type: string
+          description: The description of the policy template.
+          nullable: true
+        baseScope:
+          $ref: '#/components/schemas/AuthorityScope'
+          description: The base authority scope defined by this template.
+        tenantId:
+          type: string
+          description: The tenant that owns this policy template.
+        isSystemTemplate:
+          type: boolean
+          description: Whether this is a system-defined template.
+        createdAt:
+          type: string
+          format: date-time
+          description: The date when this template was created.
+        updatedAt:
+          type: string
+          format: date-time
+          description: The date when this template was last updated.
+        createdBy:
+          type: string
+          description: The user who created this template.
+          nullable: true
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthorityPolicyRule'
+          description: Custom rules that modify the base scope based on context.
+    AuthorityPolicyRule:
+      type: object
+      description: Represents a rule in an authority policy template that modifies the base scope based on context.
+      properties:
+        condition:
+          type: string
+          description: The condition that triggers this rule.
+        modifications:
+          type: object
+          additionalProperties: true
+          description: The modifications to apply to the base scope when the condition is met.
+        priority:
+          type: integer
+          format: int32
+          description: The priority of this rule (lower numbers have higher priority).
+    ConsentRequest:
+      type: object
+      description: Represents a request to record a user's consent decision.
+      properties:
+        userId:
+          type: string
+          description: The ID of the user giving consent.
+        tenantId:
+          type: string
+          description: The tenant ID to which this consent applies.
+        consentType:
+          type: string
+          description: The specific type of consent being granted or denied.
+        scope:
+          type: string
+          description: An optional identifier to narrow the scope of the consent.
+          nullable: true
+        isGranted:
+          type: boolean
+          description: True if consent is being granted; false if it is being denied or revoked.
+        source:
+          type: string
+          description: The source of the consent action, used for auditing.
+        evidence:
+          type: string
+          description: Optional evidence, such as a link to the version of the privacy policy.
+          nullable: true
+      required:
+        - userId
+        - tenantId
+        - consentType
+        - isGranted
+        - source
+    ConsentRecord:
+      type: object
+      description: Represents a persisted record of a user's consent decision.
+      properties:
+        consentId:
+          type: string
+          description: Unique identifier for the consent record.
+        userId:
+          type: string
+          description: The ID of the user.
+        tenantId:
+          type: string
+          description: The tenant ID.
+        consentType:
+          type: string
+          description: The type of consent.
+        scope:
+          type: string
+          description: The scope of the consent.
+          nullable: true
+        isGranted:
+          type: boolean
+          description: Whether consent was granted.
+        timestamp:
+          type: string
+          format: date-time
+          description: The timestamp of the consent record.
+        source:
+          type: string
+          description: The source of the consent action.
+        evidence:
+          type: string
+          description: Evidence related to the consent.
+          nullable: true
+    ValidateConsentRequest:
+      type: object
+      description: Represents a request to validate whether a user has given a specific type of consent.
+      properties:
+        userId:
+          type: string
+          description: The ID of the user.
+        tenantId:
+          type: string
+          description: The tenant ID.
+        requiredConsentType:
+          type: string
+          description: The type of consent required.
+        scope:
+          type: string
+          description: Optional scope to check.
+          nullable: true
+      required:
+        - userId
+        - tenantId
+        - requiredConsentType
+    ValidateConsentResponse:
+      type: object
+      description: The response from a consent validation check.
+      properties:
+        hasConsent:
+          type: boolean
+          description: True if the required consent has been granted; otherwise, false.
+        validationTimestamp:
+          type: string
+          format: date-time
+          description: The timestamp of when the validation was performed.
+        consentRecordId:
+          type: string
+          description: The ID of the relevant consent record, if one exists.
+          nullable: true
+    AgentConsentRecord:
+      allOf:
+        - $ref: '#/components/schemas/ConsentRecord'
+        - type: object
+          description: Extends the base ConsentRecord with agent-specific context.
+          properties:
+            agentId:
+              type: string
+              format: uuid
+              description: The ID of the agent for which consent was granted or denied.
+            agentAction:
+              type: string
+              description: The specific action the agent was requesting consent for.
+              nullable: true
+            authorityLevel:
+              type: string
+              description: The authority level at the time consent was requested.
+              nullable: true
+            operationContext:
+              type: object
+              additionalProperties: true
+              description: Additional context about the agent operation.
+    AgentConsentPreferences:
+      type: object
+      description: Represents a user's preferences for agent consent.
+      properties:
+        userId:
+          type: string
+          description: The ID of the user.
+        tenantId:
+          type: string
+          description: The ID of the tenant.
+        autoConsentLowRisk:
+          type: boolean
+          description: Whether to automatically grant consent for low-risk operations.
+        rememberDecisions:
+          type: boolean
+          description: Whether to remember consent decisions for similar operations.
+        consentExpiration:
+          type: string
+          format: duration
+          description: The expiration period for remembered consent decisions.
+          nullable: true
+        agentPreferences:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/AgentSpecificPreferences'
+          description: Agent-specific consent preferences.
+        consentTypePreferences:
+          type: object
+          additionalProperties:
+            type: boolean
+          description: Consent type-specific preferences.
+    AgentSpecificPreferences:
+      type: object
+      description: Represents preferences for a specific agent.
+      properties:
+        agentId:
+          type: string
+          format: uuid
+          description: The ID of the agent.
+        trustAgent:
+          type: boolean
+          description: Whether to trust this agent for all operations.
+        blockAgent:
+          type: boolean
+          description: Whether to block this agent from all operations.
+        preApprovedConsentTypes:
+          type: array
+          items:
+            type: string
+          description: Specific consent types that are pre-approved for this agent.
+    EmergencyOverride:
+      type: object
+      description: Represents an emergency override for agent consent.
+      properties:
+        tenantId:
+          type: string
+          description: The tenant context for this override.
+        agentId:
+          type: string
+          format: uuid
+          description: The agent for which consent is overridden.
+        activatedAt:
+          type: string
+          format: date-time
+          description: When the override was activated.
+        expiresAt:
+          type: string
+          format: date-time
+          description: When the override expires.
+        requestingUserId:
+          type: string
+          description: The user who requested the override.
+        reason:
+          type: string
+          description: The reason for the override.
+    EmergencyOverrideAuditRecord:
+      type: object
+      description: Represents an audit record for emergency override actions.
+      properties:
+        auditId:
+          type: string
+          format: uuid
+          description: The unique identifier for this audit record.
+        tenantId:
+          type: string
+          description: The tenant context for this audit record.
+        agentId:
+          type: string
+          format: uuid
+          description: The agent for which consent was overridden.
+        timestamp:
+          type: string
+          format: date-time
+          description: When the action occurred.
+        actionType:
+          type: string
+          description: The type of action (e.g., "Activate", "Deactivate").
+        userId:
+          type: string
+          description: The user who performed the action.
+        reason:
+          type: string
+          description: The reason for the action.
+        duration:
+          type: string
+          format: duration
+          description: The duration of the override, if applicable.
+          nullable: true
+    AuthorityOverrideRequest:
+      type: object
+      description: Represents a request to create a temporary override of an agent's authority scope.
+      properties:
+        agentId:
+          type: string
+          format: uuid
+          description: The ID of the agent for which to create an override.
+        tenantId:
+          type: string
+          description: The tenant context for this override.
+        overrideScope:
+          $ref: '#/components/schemas/AuthorityScope'
+          description: The authority scope to apply during the override.
+        duration:
+          type: string
+          format: duration
+          description: The duration for which the override should be active.
+        requestingUserId:
+          type: string
+          description: The ID of the user requesting the override.
+        reason:
+          type: string
+          description: The reason for the override.
+      required:
+        - agentId
+        - tenantId
+        - overrideScope
+        - requestingUserId
+        - reason
+    AuthorityOverrideResponse:
+      type: object
+      description: Represents the response to an authority override request.
+      properties:
+        overrideToken:
+          type: string
+          description: The token that identifies this override.
+        agentId:
+          type: string
+          format: uuid
+          description: The ID of the agent for which the override was created.
+        expiresAt:
+          type: string
+          format: date-time
+          description: When the override expires.
+    ValidateAuthorityRequest:
+      type: object
+      description: Represents a request to validate an action against an agent's authority scope.
+      properties:
+        agentId:
+          type: string
+          format: uuid
+          description: The ID of the agent.
+        actionType:
+          type: string
+          description: The type of action to validate.
+        actionParameters:
+          type: object
+          additionalProperties: true
+          description: Parameters related to the action.
+        tenantId:
+          type: string
+          description: The tenant context for this validation.
+      required:
+        - agentId
+        - actionType
+        - tenantId
+    RevokeConsentRequest:
+      type: object
+      description: Represents a request to revoke a previously granted consent.
+      properties:
+        userId:
+          type: string
+          description: The ID of the user.
+        tenantId:
+          type: string
+          description: The tenant ID.
+        consentType:
+          type: string
+          description: The type of consent to revoke.
+        scope:
+          type: string
+          description: Optional scope to narrow the revocation.
+          nullable: true
+      required:
+        - userId
+        - tenantId
+        - consentType
+    EmergencyOverrideRequest:
+      type: object
+      description: Represents a request to activate an emergency override for agent consent.
+      properties:
+        tenantId:
+          type: string
+          description: The tenant context for this override.
+        agentId:
+          type: string
+          format: uuid
+          description: The agent for which to activate the override.
+        requestingUserId:
+          type: string
+          description: The ID of the user requesting the override.
+        reason:
+          type: string
+          description: The reason for the override.
+        duration:
+          type: string
+          format: duration
+          description: The duration for which the override should be active.
+      required:
+        - tenantId
+        - agentId
+        - requestingUserId
+        - reason
+        - duration

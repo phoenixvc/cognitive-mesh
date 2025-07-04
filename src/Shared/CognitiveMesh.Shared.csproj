@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>CognitiveMesh.Shared</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Interfaces\*.cs" />
+  </ItemGroup>
+
+</Project>

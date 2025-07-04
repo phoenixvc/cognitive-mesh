@@ -36,18 +36,20 @@ namespace CognitiveMesh.FoundationLayer.Security.Tests.Engines
             _testIssuer = "test-issuer";
             _testAudience = "test-audience";
             
-            var configSection = new Mock<IConfigurationSection>();
-            configSection.SetupGet(x => x[It.IsAny<string>()])
-                .Returns<string>(key => key switch
-                {
-                    "Jwt:Key" => _testJwtKey,
-                    "Jwt:Issuer" => _testIssuer,
-                    "Jwt:Audience" => _testAudience,
-                    _ => null
-                });
+            // Setup configuration values directly on the mock
+            _mockConfig.Setup(x => x["Jwt:Key"]).Returns(_testJwtKey);
+            _mockConfig.Setup(x => x["Jwt:Issuer"]).Returns(_testIssuer);
+            _mockConfig.Setup(x => x["Jwt:Audience"]).Returns(_testAudience);
             
+            // Setup GetSection to return the same mock for any section
             _mockConfig.Setup(x => x.GetSection(It.IsAny<string>()))
-                .Returns(configSection.Object);
+                .Returns<string>(section => {
+                    var sectionMock = new Mock<IConfigurationSection>();
+                    sectionMock.Setup(x => x[It.IsAny<string>()])
+                        .Returns<string>(key => _mockConfig.Object[$"{section}:{key}"]);
+                    sectionMock.Setup(x => x.Value).Returns(_mockConfig.Object[section]);
+                    return sectionMock.Object;
+                });
             
             _engine = new SecurityPolicyEnforcementEngine(_mockLogger.Object, _mockConfig.Object);
         }
@@ -83,32 +85,48 @@ namespace CognitiveMesh.FoundationLayer.Security.Tests.Engines
         [Fact]
         public async Task VerifyAuthenticationAsync_WithValidToken_ReturnsAuthenticated()
         {
-            // Arrange
-            var token = GenerateTestJwtToken("test-user");
-            var request = new AuthenticationVerificationRequest 
-            { 
-                Token = token, 
-                TokenType = "JWT" 
-            };
+            // Diagnostic output
+            Console.WriteLine("Starting VerifyAuthenticationAsync_WithValidToken_ReturnsAuthenticated test");
+            
+            try 
+            {
+                // Arrange
+                Console.WriteLine("Generating test JWT token...");
+                var token = GenerateTestJwtToken("test-user");
+                var request = new AuthenticationVerificationRequest 
+                { 
+                    Token = token, 
+                    TokenType = "JWT" 
+                };
+                Console.WriteLine("Test JWT token generated successfully");
 
             // Act
             var result = await _engine.VerifyAuthenticationAsync(request);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.IsAuthenticated.Should().BeTrue();
-            result.SubjectId.Should().Be("test-user");
-            result.Claims.Should().NotBeEmpty();
-            
-            // Verify logging
-            _mockLogger.Verify(
-                x => x.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Verifying authentication token")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                Times.Once);
+                // Assert
+                Console.WriteLine("Verifying test assertions...");
+                result.Should().NotBeNull();
+                result.IsAuthenticated.Should().BeTrue();
+                result.SubjectId.Should().Be("test-user");
+                result.Claims.Should().NotBeEmpty();
+                
+                // Verify logging
+                _mockLogger.Verify(
+                    x => x.Log(
+                        LogLevel.Information,
+                        It.IsAny<EventId>(),
+                        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Verifying authentication token")),
+                        null,
+                        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                    Times.Once);
+                
+                Console.WriteLine("Test VerifyAuthenticationAsync_WithValidToken_ReturnsAuthenticated completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Test failed with exception: {ex}");
+                throw;
+            }
         }
 
         [Fact]

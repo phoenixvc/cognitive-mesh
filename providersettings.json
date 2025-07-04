@@ -1,0 +1,39 @@
+{
+  "providerProfiles": {
+    "azure-openai-gpt35": {
+      "apiKey":     "${env:AZURE_OPENAI_KEY}",
+      "apiBase":    "${env:AZURE_OPENAI_ENDPOINT}",
+      "apiType":    "azure",
+      "apiVersion": "2023-05-15",
+      "deployment": "${env:AZURE_OPENAI_DEPLOYMENT_GPT35}"
+    },
+    "azure-openai-modelrouter": {
+      "apiKey":     "${env:AZURE_OPENAI_KEY}",
+      "apiBase":    "${env:AZURE_OPENAI_ENDPOINT}",
+      "apiType":    "azure",
+      "apiVersion": "2023-05-15",
+      "deployment": "${env:AZURE_OPENAI_DEPLOYMENT_ROUTER}"
+    },
+    "azure-openai-gpt4o": {
+      "apiKey":     "${env:AZURE_OPENAI_KEY_SAF}",
+      "apiBase":    "${env:AZURE_OPENAI_ENDPOINT_SAF}",
+      "apiType":    "azure",
+      "apiVersion": "2023-05-15",
+      "deployment": "${env:AZURE_OPENAI_DEPLOYMENT_4O}"
+    },
+    "azure-openai-gpt41": {
+      "apiKey":     "${env:AZURE_OPENAI_KEY_SAF}",
+      "apiBase":    "${env:AZURE_OPENAI_ENDPOINT_SAF}",
+      "apiType":    "azure",
+      "apiVersion": "2023-05-15",
+      "deployment": "${env:AZURE_OPENAI_DEPLOYMENT_GPT41}"
+    },
+    "azure-openai-embeddings": {
+      "apiKey":     "${env:AZURE_OPENAI_KEY_SAF}",
+      "apiBase":    "${env:AZURE_OPENAI_ENDPOINT_SAF}",
+      "apiType":    "azure",
+      "apiVersion": "2023-05-15",
+      "deployment": "${env:AZURE_OPENAI_DEPLOYMENT_EMBEDDINGS}"
+    }
+  }
+}

@@ -1,17 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
     <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <!-- No explicit <Compile> elements needed; the SDK implicitly includes all *.cs files -->
-
-  <!-- Add required dependencies for IConfiguration and related abstractions -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0-preview.5.24306.7" />
-    <!-- Provides ConfigurationBinder.GetValue<T> extension used in FeatureFlagManager -->
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0-preview.5.24306.7" />
   </ItemGroup>
-</Project>
 
+</Project>

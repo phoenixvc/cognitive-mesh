@@ -29,6 +29,111 @@ namespace CognitiveMesh.UILayer.AgencyWidgets.Adapters
         public string LanguageCode { get; set; } // e.g., "en-US"
     }
 
+    // ---------------------------------------------------------------------
+    //  New View-Models for Value-Generation Widgets (lightweight / UI side)
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// A condensed view-model for displaying the “$200 Test” or full value
+    /// diagnostic results in the UI layer.  This intentionally contains only
+    /// presentation-ready data (keeping the heavy backend DTOs out of the UI
+    /// assembly to maintain clean layering).
+    /// </summary>
+    public class ValueDiagnosticViewModel
+    {
+        public string TargetId { get; set; }
+        public string TargetType { get; set; } // "User" | "Team"
+        public double ValueScore { get; set; }
+        public string ValueProfile { get; set; }
+        public IReadOnlyList<string> Strengths { get; set; }
+        public IReadOnlyList<string> DevelopmentOpportunities { get; set; }
+    }
+
+    /// <summary>
+    /// View-model for organisational blindness trends visualisation.
+    /// </summary>
+    public class OrgBlindnessTrendViewModel
+    {
+        public double BlindnessRiskScore { get; set; }
+        public IReadOnlyList<string> TopBlindSpots { get; set; }
+    }
+
+    /// <summary>
+    /// View-model for employability score widget.
+    /// </summary>
+    public class EmployabilityScoreViewModel
+    {
+        public string UserId { get; set; }
+        public double RiskScore { get; set; }
+        public string RiskLevel { get; set; } // Low | Medium | High
+    }
+
+    // ---------------------------------------------------------------------
+    //  Agentic-AI  (Agent Registry / Authority)  View-Models
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Lightweight projection of an agent definition for UI consumption.
+    /// </summary>
+    public class AgentViewModel
+    {
+        public string AgentId { get; set; }
+        public string AgentType { get; set; }
+        public string Description { get; set; }
+        public string Status { get; set; }          // Active | Deprecated | Retired
+        public string Version { get; set; }
+        public string DefaultAutonomy { get; set; } // RecommendOnly | ActWithConfirmation | FullyAutonomous
+    }
+
+    /// <summary>
+    /// View-model representing the current authority scope of an agent.
+    /// </summary>
+    public class AuthorityScopeViewModel
+    {
+        public IReadOnlyList<string> AllowedApiEndpoints { get; set; }
+        public double? MaxResourceConsumption { get; set; }
+        public double? MaxBudget { get; set; }
+        public IReadOnlyList<string> DataAccessPolicies { get; set; }
+    }
+
+    /// <summary>
+    /// View-model for a single audit / event log row displayed in the Audit/Event Log Overlay.
+    /// </summary>
+    public class AuditEventViewModel
+    {
+        public string AuditId { get; set; }
+        public string AgentId { get; set; }
+        public string ActionType { get; set; }
+        public string UserId { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
+        public string Outcome { get; set; }   // Success | Failure | Escalated
+        public string CorrelationId { get; set; }
+    }
+
+    // ---------------------------------------------------------------------
+    //  Consent helpers
+    // ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Enumerates well-known consent types.  Widgets should use these values
+    /// rather than hard-coding strings when interacting with the ConsentAdapter
+    /// to avoid typos and aid refactoring.
+    /// </summary>
+    public enum ConsentType
+    {
+        /// <summary>
+        /// Consent allowing collection of data required to run the value
+        /// diagnostic (e.g., “$200 Test”) for a user or team.
+        /// </summary>
+        ValueDiagnosticDataCollection,
+
+        /// <summary>
+        /// Consent allowing the system to compute an employability-risk
+        /// assessment for a user.
+        /// </summary>
+        EmployabilityAnalysis
+    }
+
 
     // --- Adapter Port Interfaces ---
 
@@ -56,6 +161,105 @@ namespace CognitiveMesh.UILayer.AgencyWidgets.Adapters
         /// <param name="taskId">The unique identifier for the task context to get the policy for.</param>
         /// <returns>A WidgetState containing a list of applicable policy decisions.</returns>
         Task<WidgetState<List<PolicyDecision>>> GetPolicyDecisionTableAsync(string taskId);
+
+        // -----------------------------------------------------------------
+        //            Value-Generation specific data-fetch endpoints
+        // -----------------------------------------------------------------
+
+        /// <summary>
+        /// Retrieves value diagnostic data for a given user or team.
+        /// </summary>
+        Task<WidgetState<ValueDiagnosticViewModel>> GetValueDiagnosticDataAsync(
+            string targetId,
+            string targetType,
+            string tenantId);
+
+        /// <summary>
+        /// Retrieves organisational blindness trends for an organisation.
+        /// </summary>
+        Task<WidgetState<OrgBlindnessTrendViewModel>> GetOrgBlindnessTrendsAsync(
+            string organizationId,
+            string[] departmentFilters,
+            string tenantId);
+
+        /// <summary>
+        /// Retrieves an employability score for the specified user.  Adapter
+        /// implementations must verify that <see cref="ConsentType.EmployabilityAnalysis"/>
+        /// has been granted before calling the backend.
+        /// </summary>
+        Task<WidgetState<EmployabilityScoreViewModel>> GetEmployabilityScoreAsync(
+            string userId,
+            string tenantId);
+
+        /// <summary>
+        /// Submits a completed “$200 Test” questionnaire for the current user.
+        /// </summary>
+        Task<bool> SubmitTwoHundredDollarTestAsync(
+            string userId,
+            IDictionary<string, object> responses,
+            string tenantId);
+
+        // -----------------------------------------------------------------
+        //                  Agent Registry & Authority Endpoints
+        // -----------------------------------------------------------------
+
+        /// <summary>
+        /// Retrieves a list of agents in the registry.
+        /// </summary>
+        Task<WidgetState<IEnumerable<AgentViewModel>>> GetAgentRegistryAsync(
+            bool includeRetired,
+            string tenantId);
+
+        /// <summary>
+        /// Retrieves detailed information for a single agent.
+        /// </summary>
+        Task<WidgetState<AgentViewModel>> GetAgentDetailsAsync(
+            string agentId,
+            string tenantId);
+
+        /// <summary>
+        /// Retrieves the current authority scope for the specified agent.
+        /// </summary>
+        Task<WidgetState<AuthorityScopeViewModel>> GetAuthorityScopeAsync(
+            string agentId,
+            string tenantId);
+
+        /// <summary>
+        /// Updates the authority scope for the specified agent (admin-only operation).
+        /// </summary>
+        Task<bool> UpdateAuthorityScopeAsync(
+            string agentId,
+            AuthorityScopeViewModel newScope,
+            string tenantId,
+            string reason);
+
+        /// <summary>
+        /// Performs an authority override for the specified agent.
+        /// </summary>
+        Task<bool> OverrideAuthorityAsync(
+            string agentId,
+            AuthorityScopeViewModel overrideScope,
+            TimeSpan duration,
+            string tenantId,
+            string reason);
+
+        /// <summary>
+        /// Validates whether a proposed agent action is within authority.
+        /// </summary>
+        Task<bool> ValidateActionAuthorityAsync(
+            string agentId,
+            string actionType,
+            IDictionary<string, object> parameters,
+            string tenantId);
+
+        /// <summary>
+        /// Retrieves a paged set of audit events related to agents.
+        /// </summary>
+        Task<WidgetState<IEnumerable<AuditEventViewModel>>> GetAgentAuditEventsAsync(
+            string agentId,
+            DateTimeOffset? since,
+            int pageSize,
+            string tenantId);
     }
 
     /// <summary>
@@ -81,6 +285,47 @@ namespace CognitiveMesh.UILayer.AgencyWidgets.Adapters
         /// <param name="overrideRequest">The override request to be applied.</param>
         /// <returns>A task that resolves to true if the override was successfully applied; otherwise, false.</returns>
         Task<bool> SubmitOverrideAsync(OverrideRequest overrideRequest);
+
+        // -----------------------------------------------------------------
+        //                Value-Generation helper methods
+        // -----------------------------------------------------------------
+
+        /// <summary>
+        /// Checks whether a user already has an active consent of the specified
+        /// <paramref name="consentType"/>.  Widgets should call this to decide
+        /// whether to show the consent overlay.
+        /// </summary>
+        Task<bool> HasActiveConsentAsync(string userId, ConsentType consentType);
+
+        // -----------------------------------------------------------------
+        //                Agent-Specific Consent Methods
+        // -----------------------------------------------------------------
+
+        /// <summary>
+        /// Records consent for a specific agent action.
+        /// </summary>
+        Task<bool> RecordAgentConsentAsync(
+            ConsentRequest consentRequest,
+            string agentId,
+            string agentActionType);
+
+        /// <summary>
+        /// Validates whether consent exists for a given agent and consent type.
+        /// </summary>
+        Task<bool> ValidateAgentConsentAsync(
+            string userId,
+            string tenantId,
+            string agentId,
+            string consentType);
+
+        /// <summary>
+        /// Revokes consent previously granted for agent operations.
+        /// </summary>
+        Task<bool> RevokeAgentConsentAsync(
+            string userId,
+            string tenantId,
+            string agentId,
+            string consentType);
     }
 
     /// <summary>
@@ -105,6 +350,27 @@ namespace CognitiveMesh.UILayer.AgencyWidgets.Adapters
         /// Closes the connection to the notification service.
         /// </summary>
         Task StopListeningAsync();
+
+        // -----------------------------------------------------------------
+        //                Value-Generation notifications
+        // -----------------------------------------------------------------
+
+        /// <summary>
+        /// Sends (or queues) a notification to the specified <paramref name="userId"/>
+        /// about newly available value-diagnostic results.
+        /// </summary>
+        Task SendValueDiagnosticNotificationAsync(
+            string userId,
+            double valueScore,
+            string valueProfile);
+
+        /// <summary>
+        /// Sends an employability alert (risk/opportunity) to the given user.
+        /// </summary>
+        Task SendEmployabilityAlertAsync(
+            string userId,
+            string riskLevel,
+            double riskScore);
     }
 
     /// <summary>
@@ -123,6 +389,22 @@ namespace CognitiveMesh.UILayer.AgencyWidgets.Adapters
         /// **PRD Compliance:** Events are batched and flushed every <10 seconds. Implements an offline queue for resilience.
         /// </remarks>
         Task LogEventAsync(TelemetryEvent telemetryEvent);
+    }
+
+    /// <summary>
+    /// Centralised constants used for telemetry event “Action” values so that
+    /// producers and consumers remain in sync without magic strings.
+    /// </summary>
+    public static class TelemetryEventTypes
+    {
+        public const string ValueDiagnosticViewed = "ValueDiagnosticViewed";
+        public const string EmployabilityConsentGranted = "EmployabilityConsentGranted";
+        public const string OrgBlindnessReportGenerated = "OrgBlindnessReportGenerated";
+
+        // -------- Agentic-AI specific events --------
+        public const string AgentInvoked = "AgentInvoked";
+        public const string AuthorityConsentGranted = "AuthorityConsentGranted";
+        public const string AgentActionAudited = "AgentActionAudited";
     }
 
     /// <summary>

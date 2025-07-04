@@ -1,4 +1,16 @@
+---
+Module: CognitiveMeshV3Backend
+Primary Personas: Platform Engineers, Solution Architects, Product Owners
+Core Value Proposition: Next-generation backend architecture for Cognitive Mesh
+Priority: P1
+License Tier: Enterprise
+Platform Layers: Foundation, Business Applications, Metacognitive
+Main Integration Points: All mesh layers, Orchestration, Compliance
+---
+
 # Cognitive Mesh v3 Backend Architecture PRD (Hexagonal, Mesh Layered, Philosophically & Legally Sharpened)
+
+> **Note:** For the system-level/visionary PRD, see [cognitive-mesh-v3.nextgen-architecture.md](./cognitive-mesh-v3.nextgen-architecture.md)
 
 ### TL;DR
 
@@ -18,7 +30,7 @@ The Cognitive Mesh v3 backend delivers a globally compliant, culturally adaptive
 ### User Goals
 
 - Empower users to confidently drive decisions with transparent, human-AI collaboration.
-- Ensure sovereignty, clear authorship, and “right to explanation” throughout all interactions.
+- Ensure sovereignty, clear authorship, and "right to explanation" throughout all interactions.
 - Adapt user experience to culture, sector, and context.
 - Deliver predictable, uninterrupted workflows without notification fatigue.
 
@@ -34,8 +46,8 @@ The Cognitive Mesh v3 backend delivers a globally compliant, culturally adaptive
 
 **Persona: Enterprise Knowledge Worker (Analyst, Strategist)**
 
-- As a knowledge worker, I want to see which phase of the process I’m in and step back when needed, so that I maintain control and authorship over the work.
-- As a decision-maker, I want to verify that AI suggestions are explainable, traceable, and respect my sector’s compliance needs, so that I can defend decisions to regulators and peers.
+- As a knowledge worker, I want to see which phase of the process I'm in and step back when needed, so that I maintain control and authorship over the work.
+- As a decision-maker, I want to verify that AI suggestions are explainable, traceable, and respect my sector's compliance needs, so that I can defend decisions to regulators and peers.
 - As a global team member, I want the system to match local cultural norms in prompts and authority, so that adoption and collaboration feel natural.
 
 **Persona: IT Compliance Officer**
@@ -107,7 +119,7 @@ The Cognitive Mesh v3 backend delivers a globally compliant, culturally adaptive
 
 **Core Experience**
 
-- Step 1: User or agent interfaces with endpoint for phase N (e.g., initiate “Human Analysis”).
+- Step 1: User or agent interfaces with endpoint for phase N (e.g., initiate "Human Analysis").
 
   - System checks for preconditions and context (culture, sector, phase config).
   - Returns next steps, highlighting authorship/sovereignty, with audit ID for traceability.
@@ -128,7 +140,7 @@ The Cognitive Mesh v3 backend delivers a globally compliant, culturally adaptive
 **Advanced Features & Edge Cases**
 
 - Dynamic phase addition/removal and real-time config updates.
-- Forced legal/compliance override or “manual review” on policy triggers.
+- Forced legal/compliance override or "manual review" on policy triggers.
 - Multi-agent orchestration and conflict-resolution logic.
 
 **UI/UX Highlights**
@@ -140,7 +152,7 @@ The Cognitive Mesh v3 backend delivers a globally compliant, culturally adaptive
 
 ## Narrative
 
-Vanessa, an EU-based risk analyst at a multinational biotech firm, tackles high-stakes investment scenarios using the Cognitive Mesh platform. As she scopes a complex project, the system walks her through a transparent, configurable phase workflow: Human Analysis, AI Pattern Recognition, and Structured Human Validation. Each suggestion—no matter how fluently generated—triggers audit trails, cultural adaptation of prompts, and legal compliance checks for GDPR and sector-specific regulations. If Vanessa ever feels rushed or overwhelmed, she can initiate a step-back, see notification batch summaries, and review every rationale in clear text. Behind the scenes, the NormativeAgency and InformationEthics modules ensure true discursive integrity and epistemic control. By project’s end, Vanessa confidently presents an auditable report—her reasoning, AI’s contributions, cultural and legal framing—in a format trusted by colleagues and external regulators. Her firm’s leadership recognizes not just the insight, but the rigorous, human-centered process behind every critical decision.
+Vanessa, an EU-based risk analyst at a multinational biotech firm, tackles high-stakes investment scenarios using the Cognitive Mesh platform. As she scopes a complex project, the system walks her through a transparent, configurable phase workflow: Human Analysis, AI Pattern Recognition, and Structured Human Validation. Each suggestion—no matter how fluently generated—triggers audit trails, cultural adaptation of prompts, and legal compliance checks for GDPR and sector-specific regulations. If Vanessa ever feels rushed or overwhelmed, she can initiate a step-back, see notification batch summaries, and review every rationale in clear text. Behind the scenes, the NormativeAgency and InformationEthics modules ensure true discursive integrity and epistemic control. By project's end, Vanessa confidently presents an auditable report—her reasoning, AI's contributions, cultural and legal framing—in a format trusted by colleagues and external regulators. Her firm's leadership recognizes not just the insight, but the rigorous, human-centered process behind every critical decision.
 
 ------------------------------------------------------------------------
 
@@ -316,3 +328,15 @@ The functionality in this PRD extends **existing cognitive-mesh components** rat
     *   `MultiAgentOrchestration/Engines/MultiAgentOrchestrationEngine.cs` (update)
 
 No other layers require structural change; global NFR inheritance and existing DR/observability patterns remain valid.
+
+------------------------------------------------------------------------
+
+## [Integrated from 09-nextgen-ai.architecture-content.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)
+
+------------------------------------------------------------------------
+
+## [Integrated from 09-nextgen-ai.backend-content.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)

@@ -46,6 +46,23 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// Optional evidence, such as a link to the version of the privacy policy or terms the user agreed to.
         /// </summary>
         public string Evidence { get; set; }
+
+        /// <summary>
+        /// The level of consent being captured (e.g., "Standard", "LegallyBinding", "ExplicitGDPRConsent").
+        /// Use this to distinguish between advisory consent and those required by regulation.
+        /// </summary>
+        public string ConsentLevel { get; set; }
+
+        /// <summary>
+        /// (Optional) The legal framework that governs this consent (e.g., "GDPR", "EUAIAct", "HIPAA").
+        /// When provided, downstream services can enforce jurisdiction-specific requirements.
+        /// </summary>
+        public string LegalFramework { get; set; }
+
+        /// <summary>
+        /// (Optional) A timestamp indicating when this consent expires. <c>null</c> means no expiration.
+        /// </summary>
+        public DateTimeOffset? ExpirationTime { get; set; }
     }
 
     /// <summary>
@@ -63,6 +80,26 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         public DateTimeOffset Timestamp { get; set; }
         public string Source { get; set; }
         public string Evidence { get; set; }
+
+        /// <summary>
+        /// The level of consent granted (mirrors <see cref="ConsentRequest.ConsentLevel"/>).
+        /// </summary>
+        public string ConsentLevel { get; set; }
+
+        /// <summary>
+        /// The legal framework (e.g., GDPR, EUAIAct) relevant for this consent record.
+        /// </summary>
+        public string LegalFramework { get; set; }
+
+        /// <summary>
+        /// When the consent expires (<c>null</c> if it does not expire).
+        /// </summary>
+        public DateTimeOffset? ExpirationTime { get; set; }
+
+        /// <summary>
+        /// Additional evidence metadata (e.g., document hashes, policy version).
+        /// </summary>
+        public Dictionary<string, string> EvidenceMetadata { get; set; } = new();
     }
 
     /// <summary>
@@ -74,6 +111,16 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         public string TenantId { get; set; }
         public string RequiredConsentType { get; set; }
         public string Scope { get; set; } // Optional scope to check
+
+        /// <summary>
+        /// (Optional) Specifies the minimum consent level that must have been granted.
+        /// </summary>
+        public string RequiredConsentLevel { get; set; }
+
+        /// <summary>
+        /// (Optional) Specifies the regulatory framework that the consent must satisfy.
+        /// </summary>
+        public string RequiredLegalFramework { get; set; }
     }
 
     /// <summary>
@@ -96,6 +143,41 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// </summary>
         public string ConsentRecordId { get; set; }
     }
+
+    /// <summary>
+    /// Well-known consent type identifiers used throughout the platform.
+    /// These constants should be referenced instead of hard-coding strings
+    /// when recording or validating consent decisions.
+    /// </summary>
+    public static class ConsentTypes
+    {
+        /// <summary>
+        /// Permission for the system to perform employability-risk analysis on
+        /// a user.  Required before invoking any logic in the
+        /// <c>EmployabilityPredictorEngine</c> / <c>IEmployabilityPort</c>.
+        /// </summary>
+        public const string EmployabilityAnalysis = "EmployabilityAnalysis";
+
+        /// <summary>
+        /// Permission to collect and process the data necessary to run value
+        /// diagnostics (e.g., the “$200 Test”) via the
+        /// <c>ValueGenerationDiagnosticEngine</c>.
+        /// </summary>
+        public const string ValueDiagnosticDataCollection = "ValueDiagnosticDataCollection";
+
+        // ------------------------------------------------------------------
+        // GDPR-specific consent types
+        // ------------------------------------------------------------------
+        public const string GDPRDataProcessing           = "GDPRDataProcessing";
+        public const string GDPRDataTransferOutsideEU    = "GDPRDataTransferOutsideEU";
+        public const string GDPRAutomatedDecisionMaking  = "GDPRAutomatedDecisionMaking";
+
+        // ------------------------------------------------------------------
+        // EU AI Act-specific consent types
+        // ------------------------------------------------------------------
+        public const string EUAIActHighRiskSystem        = "EUAIActHighRiskSystem";
+        public const string EUAIActBiometricIdentification = "EUAIActBiometricIdentification";
+    }
 }
 
 
@@ -107,7 +189,9 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports
     /// <summary>
     /// Defines the contract for the Consent Port in the BusinessApplications Layer.
     /// This port is the primary entry point for managing user consent for data sharing,
-    /// notifications, and automated actions, adhering to the Hexagonal Architecture pattern.
+    /// notifications, automated actions, and **legally-binding consent** required by
+    /// regulatory frameworks (GDPR, EU AI Act, HIPAA, etc.), adhering to the Hexagonal
+    /// Architecture pattern.
     /// </summary>
     public interface IConsentPort
     {

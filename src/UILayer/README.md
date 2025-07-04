@@ -45,14 +45,14 @@ The UI Layer is designed as a set of backend services that support a thin, dynam
 
 The UI Layer is composed of several core services and models that work together to deliver the dynamic dashboard experience.
 
-| Component | Description | Key Files |
-| :--- | :--- | :--- |
-| **WidgetRegistry** | The central service for managing the lifecycle of all widgets. It handles registration, discovery, and versioning of `WidgetDefinition`s. | `IWidgetRegistry.cs`, `WidgetRegistry.cs` |
-| **DashboardLayoutService** | Manages the creation, retrieval, and persistence of user-specific dashboard layouts. It orchestrates calls to the registry to assemble the final dashboard configuration. | `DashboardLayoutService.cs` |
-| **PluginOrchestrator** | A secure gateway for widgets to interact with backend APIs. It implements the "sandwich pattern" by wrapping each call with pre-execution (auth, validation) and post-execution (logging, transformation) logic. | `PluginOrchestrator.cs` |
-| **Plugin Marketplace** | A suite of services and models for managing the submission, review, and approval of new widgets. | `PluginSubmission.cs`, `MarketplaceEntry.cs` |
-| **AgencyWidgets** | A collection of pre-built, specialized widgets that provide interfaces for core Cognitive Mesh capabilities (e.g., Adaptive Balance, NIST RMF). | `IAgencyWidgetAdapters.cs` (conceptual adapter interface) |
-| **Core Models** | The data structures that define the UI Layer's entities. | `WidgetDefinition.cs`, `WidgetInstance.cs`, `DashboardLayout.cs` |
+| Component                  | Description                                                                                                                                                                                                      | Key Files                                                        |
+| :------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| **WidgetRegistry**         | The central service for managing the lifecycle of all widgets. It handles registration, discovery, and versioning of `WidgetDefinition`s.                                                                        | `IWidgetRegistry.cs`, `WidgetRegistry.cs`                        |
+| **DashboardLayoutService** | Manages the creation, retrieval, and persistence of user-specific dashboard layouts. It orchestrates calls to the registry to assemble the final dashboard configuration.                                        | `DashboardLayoutService.cs`                                      |
+| **PluginOrchestrator**     | A secure gateway for widgets to interact with backend APIs. It implements the "sandwich pattern" by wrapping each call with pre-execution (auth, validation) and post-execution (logging, transformation) logic. | `PluginOrchestrator.cs`                                          |
+| **Plugin Marketplace**     | A suite of services and models for managing the submission, review, and approval of new widgets.                                                                                                                 | `PluginSubmission.cs`, `MarketplaceEntry.cs`                     |
+| **AgencyWidgets**          | A collection of pre-built, specialized widgets that provide interfaces for core Cognitive Mesh capabilities (e.g., Adaptive Balance, NIST RMF).                                                                  | `IAgencyWidgetAdapters.cs` (conceptual adapter interface)        |
+| **Core Models**            | The data structures that define the UI Layer's entities.                                                                                                                                                         | `WidgetDefinition.cs`, `WidgetInstance.cs`, `DashboardLayout.cs` |
 
 ---
 
@@ -138,6 +138,19 @@ async function renderDashboard(userId: string, apiToken: string) {
   }
 }
 ```
+
+---
+
+## Next Steps
+Build/Publish a Widget Definition & Lifecycle PRD
+Standardize widget security, onboarding, versioning, and deprecation requirements.
+Specify how widgets signal dependencies (e.g., “needs AgenticLayer with NIST RMF access”).
+Rollout a Widget/Marketplace Governance Doc
+Codify sandbox, review, security sign-off, and publishing protocol (could be adapted from Apple’s App Store or VSCode extension governance models).
+Synthesize a Persona-to-Widget-to-Platform Map
+Explicitly chart how each core persona is served by current and planned widgets, which ties back to mesh value per user segment.
+Add Usage/Performance Telemetry for Widgets
+Feed the mesh dashboard with per-widget metrics to support portfolio analysis and proactive ops/compliance oversight.
 
 ---
 

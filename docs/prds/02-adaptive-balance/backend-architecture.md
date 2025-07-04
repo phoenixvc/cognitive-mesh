@@ -1,3 +1,13 @@
+---
+Module: AdaptiveBalanceBackend
+Primary Personas: Platform Engineers, System Architects, Dev Teams
+Core Value Proposition: Backend architecture for adaptive balance and mesh orchestration
+Priority: P2
+License Tier: Professional
+Platform Layers: Foundation, Business Applications, Agency
+Main Integration Points: Mesh orchestration, Widget registry, Agent coordination
+---
+
 # Cognitive Mesh Adaptive Balance & Continuous Improvement Backend PRD (Multi-Agent, Scaffolding, RMF, Meta-Learning)
 
 ### TL;DR

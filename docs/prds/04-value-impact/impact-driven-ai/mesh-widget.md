@@ -1,3 +1,13 @@
+---
+Module: ImpactDrivenAIWidget
+Primary Personas: Impact Analysts, Business Users, Managers
+Core Value Proposition: Widget for visualizing and managing AI impact metrics
+Priority: P2
+License Tier: Professional
+Platform Layers: UI, Business Applications
+Main Integration Points: Impact-driven AI backend, Dashboard system, Analytics
+---
+
 # Impact-Driven AI Mesh Widget PRD
 
 ### TL;DR

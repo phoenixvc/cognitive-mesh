@@ -1,3 +1,13 @@
+---
+Module: ConvenerBackend
+Primary Personas: Community Managers, Team Leads, Compliance Officers
+Core Value Proposition: Backend for champion discovery, community monitoring, and innovation tracking
+Priority: P2
+License Tier: Professional
+Platform Layers: Business Applications, Metacognitive, Reasoning
+Main Integration Points: Community systems, Innovation tracking, Compliance reporting
+---
+
 # Convener Backend Architecture PRD
 
 ### TL;DR  
@@ -30,13 +40,13 @@ The Convener backend is a secure, API-driven platform that underpins champion di
 
 | Persona | Story | Priority |
 |---------|-------|----------|
-| Community Manager | “See top champions and connectors so I can accelerate project outcomes.” | Must |
-| Community Manager | “View engagement and psychological-safety pulse to support at-risk members.” | Must |
-| Team Lead | “Get collaborator recommendations based on expertise and participation.” | Must |
-| Team Lead | “Receive notifications of successful innovation patterns to replicate.” | Should |
-| End User | “See where my contributions catalysed learning/innovation so I feel recognised.” | Must |
-| End User | “Control and see transparency of shared social/learning data.” | Must |
-| Compliance Officer | “Audit provenance, access, and approvals to ensure policy compliance.” | Must |
+| Community Manager | "See top champions and connectors so I can accelerate project outcomes." | Must |
+| Community Manager | "View engagement and psychological-safety pulse to support at-risk members." | Must |
+| Team Lead | "Get collaborator recommendations based on expertise and participation." | Must |
+| Team Lead | "Receive notifications of successful innovation patterns to replicate." | Should |
+| End User | "See where my contributions catalysed learning/innovation so I feel recognised." | Must |
+| End User | "Control and see transparency of shared social/learning data." | Must |
+| Compliance Officer | "Audit provenance, access, and approvals to ensure policy compliance." | Must |
 
 ---
 
@@ -146,7 +156,7 @@ layers rather than being implemented in a standalone sub-layer.
 | **ReasoningLayer** | Champion Discovery algorithms; Innovation Spread detection; Competitive benchmarks. |
 | **MetacognitiveLayer** | Community Pulse metrics; Learning Catalyst outcome correlation; trend analysis. |
 | **BusinessApplications** | Public REST/gRPC endpoints; approval & consent workflows; notification fan-out. |
-| **AgencyLayer** | Automation agents (“nudgers”) that, once consented, trigger workflows (e-mail champs, create collaboration spaces). |
+| **AgencyLayer** | Automation agents ("nudgers") that, once consented, trigger workflows (e-mail champs, create collaboration spaces). |
 
 This distributed approach maintains **architectural consistency**, maximises
 code reuse, and keeps each Convener capability in the layer best suited to its
@@ -198,7 +208,7 @@ responsibility.
 ## Error & Resilience  
 
 * Cached last-known data served during outages.  
-* Graceful degradation: if sentiment API down → return “metrics unavailable”.  
+* Graceful degradation: if sentiment API down → return "metrics unavailable".  
 * Incident response: Sev 1 ack ≤ 5 min, mitigation ≤ 30 min.  
 * Chaos-engineering: node kill, DB failover drills quarterly.
 
@@ -230,6 +240,12 @@ responsibility.
 1. Real-time vs hourly champion scoring refresh?  
 2. Optional BYOK graph store for regulated tenants?  
 3. Async vs sync export for diffusion graphs?
+
+---
+
+## [Integrated from 03-convener.narrative-requirements.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)
 
 ---
 

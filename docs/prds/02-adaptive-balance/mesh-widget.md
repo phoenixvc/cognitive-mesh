@@ -1,3 +1,13 @@
+---
+Module: AdaptiveBalanceWidget
+Primary Personas: End Users, Team Leads, Business Operators
+Core Value Proposition: Adaptive balance widget for real-time decision support and improvement
+Priority: P2
+License Tier: Professional
+Platform Layers: UI, Business Applications
+Main Integration Points: Adaptive balance backend, Widget registry, User dashboards
+---
+
 # Cognitive Mesh Adaptive Balance & Continuous Improvement Mesh Widget PRD (Hexagonal, Mesh Layered, Spectrum-Smart, Testable)
 
 ### TL;DR
@@ -175,13 +185,13 @@ evolution, and robust continuous improvement.
 
   - Telemetry logs spectrum, suggestion, and user ID for every action.
 
-- **Step 2:** Adjust slider or select “Override”
+- **Step 2:** Adjust slider or select "Override"
 
   - Side overlay pops up showing both spectrum extremes and rationale.
 
-  - Must provide feedback or evidence if overriding system’s setting.
+  - Must provide feedback or evidence if overriding system's setting.
 
-  - “Preview Impact” button runs a counterfactual on what the alternate
+  - "Preview Impact" button runs a counterfactual on what the alternate
     setting would have meant.
 
 - **Step 3:** Immediate Impact/Feedback
@@ -210,13 +220,13 @@ evolution, and robust continuous improvement.
 
 **Advanced Features & Edge Cases**
 
-- Automatic UI switch to “offline” if backend is degraded, allowing for
+- Automatic UI switch to "offline" if backend is degraded, allowing for
   local spectrum adjustment (syncs when online).
 
 - A11y overlays on every slider/overlay: contrast, ARIA labels, keyboard
   access, locale.
 
-- “Override Fatigue” banner if user overrides system repeatedly—links to
+- "Override Fatigue" banner if user overrides system repeatedly—links to
   deeper analytics and counter-pattern rationale.
 
 **UI/UX Highlights**
@@ -328,13 +338,13 @@ and control.
 
 - EvidenceAvatar token buckets for uploader throttling.
 
-- All panels support “offline-first” UI fallback and auto-recover on
+- All panels support "offline-first" UI fallback and auto-recover on
   reconnect.
 
 ### Potential Challenges
 
 - Balancing intuitive UI control with flexibility for expert users
-  (avoiding “options fatigue”).
+  (avoiding "options fatigue").
 
 - Maintaining a11y parity and locale coverage as panels/overlays evolve.
 
@@ -577,5 +587,11 @@ rationale, timestamp, correlationID, error_code }`
 - All logs cross-checked in CI.
 
 - Registry blocks widget publish if telemetry is partial or missing.
+
+------------------------------------------------------------------------
+
+## [Integrated from 02-adaptive-balance.mesh-widget-content.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)
 
 ------------------------------------------------------------------------

@@ -1,3 +1,13 @@
+---
+Module: ValueGenerationWidget
+Primary Personas: Business Users, Value Analysts, Managers
+Core Value Proposition: Widget for visualizing and managing value generation metrics
+Priority: P2
+License Tier: Professional
+Platform Layers: UI, Business Applications
+Main Integration Points: Value generation backend, Dashboard system, Analytics
+---
+
 # Value Generation Mesh Widget PRD (Hexagonal, Mesh Layered, Tightened)
 
 ### TL;DR
@@ -40,7 +50,7 @@ Widgets surface actionable value, creativity, blindness, and employability diagn
 
 ### Employee/User
 
-- As an employee, I want to see my personal value and creativity diagnostic, so that I can understand how I’m perceived and where I can develop.
+- As an employee, I want to see my personal value and creativity diagnostic, so that I can understand how I'm perceived and where I can develop.
 - As an employee, I want to consent before submitting employability information, so that I control my sensitive data.
 
 ### Compliance Officer
@@ -123,7 +133,7 @@ Widgets surface actionable value, creativity, blindness, and employability diagn
 
 Imagine Sofia, an HR manager at a fast-moving technology firm, struggling to identify under-the-radar talent and looming employability risks. Her organization runs periodic engagement surveys, but the results come back late and lack actionable depth. With the Value Generation Mesh Widget suite, Sofia logs into her dashboard and—without hunting through reports—receives instant, clearly visualized diagnostics of which teams excel, where hidden value lies untapped, and which departments might be drifting into organizational blindness.
 
-For employees like Alex, the experience is just as empowering: he checks his personal “$200 Value Test,” discovers how his creativity is currently perceived, and receives a nudge about learning opportunities. When prompted for employability diagnostics, he sees a clear consent modal and can opt in (or out), knowing that his data won’t move without his approval.
+For employees like Alex, the experience is just as empowering: he checks his personal "$200 Value Test," discovers how his creativity is currently perceived, and receives a nudge about learning opportunities. When prompted for employability diagnostics, he sees a clear consent modal and can opt in (or out), knowing that his data won't move without his approval.
 
 Meanwhile, Tracy in Compliance reviews the robust logs: every diagnostic, consent, or employment-sensitive call is archived, all with retrievable correlation IDs and accessible notifications if errors, exceptions, or a11y issues ever arise. With consistent overlays and zero guesswork, the mesh widget suite transforms value detection from a tedious compliance box into a strategic, user-centric superpower.
 
@@ -141,7 +151,7 @@ Meanwhile, Tracy in Compliance reviews the robust logs: every diagnostic, consen
 ### Business Metrics
 
 - Organizational adoption rate (number of orgs onboarded per quarter)
-- Reduction in “value blindness” incidents (self-reported or flagged via panel)
+- Reduction in "value blindness" incidents (self-reported or flagged via panel)
 - Audit pass rate on compliance/a11y checks
 
 ### Technical Metrics
@@ -265,3 +275,9 @@ The functionality in this PRD extends **existing cognitive-mesh UI components** 
     *   **OpenAPI Client**: Regenerate to include new backend endpoints for value generation.
 
 No other layers require structural change; the widget system integrates cleanly with the existing UI shell and backend APIs via the adapter pattern.
+
+------------------------------------------------------------------------
+
+## [Integrated from 01-foundational.compliance-content.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)

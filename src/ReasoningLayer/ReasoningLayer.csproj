@@ -6,12 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AnalyticalReasoning\AnalyticalReasoning.csproj" />
-    <ProjectReference Include="..\CreativeReasoning\CreativeReasoning.csproj" />
-    <ProjectReference Include="..\CriticalReasoning\CriticalReasoning.csproj" />
-    <ProjectReference Include="..\DomainSpecificReasoning\DomainSpecificReasoning.csproj" />
-    <ProjectReference Include="..\EthicalReasoning\EthicalReasoning.csproj" />
-    <ProjectReference Include="..\SystemsReasoning\SystemsReasoning.csproj" />
+    <!-- Reference dependencies -->
+    <ProjectReference Include="..\FoundationLayer\FoundationLayer.csproj" />
+    <ProjectReference Include="..\Shared\CognitiveMesh.Shared.csproj" />
+    
+    <!-- Reference all reasoning sub-projects -->
+    <ProjectReference Include=".\AnalyticalReasoning\AnalyticalReasoning.csproj" />
+    <ProjectReference Include=".\ChampionDiscovery\ChampionDiscovery.csproj" />
+    <ProjectReference Include=".\CreativeReasoning\CreativeReasoning.csproj" />
+    <ProjectReference Include=".\CriticalReasoning\CriticalReasoning.csproj" />
+    <ProjectReference Include=".\DomainSpecificReasoning\DomainSpecificReasoning.csproj" />
+    <ProjectReference Include=".\EthicalReasoning\EthicalReasoning.csproj" />
+    <ProjectReference Include=".\ExperimentalVelocity\ExperimentalVelocity.csproj" />
+    <ProjectReference Include=".\LLMReasoning\LLMReasoning.csproj" />
+    <ProjectReference Include=".\SecurityReasoning\SecurityReasoning.csproj" />
+    <ProjectReference Include=".\SystemsReasoning\SystemsReasoning.csproj" />
+    <ProjectReference Include=".\ValueGeneration\ValueGeneration.csproj" />
   </ItemGroup>
 
 </Project>

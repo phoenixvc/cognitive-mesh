@@ -1,3 +1,13 @@
+---
+Module: CognitiveSovereigntyWidget
+Primary Personas: Knowledge Workers, HR/Compliance Admins, Managers
+Core Value Proposition: Widget for cognitive sovereignty and authorship visibility
+Priority: P1
+License Tier: Professional
+Platform Layers: UI, Business Applications
+Main Integration Points: Sovereignty systems, HR platforms, Cultural adaptation
+---
+
 # Cognitive Sovereignty Mesh Widget PRD (Hexagonal, Mesh Layered)
 
 ### TL;DR
@@ -234,20 +244,20 @@ user control.
 
 Sara logs in and sees her CSI score front and center—her authorship is
 high, but today's complex task pushes the system into hybrid mode. The
-widgets’ interface updates: a highlighted banner suggests reflection
+widgets' interface updates: a highlighted banner suggests reflection
 prompts to ensure she approves agentic suggestions. When approaching a
 regulated data task, a consent modal appears, letting her explicitly
 approve or deny agent recommendations before anything moves forward. All
 her actions, as well as her cultural and organizational settings, adapt
 the interface and prompt frequency on the fly.
 
-As Sara’s CSI stays high, she feels ownership of the process, and knows
+As Sara's CSI stays high, she feels ownership of the process, and knows
 every choice is logged and auditable. Compliance officers can review
 manual review logs and see a real-time dashboard of sovereignty events.
 When policy updates, version drift overlays notify users and guide them
 to the latest updates—never leaving sovereignty to chance.
 
-Through these widgets, Sara’s enterprise accelerates productivity but
+Through these widgets, Sara's enterprise accelerates productivity but
 never loses the human-centered, compliance-assured edge that sets them
 apart.
 

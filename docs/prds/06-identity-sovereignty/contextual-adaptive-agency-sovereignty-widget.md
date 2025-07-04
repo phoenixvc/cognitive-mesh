@@ -1,4 +1,14 @@
-# Contextual Adaptive Agency/Sovereignty Mesh Widget PRD (Hexagonal, Mesh Layered)
+---
+Module: ContextualAdaptiveAgencySovereigntyWidget
+Primary Personas: End Users, Agency Managers, Sovereignty Officers
+Core Value Proposition: Widget for managing contextual adaptive agency and sovereignty
+Priority: P2
+License Tier: Professional
+Platform Layers: UI, Business Applications
+Main Integration Points: Agency systems, Sovereignty framework, User dashboards
+---
+
+# Contextual Adaptive Agency Sovereignty Widget PRD (Hexagonal, Mesh Layered)
 
 ### TL;DR
 
@@ -12,7 +22,7 @@ Contextual Adaptive Agency Mesh Widgets give end-users real-time visibility and 
 
 - Enable organizational trust and adoption of adaptive agentic AI through transparent, user-configurable controls.
 - Raise compliance and auditability for all agentic decisions/actions across the mesh.
-- Reduce risk of autonomy/agency drift; avoid “black-box” agent behaviors.
+- Reduce risk of autonomy/agency drift; avoid "black-box" agent behaviors.
 - Accelerate rollout by providing a plug-and-play panel portfolio for all mesh agent UIs.
 
 ### User Goals
@@ -68,7 +78,7 @@ Contextual Adaptive Agency Mesh Widgets give end-users real-time visibility and 
 
 ### UX/Pattern Library (Must)
 
-- ‘Retry’ overlays, error banners, consent dialogs, button states, AAA toggles all implemented as shared UI modules; each panel invokes them identically.
+- 'Retry' overlays, error banners, consent dialogs, button states, AAA toggles all implemented as shared UI modules; each panel invokes them identically.
 
 ### Storybook/Cypress Matrix (Must)
 
@@ -82,18 +92,18 @@ Contextual Adaptive Agency Mesh Widgets give end-users real-time visibility and 
 
 - Mesh widget loads on home/dashboard/workflow page.
 - Agency Mode Banner is always visible; first-time users see a short onboarding overlay explaining its purpose.
-- Initial user journey auto-detects org defaults, syncs user preferences, and provides a “learn more” link to full AAA Control Center.
+- Initial user journey auto-detects org defaults, syncs user preferences, and provides a "learn more" link to full AAA Control Center.
 
 ### Core Experience
 
 - **Step 1:** User begins a task involving an agent (e.g., document summary).
-  - Agency Mode Banner immediately reflects the currently configured autonomy/agency/authority (“Full Agentic,” “Partial with Consent,” “Sovereignty-First”).
+  - Agency Mode Banner immediately reflects the currently configured autonomy/agency/authority ("Full Agentic," "Partial with Consent," "Sovereignty-First").
   - Banner color/symbol gives at-a-glance understanding (e.g., green for human-led, amber for consent-required).
 - **Step 2:** User clicks the banner or is auto-prompted for escalation/consent.
   - Sovereignty Status Overlay appears if agency has changed via policy/context, always showing authorship status.
   - If required, Consent/Notification Modal blocks further action, asking the user to review and approve or override the next agentic action.
 - **Step 3:** User opens the AAA Control Center to review/adjust agent parameters.
-  - See a live table of agent permissions, policy limits, and a current-context mapping (explained via Policy Decision Table Viewer), e.g. “CIA > 0.6 → Consent Required”.
+  - See a live table of agent permissions, policy limits, and a current-context mapping (explained via Policy Decision Table Viewer), e.g. "CIA > 0.6 → Consent Required".
   - UI dynamically updates on agent drift or override.
 - **Step 4:** On action, outcome, or error, a standardized overlay appears.
   - All overlays, alerts, modals, and escalations rendered from the shared pattern library; UI always feels coherent and predictable.
@@ -110,20 +120,20 @@ Contextual Adaptive Agency Mesh Widgets give end-users real-time visibility and 
 
 ### UI/UX Highlights
 
-- All errors, escalations, consent events look/function identically—no UI “drift.”
+- All errors, escalations, consent events look/function identically—no UI "drift."
 - Visual status and control are always above the fold; banners are never hidden by scroll or modal layering.
-- Policy explanations map to context—“Why is the agent blocked?”—in plain language.
-- Accessibility first: all controls have clear focus states, high contrast, and ARIA tagging; a11y issues render a “panel disabled” UI and log a compliance event.
+- Policy explanations map to context—"Why is the agent blocked?"—in plain language.
+- Accessibility first: all controls have clear focus states, high contrast, and ARIA tagging; a11y issues render a "panel disabled" UI and log a compliance event.
 
 ------------------------------------------------------------------------
 
 ## Narrative
 
-Jess, a knowledge worker, logs in to her organization’s mesh interface. She’s preparing a sensitive client report, knowing policy requires transparency on any AI assistance. The Agency Mode Banner at the top of her screen glows amber—her org has toggled “Consent-Required” mode for this task, due to the document’s sensitivity.
+Jess, a knowledge worker, logs in to her organization's mesh interface. She's preparing a sensitive client report, knowing policy requires transparency on any AI assistance. The Agency Mode Banner at the top of her screen glows amber—her org has toggled "Consent-Required" mode for this task, due to the document's sensitivity.
 
-She clicks the banner, pulling up the AAA Control Center. The Sovereignty Status Overlay informs her she retains authorship, with a small notice: “Any agent action needs your review.” As she tries summarizing a section, the Consent Modal smoothly slides in—showing the agent’s suggested output, its authority scope, and a clear approve/override choice. She toggles to the Policy Decision Table Viewer, confirming that current policy mapping (“high CIA score”) indeed necessitates this extra check.
+She clicks the banner, pulling up the AAA Control Center. The Sovereignty Status Overlay informs her she retains authorship, with a small notice: "Any agent action needs your review." As she tries summarizing a section, the Consent Modal smoothly slides in—showing the agent's suggested output, its authority scope, and a clear approve/override choice. She toggles to the Policy Decision Table Viewer, confirming that current policy mapping ("high CIA score") indeed necessitates this extra check.
 
-Jess hits “Accept,” and the action completes. The mesh instantly logs every agentic step into the audit trail, and the overlays fade back to normal. Later, the admin Priya receives a dashboard alert that this widget will require migration next month—a deprecation banner is already in place to avoid surprises. Jess always feels in control; compliance gets a robust record; engineering can sleep knowing every scenario, mode, and panel was fully covered—no drift, no confusion, total trust.
+Jess hits "Accept," and the action completes. The mesh instantly logs every agentic step into the audit trail, and the overlays fade back to normal. Later, the admin Priya receives a dashboard alert that this widget will require migration next month—a deprecation banner is already in place to avoid surprises. Jess always feels in control; compliance gets a robust record; engineering can sleep knowing every scenario, mode, and panel was fully covered—no drift, no confusion, total trust.
 
 ------------------------------------------------------------------------
 
@@ -132,7 +142,7 @@ Jess hits “Accept,” and the action completes. The mesh instantly logs every 
 ### User-Centric Metrics
 
 - Daily/monthly active users engaging with Agency Mode Banner, Control Center, or overlays
-- User-reported confidence in agent authorship/consent (“I always know when and how agents act on my behalf”)
+- User-reported confidence in agent authorship/consent ("I always know when and how agents act on my behalf")
 - Error/incident rate for missed consent or misattributed agent actions (should fall below 0.5% of all agentic activity)
 
 ### Business Metrics
@@ -215,7 +225,7 @@ Jess hits “Accept,” and the action completes. The mesh instantly logs every 
 **2. UI/UX, Accessibility & Error/Offline Layer (1 week)**
 
 - **Responsible:** Engineer + Designer
-- **Deliverables:** Full renderer adapter, error/“offline” banners, a11y checks, theming logic.
+- **Deliverables:** Full renderer adapter, error/"offline" banners, a11y checks, theming logic.
 - **Dependencies:** Storybook QA setup.
 
 **3. Backend API Integration, Contract Testing, MVP (1 week)**
@@ -304,7 +314,7 @@ Jess hits “Accept,” and the action completes. The mesh instantly logs every 
 - Retry overlays, error banners, consent dialogs, button affordances, AAA sliders/toggles, theming.
 - **Acceptance:** All panels use the exact shared overlays/components for visual/behavioral consistency.
 - UI/UX lint and screenshot testing required for every panel per release.
-- **Controls:** Always “above the fold,” keyboard/screen reader accessible, responds to theme/a11y state.
+- **Controls:** Always "above the fold," keyboard/screen reader accessible, responds to theme/a11y state.
 
 ### Visuals: Inline Component & Sequence Diagrams
 
@@ -315,7 +325,7 @@ Jess hits “Accept,” and the action completes. The mesh instantly logs every 
 
 ## Versioning, Deprecation, Notification
 
-- Widgets are semver-ed, APIs contract-bound. Registry disables on detected version drift, displays “Please update” overlay.
+- Widgets are semver-ed, APIs contract-bound. Registry disables on detected version drift, displays "Please update" overlay.
 - **Change events:** Consumer admins notified via email, Slack, dashboard at 60/30/10 days before widget or contract sunset.
 - Registry publish requires consumer acknowledgement; fail to sign off disables deploy.
 - Migration docs shipped with all major/breaking changes or deprecations.
@@ -338,3 +348,9 @@ Jess hits “Accept,” and the action completes. The mesh instantly logs every 
 | >0.7          | Sovereignty Enforced    | Human-in-the-Loop   | Author must confirm |
 
 *All decision/routing tables are visible to users and configurable by org policy.*
+
+------------------------------------------------------------------------
+
+## [Integrated from 06-identity-sovereignty.widget-content.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)

@@ -1,9 +1,19 @@
+---
+Module: ConvenerWidget
+Primary Personas: Project Leads, Community Managers, Innovation Leads
+Core Value Proposition: UI widgets for champion discovery, community pulse, and innovation spread
+Priority: P2
+License Tier: Professional
+Platform Layers: UI, Business Applications
+Main Integration Points: Convener backend, Dashboard system, Widget registry
+---
+
 # Convener Widget / Plugin PRD  
 _Path: docs/prds/convener-widget.md_
 
 ## TL;DR  
 The Convener Widget is a collection of UI plugins for the Cognitive Mesh dashboard that surface **Champion Discovery**, **Community Pulse**, **Innovation Spread**, and **Learning Catalyst** insights produced by the Convener backend (`convener-backend.md`).  
-Each widget registers via the dashboard’s `registerWidget()` API, runs in a sandbox, follows the sandwich-pattern orchestration, and fully complies with the **Global NFR Appendix** (`global-nfr.md`).
+Each widget registers via the dashboard's `registerWidget()` API, runs in a sandbox, follows the sandwich-pattern orchestration, and fully complies with the **Global NFR Appendix** (`global-nfr.md`).
 
 ---
 
@@ -24,12 +34,12 @@ Each widget registers via the dashboard’s `registerWidget()` API, runs in a sa
 
 | Persona | Story | Priority |
 |---------|-------|----------|
-| Project Lead | “I drag the **Champion Finder** widget onto my dashboard and immediately see the top experts for ‘MLOps’.” | Must |
-| Community Manager | “I resize the **Community Pulse** widget to full width to view sentiment over the past quarter.” | Must |
-| Innovation Lead | “Hovering a node in **Innovation Spread** shows adoption metrics and provenance.” | Should |
-| Learner | “The **Learning Catalyst** widget suggests courses and lets me mark them complete.” | Must |
-| Admin | “I review the widget’s permission scopes and approve them for the Finance tenant.” | Must |
-| Auditor | “I export the widget’s consent and provenance logs for the last 90 days.” | Must |
+| Project Lead | "I drag the **Champion Finder** widget onto my dashboard and immediately see the top experts for 'MLOps'." | Must |
+| Community Manager | "I resize the **Community Pulse** widget to full width to view sentiment over the past quarter." | Must |
+| Innovation Lead | "Hovering a node in **Innovation Spread** shows adoption metrics and provenance." | Should |
+| Learner | "The **Learning Catalyst** widget suggests courses and lets me mark them complete." | Must |
+| Admin | "I review the widget's permission scopes and approve them for the Finance tenant." | Must |
+| Auditor | "I export the widget's consent and provenance logs for the last 90 days." | Must |
 
 ---
 
@@ -38,10 +48,10 @@ Each widget registers via the dashboard’s `registerWidget()` API, runs in a sa
 ### 1. Widget Variants  
 | ID | Title | Backend Endpoint | Primary Vis | Critical Actions |
 |----|-------|-----------------|-------------|------------------|
-| champion-finder | Champion Finder | `GET /v1/champions` | Ranked list + network mini-graph | “Invite Champion”, “View Profile” |
-| community-pulse | Community Pulse | `GET /v1/community-pulse` | Time-series sentiment chart | “Drill-down”, “Export CSV” |
-| innovation-spread | Innovation Spread | `GET /v1/innovation-spread/{ideaId}` | Diffusion network graph | “Highlight Hotspots” |
-| learning-catalyst | Learning Catalyst | `POST /v1/learning-catalyst/recommend` | Card carousel | “Mark Complete”, “Dismiss” |
+| champion-finder | Champion Finder | `GET /v1/champions` | Ranked list + network mini-graph | "Invite Champion", "View Profile" |
+| community-pulse | Community Pulse | `GET /v1/community-pulse` | Time-series sentiment chart | "Drill-down", "Export CSV" |
+| innovation-spread | Innovation Spread | `GET /v1/innovation-spread/{ideaId}` | Diffusion network graph | "Highlight Hotspots" |
+| learning-catalyst | Learning Catalyst | `POST /v1/learning-catalyst/recommend` | Card carousel | "Mark Complete", "Dismiss" |
 
 ### 2. Registration & Lifecycle  
 * Each widget calls  
@@ -67,7 +77,7 @@ Each widget registers via the dashboard’s `registerWidget()` API, runs in a sa
   * dataSources[] from `WidgetDefinition`,  
   * backend endpoint + timestamp,  
   * model version (e.g., `sentiment-model@2025-03`).  
-* Overlay content signed with widget’s `codeSignature` for tamper-proofing.
+* Overlay content signed with widget's `codeSignature` for tamper-proofing.
 
 ### 6. Intent & Orchestration  
 * All API calls go through **PluginOrchestrator** → Convener backend → post-processing.  
@@ -75,7 +85,7 @@ Each widget registers via the dashboard’s `registerWidget()` API, runs in a sa
 
 ### 7. Error & Empty States  
 * Show skeleton loader ≤ 300 ms.  
-* If backend 503, display graceful degradation card with “Retry” + docs link.
+* If backend 503, display graceful degradation card with "Retry" + docs link.
 
 ---
 
@@ -102,7 +112,7 @@ The widget inherits **all** items in `global-nfr.md`; specific deltas are tracke
    Consent Dialog lists `read:employee-profile`, `read:comm-metrics` → user **Accepts** → consent record saved.
 
 3. **Normal Interaction**  
-   User searches “MLOps” → widget shows ranked experts → user clicks **Invite Champion** → Orchestrator enforces HITL → action approved.
+   User searches "MLOps" → widget shows ranked experts → user clicks **Invite Champion** → Orchestrator enforces HITL → action approved.
 
 4. **Provenance View**  
    User clicks `ⓘ` → side panel reveals provenance trail (HRIS v2.1, Slack sentiment API call, LLM model hash).
@@ -143,3 +153,9 @@ The widget inherits **all** items in `global-nfr.md`; specific deltas are tracke
 
 _Last updated: 2025-07-01_  
 _Maintainer: Convener UI Guild_
+
+------------------------------------------------------------------------
+
+## [Integrated from 03-convener.widget-content.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)

@@ -1,9 +1,19 @@
+---
+Module: ImpactDrivenAIBackend
+Primary Personas: Impact Analysts, Business Managers, Platform Engineers
+Core Value Proposition: Backend architecture for impact-driven AI systems and measurement
+Priority: P2
+License Tier: Professional
+Platform Layers: Business Applications, Reasoning, Foundation
+Main Integration Points: Impact measurement systems, AI platforms, Analytics
+---
+
 # Impact-Driven AI Backend Architecture PRD (Hexagonal, Layered)
 
 ### TL;DR
 
 This Impact-Driven AI backend architecture is decomposed across the
-mesh’s layered model using a hexagonal (ports-and-adapters) approach.
+mesh's layered model using a hexagonal (ports-and-adapters) approach.
 Each mesh layer embodies a focused core: FoundationLayer
 (event/provenance logging), ReasoningLayer (scoring, passion/culture
 inference), MetacognitiveLayer (safety/culture analytics), AgencyLayer
@@ -27,7 +37,7 @@ robust, observable, and testable mesh-wide orchestration.
 - **MetacognitiveLayer**: Aggregates and analyzes psychological safety
   and culture health at aggregate/team/temporal levels.
 
-- **AgencyLayer**: Multi-agent orchestration, “nudge bots,” automated
+- **AgencyLayer**: Multi-agent orchestration, "nudge bots," automated
   execution engines.
 
 - **BusinessApplications**: External APIs (REST/gRPC), consent/approval
@@ -461,5 +471,9 @@ All ports are API contract-bound, with provided test harness coverage.
     release
 
 ------------------------------------------------------------------------
+
+## [Integrated from impact-driven-ai.backend-architecture.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)
 
 **End of Document**

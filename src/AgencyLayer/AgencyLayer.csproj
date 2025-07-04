@@ -6,11 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ActionPlanning\ActionPlanning.csproj" />
-    <ProjectReference Include="..\DecisionExecution\DecisionExecution.csproj" />
-    <ProjectReference Include="..\HumanCollaboration\HumanCollaboration.csproj" />
-    <ProjectReference Include="..\ProcessAutomation\ProcessAutomation.csproj" />
-    <ProjectReference Include="..\ToolIntegration\ToolIntegration.csproj" />
+    <!-- Dependencies on other architectural layers -->
+    <ProjectReference Include="..\Shared\CognitiveMesh.Shared.csproj" />
+    <ProjectReference Include="..\FoundationLayer\FoundationLayer.csproj" />
+    <ProjectReference Include="..\ReasoningLayer\ReasoningLayer.csproj" />
+    <ProjectReference Include="..\MetacognitiveLayer\MetacognitiveLayer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Sub-projects within the AgencyLayer -->
+    <ProjectReference Include=".\ActionPlanning\ActionPlanning.csproj" />
+    <ProjectReference Include=".\DecisionExecution\DecisionExecution.csproj" />
+    <ProjectReference Include=".\HumanCollaboration\HumanCollaboration.csproj" />
+    <ProjectReference Include=".\ProcessAutomation\ProcessAutomation.csproj" />
+    <ProjectReference Include=".\ToolIntegration\ToolIntegration.csproj" />
   </ItemGroup>
 
 </Project>

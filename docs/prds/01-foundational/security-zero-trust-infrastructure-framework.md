@@ -1,3 +1,13 @@
+---
+Module: SecurityZeroTrust
+Primary Personas: Security Teams, Platform Admins, Enterprise Architects
+Core Value Proposition: Zero trust security infrastructure for all Cognitive Mesh components
+Priority: P1
+License Tier: Enterprise
+Platform Layers: Foundation, Business Applications
+Main Integration Points: All platform components, Security systems, Identity providers
+---
+
 # Security & Zero-Trust Infrastructure Framework PRD (Hexagonal, Mesh Layered, Foundational)
 
 ### TL;DR

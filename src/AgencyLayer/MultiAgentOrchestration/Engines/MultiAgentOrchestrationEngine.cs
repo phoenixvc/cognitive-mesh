@@ -6,6 +6,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+// --- Ethical Reasoning Ports ---
+using CognitiveMesh.ReasoningLayer.EthicalReasoning.Ports;
+using CognitiveMesh.ReasoningLayer.EthicalReasoning.Ports.Models;
 
 // --- Placeholder Interfaces for Infrastructure Adapters ---
 // These define the outbound ports that the pure domain engine uses to interact with the outside world.
@@ -58,6 +61,8 @@ namespace CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Engines
         private readonly IAgentRuntimeAdapter _agentRuntimeAdapter;
         private readonly IAgentKnowledgeRepository _knowledgeRepository;
         private readonly IApprovalAdapter _approvalAdapter;
+        private readonly INormativeAgencyPort _normativeAgencyPort;
+        private readonly IInformationEthicsPort _informationEthicsPort;
 
         // In-memory stores for agent configurations and shared knowledge.
         private readonly ConcurrentDictionary<string, AgentDefinition> _agentDefinitions = new();
@@ -70,12 +75,16 @@ namespace CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Engines
             ILogger<MultiAgentOrchestrationEngine> logger,
             IAgentRuntimeAdapter agentRuntimeAdapter,
             IAgentKnowledgeRepository knowledgeRepository,
-            IApprovalAdapter approvalAdapter)
+            IApprovalAdapter approvalAdapter,
+            INormativeAgencyPort normativeAgencyPort,
+            IInformationEthicsPort informationEthicsPort)
         {
-            _logger = logger;
-            _agentRuntimeAdapter = agentRuntimeAdapter;
-            _knowledgeRepository = knowledgeRepository;
-            _approvalAdapter = approvalAdapter;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _agentRuntimeAdapter  = agentRuntimeAdapter  ?? throw new ArgumentNullException(nameof(agentRuntimeAdapter));
+            _knowledgeRepository  = knowledgeRepository  ?? throw new ArgumentNullException(nameof(knowledgeRepository));
+            _approvalAdapter      = approvalAdapter      ?? throw new ArgumentNullException(nameof(approvalAdapter));
+            _normativeAgencyPort  = normativeAgencyPort  ?? throw new ArgumentNullException(nameof(normativeAgencyPort));
+            _informationEthicsPort = informationEthicsPort ?? throw new ArgumentNullException(nameof(informationEthicsPort));
         }
 
         /// <inheritdoc />
@@ -288,7 +297,7 @@ namespace CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Engines
 
         private async Task<object> ExecuteSingleAgent(IAgent agent, AgentTask parentTask, string subGoal)
         {
-            // 1. Enforce Authority
+            // 1. Enforce Authority --------------------------------------------------
             if (!_authoritySettings.TryGetValue(agent.Definition.AgentType, out var authority))
             {
                 authority = agent.Definition.DefaultAuthorityScope;
@@ -296,7 +305,7 @@ namespace CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Engines
             // Real enforcement logic would go here, checking proposed actions against the scope.
             _logger.LogDebug("Authority check passed for agent {AgentId}.", agent.AgentId);
 
-            // 2. Handle Autonomy
+            // 2. Handle Autonomy ----------------------------------------------------
             if (!_autonomySettings.TryGetValue(agent.Definition.AgentType, out var autonomy))
             {
                 autonomy = agent.Definition.DefaultAutonomyLevel;
@@ -304,14 +313,81 @@ namespace CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Engines
 
             if (autonomy == AutonomyLevel.ActWithConfirmation)
             {
-                var approved = await _approvalAdapter.RequestApprovalAsync(parentTask.RequestingUserId, $"Agent {agent.AgentId} wants to perform action for goal: {subGoal}", null);
+                var approved = await _approvalAdapter.RequestApprovalAsync(
+                    parentTask.RequestingUserId,
+                    $"Agent {agent.AgentId} wants to perform action for goal: {subGoal}",
+                    null);
+
                 if (!approved)
                 {
                     return "Action rejected by user.";
                 }
             }
 
-            // 3. Execute via Runtime Adapter
+            // 3. Ethical Reasoning Checks -------------------------------------------
+            try
+            {
+                // 3.1 Normative-agency validation (Brandom)
+                var normativeRequest = new NormativeActionValidationRequest
+                {
+                    AgentId         = agent.AgentId,
+                    ProposedAction  = subGoal,
+                    Justifications  = new List<string>
+                    {
+                        $"Action is necessary to accomplish task: {parentTask.Goal}"
+                    },
+                    Context         = parentTask.Context ?? new Dictionary<string, object>()
+                };
+
+                var normativeResult = await _normativeAgencyPort.ValidateActionAsync(normativeRequest);
+                if (!normativeResult.IsValid)
+                {
+                    _logger.LogWarning(
+                        "Ethical validation failed for agent {AgentId}. Violations: {Violations}",
+                        agent.AgentId,
+                        string.Join(", ", normativeResult.Violations));
+
+                    return $"Action rejected due to ethical concerns: {string.Join(", ", normativeResult.Violations)}";
+                }
+
+                // 3.2 Informational-dignity validation (Floridi) – only if user data present
+                if (parentTask.Context != null &&
+                    (parentTask.Context.ContainsKey("UserData") ||
+                     parentTask.Context.ContainsKey("PersonalInformation")))
+                {
+                    var dignityRequest = new DignityAssessmentRequest
+                    {
+                        SubjectId      = parentTask.Context.ContainsKey("UserId")
+                                             ? parentTask.Context["UserId"].ToString()
+                                             : "unknown",
+                        DataType       = "Behavioral",
+                        ProposedAction = "Process",
+                        ActionContext  = subGoal
+                    };
+
+                    var dignityResult = await _informationEthicsPort.AssessInformationalDignityAsync(dignityRequest);
+                    if (!dignityResult.IsDignityPreserved)
+                    {
+                        _logger.LogWarning(
+                            "Informational dignity check failed for agent {AgentId}. Violations: {Violations}",
+                            agent.AgentId,
+                            string.Join(", ", dignityResult.PotentialViolations));
+
+                        return $"Action rejected due to informational dignity concerns: {string.Join(", ", dignityResult.PotentialViolations)}";
+                    }
+                }
+
+                _logger.LogDebug("Ethical checks passed for agent {AgentId}.", agent.AgentId);
+            }
+            catch (Exception ex)
+            {
+                // Ethical engines should never crash the orchestrator; log & continue.
+                _logger.LogError(ex,
+                    "Error during ethical reasoning checks for agent {AgentId}. Proceeding with execution.",
+                    agent.AgentId);
+            }
+
+            // 4. Execute via Runtime Adapter -----------------------------------------
             var agentSubTask = new AgentTask { Goal = subGoal, Context = parentTask.Context };
             return await _agentRuntimeAdapter.ExecuteAgentLogicAsync(agent.AgentId, agentSubTask);
         }

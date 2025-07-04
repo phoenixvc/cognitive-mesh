@@ -1,3 +1,13 @@
+---
+Module: AgenticAISystemBackend
+Primary Personas: Mesh Admins, Business Users, Compliance Auditors
+Core Value Proposition: Backend for agentic AI system orchestration and governance
+Priority: P1
+License Tier: Professional
+Platform Layers: Business Applications, Agency, Reasoning
+Main Integration Points: Agent registry, Orchestration systems, Compliance platforms
+---
+
 # Agentic AI System Backend Architecture PRD (Hexagonal, Mesh Layered, Agent Registry)
 
 ### TL;DR
@@ -59,7 +69,7 @@ evolution.
 **Persona: Mesh Admin**
 
 - As a Mesh Admin, I want to register and configure agents with defined
-  authority boundaries, so our org’s data/processes never exceed policy.
+  authority boundaries, so our org's data/processes never exceed policy.
 
 - As a Mesh Admin, I want to receive real-time alerts if any agent
   attempts out-of-scope or high-risk actions, so I can intervene before
@@ -191,8 +201,8 @@ evolution.
 
 **Core Experience**
 
-- **Step 1:** Business User/Widget submits a “problem” (e.g., “Resolve
-  this customer complaint”) to AgentOrchestrationPort.
+- **Step 1:** Business User/Widget submits a "problem" (e.g., "Resolve
+  this customer complaint") to AgentOrchestrationPort.
 
   - API validates request, fetches suitable agent profile from registry.
 
@@ -228,7 +238,7 @@ evolution.
 - Agent authority violation: Immediate halt, event logged, auto-approval
   blocked, and alert to admin dashboard.
 
-- ConsentPort workflow: “High-risk” or “sensitive” operations must be
+- ConsentPort workflow: "High-risk" or "sensitive" operations must be
   held until explicit admin/user approval.
 
 - Schema drift/version mismatch: API and registry auto-reject requests
@@ -242,10 +252,10 @@ evolution.
 **UI/UX Highlights**
 
 - Consistent error/approval/consent overlays: identical visual language
-  for “Retry,” “Consent Needed,” and “Escalation” across all
+  for "Retry," "Consent Needed," and "Escalation" across all
   integrations (documented in mini pattern library).
 
-- Accessibility-first notifications, clear “agent acting” banners, and
+- Accessibility-first notifications, clear "agent acting" banners, and
   inline status icons for quick audit.
 
 - Auto-disable or graceful fallback for monitored a11y violations in

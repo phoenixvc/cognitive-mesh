@@ -3,26 +3,52 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ContinuousLearning\ContinuousLearning.csproj" />
-    <ProjectReference Include="..\PerformanceMonitoring\PerformanceMonitoring.csproj" />
-    <ProjectReference Include="..\ReasoningTransparency\ReasoningTransparency.csproj" />
-    <ProjectReference Include="..\SelfEvaluation\SelfEvaluation.csproj" />
-    <ProjectReference Include="..\UncertaintyQuantification\UncertaintyQuantification.csproj" />
+    <!-- Valid sub-projects within the MetacognitiveLayer -->
+    <ProjectReference Include="./ContinuousLearning/ContinuousLearning.csproj" />
+    <ProjectReference Include="./PerformanceMonitoring/PerformanceMonitoring.csproj" />
+    <ProjectReference Include="./Protocols/Protocols.csproj" />
+    <ProjectReference Include="./ReasoningTransparency/ReasoningTransparency.csproj" />
+    <ProjectReference Include="./SelfEvaluation/SelfEvaluation.csproj" />
+    <ProjectReference Include="./UncertaintyQuantification/UncertaintyQuantification.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.AI.OpenAI" Version="*" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="*" />
-    <PackageReference Include="NRedisStack" Version="*" />
-    <PackageReference Include="StackExchange.Redis" Version="*" />
-    <PackageReference Include="System.Text.Json" Version="*" />
+    <!-- Dependencies on other architectural layers -->
+    <ProjectReference Include="..\Shared\CognitiveMesh.Shared.csproj" />
+    <ProjectReference Include="..\FoundationLayer\FoundationLayer.csproj" />
+    <ProjectReference Include="..\ReasoningLayer\ReasoningLayer.csproj" />
+    <!-- AgencyLayer depends on this project, so we don't reference it here to avoid circular dependency -->
+    <!-- BusinessApplications depends on this project, so we don't reference it here to avoid circular dependency -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Microsoft Extensions -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    
+    <!-- Application Insights -->
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.22.0" />
+    
+    <!-- JSON -->
+    <PackageReference Include="System.Text.Json" />
+    
+    <!-- Redis -->
+    <PackageReference Include="StackExchange.Redis" />
+    <PackageReference Include="NRedisStack" />
+    
+    <!-- Azure -->
+    <PackageReference Include="Azure.AI.OpenAI" />
+    <PackageReference Include="Azure.Identity" />
+    
+    <!-- Project References -->
+    <ProjectReference Include="..\..\src\FoundationLayer\Security\Security.csproj" />
   </ItemGroup>
 
 </Project>
-

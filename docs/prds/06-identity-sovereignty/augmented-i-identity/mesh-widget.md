@@ -1,3 +1,13 @@
+---
+Module: AugmentedIIdentityWidget
+Primary Personas: Knowledge Workers, HR Reviewers, Chief Augmentation Officers
+Core Value Proposition: Widget for managing and visualizing identity augmentation
+Priority: P2
+License Tier: Professional
+Platform Layers: UI, Business Applications
+Main Integration Points: Augmented-I backend, Dashboard system, HR platforms
+---
+
 # Augmented-I Identity Mesh Widget PRD (Hexagonal, Mesh Layered, Sharpened)
 
 ### TL;DR
@@ -35,8 +45,8 @@ error and offline handling, and a CI-friendly test matrix.
 - Enable every user to track their Augmented-I status and F-Scale
   position in real time.
 
-- Surface practical next actions to accelerate journey from “Fear” to
-  “Fun.”
+- Surface practical next actions to accelerate journey from "Fear" to
+  "Fun."
 
 - Confidently know if AI-augmentation is sufficient for competitive
   standards.

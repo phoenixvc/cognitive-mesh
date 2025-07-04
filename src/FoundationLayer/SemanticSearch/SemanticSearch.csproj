@@ -9,5 +9,18 @@
     <Compile Include="SemanticSearchManager.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Reference to other FoundationLayer projects -->
+    <ProjectReference Include="..\VectorDatabase\VectorDatabase.csproj" />
+    <ProjectReference Include="..\LLM\LLM.csproj" />
+    
+    <!-- Reference to Shared project -->
+    <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
 </Project>
 

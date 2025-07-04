@@ -1,13 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
     <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
+  <!-- Package dependencies -->
   <ItemGroup>
-    <Compile Include="EthicalReasoner.cs" />
+    <!-- Microsoft Extensions -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    
+    <!-- Azure AI -->
+    <PackageReference Include="Azure.AI.OpenAI" />
+    <PackageReference Include="Azure.Identity" />
+    
+    <!-- JSON -->
+    <PackageReference Include="System.Text.Json"/>
+    
+    <!-- Project References -->
+    <ProjectReference Include="..\..\FoundationLayer\Security\Security.csproj" />
   </ItemGroup>
 
 </Project>
-

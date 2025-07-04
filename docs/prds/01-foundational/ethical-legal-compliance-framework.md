@@ -1,3 +1,12 @@
+---
+Module: EthicalLegalCompliance
+Primary Personas: Compliance Officers, Legal Teams, Enterprise Architects
+Core Value Proposition: Foundational ethical and legal compliance framework for all AI interactions
+Priority: P1
+License Tier: Enterprise
+Platform Layers: Foundation, Reasoning, Business Applications
+Main Integration Points: All platform components, Legal systems, Audit systems
+---
 
 # Ethical & Legal Compliance Framework PRD (Hexagonal, Mesh Layered, Foundational)
 
@@ -165,4 +174,12 @@ This framework is implemented as a **distributed, cross-cutting concern** across
 
 ------------------------------------------------------------------------
 
-*This framework ensures that the Cognitive Mesh platform is not only powerful and efficient but also a global leader in responsible, ethical, and compliant AI.*
+## [Integrated from 01-foundational.compliance-user-stories.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)
+
+------------------------------------------------------------------------
+
+## [Integrated from 01-foundational.compliance-content.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)

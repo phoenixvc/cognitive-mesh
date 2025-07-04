@@ -1,3 +1,13 @@
+---
+Module: ValueGenerationBackend
+Primary Personas: Business Analysts, Value Managers, Platform Engineers
+Core Value Proposition: Backend architecture for value generation and measurement systems
+Priority: P2
+License Tier: Professional
+Platform Layers: Business Applications, Reasoning, Foundation
+Main Integration Points: Value tracking systems, Analytics platforms, Business intelligence
+---
+
 # Value Generation Backend Architecture PRD (Hexagonal, Mesh Layered, Tightened)
 
 ### TL;DR

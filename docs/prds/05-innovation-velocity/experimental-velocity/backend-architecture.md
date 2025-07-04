@@ -1,3 +1,13 @@
+---
+Module: ExperimentalVelocityBackend
+Primary Personas: Innovation Leads, R&D Teams, Platform Engineers
+Core Value Proposition: Backend architecture for experimental velocity and innovation tracking
+Priority: P2
+License Tier: Professional
+Platform Layers: Business Applications, Reasoning, Foundation
+Main Integration Points: Innovation systems, Experiment tracking, R&D platforms
+---
+
 # Experimental Velocity Backend Architecture PRD (Hexagonal, Mesh Layered)
 
 ### TL;DR
@@ -28,7 +38,7 @@ Mesh. The architecture uses layered hexagonal boundaries:
 - Enable near real-time idea validation and cut prototyping budget by
   99%
 
-- Eliminate “innovation theater” via measurable, auditable detection
+- Eliminate "innovation theater" via measurable, auditable detection
 
 - Equip leaders with competitive reality benchmarking to recalibrate
   investment assumptions
@@ -38,7 +48,7 @@ Mesh. The architecture uses layered hexagonal boundaries:
 - Make experimentation and rapid prototyping possible for every
   product/project team
 
-- Give clear, actionable feedback when processes drift into “theater”
+- Give clear, actionable feedback when processes drift into "theater"
 
 - Provide transparent provenance and audit for every experiment &
   decision
@@ -64,7 +74,7 @@ Mesh. The architecture uses layered hexagonal boundaries:
   building immediately.
 
 - As a Product Manager, I want to receive alerts if our innovation
-  process is detected as “theater” so we can course-correct early.
+  process is detected as "theater" so we can course-correct early.
 
 **Executive**
 
@@ -95,7 +105,7 @@ Mesh. The architecture uses layered hexagonal boundaries:
   (divide by 100 logic) in <200ms
 
 - **InnovationTheaterEliminationEngine** (Priority: Must)  
-  -- Analyzes process/project metadata, returns “theater risk score” in
+  -- Analyzes process/project metadata, returns "theater risk score" in
   <100ms -- Acceptance: Given process metadata, returns score and cause
   analysis
 
@@ -168,7 +178,7 @@ Mesh. The architecture uses layered hexagonal boundaries:
 
   - Returns recalibrated velocity, unique tracking ID
 
-- **Step 2:** “Theater” detection runs in parallel
+- **Step 2:** "Theater" detection runs in parallel
 
   - If risk flagged, response includes warning with cause code
 
@@ -200,7 +210,7 @@ Mesh. The architecture uses layered hexagonal boundaries:
 - Circuit-break scenarios for ReasoningLayer overload; DR failover and
   notification
 
-- Custom embed of “nudge” agents if AgencyLayer enabled; async or
+- Custom embed of "nudge" agents if AgencyLayer enabled; async or
   fallback as needed
 
 **UI/UX Highlights**
@@ -222,7 +232,7 @@ assumptions is a day closer to obsolescence. This backend architecture
 empowers them—no matter their technical domain—to deliver experiments
 100 times faster, challenge every old estimate, and prove (not just
 claim) their impact. When a PM proposes a new feature, recalibration
-logs an instant, defensible velocity target. If innovation “theater” is
+logs an instant, defensible velocity target. If innovation "theater" is
 detected, leadership receives targeted alerts, not vague reports. Every
 action, every outcome, every decision is transparently logged and
 auditable—enabling compliance, accountability, and a bias for real
@@ -244,7 +254,7 @@ AI transformation.
 
 - 
 
-# of actionable “theater” warnings delivered per quarter
+# of actionable "theater" warnings delivered per quarter
 
 - % of proposals with full audit/provenance trace
 
@@ -253,7 +263,7 @@ AI transformation.
 - Experimental throughput (proposals processed per month) vs. legacy
   baseline
 
-- % increase in prototype success rate for “ridiculous” (previously
+- % increase in prototype success rate for "ridiculous" (previously
   infeasible) ideas
 
 - Reduction in average time from proposal to market test
@@ -274,7 +284,7 @@ AI transformation.
 
 - Audit search/export success
 
-- “Theater” detection warnings
+- "Theater" detection warnings
 
 - Agency trigger events
 
@@ -423,7 +433,7 @@ The functionality in this PRD extends **existing cognitive-mesh components** rat
 | **FoundationLayer** | `AuditLoggingAdapter` (UPDATE) | • Add new event types: `VelocityRecalibrated`, `InnovationTheaterFlagged`, `CompetitiveGapCalculated`, `VelocityNudgeTriggered`.<br>• Ensure searchable ≤ 5 min SLA. | Existing audit DB + event ingestion queue. |
 | | `NotificationAdapter` (UPDATE) | • Broadcast theater-risk & competitive-gap notifications to widget bus with provenance. | Mesh event bus (`Topic: experimental-velocity`). |
 | **AgencyLayer** | `VelocityNudgePort` (NEW) | • Interface for automated nudges (emails, Slack, agentic messages).<br>• Adapter triggers Agents when `InnovationTheaterEliminationEngine` flags high risk. | `NodeToolRunner` or future multi-agent orchestrator. |
-| | `MultiAgentOrchestrationEngine` (UPDATE) | • Accept “velocity-nudge” jobs via new command type. | `src/AgencyLayer/Protocols/Common/Orchestration/AgentOrchestrator.cs`. |
+| | `MultiAgentOrchestrationEngine` (UPDATE) | • Accept "velocity-nudge" jobs via new command type. | `src/AgencyLayer/Protocols/Common/Orchestration/AgentOrchestrator.cs`. |
 | **MetacognitiveLayer** | _No change_ (analytics lives in ReasoningLayer for this PRD). | — | — |
 
 ### Required OpenAPI Specification Updates
@@ -452,6 +462,6 @@ The functionality in this PRD extends **existing cognitive-mesh components** rat
 
 *AgencyLayer*  
 • `VelocityNudgePort.cs` (new interface) and optional adapter.  
-• Update `AgentOrchestrator.cs` to process “velocity-nudge” jobs.
+• Update `AgentOrchestrator.cs` to process "velocity-nudge" jobs.
 
 No other layers require structural change; global NFR inheritance and existing DR/observability patterns remain valid.

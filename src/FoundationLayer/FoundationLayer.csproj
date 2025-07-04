@@ -6,15 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AzureBlobStorage\AzureBlobStorage.csproj" />
-    <ProjectReference Include="..\AzureCosmosDB\AzureCosmosDB.csproj" />
-    <ProjectReference Include="..\DocumentProcessing\DocumentProcessing.csproj" />
-    <ProjectReference Include="..\EnterpriseConnectors\EnterpriseConnectors.csproj" />
-    <ProjectReference Include="..\KnowledgeGraph\KnowledgeGraph.csproj" />
-    <ProjectReference Include="..\SemanticSearch\SemanticSearch.csproj" />
-    <ProjectReference Include="..\VectorDatabase\VectorDatabase.csproj" />
-    <ProjectReference Include="..\OneLakeIntegration\OneLakeIntegration.csproj" />
+    <!-- Sub-projects within the FoundationLayer -->
+    <ProjectReference Include="..\Shared\CognitiveMesh.Shared.csproj" />
+    <ProjectReference Include=".\AzureBlobStorage\AzureBlobStorage.csproj" />
+    <ProjectReference Include=".\AzureCosmosDB\AzureCosmosDB.csproj" />
+    <ProjectReference Include=".\DocumentProcessing\DocumentProcessing.csproj" />
+    <ProjectReference Include=".\EnterpriseConnectors\EnterpriseConnectors.csproj" />
+    <ProjectReference Include=".\KnowledgeGraph\KnowledgeGraph.csproj" />
+    <ProjectReference Include=".\SemanticSearch\SemanticSearch.csproj" />
+    <ProjectReference Include=".\VectorDatabase\VectorDatabase.csproj" />
+    <ProjectReference Include=".\OneLakeIntegration\OneLakeIntegration.csproj" />
+    <ProjectReference Include=".\Security\Security.csproj" />
   </ItemGroup>
 
 </Project>
-

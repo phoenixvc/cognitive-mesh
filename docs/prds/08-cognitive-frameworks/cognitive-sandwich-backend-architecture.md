@@ -1,3 +1,13 @@
+---
+Module: CognitiveSandwichBackend
+Primary Personas: Knowledge Workers, Application Admins, Compliance Auditors
+Core Value Proposition: Backend for configurable cognitive sandwich process orchestration
+Priority: P1
+License Tier: Professional
+Platform Layers: Business Applications, Metacognitive, Reasoning
+Main Integration Points: Cognitive processes, Audit systems, Research platforms
+---
+
 # Cognitive Sandwich Backend Architecture PRD (Hexagonal, Mesh Layered, Configurable, Feedback-Looped)
 
 ### TL;DR
@@ -35,7 +45,7 @@ The backend enables a fully configurable, feedback-driven Cognitive Sandwich pro
 **Persona: Knowledge Worker**
 
 - As a knowledge worker, I want to request a tailored cognitive process (e.g., 5 phases, certain preconditions), so that my decision workflow meets organizational and regulatory needs.
-- As a knowledge worker, I want to pause or step back on any phase if an error is found, so that my critical thinking leads, not the system’s momentum.
+- As a knowledge worker, I want to pause or step back on any phase if an error is found, so that my critical thinking leads, not the system's momentum.
 - As a knowledge worker, I want clear feedback if preconditions or validations are missing, so I can resolve issues before moving forward.
 
 **Persona: Application Admin**
@@ -148,7 +158,7 @@ The backend enables a fully configurable, feedback-driven Cognitive Sandwich pro
 
 ## Narrative
 
-A leading professional services firm faces a challenge: how do you harness AI’s computational power without losing human critical leadership? Their teams adopt the Cognitive Sandwich process—now orchestrated by the new backend. A consultant sets up a custom 5-phase flow, ensuring team members start with deep problem decomposition. When AI proposes a dazzling solution, the backend enforces a human validation phase, requiring logic checks and bias detection before anyone can move forward. Partway through, an anomaly is detected—one validator hits the step-back button. Instantly, the process rewinds, preconditions are resurfaced, the phase is revisited, and all actions/reasons are logged for audit and improvement. Compliance teams track every rationale, cognitive engagement stat, and sovereignty handoff in the audit trail. Ultimately the team’s final decision is not just AI-assisted—it’s proven, human-led, and trustable. Leadership has metrics for cognitive health, engagement, and process effectiveness; risk is reduced, and organizational learning flourishes.
+A leading professional services firm faces a challenge: how do you harness AI's computational power without losing human critical leadership? Their teams adopt the Cognitive Sandwich process—now orchestrated by the new backend. A consultant sets up a custom 5-phase flow, ensuring team members start with deep problem decomposition. When AI proposes a dazzling solution, the backend enforces a human validation phase, requiring logic checks and bias detection before anyone can move forward. Partway through, an anomaly is detected—one validator hits the step-back button. Instantly, the process rewinds, preconditions are resurfaced, the phase is revisited, and all actions/reasons are logged for audit and improvement. Compliance teams track every rationale, cognitive engagement stat, and sovereignty handoff in the audit trail. Ultimately the team's final decision is not just AI-assisted—it's proven, human-led, and trustable. Leadership has metrics for cognitive health, engagement, and process effectiveness; risk is reduced, and organizational learning flourishes.
 
 ------------------------------------------------------------------------
 
@@ -313,3 +323,9 @@ The functionality in this PRD extends **existing cognitive-mesh components** rat
     *   `MultiAgentOrchestration/Engines/MultiAgentOrchestrationEngine.cs` (update)
 
 No other layers require structural change; global NFR inheritance and existing DR/observability patterns remain valid.
+
+------------------------------------------------------------------------
+
+## [Integrated from 08-cognitive-frameworks.backend-content.PARTIAL.md on 2025-07-03]
+
+(See original partial for any additional unique user stories, requirements, or technical details not already present above. This section is for traceability and completeness.)

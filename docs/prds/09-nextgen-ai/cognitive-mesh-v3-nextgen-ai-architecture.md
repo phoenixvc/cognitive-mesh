@@ -1,4 +1,14 @@
-# Cognitive Mesh v3 Next-Gen AI Architecture PRD (Multi-Agent, Reflexion, Governance, Ecosystem)
+---
+Module: CognitiveMeshV3NextGenAI
+Primary Personas: Platform Engineers, Solution Architects, Product Owners
+Core Value Proposition: Next-generation AI architecture for Cognitive Mesh
+Priority: P1
+License Tier: Enterprise
+Platform Layers: Foundation, Business Applications, Metacognitive
+Main Integration Points: All mesh layers, Orchestration, Compliance
+---
+
+# Cognitive Mesh v3 NextGen AI Architecture PRD (Multi-Agent, Reflexion, Governance, Ecosystem)
 
 ### TL;DR
 
@@ -34,7 +44,7 @@ Cognitive Mesh v3 unlocks AI orchestration, collaboration, and compliance for mo
 
 **Enterprise Architect**
 
-- As an architect, I want to configure model orchestration routes (HuggingGPT), so that our organization’s best AI models are applied to each subtask most efficiently.
+- As an architect, I want to configure model orchestration routes (HuggingGPT), so that our organization's best AI models are applied to each subtask most efficiently.
 - As an architect, I want to govern agent-to-agent communication (Agent2Agent), so we can audit, secure, and monitor complex multi-agent workflows.
 
 **Frontline Analyst**
@@ -171,7 +181,7 @@ These integration patterns share the same **error-envelope**, **retry**, and **c
 
   - Full accessibility: keyboard nav, contrast, locale, error overlays.
   - No action hidden: all steps/inputs auditable, recovery paths always available, step-back at every phase.
-  - “Shared error envelope” for all runtime and API errors (see technical considerations).
+  - "Shared error envelope" for all runtime and API errors (see technical considerations).
 
 ------------------------------------------------------------------------
 
