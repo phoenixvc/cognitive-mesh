@@ -6,7 +6,6 @@ $projectPath = "src\MetacognitiveLayer\MetacognitiveLayer.csproj"
 # Add required NuGet packages
 $packages = @(
     "StackExchange.Redis",
-    "NRedisStack",
     "Microsoft.ApplicationInsights",
     "Azure.AI.OpenAI",
     "Microsoft.Extensions.Logging",

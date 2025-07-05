@@ -27,35 +27,6 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
         /// Initializes a new instance of the AuditLoggingAdapter class.
         /// </summary>
         /// <param name="repository">The repository for storing audit events</param>
-
-        // -----------------------------------------------------------------
-        //              Value-Generation specific event types
-        // -----------------------------------------------------------------
-
-        /// <summary>
-        /// A value-generation diagnostic (the “$200 Test”) was executed for a
-        /// user or team.
-        /// </summary>
-        ValueDiagnosticRun,
-
-        /// <summary>
-        /// An organizational blindness analysis completed and detected
-        /// significant blind spots.
-        /// </summary>
-        OrgBlindnessDetected,
-
-        /// <summary>
-        /// An employability-risk assessment flagged a user as medium or high
-        /// risk.
-        /// </summary>
-        EmployabilityRiskFlagged,
-
-        /// <summary>
-        /// A manual adjudication case was created (human-in-the-loop review
-        /// requested).
-        /// </summary>
-        ManualAdjudicationRequested
-
         /// <param name="logger">The logger</param>
         public AuditLoggingAdapter(
             IAuditEventRepository repository,
@@ -72,12 +43,15 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
         }
 
         /// <inheritdoc />
-        public async Task<bool> LogAgentEventAsync(AgentAuditEventType eventType, object eventData, string correlationId = null)
+        public async Task<bool> LogAgentEventAsync(AgentAuditEventType eventType, object eventData, string? correlationId = null)
         {
             if (eventData == null)
             {
                 throw new ArgumentNullException(nameof(eventData));
             }
+            
+            // Ensure correlationId is not null by providing a default value if needed
+            correlationId ??= Guid.NewGuid().ToString();
 
             var auditEvent = new AuditEvent
             {
@@ -231,62 +205,6 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
         /// </summary>
         public Task<bool> LogValueDiagnosticRunAsync(
             string targetId,
-
-        // -----------------------------------------------------------------
-        //                Value-Generation specific event types
-        // -----------------------------------------------------------------
-
-        /// <summary>
-        /// A value-generation diagnostic (the “$200 Test”) was executed for a
-        /// user or team.
-        /// </summary>
-        ValueDiagnosticRun,
-
-        /// <summary>
-        /// An organizational blindness analysis completed and detected
-        /// significant blind spots.
-        /// </summary>
-        OrgBlindnessDetected,
-
-        /// <summary>
-        /// An employability-risk assessment flagged a user as medium or high
-        /// risk.
-        /// </summary>
-        EmployabilityRiskFlagged,
-
-        /// <summary>
-        /// A manual adjudication case was created (human-in-the-loop review
-        /// requested).
-        /// </summary>
-        ManualAdjudicationRequested
-
-        // -----------------------------------------------------------------
-        //                Value-Generation specific event types
-        // -----------------------------------------------------------------
-
-        /// <summary>
-        /// A value-generation diagnostic (the “$200 Test”) was executed for a
-        /// user or team.
-        /// </summary>
-        ValueDiagnosticRun,
-
-        /// <summary>
-        /// An organizational blindness analysis completed and detected
-        /// significant blind spots.
-        /// </summary>
-        OrgBlindnessDetected,
-
-        /// <summary>
-        /// An employability-risk assessment flagged a user as medium or high
-        /// risk.
-        /// </summary>
-        EmployabilityRiskFlagged,
-
-        /// <summary>
-        /// A manual adjudication case was created (human-in-the-loop review
-        /// requested).
-        /// </summary>
-        ManualAdjudicationRequested
             string targetType,
             double valueScore,
             string valueProfile,
@@ -768,7 +686,7 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
         /// <param name="eventData">The event data</param>
         /// <param name="correlationId">Optional correlation ID for tracing related events</param>
         /// <returns>True if the event was successfully logged; otherwise, false</returns>
-        Task<bool> LogAgentEventAsync(AgentAuditEventType eventType, object eventData, string correlationId = null);
+        Task<bool> LogAgentEventAsync(AgentAuditEventType eventType, object eventData, string? correlationId = null);
 
         /// <summary>
         /// Logs an agent registration event.
@@ -778,17 +696,17 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
         /// <param name="registeredBy">The ID of the user who registered the agent</param>
         /// <param name="correlationId">Optional correlation ID for tracing related events</param>
         /// <returns>True if the event was successfully logged; otherwise, false</returns>
-        Task<bool> LogAgentRegisteredAsync(Guid agentId, string agentType, string registeredBy, string correlationId = null);
+        Task<bool> LogAgentRegisteredAsync(Guid agentId, string agentType, string registeredBy, string? correlationId = null);
 
         /// <summary>
         /// Logs an agent retirement event.
         /// </summary>
-        /// <param name="agentId">The ID of the retired agent</param>
+        /// <param name="agentId">The ID of the agent</param>
         /// <param name="retiredBy">The ID of the user who retired the agent</param>
         /// <param name="reason">The reason for retirement</param>
         /// <param name="correlationId">Optional correlation ID for tracing related events</param>
         /// <returns>True if the event was successfully logged; otherwise, false</returns>
-        Task<bool> LogAgentRetiredAsync(Guid agentId, string retiredBy, string reason, string correlationId = null);
+        Task<bool> LogAgentRetiredAsync(Guid agentId, string retiredBy, string reason, string? correlationId = null);
 
         /// <summary>
         /// Logs an agent action execution event.
@@ -806,7 +724,7 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
             string userId, 
             Dictionary<string, object> parameters, 
             bool success,
-            string correlationId = null);
+            string? correlationId = null);
 
         /// <summary>
         /// Logs an authority override event.
@@ -822,7 +740,7 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
             string overriddenBy, 
             string reason, 
             Dictionary<string, object> overrideDetails, 
-            string correlationId = null);
+            string? correlationId = null);
 
         /// <summary>
         /// Logs a consent request event.
@@ -836,7 +754,7 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
             Guid agentId, 
             string userId, 
             string consentType, 
-            string correlationId = null);
+            string? correlationId = null);
 
         /// <summary>
         /// Logs a consent decision event.
@@ -852,7 +770,7 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
             string userId, 
             string consentType, 
             bool granted, 
-            string correlationId = null);
+            string? correlationId = null);
 
         /// <summary>
         /// Searches for audit events based on criteria.
@@ -919,39 +837,59 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
     }
 
     /// <summary>
-    /// Represents an audit event.
+    /// Represents an audit event in the system.
     /// </summary>
     public class AuditEvent
     {
         /// <summary>
         /// The unique identifier of the event.
         /// </summary>
-        public string EventId { get; set; }
+        public string EventId { get; set; } = string.Empty;
 
         /// <summary>
-        /// The type of event.
+        /// The type of the event.
         /// </summary>
-        public string EventType { get; set; }
+        public string EventType { get; set; } = string.Empty;
 
         /// <summary>
         /// The category of the event.
         /// </summary>
-        public string EventCategory { get; set; }
+        public string EventCategory { get; set; } = string.Empty;
 
         /// <summary>
-        /// The timestamp of the event.
+        /// The timestamp when the event occurred.
         /// </summary>
         public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// The correlation ID for tracing related events.
         /// </summary>
-        public string CorrelationId { get; set; }
+        public string? CorrelationId { get; set; }
+
+        /// <summary>
+        /// The ID of the user who triggered the event.
+        /// </summary>
+        public string? UserId { get; set; }
+
+        /// <summary>
+        /// The tenant ID associated with the event.
+        /// </summary>
+        public string? TenantId { get; set; }
+
+        /// <summary>
+        /// The source of the event.
+        /// </summary>
+        public string? Source { get; set; }
 
         /// <summary>
         /// The serialized event data.
         /// </summary>
-        public string EventData { get; set; }
+        public string? EventData { get; set; }
+
+        /// <summary>
+        /// Additional metadata associated with the event.
+        /// </summary>
+        public Dictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();
     }
 
     /// <summary>
@@ -975,75 +913,86 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
         public List<string> EventTypes { get; set; } = new List<string>();
 
         /// <summary>
-        /// The event categories to include.
-        /// </summary>
-        public List<string> EventCategories { get; set; } = new List<string>();
-
-        /// <summary>
-        /// Key-value pairs that must be present in the event data.
-        /// </summary>
-        public Dictionary<string, object> EventDataContains { get; set; } = new Dictionary<string, object>();
-
-        /// <summary>
-        /// Free-text search terms.
-        /// </summary>
-        public string SearchText { get; set; }
-
-        /// <summary>
-        /// The maximum number of results to return.
-        /// </summary>
-        public int MaxResults { get; set; } = 100;
-
-        /// <summary>
-        /// The number of results to skip (for pagination).
-        /// </summary>
-        public int Skip { get; set; } = 0;
-    }
+    /// <summary>
+    /// The event categories to include.
+    /// </summary>
+    public List<string> EventCategories { get; set; } = new List<string>();
 
     /// <summary>
-    /// Types of agent audit events.
+    /// The user IDs to include.
     /// </summary>
-    public enum AgentAuditEventType
-    {
-        /// <summary>
-        /// An agent was registered.
-        /// </summary>
-        AgentRegistered,
+    public List<string> UserIds { get; set; } = new List<string>();
 
-        /// <summary>
-        /// An agent was retired.
-        /// </summary>
-        AgentRetired,
+    /// <summary>
+    /// The agent IDs to include.
+    /// </summary>
+    public List<Guid> AgentIds { get; set; } = new List<Guid>();
 
-        /// <summary>
-        /// An agent was deprecated.
-        /// </summary>
-        AgentDeprecated,
+    /// <summary>
+    /// The tenant IDs to include.
+    /// </summary>
+    public List<string> TenantIds { get; set; } = new List<string>();
 
-        /// <summary>
-        /// An agent was updated.
-        /// </summary>
-        AgentUpdated,
+    /// <summary>
+    /// The correlation IDs to include.
+    /// </summary>
+    public List<string> CorrelationIds { get; set; } = new List<string>();
 
-        /// <summary>
-        /// An agent executed an action.
-        /// </summary>
-        AgentActionExecuted,
+    /// <summary>
+    /// The maximum number of results to return.
+    /// </summary>
+    public int? Limit { get; set; }
 
-        /// <summary>
-        /// An agent's authority was overridden.
-        /// </summary>
-        AuthorityOverridden,
+    /// <summary>
+    /// The number of results to skip.
+    /// </summary>
+    public int? Offset { get; set; }
+}
 
-        /// <summary>
-        /// Consent was requested for an agent action.
-        /// </summary>
-        ConsentRequested,
+/// <summary>
+/// Types of agent audit events.
+/// </summary>
+public enum AgentAuditEventType
+{
+    /// <summary>
+    /// An agent was registered.
+    /// </summary>
+    AgentRegistered,
 
-        /// <summary>
-        /// Consent was granted for an agent action.
-        /// </summary>
-        ConsentGranted,
+    /// <summary>
+    /// An agent was retired.
+    /// </summary>
+    AgentRetired,
+
+    /// <summary>
+    /// An agent was deprecated.
+    /// </summary>
+    AgentDeprecated,
+
+    /// <summary>
+    /// An agent was updated.
+    /// </summary>
+    AgentUpdated,
+
+    /// <summary>
+    /// An agent executed an action.
+    /// </summary>
+    AgentActionExecuted,
+
+    /// <summary>
+    /// An agent's authority was overridden.
+    /// </summary>
+    AuthorityOverridden,
+
+    /// <summary>
+    /// Consent was requested for an agent action.
+    /// </summary>
+    ConsentRequested,
+
+    /// <summary>
+    /// Consent was granted for an agent action.
+    /// </summary>
+    ConsentGranted,
 
         /// <summary>
         /// Consent was denied for an agent action.
@@ -1101,7 +1050,7 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
         /// A manual adjudication case was created (human-in-the-loop review
         /// requested).
         /// </summary>
-        ManualAdjudicationRequested
+        ManualAdjudicationRequested,
 
         // -----------------------------------------------------------------
         //            Ethical & Legal Compliance Framework event types
@@ -1110,7 +1059,6 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging
         /// <summary>
         /// A new governance/ethical/legal policy was approved.
         /// </summary>
-        ,
         PolicyApproved,
 
         /// <summary>

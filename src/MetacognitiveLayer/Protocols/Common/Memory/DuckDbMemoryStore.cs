@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json.Serialization;
 using NetTopologySuite.Index.Vector;
 using DuckDB.NET.Data;
+using Newtonsoft.Json;
 
 namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
 {
@@ -91,20 +92,27 @@ namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
                         await command.ExecuteNonQueryAsync();
                     }
 
-        ///             // Load vector extension if available
+                    // Load vector extension if available
                     try
                     {
                         using (var command = connection.CreateCommand())
                         {
-                            command.CommandText = "LOAD vector";
-                            await command.ExecuteNonQueryAsync();
-                            _logger.LogInformation("DuckDB vector extension loaded successfully");
+                            command.CommandText = "INSTALL 'vector'; LOAD 'vector';";
+                            try 
+                            {
+                                await command.ExecuteNonQueryAsync();
+                                _logger.LogInformation("Successfully loaded vector extension");
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Failed to load vector extension. Some vector operations may not be available.");
+                            }
                         }
                     }
-            catch (Exception ex)
-            {
+                    catch (Exception ex)
+                    {
                         _logger.LogWarning(ex, "Failed to load DuckDB vector extension, falling back to manual vector operations");
-            }
+                    }
         }
 
                 _initialized = true;
@@ -171,14 +179,14 @@ namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
                                     command.Parameters.AddWithValue("@embedding", embeddingArray);
 
                                     await command.ExecuteNonQueryAsync();
+                                }
+                            }
+                        }
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                            _logger.LogWarning(ex, "Failed to parse embedding value for key {Key}, storing as plain text only", key);
-            }
-        }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to parse embedding value for key {Key}, storing as plain text only", key);
+                    }
                 }
 
                 _logger.LogDebug("Context saved successfully");
@@ -200,27 +208,27 @@ namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
 
             try
         {
-                _logger.LogDebug("Retrieving context for session {SessionId}, key {Key}", sessionId, key);
+            _logger.LogDebug("Retrieving context for session {SessionId}, key {Key}", sessionId, key);
 
-                using (var connection = new DuckDBConnection(_connectionString))
-        {
-                    await connection.OpenAsync();
+            using (var connection = new DuckDBConnection(_connectionString))
+            {
+                await connection.OpenAsync();
 
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = @"
-                            SELECT context_value 
-                            FROM context 
-                            WHERE session_id = @sessionId AND context_key = @key";
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                        SELECT context_value 
+                        FROM context 
+                        WHERE session_id = @sessionId AND context_key = @key";
 
-                        command.Parameters.AddWithValue("@sessionId", sessionId);
-                        command.Parameters.AddWithValue("@key", key);
+                    command.Parameters.AddWithValue("@sessionId", sessionId);
+                    command.Parameters.AddWithValue("@key", key);
 
-                        var result = await command.ExecuteScalarAsync();
-                        return result?.ToString();
+                    var result = await command.ExecuteScalarAsync();
+                    return result?.ToString();
+                }
+            }
         }
-    }
-}
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving context from DuckDB");

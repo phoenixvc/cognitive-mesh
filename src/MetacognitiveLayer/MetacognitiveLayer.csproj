@@ -9,10 +9,15 @@
 
   <ItemGroup>
     <!-- Valid sub-projects within the MetacognitiveLayer -->
+    <ProjectReference Include="./AIGovernance/AIGovernance.csproj" />
+    <ProjectReference Include="./CommunityPulse/CommunityPulse.csproj" />
     <ProjectReference Include="./ContinuousLearning/ContinuousLearning.csproj" />
+    <ProjectReference Include="./CulturalAdaptation/CulturalAdaptation.csproj" />
+    <ProjectReference Include="./LearningCatalyst/LearningCatalyst.csproj" />
     <ProjectReference Include="./PerformanceMonitoring/PerformanceMonitoring.csproj" />
     <ProjectReference Include="./Protocols/Protocols.csproj" />
     <ProjectReference Include="./ReasoningTransparency/ReasoningTransparency.csproj" />
+    <ProjectReference Include="./SecurityMonitoring/SecurityMonitoring.csproj" />
     <ProjectReference Include="./SelfEvaluation/SelfEvaluation.csproj" />
     <ProjectReference Include="./UncertaintyQuantification/UncertaintyQuantification.csproj" />
   </ItemGroup>
@@ -34,14 +39,13 @@
     <PackageReference Include="Microsoft.Extensions.Options" />
     
     <!-- Application Insights -->
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.22.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights"  />
     
     <!-- JSON -->
     <PackageReference Include="System.Text.Json" />
     
     <!-- Redis -->
     <PackageReference Include="StackExchange.Redis" />
-    <PackageReference Include="NRedisStack" />
     
     <!-- Azure -->
     <PackageReference Include="Azure.AI.OpenAI" />

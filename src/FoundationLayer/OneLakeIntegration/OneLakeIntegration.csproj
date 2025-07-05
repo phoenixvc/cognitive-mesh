@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity"/>
     <!-- Replaced invalid OneLake.SDK with Azure Storage DataLake SDK -->
-    <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.17.0" />
+    <PackageReference Include="Azure.Storage.Files.DataLake" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,16 @@
+# Cognitive Mesh – Widget Master Matrix: Value & Impact Ecosystem
+
+> **Table Columns**
+> **Marketing Name** · **Market Potential** · **Platform Synergy (1‑10)** · **Module** · **Category** · **Core Value Proposition** · **Priority** · **Implementation Readiness** · **License Tier** · **Personas** · **Business Outcome** · **Platform Layer(s)** · **Integration Points** · **MigrationStatus**
+
+| Marketing Name      | Market Potential | Platform Synergy | Module                        | Category              | Core Value Proposition                 | Priority | Readiness      | License Tier | Personas      | Business Outcome    | Platform Layer(s)            | Integration Points | MigrationStatus |
+| ------------------- | ---------------- | ---------------- | ----------------------------- | --------------------- | -------------------------------------- | -------- | -------------- | ------------ | ------------- | ------------------- | ---------------------------- | ------------------ | -------------- |
+| ValueCore           | ★★★              | 8                | ValueGenerationBackend        | Value Analytics       | Track & optimise organisational value  | **P2**   | 🟡 In Progress | Enterprise   | Exec, Finance | Data‑driven ROI     | Metacognitive · BusinessApps | Metric Bus         |                |
+| ValueDash           | ★★★              | 7                | ValueGenerationWidget         | ROI Dashboards        | Real‑time value dashboards             | **P2**   | 🟤 Planned     | Enterprise   | Leadership    | Impact visibility   | BusinessApps                 | ValueBackend       |                |
+| ImpactCore          | ★★               | 6                | ImpactDrivenAIBackend         | Adoption Telemetry    | Psychological safety & mission metrics | **P2**   | 🟤 Planned     | Enterprise   | HR            | Safe AI culture     | Metacognitive                | ValueBackend       |                |
+| ImpactDash          | ★★               | 6                | ImpactDrivenAIWidget          | Adoption Telemetry    | Outcome tracking UI                    | **P2**   | 🟤 Planned     | Enterprise   | HR, Exec      | Monitors alignment  | BusinessApps                 | ImpactBackend      |                |
+| OpportunityDetector | ★★★              | 9                | CouldItOpportunityRecognition | Opportunity Detection | Detect & rank business opportunities   | **P1**   | 🟤 Planned     | Enterprise   | Strategy      | Identifies high ROI | Metacognitive                | DataPipelines      |                |
+| MarketIntel         | ★★               | 6                | MarketIntel                   | Opportunity Detection | Market signals & alerts                | **P2**   | 🟤 Planned     | Pro / Ent    | Analyst       | Informs strategy    | Reasoning                    | MarketAPI          |                |
+| PredictiveAnalytics | ★★               | 6                | PredictiveAnalytics           | ROI Dashboards        | Forecast KPIs and trends               | **P2**   | 🟤 Planned     | Pro / Ent    | Analyst       | Proactive decisions | Reasoning                    | ML Engine          |                |
+
+</rewritten_file> 

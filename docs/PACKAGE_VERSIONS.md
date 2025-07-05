@@ -19,7 +19,6 @@ This document outlines the key package versions used across the Cognitive Mesh s
 
 ### Data & Caching
 - **StackExchange.Redis**: `2.8.41`
-- **NRedisStack**: `1.0.0`
 
 ### JSON
 - **System.Text.Json**: `8.0.4`

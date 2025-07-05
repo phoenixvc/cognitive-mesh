@@ -148,7 +148,24 @@ namespace CognitiveMesh.FoundationLayer.ConvenerData.Entities
         /// <summary>
         /// Private constructor for EF Core and other persistence frameworks.
         /// </summary>
-        private AgentDefinition() { }
+        private AgentDefinition() 
+        {
+            // Initialize all properties to prevent null reference exceptions
+            AgentType = string.Empty;
+            Version = "1.0.0";
+            Description = string.Empty;
+            Capabilities = new List<string>();
+            DefaultAuthorityScope = new AuthorityScope
+            {
+                AllowedApiEndpoints = new List<string>(),
+                DataAccessPolicies = new List<string>(),
+                MaxBudget = 0,
+                MaxResourceConsumption = 0
+            };
+            ContactOwner = string.Empty;
+            CreatedAt = DateTimeOffset.UtcNow;
+            UpdatedAt = CreatedAt;
+        }
 
         /// <summary>
         /// Creates a new instance of an AgentDefinition.

@@ -82,7 +82,14 @@ namespace CognitiveMesh.FoundationLayer.ConvenerData.Entities
         /// <summary>
         /// Private constructor for ORM/persistence frameworks.
         /// </summary>
-        private Champion() { }
+        private Champion() 
+        {
+            // Initialize collections to prevent null reference exceptions
+            Skills = new List<Skill>();
+            Provenance = new List<ProvenanceEntry>();
+            UserId = string.Empty;
+            TenantId = string.Empty;
+        }
 
         /// <summary>
         /// Creates a new instance of a Champion.

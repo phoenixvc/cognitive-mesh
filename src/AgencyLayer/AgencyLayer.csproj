@@ -16,9 +16,14 @@
   <ItemGroup>
     <!-- Sub-projects within the AgencyLayer -->
     <ProjectReference Include=".\ActionPlanning\ActionPlanning.csproj" />
+    <ProjectReference Include=".\AgencyRouter\AgencyRouter.csproj" />
+    <ProjectReference Include=".\ConvenerAgents\ConvenerAgents.csproj" />
     <ProjectReference Include=".\DecisionExecution\DecisionExecution.csproj" />
     <ProjectReference Include=".\HumanCollaboration\HumanCollaboration.csproj" />
+    <ProjectReference Include=".\MultiAgentOrchestration\MultiAgentOrchestration.csproj" />
+    <ProjectReference Include=".\Orchestration\Orchestration.csproj" />
     <ProjectReference Include=".\ProcessAutomation\ProcessAutomation.csproj" />
+    <ProjectReference Include=".\SecurityAgents\SecurityAgents.csproj" />
     <ProjectReference Include=".\ToolIntegration\ToolIntegration.csproj" />
   </ItemGroup>
 

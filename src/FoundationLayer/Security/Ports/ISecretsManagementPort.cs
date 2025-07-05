@@ -119,7 +119,7 @@ namespace CognitiveMesh.FoundationLayer.Security.Ports
 
     /// <summary>
     /// Defines the contract for the Secrets Management Port, a critical component of the
-    /// Security & Zero-Trust Infrastructure Framework. This port provides a secure abstraction
+    /// Security &amp; Zero-Trust Infrastructure Framework. This port provides a secure abstraction
     /// for all lifecycle operations on secrets, such as API keys, connection strings, and certificates.
     /// </summary>
     public interface ISecretsManagementPort

@@ -8,11 +8,15 @@
   <ItemGroup>
     <!-- Sub-projects within the FoundationLayer -->
     <ProjectReference Include="..\Shared\CognitiveMesh.Shared.csproj" />
+    <ProjectReference Include=".\AuditLogging\AuditLogging.csproj" />
     <ProjectReference Include=".\AzureBlobStorage\AzureBlobStorage.csproj" />
     <ProjectReference Include=".\AzureCosmosDB\AzureCosmosDB.csproj" />
+    <ProjectReference Include=".\ConvenerData\ConvenerData.csproj" />
     <ProjectReference Include=".\DocumentProcessing\DocumentProcessing.csproj" />
     <ProjectReference Include=".\EnterpriseConnectors\EnterpriseConnectors.csproj" />
+    <ProjectReference Include=".\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include=".\KnowledgeGraph\KnowledgeGraph.csproj" />
+    <ProjectReference Include=".\Notifications\Notifications.csproj" />
     <ProjectReference Include=".\SemanticSearch\SemanticSearch.csproj" />
     <ProjectReference Include=".\VectorDatabase\VectorDatabase.csproj" />
     <ProjectReference Include=".\OneLakeIntegration\OneLakeIntegration.csproj" />

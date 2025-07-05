@@ -16,6 +16,10 @@
 
   <ItemGroup>
     <!-- Sub-projects within the BusinessApplications -->
+    <ProjectReference Include=".\AgentRegistry\AgentRegistry.csproj" />
+    <ProjectReference Include=".\Common\Common.csproj" />
+    <ProjectReference Include=".\Compliance\Compliance.csproj" />
+    <ProjectReference Include=".\ConvenerServices\ConvenerServices.csproj" />
     <ProjectReference Include=".\CustomerIntelligence\CustomerIntelligence.csproj" />
     <ProjectReference Include=".\DecisionSupport\DecisionSupport.csproj" />
     <ProjectReference Include=".\KnowledgeManagement\KnowledgeManagement.csproj" />

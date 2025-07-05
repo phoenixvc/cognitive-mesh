@@ -22,10 +22,10 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     
     <!-- Spatial -->
-    <PackageReference Include="NetTopologySuite" Version="2.6.0" />
+    <PackageReference Include="NetTopologySuite"/>
     
     <!-- XML -->
-    <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XmlSerializer"/>
     
     <!-- JSON -->
     <PackageReference Include="System.Text.Json" />
