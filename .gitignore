@@ -68,3 +68,4 @@ build_errors.txt
 Thumbs.db
 *.swp
 *~
+.env
