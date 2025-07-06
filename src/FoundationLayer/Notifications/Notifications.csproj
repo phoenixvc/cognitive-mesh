@@ -18,6 +18,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
+    <ProjectReference Include="..\EnterpriseConnectors\EnterpriseConnectors.csproj">
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocal>true</CopyLocal>
+    </ProjectReference>
+    <ProjectReference Include="..\..\BusinessApplications\Common\Common.csproj" />
   </ItemGroup>
 
 </Project>

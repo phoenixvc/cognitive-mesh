@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 
+namespace CognitiveMesh.FoundationLayer.EnterpriseConnectors;
+
 public class FeatureFlagManager
 {
     private readonly IConfiguration _configuration;

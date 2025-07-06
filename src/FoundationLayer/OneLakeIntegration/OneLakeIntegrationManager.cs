@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Azure.Storage.Files.DataLake;
 using Microsoft.Extensions.Logging;
+using CognitiveMesh.FoundationLayer.EnterpriseConnectors;
 
 namespace CognitiveMesh.FoundationLayer.OneLakeIntegration;
 

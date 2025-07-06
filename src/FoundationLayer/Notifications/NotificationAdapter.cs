@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.BusinessApplications.Common.Models;
+using CognitiveMesh.FoundationLayer.EnterpriseConnectors;
 
 namespace CognitiveMesh.FoundationLayer.Notifications
 {

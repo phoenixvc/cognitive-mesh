@@ -6,7 +6,14 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>CognitiveMesh.Shared</RootNamespace>
+    <!-- Disable default compile items to avoid duplicates -->
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Explicitly include only the files we want -->
+    <Compile Include="Interfaces/*.cs" />
+    <Compile Include="Models/*.cs" />
+  </ItemGroup>
 
 </Project>

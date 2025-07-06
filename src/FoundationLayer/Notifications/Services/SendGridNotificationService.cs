@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using CognitiveMesh.BusinessApplications.Common.Models;
+using CognitiveMesh.FoundationLayer.EnterpriseConnectors;
 using CognitiveMesh.FoundationLayer.Notifications;
 
 namespace CognitiveMesh.FoundationLayer.Notifications.Services
@@ -134,6 +134,24 @@ namespace CognitiveMesh.FoundationLayer.Notifications.Services
             }
 
             return true;
+        }
+
+        /// <inheritdoc />
+        public async Task DeliverNotificationAsync(NotificationMessage notification)
+        {
+            if (notification == null)
+            {
+                throw new ArgumentNullException(nameof(notification));
+            }
+
+            // Call the existing SendNotificationAsync method which handles the actual delivery
+            var result = await SendNotificationAsync(notification);
+            
+            if (!result)
+            {
+                _logger.LogWarning("Failed to deliver notification: {NotificationId}", notification.NotificationId);
+                // You might want to throw an exception here or handle the failure case as needed
+            }
         }
 
         /// <inheritdoc />

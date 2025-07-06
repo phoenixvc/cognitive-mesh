@@ -13,22 +13,22 @@ namespace CognitiveMesh.BusinessApplications.Common.Models
         /// <summary>
         /// A machine-readable error code that uniquely identifies the error type.
         /// </summary>
-        public string ErrorCode { get; set; }
+        public string? ErrorCode { get; set; }
 
         /// <summary>
         /// A human-readable error message suitable for end users.
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
 
         /// <summary>
         /// A detailed description of the error, typically for developers or logging.
         /// </summary>
-        public string DetailedMessage { get; set; }
+        public string? DetailedMessage { get; set; }
 
         /// <summary>
         /// The component or service that generated the error.
         /// </summary>
-        public string Source { get; set; }
+        public string? Source { get; set; }
 
         /// <summary>
         /// The timestamp when the error occurred.
@@ -39,13 +39,13 @@ namespace CognitiveMesh.BusinessApplications.Common.Models
         /// An optional correlation ID for tracing related events across the system.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string CorrelationId { get; set; }
+        public string? CorrelationId { get; set; }
 
         /// <summary>
         /// Optional additional details about the error.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public Dictionary<string, object> AdditionalDetails { get; set; }
+        public Dictionary<string, object>? AdditionalDetails { get; set; }
 
         /// <summary>
         /// Creates a new instance of the ErrorEnvelope class.
@@ -65,12 +65,12 @@ namespace CognitiveMesh.BusinessApplications.Common.Models
         /// <param name="correlationId">An optional correlation ID for tracing.</param>
         /// <param name="additionalDetails">Optional additional details about the error.</param>
         public ErrorEnvelope(
-            string errorCode,
-            string errorMessage,
-            string detailedMessage,
-            string source,
-            string correlationId = null,
-            Dictionary<string, object> additionalDetails = null)
+            string? errorCode,
+            string? errorMessage,
+            string? detailedMessage,
+            string? source,
+            string? correlationId = null,
+            Dictionary<string, object>? additionalDetails = null)
         {
             ErrorCode = errorCode;
             ErrorMessage = errorMessage;
@@ -97,7 +97,7 @@ namespace CognitiveMesh.BusinessApplications.Common.Models
             string subjectId,
             string reason,
             string source,
-            string correlationId = null)
+            string? correlationId = null)
         {
             var details = new Dictionary<string, object>
             {
@@ -129,7 +129,7 @@ namespace CognitiveMesh.BusinessApplications.Common.Models
             string subjectId,
             string processingOperation,
             string source,
-            string correlationId = null)
+            string? correlationId = null)
         {
             var details = new Dictionary<string, object>
             {
@@ -162,7 +162,7 @@ namespace CognitiveMesh.BusinessApplications.Common.Models
             string attemptedLegalBasis,
             string reason,
             string source,
-            string correlationId = null)
+            string? correlationId = null)
         {
             var details = new Dictionary<string, object>
             {
@@ -196,7 +196,7 @@ namespace CognitiveMesh.BusinessApplications.Common.Models
             string destinationCountry,
             string reason,
             string source,
-            string correlationId = null)
+            string? correlationId = null)
         {
             var details = new Dictionary<string, object>
             {
@@ -231,7 +231,7 @@ namespace CognitiveMesh.BusinessApplications.Common.Models
             string description,
             string severity,
             string source,
-            string correlationId = null)
+            string? correlationId = null)
         {
             var details = new Dictionary<string, object>
             {

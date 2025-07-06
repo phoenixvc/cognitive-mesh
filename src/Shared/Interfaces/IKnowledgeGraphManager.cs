@@ -18,13 +18,13 @@ namespace CognitiveMesh.Shared.Interfaces
         /// <summary>
         /// Adds a node to the knowledge graph
         /// </summary>
-        Task AddNodeAsync<T>(string nodeId, T properties, string label = null, CancellationToken cancellationToken = default) where T : class;
+        Task AddNodeAsync<T>(string nodeId, T properties, string? label = null, CancellationToken cancellationToken = default) where T : class;
 
         /// <summary>
         /// Adds a relationship between two nodes
         /// </summary>
         Task AddRelationshipAsync(string sourceNodeId, string targetNodeId, string relationshipType, 
-            Dictionary<string, object> properties = null, CancellationToken cancellationToken = default);
+            Dictionary<string, object>? properties = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Queries the knowledge graph
@@ -35,7 +35,7 @@ namespace CognitiveMesh.Shared.Interfaces
         /// <summary>
         /// Gets a node by its ID
         /// </summary>
-        Task<T> GetNodeAsync<T>(string nodeId, CancellationToken cancellationToken = default) where T : class;
+        Task<T?> GetNodeAsync<T>(string nodeId, CancellationToken cancellationToken = default) where T : class;
 
         /// <summary>
         /// Updates a node's properties

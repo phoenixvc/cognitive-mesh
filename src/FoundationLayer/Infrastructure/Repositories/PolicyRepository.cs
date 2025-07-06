@@ -1,48 +1,14 @@
-using CognitiveMesh.ReasoningLayer.AgencyRouter.Adapters;
-using CognitiveMesh.ReasoningLayer.AgencyRouter.Ports.Models;
+using CognitiveMesh.FoundationLayer.ConvenerData.Persistence;
+using CognitiveMesh.FoundationLayer.Infrastructure.Exceptions;
+using CognitiveMesh.Shared.Interfaces;
+using CognitiveMesh.Shared.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-
-// --- EF Core DbContext and Entity Configuration ---
-// Note: In a complete application, the DbContext would be in its own file.
-// The entity configuration is placed here to show how the PolicyConfiguration entity is mapped to the database.
-namespace CognitiveMesh.FoundationLayer.Infrastructure.Persistence
-{
-    /// <summary>
-    /// EF Core configuration for the PolicyConfiguration entity.
-    /// This defines how the policy object is mapped to the database schema.
-    /// </summary>
-    public class PolicyConfigurationEntityTypeConfiguration : IEntityTypeConfiguration<PolicyConfiguration>
-    {
-        public void Configure(EntityTypeBuilder<PolicyConfiguration> builder)
-        {
-            builder.ToTable("Policies");
-            builder.HasKey(p => p.PolicyId);
-
-            // Ensure that each tenant can only have one policy of a specific version.
-            builder.HasIndex(p => new { p.TenantId, p.PolicyVersion }).IsUnique();
-
-            builder.Property(p => p.TenantId).IsRequired();
-            builder.Property(p => p.PolicyVersion).IsRequired();
-
-            // Store the list of rules as a JSON string in a single column.
-            // This is a practical approach for complex but encapsulated data.
-            var jsonSerializerOptions = new JsonSerializerOptions();
-            builder.Property(p => p.Rules)
-                .HasConversion(
-                    v => JsonSerializer.Serialize(v, jsonSerializerOptions),
-                    v => JsonSerializer.Deserialize<List<RoutingRule>>(v, jsonSerializerOptions)
-                );
-        }
-    }
-}
-
 
 // --- Repository Implementation ---
 namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
@@ -58,15 +24,17 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
     {
         private readonly ConvenerDbContext _context;
         private readonly ILogger<PolicyRepository> _logger;
+        private readonly string _currentTenantId;
 
-        public PolicyRepository(ConvenerDbContext context, ILogger<PolicyRepository> logger)
+        public PolicyRepository(ConvenerDbContext context, ILogger<PolicyRepository> logger, string? tenantId = null)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _currentTenantId = tenantId ?? throw new ArgumentNullException(nameof(tenantId));
         }
 
         /// <inheritdoc />
-        public async Task<PolicyConfiguration> GetPolicyForTenantAsync(string tenantId)
+        public async Task<PolicyConfiguration?> GetPolicyForTenantAsync(string tenantId)
         {
             if (string.IsNullOrWhiteSpace(tenantId))
             {
@@ -90,48 +58,108 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
             }
         }
 
+        public async Task<PolicyConfiguration> GetActivePolicyAsync()
+        {
+            try
+            {
+                return await _context.Set<PolicyConfiguration>()
+                    .Where(p => p.TenantId == _currentTenantId && p.IsActive)
+                    .OrderByDescending(p => p.PolicyVersion)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving active policy for tenant {TenantId}", _currentTenantId);
+                throw new PolicyRepositoryException("Failed to retrieve active policy", ex);
+            }
+        }
+
         /// <inheritdoc />
         public async Task<bool> SavePolicyForTenantAsync(PolicyConfiguration policy)
         {
             if (policy == null || string.IsNullOrWhiteSpace(policy.TenantId) || string.IsNullOrWhiteSpace(policy.PolicyVersion))
             {
-                _logger.LogWarning("SavePolicyForTenantAsync called with an invalid policy object.");
-                return false;
+                throw new ArgumentException("Policy and its TenantId and PolicyVersion must be provided");
             }
 
             try
             {
-                // Check if a policy with the same tenant and version already exists.
+                // Check if a policy with the same version already exists for this tenant
                 var existingPolicy = await _context.Set<PolicyConfiguration>()
                     .FirstOrDefaultAsync(p => p.TenantId == policy.TenantId && p.PolicyVersion == policy.PolicyVersion);
 
-                if (existingPolicy == null)
+                if (existingPolicy != null)
                 {
-                    // If it doesn't exist, add it as a new policy.
-                    policy.PolicyId = Guid.NewGuid().ToString(); // Ensure a new GUID for the primary key.
-                    _context.Set<PolicyConfiguration>().Add(policy);
-                    _logger.LogInformation("Creating new policy version '{PolicyVersion}' for Tenant '{TenantId}'.", policy.PolicyVersion, policy.TenantId);
+                    // Update existing policy
+                    _context.Entry(existingPolicy).CurrentValues.SetValues(policy);
+                    existingPolicy.UpdatedAt = DateTime.UtcNow;
                 }
                 else
                 {
-                    // If it exists, update it. This makes the save operation idempotent.
-                    existingPolicy.Rules = policy.Rules; // Update the rules.
-                    _context.Set<PolicyConfiguration>().Update(existingPolicy);
-                    _logger.LogInformation("Updating existing policy version '{PolicyVersion}' for Tenant '{TenantId}'.", policy.PolicyVersion, policy.TenantId);
+                    // Add new policy version
+                    policy.CreatedAt = DateTime.UtcNow;
+                    await _context.Set<Shared.Models.PolicyConfiguration>().AddAsync(policy);
                 }
 
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "Database error saving policy version '{PolicyVersion}' for Tenant '{TenantId}'. A unique constraint might have been violated.", policy.PolicyVersion, policy.TenantId);
-                return false;
+                _logger.LogError(ex, "Error saving policy for tenant {TenantId} with version {PolicyVersion}", 
+                    policy?.TenantId, policy?.PolicyVersion);
+                throw new PolicyRepositoryException("Failed to save policy", ex);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> DeletePolicyForTenantAsync(string policyId)
+        {
+            if (string.IsNullOrWhiteSpace(policyId))
+            {
+                throw new ArgumentException("Policy ID must be provided");
+            }
+
+            try
+            {
+                var policy = await _context.Set<PolicyConfiguration>()
+                    .FirstOrDefaultAsync(p => p.PolicyId == policyId && p.TenantId == _currentTenantId);
+
+                if (policy != null)
+                {
+                    _context.Entry(policy).State = EntityState.Deleted;
+                    await _context.SaveChangesAsync();
+                }
+
+                return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while saving policy version '{PolicyVersion}' for Tenant '{TenantId}'.", policy.PolicyVersion, policy.TenantId);
-                return false;
+                _logger.LogError(ex, "Error deleting policy for tenant {TenantId} with ID {PolicyId}", 
+                    _currentTenantId, policyId);
+                throw new PolicyRepositoryException("Failed to delete policy", ex);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<PolicyConfiguration>> GetPolicyHistoryForTenantAsync(string tenantId)
+        {
+            if (string.IsNullOrWhiteSpace(tenantId))
+            {
+                throw new ArgumentException("Tenant ID must be provided", nameof(tenantId));
+            }
+
+            try
+            {
+                return await _context.Set<PolicyConfiguration>()
+                    .Where(p => p.TenantId == tenantId)
+                    .OrderByDescending(p => p.PolicyVersion)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving policy history for tenant {TenantId}", tenantId);
+                throw new PolicyRepositoryException("Failed to retrieve policy history", ex);
             }
         }
     }

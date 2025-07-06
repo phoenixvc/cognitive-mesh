@@ -1,5 +1,6 @@
 using CognitiveMesh.FoundationLayer.ConvenerData.Entities;
 using CognitiveMesh.FoundationLayer.ConvenerData.ValueObjects;
+using CognitiveMesh.FoundationLayer.ConvenerData.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Logging;
@@ -149,7 +150,7 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
 
                 if (!includeRetired)
                 {
-                    query = query.Where(a => a.Status != AgentStatus.Retired);
+                    query = query.Where(a => a.Status != ValueObjects.AgentStatus.Retired);
                 }
 
                 return await query.OrderBy(a => a.AgentType).ThenByDescending(a => a.Version).ToListAsync();
