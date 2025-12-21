@@ -116,8 +116,22 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                 _logger.LogInformation("Logging reasoning step: {StepId} for trace: {TraceId}", 
                     step.Id, step.TraceId);
                 
-                // TODO: Implement actual logging logic
-                await Task.Delay(50, cancellationToken); // Simulate work
+                // Store the reasoning step as a node in the knowledge graph
+                await _knowledgeGraphManager.AddNodeAsync(
+                    step.Id,
+                    step,
+                    "ReasoningStep",
+                    cancellationToken);
+
+                // Link the step to its trace
+                // We assume the trace node exists or can be linked to.
+                // "BELONGS_TO" relationship from ReasoningStep -> ReasoningTrace
+                await _knowledgeGraphManager.AddRelationshipAsync(
+                    step.Id,
+                    step.TraceId,
+                    "BELONGS_TO",
+                    null,
+                    cancellationToken);
             }
             catch (Exception ex)
             {
