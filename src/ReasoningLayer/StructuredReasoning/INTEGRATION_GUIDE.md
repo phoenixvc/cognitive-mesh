@@ -22,10 +22,10 @@ public static class ConclAIveServiceRegistration
         services.AddScoped<IDebateReasoningPort, DebateReasoningEngine>();
         services.AddScoped<ISequentialReasoningPort, SequentialReasoningEngine>();
         services.AddScoped<IStrategicSimulationPort, StrategicSimulationEngine>();
-        
+
         // Register the main orchestrator
         services.AddScoped<IConclAIveOrchestratorPort, ConclAIveOrchestrator>();
-        
+
         return services;
     }
 }
@@ -58,7 +58,7 @@ public class StrategyAnalysisService
     public async Task<string> AnalyzeMarketEntry(string market, string product)
     {
         var query = $"Should we enter the {market} market with our {product} product?";
-        
+
         var context = new Dictionary<string, string>
         {
             ["market"] = market,
@@ -219,7 +219,7 @@ public async Task ProcessReasoningResult(ReasoningOutput result)
         Console.WriteLine($"\nStep {step.StepNumber}: {step.StepName}");
         Console.WriteLine($"Timestamp: {step.Timestamp}");
         Console.WriteLine($"Output: {step.Output.Substring(0, Math.Min(100, step.Output.Length))}...");
-        
+
         if (step.Metadata.Any())
         {
             Console.WriteLine($"Metadata: {string.Join(", ", step.Metadata.Select(kv => $"{kv.Key}={kv.Value}"))}");
@@ -244,13 +244,13 @@ public class ReasoningQualityMonitor
     public async Task<ReasoningOutput> ReasonWithMonitoring(string query)
     {
         var startTime = DateTimeOffset.UtcNow;
-        
+
         try
         {
             var result = await _conclAIve.ReasonAsync(query);
-            
+
             var duration = DateTimeOffset.UtcNow - startTime;
-            
+
             // Monitor quality metrics
             _logger.LogInformation(
                 "Reasoning completed: Confidence={Confidence:P0}, Steps={Steps}, Duration={Duration}ms",
@@ -380,7 +380,7 @@ if (result.Confidence < 0.6)
 {
     // Request human review
     await _humanReviewService.QueueForReview(result);
-    
+
     // Or try a different recipe
     var alternateResult = await _conclAIve.ReasonAsync(
         query,

@@ -59,7 +59,7 @@ ConclAIve **uses** the existing `ILLMClient` abstraction to interact with langua
 public class DebateReasoningEngine : IDebateReasoningPort
 {
     private readonly ILLMClient _llmClient; // Uses existing LLM infrastructure
-    
+
     public async Task<ReasoningOutput> ExecuteDebateAsync(DebateRequest request)
     {
         // Generates multiple perspective-specific prompts
@@ -86,7 +86,7 @@ public class EthicallyAwareConclAIve
     {
         // Generate structured reasoning
         var result = await _conclAIve.ReasonAsync(query);
-        
+
         // Validate the reasoning chain ethically
         var validationRequest = new ReasoningChainValidationRequest
         {
@@ -97,15 +97,15 @@ public class EthicallyAwareConclAIve
                 InferenceType = "Structured"
             }).ToList()
         };
-        
+
         var validation = await _normativeAgency.ValidateReasoningChainAsync(validationRequest);
-        
+
         if (!validation.IsValid)
         {
             // Add ethical concerns to metadata
             result.Metadata["ethicalIssues"] = string.Join("; ", validation.IdentifiedIssues);
         }
-        
+
         return result;
     }
 }
@@ -133,13 +133,13 @@ public class SecurityAwareSimulation
             Action = request.Scenario,
             Context = request.DataPoints.ToDictionary(k => k.Key, v => (object)v.Value)
         };
-        
+
         var riskScore = await _threatIntel.CalculateRiskScoreAsync(riskRequest);
-        
+
         // Add security context to simulation
         request.Constraints.Add($"Security Risk Level: {riskScore.RiskLevel}");
         request.DataPoints["riskScore"] = riskScore.RiskScore.ToString();
-        
+
         // Run simulation with security-aware context
         return await _strategicSimulation.ExecuteStrategicSimulationAsync(request);
     }
@@ -164,7 +164,7 @@ public class DataDrivenSequentialReasoning
     {
         // First, analyze the data
         var analyticalInsights = await _analytical.AnalyzeDataset(dataset);
-        
+
         // Then, use insights as context for sequential reasoning
         var context = new Dictionary<string, string>
         {
@@ -172,13 +172,13 @@ public class DataDrivenSequentialReasoning
             ["trends"] = string.Join(", ", analyticalInsights.Trends),
             ["correlations"] = string.Join(", ", analyticalInsights.Correlations)
         };
-        
+
         var request = new SequentialReasoningRequest
         {
             Question = question,
             Context = context
         };
-        
+
         return await _sequential.ExecuteSequentialReasoningAsync(request);
     }
 }
@@ -199,21 +199,21 @@ public class MetacognitiveReasoningMonitor
     public async Task<ReasoningOutput> MonitoredReasoning(string query)
     {
         var metrics = new ReasoningMetrics();
-        
+
         // Monitor execution
         var startTime = DateTimeOffset.UtcNow;
         var result = await _conclAIve.ReasonAsync(query);
         var duration = DateTimeOffset.UtcNow - startTime;
-        
+
         // Collect metrics
         metrics.Duration = duration;
         metrics.Confidence = result.Confidence;
         metrics.StepCount = result.ReasoningTrace.Count;
         metrics.RecipeType = result.RecipeType;
-        
+
         // Feed back to metacognitive layer
         await _performanceMonitor.RecordReasoningMetrics(metrics);
-        
+
         // Trigger learning if performance is suboptimal
         if (result.Confidence < 0.6 || duration.TotalSeconds > 30)
         {
@@ -222,7 +222,7 @@ public class MetacognitiveReasoningMonitor
                 issue: result.Confidence < 0.6 ? "low_confidence" : "slow_execution"
             );
         }
-        
+
         return result;
     }
 }
@@ -242,19 +242,19 @@ public async Task<ReasoningOutput> ChainedReasoning(string complexQuery)
         complexQuery,
         ReasoningRecipeType.DebateAndVote
     );
-    
+
     // Step 2: Use sequential to break down the winning perspective
     var detailedAnalysis = await _conclAIve.ReasonAsync(
         $"Elaborate on: {debateResult.Conclusion}",
         ReasoningRecipeType.Sequential
     );
-    
+
     // Step 3: Use simulation to explore implementation scenarios
     var implementationPlan = await _conclAIve.ReasonAsync(
         $"How to implement: {detailedAnalysis.Conclusion}",
         ReasoningRecipeType.StrategicSimulation
     );
-    
+
     return implementationPlan;
 }
 ```
@@ -271,23 +271,23 @@ public async Task<string> ParallelReasoning(string query)
         _conclAIve.ReasonAsync(query, ReasoningRecipeType.Sequential),
         _conclAIve.ReasonAsync(query, ReasoningRecipeType.StrategicSimulation)
     };
-    
+
     var results = await Task.WhenAll(tasks);
-    
+
     // Synthesize the three perspectives
     var synthesis = $@"
         Debate Perspective (Confidence: {results[0].Confidence:P0}):
         {results[0].Conclusion}
-        
+
         Sequential Analysis (Confidence: {results[1].Confidence:P0}):
         {results[1].Conclusion}
-        
+
         Strategic Scenarios (Confidence: {results[2].Confidence:P0}):
         {results[2].Conclusion}
-        
+
         Final Recommendation: [Synthesize the three]
     ";
-    
+
     return synthesis;
 }
 ```
@@ -305,7 +305,7 @@ public async Task<ReasoningOutput> ResilientReasoning(string query)
     catch (Exception ex)
     {
         _logger.LogWarning(ex, "Auto-selection failed, trying explicit recipes");
-        
+
         // Fallback to sequential (most reliable)
         try
         {
@@ -322,7 +322,7 @@ public async Task<ReasoningOutput> ResilientReasoning(string query)
                 Question = query,
                 Perspectives = new[] { "For", "Against" }.ToList()
             };
-            
+
             return await _debateReasoning.ExecuteDebateAsync(simpleDebate);
         }
     }

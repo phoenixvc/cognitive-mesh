@@ -309,7 +309,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Tests
                 .ReturnsAsync((ReasoningTraceNode?)null);
 
             // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => 
+            await Assert.ThrowsAsync<KeyNotFoundException>(() =>
                 _manager.GenerateTransparencyReportAsync(traceId, "json"));
         }
 

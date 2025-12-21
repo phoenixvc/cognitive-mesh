@@ -9,7 +9,7 @@ The functionality from both branches has been successfully migrated to your code
 ### From PR #36 (`jules-transparency-report-logic`)
 ✅ **Migrated in commit cbc0060:**
 - Report generation Strategy pattern
-- JSON and Markdown report formatters  
+- JSON and Markdown report formatters
 - Complete `GenerateTransparencyReportAsync` implementation
 - Aggregations calculation
 - **Tests added for report generation** (JSON, Markdown, error cases)

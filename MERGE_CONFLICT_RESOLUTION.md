@@ -9,7 +9,7 @@ The branch `jules-uncertainty-mitigation-strategies-10837117013490994765` has be
 ## Conflicts Resolved
 
 ### 1. Directory.Packages.props
-**Location:** Lines 55-67  
+**Location:** Lines 55-67
 **Type:** Test package version conflicts
 
 **Resolution:** Updated to use the newer versions from main:
@@ -22,7 +22,7 @@ The branch `jules-uncertainty-mitigation-strategies-10837117013490994765` has be
 **Rationale:** Using the latest test framework versions from main ensures consistency across the codebase and includes any bug fixes or improvements.
 
 ### 2. src/MetacognitiveLayer/ReasoningTransparency/TransparencyManager.cs
-**Location:** Lines 23-29  
+**Location:** Lines 23-29
 **Type:** XML documentation comment differences
 
 **Resolution:** Updated XML documentation comments to match main's more descriptive format:
@@ -33,9 +33,9 @@ The branch `jules-uncertainty-mitigation-strategies-10837117013490994765` has be
 
 ## Merge Details
 
-**Merge Commit:** c71dad9  
-**Additional Fix Commit:** 61829db  
-**Source Branch:** main (commit 2ab0794)  
+**Merge Commit:** c71dad9
+**Additional Fix Commit:** 61829db
+**Source Branch:** main (commit 2ab0794)
 **Target Branch:** jules-uncertainty-mitigation-strategies-10837117013490994765 (commit 32f59f8)
 
 **Changes Merged from Main:**
@@ -96,9 +96,9 @@ After pushing, verify the merge by:
 
 ---
 
-**Resolved by:** GitHub Copilot Agent  
-**Date:** 2025-12-21  
-**Merge Commit:** c71dad9  
+**Resolved by:** GitHub Copilot Agent
+**Date:** 2025-12-21
+**Merge Commit:** c71dad9
 **Fix Commit:** 61829db
 
 ## Important Notes

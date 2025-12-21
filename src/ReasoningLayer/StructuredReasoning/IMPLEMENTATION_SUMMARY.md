@@ -18,7 +18,7 @@ This implementation adds the **ConclAIve Structured Reasoning Architecture** to 
   - Cross-examines each perspective
   - Synthesizes a balanced conclusion with vote aggregation
 
-#### Sequential Reasoning  
+#### Sequential Reasoning
 - **Purpose**: Decomposes complex questions into specialized phases
 - **Use Cases**: Complex problems requiring step-by-step analysis
 - **Key Features**:
@@ -176,7 +176,7 @@ public class DecisionService
         // Access structured output
         Console.WriteLine($"Conclusion: {result.Conclusion}");
         Console.WriteLine($"Confidence: {result.Confidence:P0}");
-        
+
         // Full audit trail available
         foreach (var step in result.ReasoningTrace)
         {

@@ -19,7 +19,7 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
     {
         private readonly ILogger<DebateReasoningEngine> _logger;
         private readonly ILLMClient _llmClient;
-        
+
         // Pre-compiled regex for better performance
         private static readonly Regex ConfidenceRegex = new Regex(
             @"confidence[:\s]+(\d+)",

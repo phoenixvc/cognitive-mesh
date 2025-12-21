@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script to delete branches from the remote repository
-# 
+#
 # ⚠️ WARNING: These branches contain working functionality!
 #
 # These branches were associated with PRs that were closed without merging:
@@ -9,7 +9,7 @@
 #   - Adds Knowledge Graph integration for reasoning traces
 #   - 519 lines of working, tested code
 #
-# - PR #31: jules-uncertainty-mitigation-strategies-10837117013490994765  
+# - PR #31: jules-uncertainty-mitigation-strategies-10837117013490994765
 #   - Implements 4 uncertainty mitigation strategies
 #   - Integrates with CollaborationManager and TransparencyManager
 #   - 373 lines of working, tested code
@@ -34,7 +34,7 @@ echo "     - 519 lines of code with tests"
 echo ""
 echo "  2. jules-uncertainty-mitigation-strategies-10837117013490994765"
 echo "     - 4 uncertainty mitigation strategies"
-echo "     - CollaborationManager integration"  
+echo "     - CollaborationManager integration"
 echo "     - 373 lines of code with tests"
 echo ""
 echo "Total: ~900 lines of working, tested code will be lost"
@@ -60,7 +60,7 @@ echo "Deleting branches..."
 echo "Deleting: jules-transparency-report-logic-11997309168661708357"
 git push origin --delete jules-transparency-report-logic-11997309168661708357
 
-# Delete second branch  
+# Delete second branch
 echo "Deleting: jules-uncertainty-mitigation-strategies-10837117013490994765"
 git push origin --delete jules-uncertainty-mitigation-strategies-10837117013490994765
 

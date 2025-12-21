@@ -92,7 +92,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             var result = await _engine.ExecuteDebateAsync(request);
 
             // Assert
-            Assert.Contains(result.ReasoningTrace, step => 
+            Assert.Contains(result.ReasoningTrace, step =>
                 step.Metadata.ContainsKey("type") && step.Metadata["type"] == "cross_examination");
         }
     }

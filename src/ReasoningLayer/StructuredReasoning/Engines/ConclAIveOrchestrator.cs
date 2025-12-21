@@ -22,7 +22,7 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
         private readonly ISequentialReasoningPort _sequentialReasoning;
         private readonly IStrategicSimulationPort _strategicSimulation;
         private readonly ILLMClient _llmClient;
-        
+
         // Pre-compiled regex for better performance
         private static readonly Regex NumberedLineRegex = new Regex(
             @"^\d+[\.\)]\s*",

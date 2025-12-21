@@ -19,13 +19,13 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
     {
         private readonly ILogger<StrategicSimulationEngine> _logger;
         private readonly ILLMClient _llmClient;
-        
+
         // Pre-compiled regex for better performance
         private static readonly Regex ConfidenceRegex = new Regex(
             @"confidence[:\s]+(\d+)",
             RegexOptions.IgnoreCase | RegexOptions.Compiled
         );
-        
+
         private static readonly Regex ProbabilityRegex = new Regex(
             @"\d+",
             RegexOptions.Compiled

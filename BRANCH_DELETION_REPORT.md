@@ -8,7 +8,7 @@ The functionality from both branches has been successfully migrated to the main 
 **What was migrated:**
 - ✅ Report generation Strategy pattern (IReportFormatStrategy interface)
 - ✅ JSON report format strategy (JsonReportFormatStrategy)
-- ✅ Markdown report format strategy (MarkdownReportFormatStrategy)  
+- ✅ Markdown report format strategy (MarkdownReportFormatStrategy)
 - ✅ Full implementation of `GenerateTransparencyReportAsync`
 - ✅ Aggregations calculation helper method
 
