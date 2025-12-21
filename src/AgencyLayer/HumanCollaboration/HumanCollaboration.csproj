@@ -8,14 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="CollaborationManager.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 

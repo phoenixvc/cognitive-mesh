@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using CognitiveMesh.FoundationLayer.LLM.Abstractions;
 using CognitiveMesh.FoundationLayer.VectorDatabase;
+using CognitiveMesh.Shared.Interfaces;
 
 namespace CognitiveMesh.FoundationLayer.SemanticSearch
 {
     /// <summary>
     /// Provides enhanced RAG by combining vector search with contextual LLM prompts.
     /// </summary>
-    public class SemanticSearchManager : IDisposable
+    public class SemanticSearchManager : ISemanticSearchManager, IDisposable
     {
         private readonly VectorDatabaseManager _vectorManager;
         private readonly ILLMClient _llmClient;
@@ -41,10 +42,11 @@ namespace CognitiveMesh.FoundationLayer.SemanticSearch
             try
             {
                 // Step 1: Generate embedding for the query
-                var queryEmbedding = await _llmClient.GenerateEmbeddingAsync(queryText);
+                var queryEmbedding = await _llmClient.GetEmbeddingsAsync(queryText);
                 
                 // Step 2: Find similar vectors
-                var similarIds = await _vectorManager.QuerySimilarAsync(indexName, queryEmbedding, topK: 5);
+                var searchResults = await _vectorManager.QuerySimilarAsync(indexName, queryEmbedding, limit: 5);
+                var similarIds = searchResults.Select(r => r.Id);
                 
                 // Step 3: Retrieve the actual content for the similar vectors
                 // This would typically be done by looking up the IDs in a document store
