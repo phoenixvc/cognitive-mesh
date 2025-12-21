@@ -38,13 +38,13 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Persistence
             builder.Property(a => a.Capabilities)
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, jsonSerializerOptions),
-                    v => JsonSerializer.Deserialize<List<string>>(v, jsonSerializerOptions)
+                    v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, jsonSerializerOptions) ?? new Dictionary<string, string>()
                 );
 
             builder.Property(a => a.DefaultAuthorityScope)
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, jsonSerializerOptions),
-                    v => JsonSerializer.Deserialize<AuthorityScope>(v, jsonSerializerOptions)
+                    v => JsonSerializer.Deserialize<AuthorityScope>(v, jsonSerializerOptions) ?? new AuthorityScope()
                 );
 
             // Store enums as strings for readability in the database.
@@ -66,8 +66,8 @@ namespace CognitiveMesh.FoundationLayer.ConvenerData.Interfaces
     public interface IAgentRegistryRepository
     {
         Task RegisterAsync(AgentDefinition agentDefinition);
-        Task<AgentDefinition> GetByIdAsync(Guid agentId);
-        Task<AgentDefinition> GetByTypeAndVersionAsync(string agentType, string version);
+        Task<AgentDefinition?> GetByIdAsync(Guid agentId);
+        Task<AgentDefinition?> GetByTypeAndVersionAsync(string agentType, string version);
         Task<IEnumerable<AgentDefinition>> ListAllAsync(bool includeRetired = false);
         Task UpdateAsync(AgentDefinition agentDefinition);
     }
@@ -112,7 +112,7 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<AgentDefinition> GetByIdAsync(Guid agentId)
+        public async Task<AgentDefinition?> GetByIdAsync(Guid agentId)
         {
             try
             {
@@ -126,7 +126,7 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<AgentDefinition> GetByTypeAndVersionAsync(string agentType, string version)
+        public async Task<AgentDefinition?> GetByTypeAndVersionAsync(string agentType, string version)
         {
             try
             {
@@ -150,7 +150,7 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
 
                 if (!includeRetired)
                 {
-                    query = query.Where(a => a.Status != ValueObjects.AgentStatus.Retired);
+                    query = query.Where(a => a.Status != CognitiveMesh.FoundationLayer.ConvenerData.Entities.AgentStatus.Retired);
                 }
 
                 return await query.OrderBy(a => a.AgentType).ThenByDescending(a => a.Version).ToListAsync();
