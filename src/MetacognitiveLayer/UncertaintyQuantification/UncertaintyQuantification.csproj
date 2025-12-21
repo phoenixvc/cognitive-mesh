@@ -6,7 +6,6 @@
     <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
   </PropertyGroup>
 
-
   <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" />
     <PackageReference Include="Azure.Messaging.EventGrid" />
@@ -19,5 +18,9 @@
     <ProjectReference Include="..\..\..\src\Shared\CognitiveMesh.Shared.csproj" />
   </ItemGroup>
 
-</Project>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AgencyLayer\HumanCollaboration\HumanCollaboration.csproj" />
+    <ProjectReference Include="..\ReasoningTransparency\ReasoningTransparency.csproj" />
+  </ItemGroup>
 
+</Project>
