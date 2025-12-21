@@ -11,22 +11,22 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// <summary>
         /// Unique identifier for the step
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         /// <summary>
         /// Identifier of the trace this step belongs to
         /// </summary>
-        public string TraceId { get; set; }
+        public string TraceId { get; set; } = string.Empty;
 
         /// <summary>
         /// Name of the step
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Description of the step
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// When the step occurred
@@ -62,17 +62,17 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// <summary>
         /// Unique identifier for the trace
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         /// <summary>
         /// Name of the trace
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Description of the trace
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// The steps in this reasoning trace
@@ -98,17 +98,17 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// <summary>
         /// Unique identifier for the rationale
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         /// <summary>
         /// Identifier of the decision this rationale is for
         /// </summary>
-        public string DecisionId { get; set; }
+        public string DecisionId { get; set; } = string.Empty;
 
         /// <summary>
         /// Description of the rationale
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// Confidence score (0-1)
@@ -134,22 +134,22 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// <summary>
         /// Unique identifier for the report
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         /// <summary>
         /// Identifier of the trace this report is for
         /// </summary>
-        public string TraceId { get; set; }
+        public string TraceId { get; set; } = string.Empty;
 
         /// <summary>
         /// Format of the report (e.g., json, html, markdown)
         /// </summary>
-        public string Format { get; set; }
+        public string Format { get; set; } = string.Empty;
 
         /// <summary>
         /// The report content
         /// </summary>
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
 
         /// <summary>
         /// When the report was generated
