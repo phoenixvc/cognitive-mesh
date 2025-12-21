@@ -157,16 +157,22 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                 string stepNodeId = $"step:{step.Id}";
                 var stepNode = MapToReasoningStepNode(step);
                 
-                await _knowledgeGraphManager.AddNodeAsync(stepNodeId, stepNode, "ReasoningStep", cancellationToken);
-
-                // 3. Link Step to Trace
-                await _knowledgeGraphManager.AddRelationshipAsync(
-                    traceNodeId,
-                    stepNodeId,
-                    "HAS_STEP",
-                    null,
+                // Store the reasoning step as a node in the knowledge graph
+                await _knowledgeGraphManager.AddNodeAsync(
+                    step.Id,
+                    step,
+                    "ReasoningStep",
                     cancellationToken);
 
+                // Link the step to its trace
+                // We assume the trace node exists or can be linked to.
+                // "BELONGS_TO" relationship from ReasoningStep -> ReasoningTrace
+                await _knowledgeGraphManager.AddRelationshipAsync(
+                    step.Id,
+                    step.TraceId,
+                    "BELONGS_TO",
+                    null,
+                    cancellationToken);
             }
             catch (Exception ex)
             {
