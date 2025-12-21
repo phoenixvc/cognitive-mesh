@@ -16,6 +16,12 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
         private readonly IKnowledgeGraphManager _knowledgeGraphManager;
         private readonly ILLMClient _llmClient;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActionPlanner"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="knowledgeGraphManager">The knowledge graph manager instance.</param>
+        /// <param name="llmClient">The LLM client instance.</param>
         public ActionPlanner(
             ILogger<ActionPlanner> logger,
             IKnowledgeGraphManager knowledgeGraphManager,
@@ -29,7 +35,7 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
         /// <inheritdoc/>
         public async Task<IEnumerable<ActionPlan>> GeneratePlanAsync(
             string goal, 
-            IEnumerable<string> constraints = null, 
+            IEnumerable<string>? constraints = null,
             CancellationToken cancellationToken = default)
         {
             try
@@ -40,18 +46,25 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
                 // This is a placeholder implementation
                 await Task.Delay(100, cancellationToken); // Simulate work
                 
-                return new[]
+                var plans = new[]
                 {
                     new ActionPlan
                     {
                         Id = Guid.NewGuid().ToString(),
                         Name = "Sample Action",
-                        Description = "This is a sample action plan",
+                        Description = "This is a sample action plan generated for goal: " + goal,
                         Priority = 1,
                         Status = ActionPlanStatus.Pending,
                         CreatedAt = DateTime.UtcNow
                     }
                 };
+
+                foreach (var plan in plans)
+                {
+                    await _knowledgeGraphManager.AddNodeAsync(plan.Id, plan, "ActionPlan", cancellationToken);
+                }
+
+                return plans;
             }
             catch (Exception ex)
             {
@@ -69,18 +82,51 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
             {
                 _logger.LogInformation("Executing action plan: {PlanId}", planId);
                 
-                // TODO: Implement plan execution logic
-                // This is a placeholder implementation
-                await Task.Delay(100, cancellationToken); // Simulate work
+                // 1. Retrieve the plan from the Knowledge Graph
+                var plan = await _knowledgeGraphManager.GetNodeAsync<ActionPlan>(planId, cancellationToken);
                 
-                return new ActionPlan
+                if (plan == null)
                 {
-                    Id = planId,
-                    Name = "Executed Plan",
-                    Description = "This plan has been executed",
-                    Status = ActionPlanStatus.Completed,
-                    CompletedAt = DateTime.UtcNow
-                };
+                    throw new KeyNotFoundException($"Action plan with ID {planId} not found.");
+                }
+
+                if (plan.Status == ActionPlanStatus.Completed)
+                {
+                    _logger.LogWarning("Plan {PlanId} is already completed.", planId);
+                    return plan;
+                }
+
+                // 2. Update status to InProgress
+                plan.Status = ActionPlanStatus.InProgress;
+                await _knowledgeGraphManager.UpdateNodeAsync(planId, plan, cancellationToken);
+
+                // 3. Execute the plan using the LLM
+                try
+                {
+                    // Using the description as the prompt for the LLM
+                    var result = await _llmClient.GenerateCompletionAsync(
+                        plan.Description,
+                        temperature: 0.3f,
+                        maxTokens: 500,
+                        cancellationToken: cancellationToken);
+
+                    plan.Result = result;
+                    plan.Status = ActionPlanStatus.Completed;
+                    plan.CompletedAt = DateTime.UtcNow;
+                }
+                catch (Exception ex)
+                {
+                    plan.Status = ActionPlanStatus.Failed;
+                    plan.Error = ex.Message;
+                    throw;
+                }
+                finally
+                {
+                    // 4. Update the plan in the Knowledge Graph
+                    await _knowledgeGraphManager.UpdateNodeAsync(planId, plan, cancellationToken);
+                }
+
+                return plan;
             }
             catch (Exception ex)
             {
@@ -113,7 +159,7 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
         /// <inheritdoc/>
         public async Task CancelPlanAsync(
             string planId, 
-            string reason = null, 
+            string? reason = null,
             CancellationToken cancellationToken = default)
         {
             try
@@ -139,17 +185,17 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
         /// <summary>
         /// Unique identifier for the action plan
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         
         /// <summary>
         /// Name of the action plan
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         
         /// <summary>
         /// Description of the action plan
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         
         /// <summary>
         /// Priority of the action plan (1=highest)
@@ -174,7 +220,12 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
         /// <summary>
         /// Any error that occurred during execution (if applicable)
         /// </summary>
-        public string Error { get; set; }
+        public string? Error { get; set; }
+
+        /// <summary>
+        /// The result or output of the executed plan
+        /// </summary>
+        public string? Result { get; set; }
     }
 
     /// <summary>
@@ -218,7 +269,7 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
         /// </summary>
         Task<IEnumerable<ActionPlan>> GeneratePlanAsync(
             string goal, 
-            IEnumerable<string> constraints = null, 
+            IEnumerable<string>? constraints = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -240,7 +291,7 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
         /// </summary>
         Task CancelPlanAsync(
             string planId, 
-            string reason = null, 
+            string? reason = null,
             CancellationToken cancellationToken = default);
     }
 }
