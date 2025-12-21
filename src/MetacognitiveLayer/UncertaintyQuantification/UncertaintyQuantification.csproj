@@ -6,6 +6,9 @@
     <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="UncertaintyQuantifier.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" />
