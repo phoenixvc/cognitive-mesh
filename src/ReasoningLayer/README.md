@@ -37,6 +37,7 @@ The Reasoning Layer is composed of several specialized engines, each providing a
 
 | Component | Description | Key Files |
 | :--- | :--- | :--- |
+| **StructuredReasoning (ConclAIve)** | **NEW**: Turns raw model outputs into structured, auditable reasoning through orchestrated recipes: Debate & Vote, Sequential Reasoning, and Strategic Simulation. | `IConclAIveOrchestratorPort.cs`, `ConclAIveOrchestrator.cs`, [README](./StructuredReasoning/README.md) |
 | **AnalyticalReasoning** | Performs data-driven analysis, identifies trends, and generates structured insights from complex datasets. | `AnalyticalReasoner.cs`, `AnalysisResultGenerator.cs` |
 | **SecurityReasoning** | The core of our proactive defense strategy. It analyzes security events, detects threats, and calculates risk scores. | `IThreatIntelligencePort.cs`, `ThreatIntelligenceEngine.cs` |
 | **EthicalReasoning** | Enforces the ethical and philosophical principles of the mesh. It validates actions against normative frameworks (Brandom) and information ethics (Floridi). | `INormativeAgencyPort.cs`, `InformationEthicsEngine.cs` |
