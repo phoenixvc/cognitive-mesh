@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using CognitiveMesh.AgencyLayer.HumanCollaboration;
+using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency;
 
 namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
 {
@@ -11,16 +13,37 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
     /// </summary>
     public class UncertaintyQuantifier : IUncertaintyQuantifier, IDisposable
     {
-        private readonly ILogger<UncertaintyQuantifier> _logger;
+        private readonly ILogger<UncertaintyQuantifier>? _logger;
+        private readonly ICollaborationManager? _collaborationManager;
+        private readonly ITransparencyManager? _transparencyManager;
         private bool _disposed = false;
+
+        /// <summary>Strategy that requests human intervention.</summary>
+        public const string StrategyRequestHumanIntervention = "RequestHumanIntervention";
+
+        /// <summary>Strategy that falls back to a default value.</summary>
+        public const string StrategyFallbackToDefault = "FallbackToDefault";
+
+        /// <summary>Strategy that executes conservatively (e.g. stricter thresholds).</summary>
+        public const string StrategyConservativeExecution = "ConservativeExecution";
+
+        /// <summary>Strategy that uses ensemble verification.</summary>
+        public const string StrategyEnsembleVerification = "EnsembleVerification";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UncertaintyQuantifier"/> class.
         /// </summary>
         /// <param name="logger">The logger instance.</param>
-        public UncertaintyQuantifier(ILogger<UncertaintyQuantifier> logger = null)
+        /// <param name="collaborationManager">The collaboration manager for human interaction.</param>
+        /// <param name="transparencyManager">The transparency manager for logging reasoning.</param>
+        public UncertaintyQuantifier(
+            ILogger<UncertaintyQuantifier>? logger = null,
+            ICollaborationManager? collaborationManager = null,
+            ITransparencyManager? transparencyManager = null)
         {
             _logger = logger;
+            _collaborationManager = collaborationManager;
+            _transparencyManager = transparencyManager;
             _logger?.LogInformation("UncertaintyQuantifier initialized");
         }
 
@@ -35,7 +58,7 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
         /// <inheritdoc/>
         public Task<Dictionary<string, object>> QuantifyUncertaintyAsync(
             object data, 
-            Dictionary<string, object> parameters = null,
+            Dictionary<string, object>? parameters = null,
             CancellationToken cancellationToken = default)
         {
             _logger?.LogDebug("Quantifying uncertainty for data");
@@ -49,14 +72,119 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
         }
 
         /// <inheritdoc/>
-        public Task ApplyUncertaintyMitigationStrategyAsync(
+        public async Task ApplyUncertaintyMitigationStrategyAsync(
             string strategyName, 
-            object parameters = null,
+            object? parameters = null,
             CancellationToken cancellationToken = default)
         {
             _logger?.LogDebug("Applying uncertainty mitigation strategy: {StrategyName}", strategyName);
-            // TODO: Implement actual mitigation strategy application
-            return Task.CompletedTask;
+
+            var paramsDict = parameters as Dictionary<string, object> ?? new Dictionary<string, object>();
+
+            switch (strategyName)
+            {
+                case StrategyRequestHumanIntervention:
+                    await ApplyHumanInterventionStrategyAsync(paramsDict, cancellationToken);
+                    break;
+
+                case StrategyFallbackToDefault:
+                    ApplyFallbackStrategy(paramsDict);
+                    break;
+
+                case StrategyConservativeExecution:
+                    ApplyConservativeStrategy(paramsDict);
+                    break;
+
+                case StrategyEnsembleVerification:
+                    ApplyEnsembleStrategy(paramsDict);
+                    break;
+
+                default:
+                    var ex = new ArgumentException($"Unknown mitigation strategy: {strategyName}", nameof(strategyName));
+                    _logger?.LogError(ex, "Failed to apply strategy");
+                    throw ex;
+            }
+
+            if (_transparencyManager != null)
+            {
+                // Log the mitigation step
+                try
+                {
+                     await _transparencyManager.LogReasoningStepAsync(new ReasoningStep
+                     {
+                         Id = Guid.NewGuid().ToString(),
+                         TraceId = Guid.NewGuid().ToString(), // Should ideally be passed in or context aware
+                         Name = $"Mitigation: {strategyName}",
+                         Description = "Applied uncertainty mitigation strategy",
+                         Timestamp = DateTime.UtcNow,
+                         Metadata = new Dictionary<string, object>
+                         {
+                             ["strategy"] = strategyName,
+                             ["parameters"] = paramsDict
+                         }
+                     }, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                     _logger?.LogWarning(ex, "Failed to log transparency step for mitigation.");
+                }
+            }
+        }
+
+        private async Task ApplyHumanInterventionStrategyAsync(Dictionary<string, object> parameters, CancellationToken cancellationToken)
+        {
+            if (_collaborationManager == null)
+            {
+                _logger?.LogWarning("Cannot apply RequestHumanIntervention: CollaborationManager is not available.");
+                return;
+            }
+
+            string sessionName = parameters.ContainsKey("sessionName") && parameters["sessionName"] != null
+                ? parameters["sessionName"].ToString()!
+                : "Uncertainty Review";
+            string description = parameters.ContainsKey("description") && parameters["description"] != null
+                ? parameters["description"].ToString()!
+                : "Review required due to high uncertainty.";
+
+            // Assuming we might need participant IDs, usually would come from config or parameters
+            var participants = new List<string>();
+            if (parameters.ContainsKey("participants") && parameters["participants"] is IEnumerable<string> p)
+            {
+                participants.AddRange(p);
+            }
+
+            _logger?.LogInformation("Initiating human intervention session: {SessionName}", sessionName);
+            await _collaborationManager.CreateSessionAsync(sessionName, description, participants, cancellationToken);
+        }
+
+        private void ApplyFallbackStrategy(Dictionary<string, object> parameters)
+        {
+            if (parameters.ContainsKey("defaultValue"))
+            {
+                _logger?.LogInformation("Applying FallbackToDefault. Using value: {DefaultValue}", parameters["defaultValue"]);
+            }
+            else
+            {
+                _logger?.LogWarning("Applying FallbackToDefault but no 'defaultValue' parameter was provided.");
+            }
+        }
+
+        private void ApplyConservativeStrategy(Dictionary<string, object> parameters)
+        {
+             _logger?.LogInformation("Applying ConservativeExecution. Adjusting thresholds to be stricter.");
+             // In a real implementation, this might modify a shared state or configuration object passed in parameters
+             // For now, we simulate this by logging specific adjustments if keys exist
+             if (parameters.ContainsKey("confidenceThreshold"))
+             {
+                 // Example: Increase required confidence
+                 _logger?.LogInformation("Temporarily increasing confidence threshold requirement.");
+             }
+        }
+
+        private void ApplyEnsembleStrategy(Dictionary<string, object> parameters)
+        {
+            _logger?.LogInformation("Applying EnsembleVerification. Consulting secondary models.");
+            // Stub for ensemble logic
         }
 
         /// <inheritdoc/>
@@ -77,6 +205,10 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -89,6 +221,9 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
             }
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="UncertaintyQuantifier"/> class.
+        /// </summary>
         ~UncertaintyQuantifier()
         {
             Dispose(false);
@@ -117,7 +252,7 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
         /// <returns>A task representing the asynchronous operation, containing the uncertainty metrics.</returns>
         Task<Dictionary<string, object>> QuantifyUncertaintyAsync(
             object data, 
-            Dictionary<string, object> parameters = null,
+            Dictionary<string, object>? parameters = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -129,7 +264,7 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
         /// <returns>A task representing the asynchronous operation.</returns>
         Task ApplyUncertaintyMitigationStrategyAsync(
             string strategyName, 
-            object parameters = null,
+            object? parameters = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>

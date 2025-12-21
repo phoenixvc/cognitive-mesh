@@ -15,6 +15,11 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         private readonly ILogger<TransparencyManager> _logger;
         private readonly IKnowledgeGraphManager _knowledgeGraphManager;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransparencyManager"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="knowledgeGraphManager">The knowledge graph manager.</param>
         public TransparencyManager(
             ILogger<TransparencyManager> logger,
             IKnowledgeGraphManager knowledgeGraphManager)
@@ -46,6 +51,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                         new()
                         {
                             Id = "step1",
+                            TraceId = traceId,
                             Name = "Initial Analysis",
                             Description = "Performed initial analysis of the input",
                             Timestamp = DateTime.UtcNow.AddSeconds(-5),
@@ -168,22 +174,22 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// <summary>
         /// Unique identifier for the step
         /// </summary>
-        public string Id { get; set; }
+        public required string Id { get; set; }
         
         /// <summary>
         /// Identifier of the trace this step belongs to
         /// </summary>
-        public string TraceId { get; set; }
+        public required string TraceId { get; set; }
         
         /// <summary>
         /// Name of the step
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
         
         /// <summary>
         /// Description of the step
         /// </summary>
-        public string Description { get; set; }
+        public required string Description { get; set; }
         
         /// <summary>
         /// When the step occurred
@@ -219,17 +225,17 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// <summary>
         /// Unique identifier for the trace
         /// </summary>
-        public string Id { get; set; }
+        public required string Id { get; set; }
         
         /// <summary>
         /// Name of the trace
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
         
         /// <summary>
         /// Description of the trace
         /// </summary>
-        public string Description { get; set; }
+        public required string Description { get; set; }
         
         /// <summary>
         /// The steps in this reasoning trace
@@ -255,17 +261,17 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// <summary>
         /// Unique identifier for the rationale
         /// </summary>
-        public string Id { get; set; }
+        public required string Id { get; set; }
         
         /// <summary>
         /// Identifier of the decision this rationale is for
         /// </summary>
-        public string DecisionId { get; set; }
+        public required string DecisionId { get; set; }
         
         /// <summary>
         /// Description of the rationale
         /// </summary>
-        public string Description { get; set; }
+        public required string Description { get; set; }
         
         /// <summary>
         /// Confidence score (0-1)
@@ -291,22 +297,22 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// <summary>
         /// Unique identifier for the report
         /// </summary>
-        public string Id { get; set; }
+        public required string Id { get; set; }
         
         /// <summary>
         /// Identifier of the trace this report is for
         /// </summary>
-        public string TraceId { get; set; }
+        public required string TraceId { get; set; }
         
         /// <summary>
         /// Format of the report (e.g., json, html, markdown)
         /// </summary>
-        public string Format { get; set; }
+        public required string Format { get; set; }
         
         /// <summary>
         /// The report content
         /// </summary>
-        public string Content { get; set; }
+        public required string Content { get; set; }
         
         /// <summary>
         /// When the report was generated

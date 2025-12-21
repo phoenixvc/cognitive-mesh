@@ -16,6 +16,12 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         private readonly IKnowledgeGraphManager _knowledgeGraphManager;
         private readonly ILLMClient _llmClient;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CollaborationManager"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="knowledgeGraphManager">The knowledge graph manager.</param>
+        /// <param name="llmClient">The LLM client.</param>
         public CollaborationManager(
             ILogger<CollaborationManager> logger,
             IKnowledgeGraphManager knowledgeGraphManager,
@@ -68,7 +74,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
             string senderId, 
             string content, 
             string messageType = "text",
-            Dictionary<string, object> metadata = null,
+            Dictionary<string, object>? metadata = null,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
@@ -109,7 +115,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         public async Task<IEnumerable<CollaborationMessage>> GetSessionMessagesAsync(
             string sessionId, 
             int limit = 50, 
-            string beforeMessageId = null,
+            string? beforeMessageId = null,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
@@ -146,7 +152,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         public async Task UpdateSessionStatusAsync(
             string sessionId, 
             CollaborationStatus newStatus, 
-            string reason = null,
+            string? reason = null,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
@@ -176,17 +182,17 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         /// <summary>
         /// Unique identifier for the session
         /// </summary>
-        public string Id { get; set; }
+        public required string Id { get; set; }
         
         /// <summary>
         /// Name of the session
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
         
         /// <summary>
         /// Description of the session
         /// </summary>
-        public string Description { get; set; }
+        public required string Description { get; set; }
         
         /// <summary>
         /// Current status of the session
@@ -227,17 +233,17 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         /// <summary>
         /// Unique identifier for the participant
         /// </summary>
-        public string Id { get; set; }
+        public required string Id { get; set; }
         
         /// <summary>
         /// Name of the participant
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
         
         /// <summary>
         /// Role of the participant
         /// </summary>
-        public string Role { get; set; }
+        public required string Role { get; set; }
         
         /// <summary>
         /// When the participant joined the session
@@ -263,27 +269,27 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         /// <summary>
         /// Unique identifier for the message
         /// </summary>
-        public string Id { get; set; }
+        public required string Id { get; set; }
         
         /// <summary>
         /// ID of the session this message belongs to
         /// </summary>
-        public string SessionId { get; set; }
+        public required string SessionId { get; set; }
         
         /// <summary>
         /// ID of the sender
         /// </summary>
-        public string SenderId { get; set; }
+        public required string SenderId { get; set; }
         
         /// <summary>
         /// Content of the message
         /// </summary>
-        public string Content { get; set; }
+        public required string Content { get; set; }
         
         /// <summary>
         /// Type of the message (e.g., text, image, file)
         /// </summary>
-        public string MessageType { get; set; }
+        public required string MessageType { get; set; }
         
         /// <summary>
         /// When the message was sent
@@ -344,7 +350,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
             string senderId, 
             string content, 
             string messageType = "text",
-            Dictionary<string, object> metadata = null,
+            Dictionary<string, object>? metadata = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -353,7 +359,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         Task<IEnumerable<CollaborationMessage>> GetSessionMessagesAsync(
             string sessionId, 
             int limit = 50, 
-            string beforeMessageId = null,
+            string? beforeMessageId = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -362,7 +368,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         Task UpdateSessionStatusAsync(
             string sessionId, 
             CollaborationStatus newStatus, 
-            string reason = null,
+            string? reason = null,
             CancellationToken cancellationToken = default);
     }
 }
