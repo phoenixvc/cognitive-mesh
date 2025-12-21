@@ -52,10 +52,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
             {
                 _logger.LogInformation("Creating new collaboration session: {SessionName}", sessionName);
                 
-                // TODO: Implement actual session creation logic
-                await Task.Delay(100, cancellationToken); // Simulate work
-                
-                return new CollaborationSession
+                var session = new CollaborationSession
                 {
                     Id = $"collab-{Guid.NewGuid()}",
                     Name = sessionName,
@@ -66,6 +63,37 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
                     Participants = new List<CollaborationParticipant>(),
                     Messages = new List<CollaborationMessage>()
                 };
+
+                // Store session in knowledge graph
+                await _knowledgeGraphManager.AddNodeAsync(
+                    session.Id,
+                    new {
+                        session.Name,
+                        session.Description,
+                        session.Status,
+                        session.CreatedAt,
+                        session.UpdatedAt
+                    },
+                    "CollaborationSession",
+                    cancellationToken);
+
+                // Add participants and relationships
+                foreach (var participantId in participantIds)
+                {
+                    if (string.IsNullOrWhiteSpace(participantId)) continue;
+
+                    await _knowledgeGraphManager.AddRelationshipAsync(
+                        session.Id,
+                        participantId,
+                        "HAS_PARTICIPANT",
+                        null,
+                        cancellationToken);
+
+                    // Note: We're not creating participant nodes here assuming they exist or are managed elsewhere
+                    // Ideally we would fetch them to populate the session object fully
+                }
+
+                return session;
             }
             catch (Exception ex)
             {

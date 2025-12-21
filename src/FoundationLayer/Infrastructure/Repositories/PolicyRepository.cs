@@ -58,7 +58,7 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
             }
         }
 
-        public async Task<PolicyConfiguration> GetActivePolicyAsync()
+        public async Task<PolicyConfiguration?> GetActivePolicyAsync()
         {
             try
             {
