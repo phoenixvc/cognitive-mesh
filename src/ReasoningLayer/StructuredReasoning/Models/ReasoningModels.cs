@@ -11,7 +11,7 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Models
         /// <summary>
         /// Unique identifier for this reasoning session.
         /// </summary>
-        public string SessionId { get; set; } = Guid.NewGuid().ToString();
+        public string SessionId { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of reasoning recipe used (Debate, Sequential, Strategic).
@@ -42,6 +42,14 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Models
         /// Metadata about the reasoning process.
         /// </summary>
         public Dictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Initializes a new instance of ReasoningOutput with a unique session ID.
+        /// </summary>
+        public ReasoningOutput()
+        {
+            SessionId = Guid.NewGuid().ToString();
+        }
     }
 
     /// <summary>
@@ -219,7 +227,7 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Models
         /// <summary>
         /// The name or identifier of this scenario.
         /// </summary>
-        public string ScenarioId { get; set; } = Guid.NewGuid().ToString();
+        public string ScenarioId { get; set; } = string.Empty;
 
         /// <summary>
         /// Description of the scenario.
@@ -245,5 +253,13 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Models
         /// Opportunities in this scenario.
         /// </summary>
         public List<string> Opportunities { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Initializes a new instance of ExploredScenario with a unique scenario ID.
+        /// </summary>
+        public ExploredScenario()
+        {
+            ScenarioId = Guid.NewGuid().ToString();
+        }
     }
 }

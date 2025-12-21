@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.ReasoningLayer.StructuredReasoning.Models;
@@ -18,6 +19,12 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
     {
         private readonly ILogger<DebateReasoningEngine> _logger;
         private readonly ILLMClient _llmClient;
+        
+        // Pre-compiled regex for better performance
+        private static readonly Regex ConfidenceRegex = new Regex(
+            @"confidence[:\s]+(\d+)",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled
+        );
 
         public DebateReasoningEngine(
             ILogger<DebateReasoningEngine> logger,
@@ -69,7 +76,12 @@ Supporting Points:
 - [point 2]
 - [point 3]";
 
-                var response = await _llmClient.GenerateCompletionAsync(prompt);
+                // Use moderate temperature for diverse but focused perspectives
+                var response = await _llmClient.GenerateCompletionAsync(
+                    prompt,
+                    maxTokens: 800,
+                    temperature: 0.7f
+                );
 
                 var debatePerspective = ParsePerspectiveResponse(perspective, response);
                 perspectives.Add(debatePerspective);
@@ -106,7 +118,11 @@ Provide a critical analysis:
 3. How it compares to other perspectives
 4. Key points of agreement or disagreement";
 
-                var critiqueResponse = await _llmClient.GenerateCompletionAsync(critiquePrompt);
+                var critiqueResponse = await _llmClient.GenerateCompletionAsync(
+                    critiquePrompt,
+                    maxTokens: 600,
+                    temperature: 0.6f
+                );
                 critiques.Add(critiqueResponse);
 
                 output.ReasoningTrace.Add(new ReasoningStep
@@ -140,7 +156,12 @@ Synthesize these perspectives into a balanced conclusion that:
 
 Provide your confidence level (0-100) in this conclusion.";
 
-            var synthesisResponse = await _llmClient.GenerateCompletionAsync(synthesisPrompt);
+            // Use higher tokens for comprehensive synthesis
+            var synthesisResponse = await _llmClient.GenerateCompletionAsync(
+                synthesisPrompt,
+                maxTokens: 1200,
+                temperature: 0.7f
+            );
 
             output.ReasoningTrace.Add(new ReasoningStep
             {
@@ -197,12 +218,8 @@ Provide your confidence level (0-100) in this conclusion.";
 
         private (string conclusion, double confidence) ParseSynthesisResponse(string response)
         {
-            // Look for confidence level in the response
-            var confidenceMatch = System.Text.RegularExpressions.Regex.Match(
-                response,
-                @"confidence[:\s]+(\d+)",
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase
-            );
+            // Look for confidence level in the response using pre-compiled regex
+            var confidenceMatch = ConfidenceRegex.Match(response);
 
             double confidence = 0.7; // Default confidence
             if (confidenceMatch.Success && int.TryParse(confidenceMatch.Groups[1].Value, out int confValue))

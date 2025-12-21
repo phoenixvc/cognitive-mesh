@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.ReasoningLayer.StructuredReasoning.Models;
@@ -18,6 +19,17 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
     {
         private readonly ILogger<StrategicSimulationEngine> _logger;
         private readonly ILLMClient _llmClient;
+        
+        // Pre-compiled regex for better performance
+        private static readonly Regex ConfidenceRegex = new Regex(
+            @"confidence[:\s]+(\d+)",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled
+        );
+        
+        private static readonly Regex ProbabilityRegex = new Regex(
+            @"\d+",
+            RegexOptions.Compiled
+        );
 
         public StrategicSimulationEngine(
             ILogger<StrategicSimulationEngine> logger,
@@ -66,7 +78,12 @@ For each pattern, provide:
 2. Strategic factors identified
 3. Critical assumptions";
 
-            var patternAnalysisResponse = await _llmClient.GenerateCompletionAsync(patternAnalysisPrompt);
+            // Use low temperature for analytical pattern application
+            var patternAnalysisResponse = await _llmClient.GenerateCompletionAsync(
+                patternAnalysisPrompt,
+                maxTokens: 1200,
+                temperature: 0.4f
+            );
 
             output.ReasoningTrace.Add(new ReasoningStep
             {
@@ -104,7 +121,12 @@ Risk Factors:
 Opportunities:
 - [opportunity 1]";
 
-                var scenarioResponse = await _llmClient.GenerateCompletionAsync(scenarioPrompt);
+                // Use moderate temperature for scenario generation
+                var scenarioResponse = await _llmClient.GenerateCompletionAsync(
+                    scenarioPrompt,
+                    maxTokens: 1000,
+                    temperature: 0.6f
+                );
 
                 var exploredScenario = ParseScenarioResponse(scenarioResponse, i);
                 exploredScenarios.Add(exploredScenario);
@@ -142,7 +164,12 @@ Provide a strategic analysis that:
 
 Provide your confidence level (0-100) in these recommendations based on the quality of the analysis and available data.";
 
-            var comparisonResponse = await _llmClient.GenerateCompletionAsync(comparisonPrompt);
+            // Use focused temperature for strategic recommendations
+            var comparisonResponse = await _llmClient.GenerateCompletionAsync(
+                comparisonPrompt,
+                maxTokens: 1500,
+                temperature: 0.5f
+            );
 
             output.ReasoningTrace.Add(new ReasoningStep
             {
@@ -185,7 +212,8 @@ Provide your confidence level (0-100) in these recommendations based on the qual
                 else if (trimmed.StartsWith("Probability:", StringComparison.OrdinalIgnoreCase))
                 {
                     var probStr = trimmed.Substring("Probability:".Length).Trim();
-                    if (double.TryParse(System.Text.RegularExpressions.Regex.Match(probStr, @"\d+").Value, out double prob))
+                    var probMatch = ProbabilityRegex.Match(probStr);
+                    if (probMatch.Success && double.TryParse(probMatch.Value, out double prob))
                     {
                         scenario.Probability = prob / 100.0;
                     }
@@ -232,12 +260,8 @@ Provide your confidence level (0-100) in these recommendations based on the qual
 
         private (string conclusion, double confidence) ParseStrategicConclusion(string response)
         {
-            // Look for confidence level in the response
-            var confidenceMatch = System.Text.RegularExpressions.Regex.Match(
-                response,
-                @"confidence[:\s]+(\d+)",
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase
-            );
+            // Look for confidence level in the response using pre-compiled regex
+            var confidenceMatch = ConfidenceRegex.Match(response);
 
             double confidence = 0.65; // Default confidence for strategic simulation
             if (confidenceMatch.Success && int.TryParse(confidenceMatch.Groups[1].Value, out int confValue))

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.ReasoningLayer.StructuredReasoning.Models;
@@ -21,6 +22,12 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
         private readonly ISequentialReasoningPort _sequentialReasoning;
         private readonly IStrategicSimulationPort _strategicSimulation;
         private readonly ILLMClient _llmClient;
+        
+        // Pre-compiled regex for better performance
+        private static readonly Regex NumberedLineRegex = new Regex(
+            @"^\d+[\.\)]\s*",
+            RegexOptions.Compiled
+        );
 
         public ConclAIveOrchestrator(
             ILogger<ConclAIveOrchestrator> logger,
@@ -77,7 +84,12 @@ Available reasoning recipes:
 
 Which recipe is most appropriate? Respond with ONLY the recipe name (DEBATE_AND_VOTE, SEQUENTIAL, or STRATEGIC_SIMULATION).";
 
-            var response = await _llmClient.GenerateCompletionAsync(selectionPrompt);
+            // Use very low temperature for deterministic recipe selection
+            var response = await _llmClient.GenerateCompletionAsync(
+                selectionPrompt,
+                maxTokens: 50,
+                temperature: 0.1f
+            );
             var recipeName = response.Trim().ToUpperInvariant();
 
             if (recipeName.Contains("DEBATE") || recipeName.Contains("VOTE"))
@@ -160,13 +172,17 @@ List the perspectives, one per line. Examples: ""Progressive Social Perspective"
 
 Perspectives:";
 
-            var response = await _llmClient.GenerateCompletionAsync(perspectivePrompt);
+            var response = await _llmClient.GenerateCompletionAsync(
+                perspectivePrompt,
+                maxTokens: 300,
+                temperature: 0.7f
+            );
 
             var perspectives = response
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => line.Trim())
                 .Where(line => !string.IsNullOrWhiteSpace(line) && !line.StartsWith("Perspectives:", StringComparison.OrdinalIgnoreCase))
-                .Select(line => System.Text.RegularExpressions.Regex.Replace(line, @"^\d+[\.\)]\s*", ""))
+                .Select(line => NumberedLineRegex.Replace(line, ""))
                 .Where(line => !string.IsNullOrWhiteSpace(line))
                 .Take(6)
                 .ToList();
@@ -190,13 +206,17 @@ Common patterns include: SWOT Analysis, Porter's Five Forces, PESTEL Analysis, S
 
 List only the pattern names, one per line:";
 
-            var response = await _llmClient.GenerateCompletionAsync(patternPrompt);
+            var response = await _llmClient.GenerateCompletionAsync(
+                patternPrompt,
+                maxTokens: 200,
+                temperature: 0.5f
+            );
 
             var patterns = response
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => line.Trim())
                 .Where(line => !string.IsNullOrWhiteSpace(line))
-                .Select(line => System.Text.RegularExpressions.Regex.Replace(line, @"^\d+[\.\)]\s*", ""))
+                .Select(line => NumberedLineRegex.Replace(line, ""))
                 .Where(line => !string.IsNullOrWhiteSpace(line))
                 .Take(3)
                 .ToList();

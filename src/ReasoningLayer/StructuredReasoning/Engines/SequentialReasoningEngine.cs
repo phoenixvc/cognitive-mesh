@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.ReasoningLayer.StructuredReasoning.Models;
@@ -18,6 +19,17 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
     {
         private readonly ILogger<SequentialReasoningEngine> _logger;
         private readonly ILLMClient _llmClient;
+        
+        // Pre-compiled regex for better performance
+        private static readonly Regex ConfidenceRegex = new Regex(
+            @"confidence[:\s]+(\d+)",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled
+        );
+        
+        private static readonly Regex NumberedLineRegex = new Regex(
+            @"^\d+[\.\)]\s*",
+            RegexOptions.Compiled
+        );
 
         public SequentialReasoningEngine(
             ILogger<SequentialReasoningEngine> logger,
@@ -72,7 +84,12 @@ Your task in this phase is to focus specifically on: {phase}
 
 Provide a thorough analysis for this specific phase. Build upon previous phase results if applicable.";
 
-                var phaseResponse = await _llmClient.GenerateCompletionAsync(phasePrompt);
+                // Use focused temperature for analytical reasoning
+                var phaseResponse = await _llmClient.GenerateCompletionAsync(
+                    phasePrompt,
+                    maxTokens: 1000,
+                    temperature: 0.6f
+                );
                 phaseResults.Add(phaseResponse);
 
                 output.ReasoningTrace.Add(new ReasoningStep
@@ -108,7 +125,12 @@ Now, integrate these phase results into a comprehensive, coherent conclusion tha
 
 Provide your confidence level (0-100) in this integrated conclusion.";
 
-            var integrationResponse = await _llmClient.GenerateCompletionAsync(integrationPrompt);
+            // Use higher tokens for comprehensive integration
+            var integrationResponse = await _llmClient.GenerateCompletionAsync(
+                integrationPrompt,
+                maxTokens: 1500,
+                temperature: 0.7f
+            );
 
             output.ReasoningTrace.Add(new ReasoningStep
             {
@@ -142,13 +164,18 @@ Common phases might include: Understanding the Context, Analyzing Root Causes, E
 
 List the phases, one per line, without numbering:";
 
-            var response = await _llmClient.GenerateCompletionAsync(decompositionPrompt);
+            // Use low temperature for phase decomposition
+            var response = await _llmClient.GenerateCompletionAsync(
+                decompositionPrompt,
+                maxTokens: 400,
+                temperature: 0.5f
+            );
 
             var phases = response
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => line.Trim())
                 .Where(line => !string.IsNullOrWhiteSpace(line))
-                .Select(line => System.Text.RegularExpressions.Regex.Replace(line, @"^\d+[\.\)]\s*", ""))
+                .Select(line => NumberedLineRegex.Replace(line, ""))
                 .Where(line => !string.IsNullOrWhiteSpace(line))
                 .ToList();
 
@@ -163,12 +190,8 @@ List the phases, one per line, without numbering:";
 
         private (string conclusion, double confidence) ParseConclusionWithConfidence(string response)
         {
-            // Look for confidence level in the response
-            var confidenceMatch = System.Text.RegularExpressions.Regex.Match(
-                response,
-                @"confidence[:\s]+(\d+)",
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase
-            );
+            // Look for confidence level in the response using pre-compiled regex
+            var confidenceMatch = ConfidenceRegex.Match(response);
 
             double confidence = 0.75; // Default confidence for sequential reasoning
             if (confidenceMatch.Success && int.TryParse(confidenceMatch.Groups[1].Value, out int confValue))
