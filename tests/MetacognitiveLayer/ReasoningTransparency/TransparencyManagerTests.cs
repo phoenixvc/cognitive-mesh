@@ -193,5 +193,153 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Tests
                 It.Is<Dictionary<string, object>>(d => d.ContainsKey("TraceId") && d["TraceId"].ToString() == traceId),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
+
+        /// <summary>
+        /// Verifies that GenerateTransparencyReportAsync generates a JSON report with correct content.
+        /// </summary>
+        [Fact]
+        public async Task GenerateTransparencyReportAsync_Json_ShouldGenerateValidReport()
+        {
+            // Arrange
+            string traceId = "trace-report-json";
+            var traceNode = new ReasoningTraceNode
+            {
+                Id = traceId,
+                Name = "Test Trace",
+                Description = "Test Description",
+                CreatedAt = DateTime.UtcNow.AddMinutes(-10),
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var stepNode = new ReasoningStepNode
+            {
+                Id = "step-1",
+                TraceId = traceId,
+                Name = "Test Step",
+                Description = "Test Step Description",
+                Timestamp = DateTime.UtcNow.AddMinutes(-5),
+                Confidence = 0.85f,
+                InputsJson = "{}",
+                OutputsJson = "{}",
+                MetadataJson = "{\"model\":\"gpt-4\"}"
+            };
+
+            _mockKgManager.Setup(m => m.GetNodeAsync<ReasoningTraceNode>($"trace:{traceId}", It.IsAny<CancellationToken>()))
+                .ReturnsAsync(traceNode);
+            _mockKgManager.Setup(m => m.FindNodesAsync<ReasoningStepNode>(
+                It.Is<Dictionary<string, object>>(d => d.ContainsKey("TraceId")),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new[] { stepNode });
+
+            // Act
+            var reports = await _manager.GenerateTransparencyReportAsync(traceId, "json");
+            var report = System.Linq.Enumerable.Single(reports);
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.Equal(traceId, report.TraceId);
+            Assert.Equal("json", report.Format);
+            Assert.Contains("\"TraceId\"", report.Content);
+            Assert.Contains(traceId, report.Content);
+            Assert.Contains("\"Summary\"", report.Content);
+            Assert.Contains("TotalSteps", report.Content);
+        }
+
+        /// <summary>
+        /// Verifies that GenerateTransparencyReportAsync generates a Markdown report with correct content.
+        /// </summary>
+        [Fact]
+        public async Task GenerateTransparencyReportAsync_Markdown_ShouldGenerateValidReport()
+        {
+            // Arrange
+            string traceId = "trace-report-md";
+            var traceNode = new ReasoningTraceNode
+            {
+                Id = traceId,
+                Name = "Test Trace",
+                Description = "Test Description",
+                CreatedAt = DateTime.UtcNow.AddMinutes(-10),
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var stepNode = new ReasoningStepNode
+            {
+                Id = "step-1",
+                TraceId = traceId,
+                Name = "Analysis Step",
+                Description = "Analyzing data",
+                Timestamp = DateTime.UtcNow.AddMinutes(-5),
+                Confidence = 0.95f,
+                InputsJson = "{}",
+                OutputsJson = "{}",
+                MetadataJson = "{}"
+            };
+
+            _mockKgManager.Setup(m => m.GetNodeAsync<ReasoningTraceNode>($"trace:{traceId}", It.IsAny<CancellationToken>()))
+                .ReturnsAsync(traceNode);
+            _mockKgManager.Setup(m => m.FindNodesAsync<ReasoningStepNode>(
+                It.Is<Dictionary<string, object>>(d => d.ContainsKey("TraceId")),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new[] { stepNode });
+
+            // Act
+            var reports = await _manager.GenerateTransparencyReportAsync(traceId, "markdown");
+            var report = System.Linq.Enumerable.Single(reports);
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.Equal("markdown", report.Format);
+            Assert.StartsWith("# Transparency Report", report.Content);
+            Assert.Contains("**Trace ID:**", report.Content);
+            Assert.Contains(traceId, report.Content);
+            Assert.Contains("## Summary", report.Content);
+            Assert.Contains("## Reasoning Steps", report.Content);
+            Assert.Contains("### Step: Analysis Step", report.Content);
+        }
+
+        /// <summary>
+        /// Verifies that GenerateTransparencyReportAsync throws when trace is not found.
+        /// </summary>
+        [Fact]
+        public async Task GenerateTransparencyReportAsync_ShouldThrow_WhenTraceNotFound()
+        {
+            // Arrange
+            string traceId = "nonexistent-trace";
+            _mockKgManager.Setup(m => m.GetNodeAsync<ReasoningTraceNode>($"trace:{traceId}", It.IsAny<CancellationToken>()))
+                .ReturnsAsync((ReasoningTraceNode?)null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => 
+                _manager.GenerateTransparencyReportAsync(traceId, "json"));
+        }
+
+        /// <summary>
+        /// Verifies that GenerateTransparencyReportAsync throws for unsupported format.
+        /// </summary>
+        [Fact]
+        public async Task GenerateTransparencyReportAsync_ShouldThrow_ForUnsupportedFormat()
+        {
+            // Arrange
+            string traceId = "trace-unsupported";
+            var traceNode = new ReasoningTraceNode
+            {
+                Id = traceId,
+                Name = "Test",
+                Description = "Test",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _mockKgManager.Setup(m => m.GetNodeAsync<ReasoningTraceNode>($"trace:{traceId}", It.IsAny<CancellationToken>()))
+                .ReturnsAsync(traceNode);
+            _mockKgManager.Setup(m => m.FindNodesAsync<ReasoningStepNode>(
+                It.IsAny<Dictionary<string, object>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ReasoningStepNode[0]);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NotSupportedException>(() =>
+                _manager.GenerateTransparencyReportAsync(traceId, "xml"));
+        }
     }
 }

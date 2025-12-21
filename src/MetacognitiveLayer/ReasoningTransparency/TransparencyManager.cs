@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.Shared.Interfaces;
 using System.Linq;
+using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Strategies;
 
 namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
 {
@@ -16,6 +17,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
     {
         private readonly ILogger<TransparencyManager> _logger;
         private readonly IKnowledgeGraphManager _knowledgeGraphManager;
+        private readonly Dictionary<string, IReportFormatStrategy> _reportStrategies;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransparencyManager"/> class.
@@ -28,6 +30,12 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _knowledgeGraphManager = knowledgeGraphManager ?? throw new ArgumentNullException(nameof(knowledgeGraphManager));
+
+            _reportStrategies = new Dictionary<string, IReportFormatStrategy>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["json"] = new JsonReportFormatStrategy(),
+                ["markdown"] = new MarkdownReportFormatStrategy()
+            };
         }
 
         /// <inheritdoc/>
@@ -196,8 +204,21 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
             {
                 _logger.LogInformation("Generating transparency report for trace: {TraceId}", traceId);
                 
-                // Placeholder implementation
-                await Task.Delay(100, cancellationToken);
+                var trace = await GetReasoningTraceAsync(traceId, cancellationToken);
+                if (trace == null)
+                {
+                     throw new KeyNotFoundException($"Trace with ID {traceId} not found.");
+                }
+
+                if (!_reportStrategies.TryGetValue(format, out var strategy))
+                {
+                    throw new NotSupportedException($"Report format '{format}' is not supported.");
+                }
+
+                // Calculate aggregations
+                var aggregations = CalculateAggregations(trace);
+
+                var content = strategy.GenerateReport(trace, aggregations);
                 
                 return new[]
                 {
@@ -206,7 +227,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                         Id = $"report-{Guid.NewGuid()}",
                         TraceId = traceId,
                         Format = format,
-                        Content = "{\"sample\": \"report\"}",
+                        Content = content,
                         GeneratedAt = DateTime.UtcNow
                     }
                 };
@@ -324,6 +345,46 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                 default:
                     return element.ToString();
             }
+        }
+
+        private Dictionary<string, object> CalculateAggregations(ReasoningTrace trace)
+        {
+            var stats = new Dictionary<string, object>();
+
+            var steps = trace.Steps ?? new List<ReasoningStep>();
+            stats["TotalSteps"] = steps.Count;
+
+            if (steps.Any())
+            {
+                stats["AverageConfidence"] = steps.Average(s => s.Confidence);
+                stats["MinConfidence"] = steps.Min(s => s.Confidence);
+                stats["MaxConfidence"] = steps.Max(s => s.Confidence);
+
+                var sortedSteps = steps.OrderBy(s => s.Timestamp).ToList();
+                stats["StartTime"] = sortedSteps.First().Timestamp;
+                stats["EndTime"] = sortedSteps.Last().Timestamp;
+                stats["Duration"] = (sortedSteps.Last().Timestamp - sortedSteps.First().Timestamp).ToString();
+
+                // Aggregate used models if available in metadata
+                var models = steps
+                    .Where(s => s.Metadata != null && s.Metadata.ContainsKey("model"))
+                    .Select(s => s.Metadata["model"]?.ToString())
+                    .Where(m => !string.IsNullOrEmpty(m))
+                    .Distinct()
+                    .ToList();
+
+                if (models.Any())
+                {
+                    stats["ModelsUsed"] = models;
+                }
+            }
+            else
+            {
+                stats["AverageConfidence"] = 0;
+                stats["Duration"] = TimeSpan.Zero.ToString();
+            }
+
+            return stats;
         }
     }
 }

@@ -192,5 +192,68 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification.Tests
             // Assert
             Assert.False(result);
         }
+
+        [Fact]
+        public async Task ApplyUncertaintyMitigationStrategyAsync_FallbackToDefault_LogsAction()
+        {
+            // Arrange
+            var quantifier = new UncertaintyQuantifier();
+            var parameters = new Dictionary<string, object>
+            {
+                { "defaultValue", 42 }
+            };
+
+            // Act - Should not throw
+            await quantifier.ApplyUncertaintyMitigationStrategyAsync(
+                UncertaintyQuantifier.StrategyFallbackToDefault,
+                parameters);
+
+            // Assert - No exception means success
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task ApplyUncertaintyMitigationStrategyAsync_ConservativeExecution_ExecutesSuccessfully()
+        {
+            // Arrange
+            var quantifier = new UncertaintyQuantifier();
+            var parameters = new Dictionary<string, object>
+            {
+                { "confidenceThreshold", 0.8 }
+            };
+
+            // Act
+            await quantifier.ApplyUncertaintyMitigationStrategyAsync(
+                UncertaintyQuantifier.StrategyConservativeExecution,
+                parameters);
+
+            // Assert - No exception means success
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task ApplyUncertaintyMitigationStrategyAsync_EnsembleVerification_ExecutesSuccessfully()
+        {
+            // Arrange
+            var quantifier = new UncertaintyQuantifier();
+
+            // Act
+            await quantifier.ApplyUncertaintyMitigationStrategyAsync(
+                UncertaintyQuantifier.StrategyEnsembleVerification);
+
+            // Assert - No exception means success
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task ApplyUncertaintyMitigationStrategyAsync_UnknownStrategy_ThrowsArgumentException()
+        {
+            // Arrange
+            var quantifier = new UncertaintyQuantifier();
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() =>
+                quantifier.ApplyUncertaintyMitigationStrategyAsync("UnknownStrategy"));
+        }
     }
 }
