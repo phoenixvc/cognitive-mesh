@@ -36,7 +36,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateTextAsync(It.IsAny<string>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>()))
                 .ReturnsAsync("Position: Companies should prioritize profit\nSupporting Points:\n- Shareholder value\n- Economic growth");
 
             // Act
@@ -61,7 +61,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateTextAsync(It.IsAny<string>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>()))
                 .ReturnsAsync("Position: Test position\nSupporting Points:\n- Point 1\nConfidence: 75");
 
             // Act
@@ -85,7 +85,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateTextAsync(It.IsAny<string>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>()))
                 .ReturnsAsync("Position: Test\nSupporting Points:\n- Point 1");
 
             // Act

@@ -49,7 +49,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateTextAsync(It.IsAny<string>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>()))
                 .ReturnsAsync("Perspective 1\nPerspective 2");
 
             _debateReasoningMock
@@ -140,7 +140,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateTextAsync(It.IsAny<string>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>()))
                 .ReturnsAsync("SEQUENTIAL");
 
             _sequentialReasoningMock
@@ -152,7 +152,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
 
             // Assert
             Assert.NotNull(result);
-            _llmClientMock.Verify(x => x.GenerateTextAsync(It.IsAny<string>()), Times.AtLeastOnce);
+            _llmClientMock.Verify(x => x.GenerateCompletionAsync(It.IsAny<string>()), Times.AtLeastOnce);
         }
 
         [Fact]

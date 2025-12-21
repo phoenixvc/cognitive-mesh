@@ -69,7 +69,7 @@ Supporting Points:
 - [point 2]
 - [point 3]";
 
-                var response = await _llmClient.GenerateTextAsync(prompt);
+                var response = await _llmClient.GenerateCompletionAsync(prompt);
 
                 var debatePerspective = ParsePerspectiveResponse(perspective, response);
                 perspectives.Add(debatePerspective);
@@ -106,7 +106,7 @@ Provide a critical analysis:
 3. How it compares to other perspectives
 4. Key points of agreement or disagreement";
 
-                var critiqueResponse = await _llmClient.GenerateTextAsync(critiquePrompt);
+                var critiqueResponse = await _llmClient.GenerateCompletionAsync(critiquePrompt);
                 critiques.Add(critiqueResponse);
 
                 output.ReasoningTrace.Add(new ReasoningStep
@@ -140,7 +140,7 @@ Synthesize these perspectives into a balanced conclusion that:
 
 Provide your confidence level (0-100) in this conclusion.";
 
-            var synthesisResponse = await _llmClient.GenerateTextAsync(synthesisPrompt);
+            var synthesisResponse = await _llmClient.GenerateCompletionAsync(synthesisPrompt);
 
             output.ReasoningTrace.Add(new ReasoningStep
             {

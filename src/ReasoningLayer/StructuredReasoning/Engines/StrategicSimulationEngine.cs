@@ -66,7 +66,7 @@ For each pattern, provide:
 2. Strategic factors identified
 3. Critical assumptions";
 
-            var patternAnalysisResponse = await _llmClient.GenerateTextAsync(patternAnalysisPrompt);
+            var patternAnalysisResponse = await _llmClient.GenerateCompletionAsync(patternAnalysisPrompt);
 
             output.ReasoningTrace.Add(new ReasoningStep
             {
@@ -104,7 +104,7 @@ Risk Factors:
 Opportunities:
 - [opportunity 1]";
 
-                var scenarioResponse = await _llmClient.GenerateTextAsync(scenarioPrompt);
+                var scenarioResponse = await _llmClient.GenerateCompletionAsync(scenarioPrompt);
 
                 var exploredScenario = ParseScenarioResponse(scenarioResponse, i);
                 exploredScenarios.Add(exploredScenario);
@@ -142,7 +142,7 @@ Provide a strategic analysis that:
 
 Provide your confidence level (0-100) in these recommendations based on the quality of the analysis and available data.";
 
-            var comparisonResponse = await _llmClient.GenerateTextAsync(comparisonPrompt);
+            var comparisonResponse = await _llmClient.GenerateCompletionAsync(comparisonPrompt);
 
             output.ReasoningTrace.Add(new ReasoningStep
             {

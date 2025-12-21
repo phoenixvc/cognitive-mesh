@@ -72,7 +72,7 @@ Your task in this phase is to focus specifically on: {phase}
 
 Provide a thorough analysis for this specific phase. Build upon previous phase results if applicable.";
 
-                var phaseResponse = await _llmClient.GenerateTextAsync(phasePrompt);
+                var phaseResponse = await _llmClient.GenerateCompletionAsync(phasePrompt);
                 phaseResults.Add(phaseResponse);
 
                 output.ReasoningTrace.Add(new ReasoningStep
@@ -108,7 +108,7 @@ Now, integrate these phase results into a comprehensive, coherent conclusion tha
 
 Provide your confidence level (0-100) in this integrated conclusion.";
 
-            var integrationResponse = await _llmClient.GenerateTextAsync(integrationPrompt);
+            var integrationResponse = await _llmClient.GenerateCompletionAsync(integrationPrompt);
 
             output.ReasoningTrace.Add(new ReasoningStep
             {
@@ -142,7 +142,7 @@ Common phases might include: Understanding the Context, Analyzing Root Causes, E
 
 List the phases, one per line, without numbering:";
 
-            var response = await _llmClient.GenerateTextAsync(decompositionPrompt);
+            var response = await _llmClient.GenerateCompletionAsync(decompositionPrompt);
 
             var phases = response
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries)

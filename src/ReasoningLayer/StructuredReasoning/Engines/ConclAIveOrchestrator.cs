@@ -77,7 +77,7 @@ Available reasoning recipes:
 
 Which recipe is most appropriate? Respond with ONLY the recipe name (DEBATE_AND_VOTE, SEQUENTIAL, or STRATEGIC_SIMULATION).";
 
-            var response = await _llmClient.GenerateTextAsync(selectionPrompt);
+            var response = await _llmClient.GenerateCompletionAsync(selectionPrompt);
             var recipeName = response.Trim().ToUpperInvariant();
 
             if (recipeName.Contains("DEBATE") || recipeName.Contains("VOTE"))
@@ -160,7 +160,7 @@ List the perspectives, one per line. Examples: ""Progressive Social Perspective"
 
 Perspectives:";
 
-            var response = await _llmClient.GenerateTextAsync(perspectivePrompt);
+            var response = await _llmClient.GenerateCompletionAsync(perspectivePrompt);
 
             var perspectives = response
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries)
@@ -190,7 +190,7 @@ Common patterns include: SWOT Analysis, Porter's Five Forces, PESTEL Analysis, S
 
 List only the pattern names, one per line:";
 
-            var response = await _llmClient.GenerateTextAsync(patternPrompt);
+            var response = await _llmClient.GenerateCompletionAsync(patternPrompt);
 
             var patterns = response
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries)
