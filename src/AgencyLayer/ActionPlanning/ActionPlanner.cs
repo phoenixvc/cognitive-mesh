@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.Shared.Interfaces;
+using CognitiveMesh.Shared.Models;
 
 namespace CognitiveMesh.AgencyLayer.ActionPlanning
 {
@@ -15,15 +18,18 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
         private readonly ILogger<ActionPlanner> _logger;
         private readonly IKnowledgeGraphManager _knowledgeGraphManager;
         private readonly ILLMClient _llmClient;
+        private readonly ISemanticSearchManager _semanticSearchManager;
 
         public ActionPlanner(
             ILogger<ActionPlanner> logger,
             IKnowledgeGraphManager knowledgeGraphManager,
-            ILLMClient llmClient)
+            ILLMClient llmClient,
+            ISemanticSearchManager semanticSearchManager)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _knowledgeGraphManager = knowledgeGraphManager ?? throw new ArgumentNullException(nameof(knowledgeGraphManager));
             _llmClient = llmClient ?? throw new ArgumentNullException(nameof(llmClient));
+            _semanticSearchManager = semanticSearchManager ?? throw new ArgumentNullException(nameof(semanticSearchManager));
         }
 
         /// <inheritdoc/>
@@ -32,32 +38,130 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
             IEnumerable<string> constraints = null, 
             CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(goal))
+                throw new ArgumentException("Goal cannot be null or whitespace.", nameof(goal));
+
             try
             {
                 _logger.LogInformation("Generating action plan for goal: {Goal}", goal);
+
+                // Step 1: Retrieve context from Semantic Search
+                // Use a default index name "skills-index" - in a real app this would be config
+                var skillsContext = await _semanticSearchManager.SearchAsync("skills-index", goal);
+
+                // Step 2: Retrieve structural context from Knowledge Graph (e.g., specific policies)
+                // Assuming we want to fetch any global policies that might affect planning
+                var policyQuery = $"MATCH (n:{NodeLabels.Policy}) RETURN n LIMIT 5";
+                var policyNodes = await _knowledgeGraphManager.QueryAsync(policyQuery, cancellationToken);
+                var policies = policyNodes.Select(p => p["n"].ToString());
+                var policiesContext = string.Join("\n", policies);
+
+                // Step 3: Construct the prompt
+                var constraintsList = constraints != null ? string.Join(", ", constraints) : "None";
                 
-                // TODO: Implement planning logic using knowledge graph and LLM
-                // This is a placeholder implementation
-                await Task.Delay(100, cancellationToken); // Simulate work
-                
-                return new[]
+                var systemPrompt = "You are an expert autonomous agent action planner. " +
+                                   "Your task is to break down a high-level goal into a sequence of actionable steps (ActionPlans). " +
+                                   "Output ONLY a valid JSON array of objects with fields: Name, Description, Priority (int).";
+
+                var userPrompt = $"""
+                    Goal: {goal}
+                    Constraints: {constraintsList}
+
+                    Relevant Skills/Tools:
+                    {skillsContext}
+
+                    Relevant Policies:
+                    {policiesContext}
+
+                    Generate a list of action steps to achieve the goal.
+                    """;
+
+                var messages = new[]
                 {
-                    new ActionPlan
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Name = "Sample Action",
-                        Description = "This is a sample action plan",
-                        Priority = 1,
-                        Status = ActionPlanStatus.Pending,
-                        CreatedAt = DateTime.UtcNow
-                    }
+                    new ChatMessage("system", systemPrompt),
+                    new ChatMessage("user", userPrompt)
                 };
+
+                // Step 4: Call LLM
+                var response = await _llmClient.GenerateChatCompletionAsync(messages, temperature: 0.3f, cancellationToken: cancellationToken);
+
+                // Step 5: Parse Response
+                var plans = ParsePlans(response);
+
+                return plans;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating action plan for goal: {Goal}", goal);
                 throw;
             }
+        }
+
+        private IEnumerable<ActionPlan> ParsePlans(string jsonResponse)
+        {
+            try
+            {
+                // Simple attempt to find JSON array if wrapped in markdown code blocks
+                var json = jsonResponse;
+                if (json.Contains("```json"))
+                {
+                    var start = json.IndexOf("```json") + 7;
+                    var end = json.LastIndexOf("```");
+                    if (end > start)
+                    {
+                        json = json.Substring(start, end - start);
+                    }
+                }
+                else if (json.Contains("```"))
+                {
+                    var start = json.IndexOf("```") + 3;
+                    var end = json.LastIndexOf("```");
+                    if (end > start)
+                    {
+                        json = json.Substring(start, end - start);
+                    }
+                }
+
+                var dtos = JsonSerializer.Deserialize<List<ActionPlanDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                
+                if (dtos == null) return Enumerable.Empty<ActionPlan>();
+
+                return dtos.Select(dto => new ActionPlan
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = dto.Name,
+                    Description = dto.Description,
+                    Priority = dto.Priority,
+                    Status = ActionPlanStatus.Pending,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "Failed to parse LLM response as JSON.");
+                // Fallback: return a single plan indicating manual intervention or failure, or just throw
+                // For now, let's return a fallback plan
+                return new[]
+                {
+                    new ActionPlan
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = "Plan Generation Failed",
+                        Description = "Could not parse the AI generated plan. Raw response: " + jsonResponse.Substring(0, Math.Min(100, jsonResponse.Length)),
+                        Status = ActionPlanStatus.Failed,
+                        CreatedAt = DateTime.UtcNow,
+                        Error = "JSON Parsing Error"
+                    }
+                };
+            }
+        }
+
+        // DTO for parsing JSON
+        private class ActionPlanDto
+        {
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public int Priority { get; set; }
         }
 
         /// <inheritdoc/>
