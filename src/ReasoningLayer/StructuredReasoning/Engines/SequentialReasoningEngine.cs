@@ -92,7 +92,6 @@ Provide a thorough analysis for this specific phase. Build upon previous phase r
                     phasePrompt,
                     maxTokens: 1000,
                     temperature: 0.6f,
-                    stopSequences: null,
                     cancellationToken: cancellationToken
                 );
                 phaseResults.Add(phaseResponse);
@@ -135,7 +134,6 @@ Provide your confidence level (0-100) in this integrated conclusion.";
                 integrationPrompt,
                 maxTokens: 1500,
                 temperature: 0.7f,
-                stopSequences: null,
                 cancellationToken: cancellationToken
             );
 
@@ -176,7 +174,6 @@ List the phases, one per line, without numbering:";
                 decompositionPrompt,
                 maxTokens: 400,
                 temperature: 0.5f,
-                stopSequences: null,
                 cancellationToken: cancellationToken
             );
 
