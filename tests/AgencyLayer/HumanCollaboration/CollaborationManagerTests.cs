@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CognitiveMesh.AgencyLayer.HumanCollaboration;
 using CognitiveMesh.Shared.Interfaces;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -15,6 +16,7 @@ namespace CognitiveMesh.Tests.AgencyLayer.HumanCollaboration
         private readonly Mock<ILogger<CollaborationManager>> _loggerMock;
         private readonly Mock<IKnowledgeGraphManager> _knowledgeGraphManagerMock;
         private readonly Mock<ILLMClient> _llmClientMock;
+        private readonly Mock<IMediator> _mediatorMock;
         private readonly CollaborationManager _manager;
 
         public CollaborationManagerTests()
@@ -22,7 +24,8 @@ namespace CognitiveMesh.Tests.AgencyLayer.HumanCollaboration
             _loggerMock = new Mock<ILogger<CollaborationManager>>();
             _knowledgeGraphManagerMock = new Mock<IKnowledgeGraphManager>();
             _llmClientMock = new Mock<ILLMClient>();
-            _manager = new CollaborationManager(_loggerMock.Object, _knowledgeGraphManagerMock.Object, _llmClientMock.Object);
+            _mediatorMock = new Mock<IMediator>();
+            _manager = new CollaborationManager(_loggerMock.Object, _knowledgeGraphManagerMock.Object, _llmClientMock.Object, _mediatorMock.Object);
         }
 
         [Fact]
