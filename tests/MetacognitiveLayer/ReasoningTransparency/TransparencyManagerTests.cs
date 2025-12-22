@@ -87,15 +87,15 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Tests
             // 3. Verify Step Node Creation
             // Note: The implementation maps ReasoningStep (domain) to ReasoningStepNode (storage)
             _mockKgManager.Verify(m => m.AddNodeAsync(
-                step.Id,
+                $"step:{step.Id}",
                 It.Is<ReasoningStepNode>(s => s.Id == step.Id && s.TraceId == step.TraceId && s.Name == step.Name),
                 "ReasoningStep",
                 It.IsAny<CancellationToken>()), Times.Once);
 
             // 4. Verify Relationship Creation
             _mockKgManager.Verify(m => m.AddRelationshipAsync(
-                step.Id,
-                step.TraceId,
+                $"step:{step.Id}",
+                $"trace:{step.TraceId}",
                 "BELONGS_TO",
                 null,
                 It.IsAny<CancellationToken>()), Times.Once);
