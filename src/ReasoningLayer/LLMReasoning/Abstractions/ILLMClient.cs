@@ -28,7 +28,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions
             string prompt,
             int maxTokens = 1000,
             float temperature = 0.7f,
-            IEnumerable<string> stopSequences = null,
+            IEnumerable<string>? stopSequences = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions
         /// </summary>
         /// <param name="systemMessage">Optional system message to set the behavior of the assistant.</param>
         /// <returns>A chat session that can be used to exchange messages with the model.</returns>
-        IChatSession StartChat(string systemMessage = null);
+        IChatSession StartChat(string? systemMessage = null);
     }
 
     /// <summary>

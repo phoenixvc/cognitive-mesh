@@ -165,8 +165,8 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
         // DTO for parsing JSON
         private class ActionPlanDto
         {
-            public string Name { get; set; }
-            public string Description { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string Description { get; set; } = string.Empty;
             public int Priority { get; set; }
         }
 

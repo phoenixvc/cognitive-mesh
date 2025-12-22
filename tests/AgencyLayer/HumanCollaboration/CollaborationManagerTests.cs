@@ -64,7 +64,7 @@ namespace CognitiveMesh.Tests.AgencyLayer.HumanCollaboration
             }
         }
 
-        private object GetPropertyValue(object obj, string propertyName)
+        private object? GetPropertyValue(object obj, string propertyName)
         {
             return obj.GetType().GetProperty(propertyName)?.GetValue(obj);
         }
