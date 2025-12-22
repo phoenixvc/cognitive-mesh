@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.Shared.Interfaces;
+using System.Linq;
+using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Strategies;
 
 namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
 {
@@ -14,22 +17,29 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
     {
         private readonly ILogger<TransparencyManager> _logger;
         private readonly IKnowledgeGraphManager _knowledgeGraphManager;
+        private readonly Dictionary<string, IReportFormatStrategy> _reportStrategies;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TransparencyManager"/> class.
         /// </summary>
         /// <param name="logger">The logger instance.</param>
-        /// <param name="knowledgeGraphManager">The knowledge graph manager.</param>
+        /// <param name="knowledgeGraphManager">The knowledge graph manager instance.</param>
         public TransparencyManager(
             ILogger<TransparencyManager> logger,
             IKnowledgeGraphManager knowledgeGraphManager)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _knowledgeGraphManager = knowledgeGraphManager ?? throw new ArgumentNullException(nameof(knowledgeGraphManager));
+
+            _reportStrategies = new Dictionary<string, IReportFormatStrategy>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["json"] = new JsonReportFormatStrategy(),
+                ["markdown"] = new MarkdownReportFormatStrategy()
+            };
         }
 
         /// <inheritdoc/>
-        public async Task<ReasoningTrace> GetReasoningTraceAsync(
+        public async Task<ReasoningTrace?> GetReasoningTraceAsync(
             string traceId, 
             CancellationToken cancellationToken = default)
         {
@@ -37,31 +47,44 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
             {
                 _logger.LogInformation("Retrieving reasoning trace: {TraceId}", traceId);
                 
-                // TODO: Implement actual trace retrieval logic
-                await Task.Delay(100, cancellationToken);
+                // 1. Retrieve the Trace Node
+                string traceNodeId = $"trace:{traceId}";
+                var traceNode = await _knowledgeGraphManager.GetNodeAsync<ReasoningTraceNode>(traceNodeId, cancellationToken);
+
+                if (traceNode == null)
+                {
+                    _logger.LogWarning("Reasoning trace not found: {TraceId}", traceId);
+                    return null;
+                }
+
+                // 2. Retrieve the Step Nodes associated with this trace
+                var searchProps = new Dictionary<string, object>
+                {
+                    { nameof(ReasoningStepNode.TraceId), traceId }
+                };
                 
+                var stepNodes = await _knowledgeGraphManager.FindNodesAsync<ReasoningStepNode>(searchProps, cancellationToken);
+
+                // 3. Convert Storage Models back to Domain Models
+                var steps = new List<ReasoningStep>();
+                if (stepNodes != null)
+                {
+                    foreach (var node in stepNodes)
+                    {
+                        steps.Add(MapToReasoningStep(node));
+                    }
+                }
+
+                steps.Sort((a, b) => a.Timestamp.CompareTo(b.Timestamp));
+
                 return new ReasoningTrace
                 {
-                    Id = traceId,
-                    Name = "Sample Reasoning Trace",
-                    Description = "This is a sample reasoning trace",
-                    Steps = new List<ReasoningStep>
-                    {
-                        new()
-                        {
-                            Id = "step1",
-                            TraceId = traceId,
-                            Name = "Initial Analysis",
-                            Description = "Performed initial analysis of the input",
-                            Timestamp = DateTime.UtcNow.AddSeconds(-5),
-                            Inputs = new Dictionary<string, object> { ["input"] = "sample input" },
-                            Outputs = new Dictionary<string, object> { ["output"] = "sample output" },
-                            Confidence = 0.85f,
-                            Metadata = new Dictionary<string, object> { ["model"] = "gpt-4" }
-                        }
-                    },
-                    CreatedAt = DateTime.UtcNow.AddMinutes(-10),
-                    UpdatedAt = DateTime.UtcNow
+                    Id = traceNode.Id,
+                    Name = traceNode.Name,
+                    Description = traceNode.Description,
+                    CreatedAt = traceNode.CreatedAt,
+                    UpdatedAt = traceNode.UpdatedAt,
+                    Steps = steps
                 };
             }
             catch (Exception ex)
@@ -81,7 +104,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
             {
                 _logger.LogInformation("Retrieving rationales for decision: {DecisionId}", decisionId);
                 
-                // TODO: Implement actual rationale retrieval logic
+                // Placeholder implementation
                 await Task.Delay(100, cancellationToken);
                 
                 return new[]
@@ -119,9 +142,50 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
             {
                 _logger.LogInformation("Logging reasoning step: {StepId} for trace: {TraceId}", 
                     step.Id, step.TraceId);
+
+                // 1. Ensure the Trace Node exists (Create if not)
+                string traceNodeId = $"trace:{step.TraceId}";
+                var traceNode = await _knowledgeGraphManager.GetNodeAsync<ReasoningTraceNode>(traceNodeId, cancellationToken);
+
+                if (traceNode == null)
+                {
+                    _logger.LogInformation("Trace {TraceId} does not exist, creating placeholder.", step.TraceId);
+                    var newTrace = new ReasoningTraceNode
+                    {
+                        Id = step.TraceId,
+                        Name = $"Trace {step.TraceId}", // Default name
+                        Description = "Auto-generated trace from step logging",
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    await _knowledgeGraphManager.AddNodeAsync(traceNodeId, newTrace, "ReasoningTrace", cancellationToken);
+                }
+                else
+                {
+                    traceNode.UpdatedAt = DateTime.UtcNow;
+                    await _knowledgeGraphManager.UpdateNodeAsync(traceNodeId, traceNode, cancellationToken);
+                }
+
+                // 2. Create the Step Node
+                string stepNodeId = $"step:{step.Id}";
+                var stepNode = MapToReasoningStepNode(step);
                 
-                // TODO: Implement actual logging logic
-                await Task.Delay(50, cancellationToken);
+                // Store the reasoning step as a node in the knowledge graph
+                await _knowledgeGraphManager.AddNodeAsync(
+                    step.Id,
+                    stepNode,
+                    "ReasoningStep",
+                    cancellationToken);
+
+                // Link the step to its trace
+                // We assume the trace node exists or can be linked to.
+                // "BELONGS_TO" relationship from ReasoningStep -> ReasoningTrace
+                await _knowledgeGraphManager.AddRelationshipAsync(
+                    step.Id,
+                    step.TraceId,
+                    "BELONGS_TO",
+                    null,
+                    cancellationToken);
             }
             catch (Exception ex)
             {
@@ -140,8 +204,21 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
             {
                 _logger.LogInformation("Generating transparency report for trace: {TraceId}", traceId);
                 
-                // TODO: Implement actual report generation logic
-                await Task.Delay(100, cancellationToken);
+                var trace = await GetReasoningTraceAsync(traceId, cancellationToken);
+                if (trace == null)
+                {
+                     throw new KeyNotFoundException($"Trace with ID {traceId} not found.");
+                }
+
+                if (!_reportStrategies.TryGetValue(format, out var strategy))
+                {
+                    throw new NotSupportedException($"Report format '{format}' is not supported.");
+                }
+
+                // Calculate aggregations
+                var aggregations = CalculateAggregations(trace);
+
+                var content = strategy.GenerateReport(trace, aggregations);
                 
                 return new[]
                 {
@@ -150,7 +227,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                         Id = $"report-{Guid.NewGuid()}",
                         TraceId = traceId,
                         Format = format,
-                        Content = "{\"sample\": \"report\"}",
+                        Content = content,
                         GeneratedAt = DateTime.UtcNow
                     }
                 };
@@ -161,195 +238,153 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                 throw;
             }
         }
-    }
 
-    /// <summary>
-    /// Represents a step in a reasoning process
-    /// </summary>
-    public class ReasoningStep
-    {
-        /// <summary>
-        /// Unique identifier for the step
-        /// </summary>
-        public required string Id { get; set; }
-        
-        /// <summary>
-        /// Identifier of the trace this step belongs to
-        /// </summary>
-        public required string TraceId { get; set; }
-        
-        /// <summary>
-        /// Name of the step
-        /// </summary>
-        public required string Name { get; set; }
-        
-        /// <summary>
-        /// Description of the step
-        /// </summary>
-        public required string Description { get; set; }
-        
-        /// <summary>
-        /// When the step occurred
-        /// </summary>
-        public DateTime Timestamp { get; set; }
-        
-        /// <summary>
-        /// Inputs to the step
-        /// </summary>
-        public Dictionary<string, object> Inputs { get; set; } = new();
-        
-        /// <summary>
-        /// Outputs from the step
-        /// </summary>
-        public Dictionary<string, object> Outputs { get; set; } = new();
-        
-        /// <summary>
-        /// Confidence score (0-1)
-        /// </summary>
-        public float Confidence { get; set; }
-        
-        /// <summary>
-        /// Additional metadata
-        /// </summary>
-        public Dictionary<string, object> Metadata { get; set; } = new();
-    }
+        private ReasoningStepNode MapToReasoningStepNode(ReasoningStep step)
+        {
+            return new ReasoningStepNode
+            {
+                Id = step.Id,
+                TraceId = step.TraceId,
+                Name = step.Name,
+                Description = step.Description,
+                Timestamp = step.Timestamp,
+                Confidence = step.Confidence,
+                InputsJson = JsonSerializer.Serialize(step.Inputs),
+                OutputsJson = JsonSerializer.Serialize(step.Outputs),
+                MetadataJson = JsonSerializer.Serialize(step.Metadata)
+            };
+        }
 
-    /// <summary>
-    /// Represents a trace of reasoning steps
-    /// </summary>
-    public class ReasoningTrace
-    {
-        /// <summary>
-        /// Unique identifier for the trace
-        /// </summary>
-        public required string Id { get; set; }
-        
-        /// <summary>
-        /// Name of the trace
-        /// </summary>
-        public required string Name { get; set; }
-        
-        /// <summary>
-        /// Description of the trace
-        /// </summary>
-        public required string Description { get; set; }
-        
-        /// <summary>
-        /// The steps in this reasoning trace
-        /// </summary>
-        public List<ReasoningStep> Steps { get; set; } = new();
-        
-        /// <summary>
-        /// When the trace was created
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-        
-        /// <summary>
-        /// When the trace was last updated
-        /// </summary>
-        public DateTime UpdatedAt { get; set; }
-    }
+        private ReasoningStep MapToReasoningStep(ReasoningStepNode node)
+        {
+            return new ReasoningStep
+            {
+                Id = node.Id,
+                TraceId = node.TraceId,
+                Name = node.Name,
+                Description = node.Description,
+                Timestamp = node.Timestamp,
+                Confidence = node.Confidence,
+                Inputs = DeserializeAndUnwrap(node.InputsJson),
+                Outputs = DeserializeAndUnwrap(node.OutputsJson),
+                Metadata = DeserializeAndUnwrap(node.MetadataJson)
+            };
+        }
 
-    /// <summary>
-    /// Represents the rationale behind a decision
-    /// </summary>
-    public class DecisionRationale
-    {
-        /// <summary>
-        /// Unique identifier for the rationale
-        /// </summary>
-        public required string Id { get; set; }
-        
-        /// <summary>
-        /// Identifier of the decision this rationale is for
-        /// </summary>
-        public required string DecisionId { get; set; }
-        
-        /// <summary>
-        /// Description of the rationale
-        /// </summary>
-        public required string Description { get; set; }
-        
-        /// <summary>
-        /// Confidence score (0-1)
-        /// </summary>
-        public float Confidence { get; set; }
-        
-        /// <summary>
-        /// Factors that contributed to the decision
-        /// </summary>
-        public Dictionary<string, float> Factors { get; set; } = new();
-        
-        /// <summary>
-        /// When the rationale was created
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-    }
+        private Dictionary<string, object> DeserializeAndUnwrap(string json)
+        {
+            if (string.IsNullOrEmpty(json))
+                return new Dictionary<string, object>();
 
-    /// <summary>
-    /// Represents a transparency report
-    /// </summary>
-    public class TransparencyReport
-    {
-        /// <summary>
-        /// Unique identifier for the report
-        /// </summary>
-        public required string Id { get; set; }
-        
-        /// <summary>
-        /// Identifier of the trace this report is for
-        /// </summary>
-        public required string TraceId { get; set; }
-        
-        /// <summary>
-        /// Format of the report (e.g., json, html, markdown)
-        /// </summary>
-        public required string Format { get; set; }
-        
-        /// <summary>
-        /// The report content
-        /// </summary>
-        public required string Content { get; set; }
-        
-        /// <summary>
-        /// When the report was generated
-        /// </summary>
-        public DateTime GeneratedAt { get; set; }
-    }
+            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
 
-    /// <summary>
-    /// Interface for managing reasoning transparency
-    /// </summary>
-    public interface ITransparencyManager
-    {
-        /// <summary>
-        /// Gets a trace of reasoning steps for a given trace ID
-        /// </summary>
-        Task<ReasoningTrace> GetReasoningTraceAsync(
-            string traceId, 
-            CancellationToken cancellationToken = default);
+            if (dict == null)
+                return new Dictionary<string, object>();
 
-        /// <summary>
-        /// Gets the rationales behind a specific decision
-        /// </summary>
-        Task<IEnumerable<DecisionRationale>> GetDecisionRationalesAsync(
-            string decisionId, 
-            int limit = 10, 
-            CancellationToken cancellationToken = default);
+            // Unwrap JsonElements to primitive types
+            var result = new Dictionary<string, object>();
+            foreach (var kvp in dict)
+            {
+                if (kvp.Value is JsonElement element)
+                {
+                    var val = UnwrapJsonElement(element);
+                    if (val != null)
+                    {
+                        result[kvp.Key] = val;
+                    }
+                }
+                else
+                {
+                    result[kvp.Key] = kvp.Value;
+                }
+            }
+            return result;
+        }
 
-        /// <summary>
-        /// Logs a reasoning step
-        /// </summary>
-        Task LogReasoningStepAsync(
-            ReasoningStep step, 
-            CancellationToken cancellationToken = default);
+        private object? UnwrapJsonElement(JsonElement element)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.String:
+                    return element.GetString();
+                case JsonValueKind.Number:
+                    if (element.TryGetInt32(out int i)) return i;
+                    if (element.TryGetInt64(out long l)) return l;
+                    if (element.TryGetDouble(out double d)) return d;
+                    return 0; // Fallback
+                case JsonValueKind.True:
+                    return true;
+                case JsonValueKind.False:
+                    return false;
+                case JsonValueKind.Null:
+                    return null;
+                case JsonValueKind.Object:
+                    // Recursively unwrap objects to Dictionary<string, object>
+                    var dict = new Dictionary<string, object>();
+                    foreach (var prop in element.EnumerateObject())
+                    {
+                        var val = UnwrapJsonElement(prop.Value);
+                        if (val != null)
+                        {
+                            dict[prop.Name] = val;
+                        }
+                    }
+                    return dict;
+                case JsonValueKind.Array:
+                    // Recursively unwrap arrays to List<object>
+                    var list = new List<object>();
+                    foreach (var item in element.EnumerateArray())
+                    {
+                        var val = UnwrapJsonElement(item);
+                        if (val != null)
+                        {
+                            list.Add(val);
+                        }
+                    }
+                    return list;
+                default:
+                    return element.ToString();
+            }
+        }
 
-        /// <summary>
-        /// Generates a transparency report for a given trace
-        /// </summary>
-        Task<IEnumerable<TransparencyReport>> GenerateTransparencyReportAsync(
-            string traceId, 
-            string format = "json", 
-            CancellationToken cancellationToken = default);
+        private Dictionary<string, object> CalculateAggregations(ReasoningTrace trace)
+        {
+            var stats = new Dictionary<string, object>();
+
+            var steps = trace.Steps ?? new List<ReasoningStep>();
+            stats["TotalSteps"] = steps.Count;
+
+            if (steps.Any())
+            {
+                stats["AverageConfidence"] = steps.Average(s => s.Confidence);
+                stats["MinConfidence"] = steps.Min(s => s.Confidence);
+                stats["MaxConfidence"] = steps.Max(s => s.Confidence);
+
+                var sortedSteps = steps.OrderBy(s => s.Timestamp).ToList();
+                stats["StartTime"] = sortedSteps.First().Timestamp;
+                stats["EndTime"] = sortedSteps.Last().Timestamp;
+                stats["Duration"] = (sortedSteps.Last().Timestamp - sortedSteps.First().Timestamp).ToString();
+
+                // Aggregate used models if available in metadata
+                var models = steps
+                    .Where(s => s.Metadata != null && s.Metadata.ContainsKey("model"))
+                    .Select(s => s.Metadata["model"]?.ToString())
+                    .Where(m => !string.IsNullOrEmpty(m))
+                    .Distinct()
+                    .ToList();
+
+                if (models.Any())
+                {
+                    stats["ModelsUsed"] = models;
+                }
+            }
+            else
+            {
+                stats["AverageConfidence"] = 0;
+                stats["Duration"] = TimeSpan.Zero.ToString();
+            }
+
+            return stats;
+        }
     }
 }

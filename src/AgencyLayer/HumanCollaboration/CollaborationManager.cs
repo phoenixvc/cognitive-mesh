@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.Shared.Interfaces;
+using CognitiveMesh.AgencyLayer.HumanCollaboration.Features.Messages;
 
 namespace CognitiveMesh.AgencyLayer.HumanCollaboration
 {
@@ -15,27 +17,31 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         private readonly ILogger<CollaborationManager> _logger;
         private readonly IKnowledgeGraphManager _knowledgeGraphManager;
         private readonly ILLMClient _llmClient;
+        private readonly IMediator _mediator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationManager"/> class.
         /// </summary>
-        /// <param name="logger">The logger instance.</param>
+        /// <param name="logger">The logger.</param>
         /// <param name="knowledgeGraphManager">The knowledge graph manager.</param>
         /// <param name="llmClient">The LLM client.</param>
+        /// <param name="mediator">The mediator.</param>
         public CollaborationManager(
             ILogger<CollaborationManager> logger,
             IKnowledgeGraphManager knowledgeGraphManager,
-            ILLMClient llmClient)
+            ILLMClient llmClient,
+            IMediator mediator)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _knowledgeGraphManager = knowledgeGraphManager ?? throw new ArgumentNullException(nameof(knowledgeGraphManager));
             _llmClient = llmClient ?? throw new ArgumentNullException(nameof(llmClient));
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
 
         /// <inheritdoc/>
         public async Task<CollaborationSession> CreateSessionAsync(
             string sessionName, 
-            string description, 
+            string? description,
             IEnumerable<string> participantIds,
             CancellationToken cancellationToken = default)
         {
@@ -82,6 +88,9 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
                         "HAS_PARTICIPANT",
                         null,
                         cancellationToken);
+
+                    // Note: We're not creating participant nodes here assuming they exist or are managed elsewhere
+                    // Ideally we would fetch them to populate the session object fully
                 }
 
                 return session;
@@ -113,20 +122,16 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
             {
                 _logger.LogInformation("Adding message to session: {SessionId}", sessionId);
                 
-                await Task.Delay(50, cancellationToken);
-                
-                var message = new CollaborationMessage
+                var command = new AddMessageCommand
                 {
-                    Id = $"msg-{Guid.NewGuid()}",
                     SessionId = sessionId,
                     SenderId = senderId,
                     Content = content,
                     MessageType = messageType,
-                    Timestamp = DateTime.UtcNow,
-                    Metadata = metadata ?? new Dictionary<string, object>()
+                    Metadata = metadata
                 };
 
-                return message;
+                return await _mediator.Send(command, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -149,20 +154,14 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
             {
                 _logger.LogInformation("Retrieving messages for session: {SessionId}", sessionId);
                 
-                await Task.Delay(50, cancellationToken);
-                
-                return new[]
+                var query = new GetSessionMessagesQuery
                 {
-                    new CollaborationMessage
-                    {
-                        Id = $"msg-{Guid.NewGuid()}",
-                        SessionId = sessionId,
-                        SenderId = "system",
-                        Content = "This is a sample message",
-                        MessageType = "text",
-                        Timestamp = DateTime.UtcNow
-                    }
+                    SessionId = sessionId,
+                    Limit = limit,
+                    BeforeMessageId = beforeMessageId
                 };
+
+                return await _mediator.Send(query, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -214,7 +213,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         /// <summary>
         /// Description of the session
         /// </summary>
-        public required string Description { get; set; }
+        public string? Description { get; set; }
         
         /// <summary>
         /// Current status of the session
@@ -360,7 +359,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
         /// </summary>
         Task<CollaborationSession> CreateSessionAsync(
             string sessionName, 
-            string description, 
+            string? description,
             IEnumerable<string> participantIds,
             CancellationToken cancellationToken = default);
 

@@ -23,4 +23,9 @@
     <ProjectReference Include="..\ReasoningTransparency\ReasoningTransparency.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\AgencyLayer\HumanCollaboration\HumanCollaboration.csproj" />
+    <ProjectReference Include="..\ReasoningTransparency\ReasoningTransparency.csproj" />
+  </ItemGroup>
+
 </Project>
