@@ -159,21 +159,14 @@ namespace CognitiveMesh.AgencyLayer.ActionPlanning
                         Error = "JSON Parsing Error"
                     }
                 };
-
-                foreach (var plan in plans)
-                {
-                    await _knowledgeGraphManager.AddNodeAsync(plan.Id, plan, "ActionPlan", cancellationToken);
-                }
-
-                return plans;
             }
         }
 
         // DTO for parsing JSON
         private class ActionPlanDto
         {
-            public string Name { get; set; }
-            public string Description { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string Description { get; set; } = string.Empty;
             public int Priority { get; set; }
         }
 

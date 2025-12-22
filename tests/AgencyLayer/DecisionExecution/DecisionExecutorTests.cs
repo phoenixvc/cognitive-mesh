@@ -87,10 +87,9 @@ namespace CognitiveMesh.Tests.AgencyLayer.DecisionExecution
 
             var reasoningOutput = new ReasoningOutput
             {
-                ConfidenceScore = 0.8,
+                Confidence = 0.8,
                 Conclusion = "Yes",
-                Summary = "Because tests passed",
-                ReasoningSteps = new List<ReasoningStep>()
+                ReasoningTrace = new List<ReasoningStep>()
             };
 
             _orchestratorMock.Setup(x => x.ReasonAsync(It.IsAny<string>(), It.IsAny<ReasoningRecipeType?>(), It.IsAny<Dictionary<string, string>?>()))
