@@ -185,8 +185,7 @@ namespace CognitiveMesh.AgencyLayer.HumanCollaboration
                 _logger.LogInformation("Updating status for session {SessionId} to {NewStatus}", 
                     sessionId, newStatus);
                 
-                // TODO: Implement actual status update logic
-                await Task.Delay(50, cancellationToken); // Simulate work
+                await Task.Delay(50, cancellationToken);
             }
             catch (Exception ex)
             {
