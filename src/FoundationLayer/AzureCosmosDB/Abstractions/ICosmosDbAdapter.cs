@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
-
-namespace CognitiveMesh.FoundationLayer.AzureCosmosDB.Abstractions
+namespace FoundationLayer.AzureCosmosDB.Abstractions
 {
     /// <summary>
     /// Defines the contract for Cosmos DB operations.

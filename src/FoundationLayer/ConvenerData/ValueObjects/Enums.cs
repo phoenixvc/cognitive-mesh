@@ -1,4 +1,4 @@
-namespace CognitiveMesh.FoundationLayer.ConvenerData.ValueObjects
+namespace FoundationLayer.ConvenerData.ValueObjects
 {
     /// <summary>
     /// Defines the degree of independent decision-making an agent can exercise without outside direction.

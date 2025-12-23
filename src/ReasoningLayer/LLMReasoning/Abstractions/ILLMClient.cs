@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions
 {
     /// <summary>
@@ -21,19 +17,22 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions
         /// <param name="maxTokens">The maximum number of tokens to generate.</param>
         /// <param name="temperature">The sampling temperature to use.</param>
         /// <param name="stopSequences">Optional sequences where the model will stop generating.</param>
+        /// <param name="cancellationToken">Cancellation token for async operations.</param>
         /// <returns>The generated text completion.</returns>
         Task<string> GenerateCompletionAsync(
             string prompt,
             int maxTokens = 1000,
             float temperature = 0.7f,
-            IEnumerable<string> stopSequences = null);
+            IEnumerable<string>? stopSequences = null,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Generates an embedding vector for the given text.
         /// </summary>
         /// <param name="text">The text to generate an embedding for.</param>
+        /// <param name="cancellationToken">Cancellation token for async operations.</param>
         /// <returns>An array of floats representing the embedding vector.</returns>
-        Task<float[]> GenerateEmbeddingAsync(string text);
+        Task<float[]> GenerateEmbeddingAsync(string text, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Generates multiple completions for the same prompt.
@@ -42,12 +41,14 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions
         /// <param name="numCompletions">The number of completions to generate.</param>
         /// <param name="maxTokens">The maximum number of tokens to generate per completion.</param>
         /// <param name="temperature">The sampling temperature to use.</param>
+        /// <param name="cancellationToken">Cancellation token for async operations.</param>
         /// <returns>A list of generated completions.</returns>
         Task<IEnumerable<string>> GenerateMultipleCompletionsAsync(
             string prompt,
             int numCompletions = 3,
             int maxTokens = 500,
-            float temperature = 0.8f);
+            float temperature = 0.8f,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets the token count for the given text.
@@ -61,7 +62,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions
         /// </summary>
         /// <param name="systemMessage">Optional system message to set the behavior of the assistant.</param>
         /// <returns>A chat session that can be used to exchange messages with the model.</returns>
-        IChatSession StartChat(string systemMessage = null);
+        IChatSession StartChat(string? systemMessage = null);
     }
 
     /// <summary>
@@ -73,8 +74,9 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions
         /// Sends a message to the model and gets a response.
         /// </summary>
         /// <param name="message">The message to send.</param>
+        /// <param name="cancellationToken">Cancellation token for async operations.</param>
         /// <returns>The model's response.</returns>
-        Task<string> SendMessageAsync(string message);
+        Task<string> SendMessageAsync(string message, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets the conversation history.

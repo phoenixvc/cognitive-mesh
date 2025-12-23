@@ -1,10 +1,7 @@
-using CognitiveMesh.AgencyLayer.ToolIntegration.Models;
+using AgencyLayer.ToolIntegration.Models;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace CognitiveMesh.AgencyLayer.ToolIntegration
+namespace AgencyLayer.ToolIntegration
 {
     /// <summary>
     /// A generic tool whose behavior is defined by a ToolDefinition object.

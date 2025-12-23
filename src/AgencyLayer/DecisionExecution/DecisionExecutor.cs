@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.Shared.Interfaces;
 
-namespace CognitiveMesh.AgencyLayer.DecisionExecution
+namespace AgencyLayer.DecisionExecution
 {
     /// <summary>
     /// Handles the execution of decisions made by the cognitive mesh

@@ -1,9 +1,6 @@
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace CognitiveMesh.AgencyLayer.ToolIntegration
+namespace AgencyLayer.ToolIntegration
 {
     public abstract class BaseTool
     {

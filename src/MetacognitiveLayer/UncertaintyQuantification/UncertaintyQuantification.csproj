@@ -7,15 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="UncertaintyQuantifier.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" />
     <PackageReference Include="Azure.Messaging.EventGrid" />
 
     <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Shared\CognitiveMesh.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AgencyLayer\HumanCollaboration\HumanCollaboration.csproj" />
+    <ProjectReference Include="..\ReasoningTransparency\ReasoningTransparency.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AgencyLayer\HumanCollaboration\HumanCollaboration.csproj" />
+    <ProjectReference Include="..\ReasoningTransparency\ReasoningTransparency.csproj" />
   </ItemGroup>
 
 </Project>
-

@@ -1,9 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using CognitiveMesh.Shared.Interfaces;
-using Microsoft.Extensions.Logging;
-
 namespace CognitiveMesh.ReasoningLayer.LLMReasoning
 {
     /// <summary>
@@ -27,7 +21,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning
             string deploymentName,
             string modelName = "gpt-4",
             int maxTokens = 8192,
-            ILogger logger = null)
+            ILogger? logger = null)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
                 throw new ArgumentException("API key is required", nameof(apiKey));
@@ -56,7 +50,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning
         /// <returns>An initialized ILLMClient instance</returns>
         public static async Task<ILLMClient> CreateFromConfigAsync(
             IReadOnlyDictionary<string, string> config,
-            ILogger logger = null)
+            ILogger? logger = null)
         {
             if (config == null)
                 throw new ArgumentNullException(nameof(config));

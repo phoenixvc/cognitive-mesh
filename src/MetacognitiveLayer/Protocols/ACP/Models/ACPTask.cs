@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.ACP.Models
+namespace MetacognitiveLayer.Protocols.ACP.Models
 {
     /// <summary>
     /// Represents a task in the AI Communication Protocol (ACP).

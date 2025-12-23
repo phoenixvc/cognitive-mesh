@@ -1,14 +1,8 @@
-using System;
-using System.Text.Json;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using CognitiveMesh.AgencyLayer.ToolIntegration;
-using CognitiveMesh.MetacognitiveLayer.Protocols.ACP.Models;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common;
+using MetacognitiveLayer.Protocols.ACP.Models;
+using MetacognitiveLayer.Protocols.Common;
 using Microsoft.Extensions.Logging;
-using System.Text.Json.Serialization;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Integration
+namespace MetacognitiveLayer.Protocols.Integration
 {
     /// <summary>
     /// Adapter that integrates the Hybrid Protocol system with the AgencyLayer.

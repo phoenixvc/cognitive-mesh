@@ -5,19 +5,17 @@ namespace CognitiveMesh.Shared.Models
     /// </summary>
     public static class NodeLabels
     {
-        /// <summary>Label for a Goal node.</summary>
+        /// <summary>Label for Goal nodes.</summary>
         public const string Goal = "Goal";
-        /// <summary>Label for a Plan node.</summary>
+        /// <summary>Label for Plan nodes.</summary>
         public const string Plan = "Plan";
-        /// <summary>Label for an Action Plan node (Specific to ActionPlanner).</summary>
-        public const string ActionPlan = "ActionPlan";
-        /// <summary>Label for an Action node.</summary>
+        /// <summary>Label for Action nodes.</summary>
         public const string Action = "Action";
-        /// <summary>Label for a Skill node.</summary>
+        /// <summary>Label for Skill nodes.</summary>
         public const string Skill = "Skill";
-        /// <summary>Label for a Policy node.</summary>
+        /// <summary>Label for Policy nodes.</summary>
         public const string Policy = "Policy";
-        /// <summary>Label for a Resource node.</summary>
+        /// <summary>Label for Resource nodes.</summary>
         public const string Resource = "Resource";
     }
 }

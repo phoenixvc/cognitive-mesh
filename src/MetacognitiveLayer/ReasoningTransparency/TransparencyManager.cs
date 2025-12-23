@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using CognitiveMesh.Shared.Interfaces;
 using System.Linq;
 
-namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
+namespace MetacognitiveLayer.ReasoningTransparency
 {
     /// <summary>
     /// Manages transparency in the reasoning process, providing insights into decision-making
@@ -16,17 +16,29 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
     {
         private readonly ILogger<TransparencyManager> _logger;
         private readonly IKnowledgeGraphManager _knowledgeGraphManager;
+        private readonly Dictionary<string, IReportFormatStrategy> _reportStrategies;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransparencyManager"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="knowledgeGraphManager">The knowledge graph manager instance.</param>
         public TransparencyManager(
             ILogger<TransparencyManager> logger,
             IKnowledgeGraphManager knowledgeGraphManager)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _knowledgeGraphManager = knowledgeGraphManager ?? throw new ArgumentNullException(nameof(knowledgeGraphManager));
+
+            _reportStrategies = new Dictionary<string, IReportFormatStrategy>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["json"] = new JsonReportFormatStrategy(),
+                ["markdown"] = new MarkdownReportFormatStrategy()
+            };
         }
 
         /// <inheritdoc/>
-        public async Task<ReasoningTrace> GetReasoningTraceAsync(
+        public async Task<ReasoningTrace?> GetReasoningTraceAsync(
             string traceId, 
             CancellationToken cancellationToken = default)
         {
@@ -159,8 +171,8 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                 
                 // Store the reasoning step as a node in the knowledge graph
                 await _knowledgeGraphManager.AddNodeAsync(
-                    step.Id,
-                    step,
+                    stepNodeId,
+                    stepNode,
                     "ReasoningStep",
                     cancellationToken);
 
@@ -168,8 +180,8 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                 // We assume the trace node exists or can be linked to.
                 // "BELONGS_TO" relationship from ReasoningStep -> ReasoningTrace
                 await _knowledgeGraphManager.AddRelationshipAsync(
-                    step.Id,
-                    step.TraceId,
+                    stepNodeId,
+                    traceNodeId,
                     "BELONGS_TO",
                     null,
                     cancellationToken);
@@ -191,8 +203,21 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
             {
                 _logger.LogInformation("Generating transparency report for trace: {TraceId}", traceId);
                 
-                // Placeholder implementation
-                await Task.Delay(100, cancellationToken);
+                var trace = await GetReasoningTraceAsync(traceId, cancellationToken);
+                if (trace == null)
+                {
+                     throw new KeyNotFoundException($"Trace with ID {traceId} not found.");
+                }
+
+                if (!_reportStrategies.TryGetValue(format, out var strategy))
+                {
+                    throw new NotSupportedException($"Report format '{format}' is not supported.");
+                }
+
+                // Calculate aggregations
+                var aggregations = CalculateAggregations(trace);
+
+                var content = strategy.GenerateReport(trace, aggregations);
                 
                 return new[]
                 {
@@ -201,7 +226,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                         Id = $"report-{Guid.NewGuid()}",
                         TraceId = traceId,
                         Format = format,
-                        Content = "{\"sample\": \"report\"}",
+                        Content = content,
                         GeneratedAt = DateTime.UtcNow
                     }
                 };
@@ -252,13 +277,20 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
 
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
 
+            if (dict == null)
+                return new Dictionary<string, object>();
+
             // Unwrap JsonElements to primitive types
             var result = new Dictionary<string, object>();
             foreach (var kvp in dict)
             {
                 if (kvp.Value is JsonElement element)
                 {
-                    result[kvp.Key] = UnwrapJsonElement(element);
+                    var val = UnwrapJsonElement(element);
+                    if (val != null)
+                    {
+                        result[kvp.Key] = val;
+                    }
                 }
                 else
                 {
@@ -268,7 +300,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
             return result;
         }
 
-        private object UnwrapJsonElement(JsonElement element)
+        private object? UnwrapJsonElement(JsonElement element)
         {
             switch (element.ValueKind)
             {
@@ -290,7 +322,11 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                     var dict = new Dictionary<string, object>();
                     foreach (var prop in element.EnumerateObject())
                     {
-                        dict[prop.Name] = UnwrapJsonElement(prop.Value);
+                        var val = UnwrapJsonElement(prop.Value);
+                        if (val != null)
+                        {
+                            dict[prop.Name] = val;
+                        }
                     }
                     return dict;
                 case JsonValueKind.Array:
@@ -298,12 +334,56 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
                     var list = new List<object>();
                     foreach (var item in element.EnumerateArray())
                     {
-                        list.Add(UnwrapJsonElement(item));
+                        var val = UnwrapJsonElement(item);
+                        if (val != null)
+                        {
+                            list.Add(val);
+                        }
                     }
                     return list;
                 default:
                     return element.ToString();
             }
+        }
+
+        private Dictionary<string, object> CalculateAggregations(ReasoningTrace trace)
+        {
+            var stats = new Dictionary<string, object>();
+
+            var steps = trace.Steps ?? new List<ReasoningStep>();
+            stats["TotalSteps"] = steps.Count;
+
+            if (steps.Any())
+            {
+                stats["AverageConfidence"] = steps.Average(s => s.Confidence);
+                stats["MinConfidence"] = steps.Min(s => s.Confidence);
+                stats["MaxConfidence"] = steps.Max(s => s.Confidence);
+
+                var sortedSteps = steps.OrderBy(s => s.Timestamp).ToList();
+                stats["StartTime"] = sortedSteps.First().Timestamp;
+                stats["EndTime"] = sortedSteps.Last().Timestamp;
+                stats["Duration"] = (sortedSteps.Last().Timestamp - sortedSteps.First().Timestamp).ToString();
+
+                // Aggregate used models if available in metadata
+                var models = steps
+                    .Where(s => s.Metadata != null && s.Metadata.ContainsKey("model"))
+                    .Select(s => s.Metadata["model"]?.ToString())
+                    .Where(m => !string.IsNullOrEmpty(m))
+                    .Distinct()
+                    .ToList();
+
+                if (models.Any())
+                {
+                    stats["ModelsUsed"] = models;
+                }
+            }
+            else
+            {
+                stats["AverageConfidence"] = 0;
+                stats["Duration"] = TimeSpan.Zero.ToString();
+            }
+
+            return stats;
         }
     }
 }

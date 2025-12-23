@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.MCP.Models
+namespace MetacognitiveLayer.Protocols.MCP.Models
 {
     /// <summary>
     /// Represents an error in the Model Context Protocol (MCP) response.

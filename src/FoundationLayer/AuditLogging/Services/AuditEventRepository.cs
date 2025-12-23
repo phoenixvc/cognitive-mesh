@@ -1,15 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using CognitiveMesh.FoundationLayer.AuditLogging;
-using CognitiveMesh.FoundationLayer.Configuration;
 
-namespace CognitiveMesh.FoundationLayer.AuditLogging.Services
+namespace FoundationLayer.AuditLogging.Services
 {
     /// <summary>
     /// Concrete implementation of the IAuditEventRepository interface using Entity Framework Core.

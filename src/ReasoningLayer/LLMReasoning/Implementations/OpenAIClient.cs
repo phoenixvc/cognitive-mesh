@@ -1,13 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Azure;
-using Azure.AI.OpenAI;
-using CognitiveMesh.Shared.Interfaces;
-using Microsoft.Extensions.Logging;
 
 namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
 {
@@ -20,8 +11,8 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
         private readonly string _deploymentName;
         private readonly string _apiKey;
         private readonly string _endpoint;
-        private readonly ILogger<OpenAIClient> _logger;
-        private AzureOpenAIClient _client;
+        private readonly ILogger<OpenAIClient>? _logger;
+        private AzureOpenAIClient? _client;
         private bool _disposed = false;
         private readonly int _maxTokens;
         private readonly JsonSerializerOptions _jsonOptions;
@@ -47,7 +38,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             string deploymentName,
             string modelName = "gpt-4",
             int maxTokens = 8192,
-            ILogger<OpenAIClient> logger = null)
+            ILogger<OpenAIClient>? logger = null)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
                 throw new ArgumentException("API key cannot be null or whitespace.", nameof(apiKey));

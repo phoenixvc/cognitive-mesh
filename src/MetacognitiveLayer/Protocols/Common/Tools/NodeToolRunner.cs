@@ -1,16 +1,10 @@
-using System;
-using System.Text.Json;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using System.Text.Json.Serialization;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Tools
+namespace MetacognitiveLayer.Protocols.Common.Tools
 {
     /// <summary>
     /// Configuration options for the Node tool runner.

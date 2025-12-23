@@ -1,4 +1,4 @@
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
+namespace MetacognitiveLayer.Protocols.Common.Memory
 {
     /// <summary>
     /// Utility for generating Redis-compliant mesh keys.

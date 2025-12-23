@@ -6,7 +6,7 @@ using CognitiveMesh.FoundationLayer.LLM.Abstractions;
 using CognitiveMesh.FoundationLayer.VectorDatabase;
 using CognitiveMesh.Shared.Interfaces;
 
-namespace CognitiveMesh.FoundationLayer.SemanticSearch
+namespace FoundationLayer.SemanticSearch
 {
     /// <summary>
     /// Provides enhanced RAG by combining vector search with contextual LLM prompts.

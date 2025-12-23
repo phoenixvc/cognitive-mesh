@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Integration;
+using MetacognitiveLayer.Protocols.Integration;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Orchestration
+namespace MetacognitiveLayer.Protocols.Common.Orchestration
 {
     /// <summary>
     /// Interface for orchestrating agent execution and managing agent lifecycles.

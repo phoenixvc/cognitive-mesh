@@ -1,15 +1,7 @@
 // Refactored VectorDatabaseManager.cs
 // - Full SOLID + DRY pass applied
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using CognitiveMesh.Shared.Interfaces;
-using Microsoft.Extensions.Logging;
-
-namespace CognitiveMesh.FoundationLayer.VectorDatabase
+namespace FoundationLayer.VectorDatabase
 {
     public class VectorDatabaseManager : IVectorDatabaseAdapter, IDisposable
     {

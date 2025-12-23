@@ -12,7 +12,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// <summary>
         /// Gets a trace of reasoning steps for a given trace ID
         /// </summary>
-        Task<ReasoningTrace> GetReasoningTraceAsync(
+        Task<ReasoningTrace?> GetReasoningTraceAsync(
             string traceId,
             CancellationToken cancellationToken = default);
 

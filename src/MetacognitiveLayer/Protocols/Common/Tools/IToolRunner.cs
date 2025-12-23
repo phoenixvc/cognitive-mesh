@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Tools
+namespace MetacognitiveLayer.Protocols.Common.Tools
 {
     /// <summary>
     /// Context information for tool execution.

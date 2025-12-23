@@ -1,11 +1,8 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Microsoft.Extensions.Logging;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.ACP
+namespace MetacognitiveLayer.Protocols.ACP
 {
     /// <summary>
     /// Validates ACP (AI Communication Protocol) XML templates against the schema.

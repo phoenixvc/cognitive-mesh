@@ -1,8 +1,8 @@
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Text.Json;
+using FoundationLayer.SemanticSearch;
+
+namespace FoundationLayer.DocumentProcessing;
 
 public class DocumentIngestionFunction
 {

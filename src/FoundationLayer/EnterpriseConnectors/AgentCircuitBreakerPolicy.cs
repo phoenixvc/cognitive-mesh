@@ -1,9 +1,4 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-
-namespace CognitiveMesh.FoundationLayer.EnterpriseConnectors
+namespace FoundationLayer.EnterpriseConnectors
 {
     /// <summary>
     /// Implements a circuit breaker pattern for resilient API calls.
@@ -13,7 +8,7 @@ namespace CognitiveMesh.FoundationLayer.EnterpriseConnectors
         private readonly int _failureThreshold;
         private readonly int _resetTimeoutMs;
         private readonly int _successThreshold;
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
         
         private int _failureCount = 0;
         private int _successCount = 0;
@@ -37,7 +32,7 @@ namespace CognitiveMesh.FoundationLayer.EnterpriseConnectors
             int failureThreshold = 3, 
             int resetTimeoutMs = 5000, 
             int successThreshold = 3,
-            ILogger logger = null)
+            ILogger? logger = null)
         {
             _failureThreshold = failureThreshold;
             _resetTimeoutMs = resetTimeoutMs;

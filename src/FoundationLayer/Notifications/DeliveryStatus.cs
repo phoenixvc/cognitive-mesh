@@ -1,4 +1,4 @@
-namespace CognitiveMesh.FoundationLayer.Notifications
+namespace FoundationLayer.Notifications
 {
     /// <summary>
     /// Represents the delivery status of a notification.

@@ -15,7 +15,8 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Ports
         /// into manageable steps and synthesizing the final answer.
         /// </summary>
         /// <param name="request">The sequential reasoning request</param>
+        /// <param name="cancellationToken">Cancellation token for async operations</param>
         /// <returns>A structured reasoning output with step-by-step trace</returns>
-        Task<ReasoningOutput> ExecuteSequentialReasoningAsync(SequentialReasoningRequest request);
+        Task<ReasoningOutput> ExecuteSequentialReasoningAsync(SequentialReasoningRequest request, CancellationToken cancellationToken = default);
     }
 }

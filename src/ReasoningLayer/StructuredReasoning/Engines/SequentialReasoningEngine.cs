@@ -40,7 +40,9 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
         }
 
         /// <inheritdoc />
-        public async Task<ReasoningOutput> ExecuteSequentialReasoningAsync(SequentialReasoningRequest request)
+        public async Task<ReasoningOutput> ExecuteSequentialReasoningAsync(
+            SequentialReasoningRequest request,
+            CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Starting sequential reasoning for question: {Question}", request.Question);
 
@@ -54,7 +56,7 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
             };
 
             // Step 1: Determine the phases (auto-decompose if not provided)
-            var phases = request.Phases.Any() ? request.Phases : await DecomposeQuestionAsync(request.Question);
+            var phases = request.Phases.Any() ? request.Phases : await DecomposeQuestionAsync(request.Question, cancellationToken);
             output.Metadata["phaseCount"] = phases.Count.ToString();
 
             _logger.LogDebug("Sequential reasoning will proceed through {PhaseCount} phases", phases.Count);
@@ -88,7 +90,8 @@ Provide a thorough analysis for this specific phase. Build upon previous phase r
                 var phaseResponse = await _llmClient.GenerateCompletionAsync(
                     phasePrompt,
                     maxTokens: 1000,
-                    temperature: 0.6f
+                    temperature: 0.6f,
+                    cancellationToken: cancellationToken
                 );
                 phaseResults.Add(phaseResponse);
 
@@ -129,7 +132,8 @@ Provide your confidence level (0-100) in this integrated conclusion.";
             var integrationResponse = await _llmClient.GenerateCompletionAsync(
                 integrationPrompt,
                 maxTokens: 1500,
-                temperature: 0.7f
+                temperature: 0.7f,
+                cancellationToken: cancellationToken
             );
 
             output.ReasoningTrace.Add(new ReasoningStep
@@ -151,7 +155,7 @@ Provide your confidence level (0-100) in this integrated conclusion.";
             return output;
         }
 
-        private async Task<List<string>> DecomposeQuestionAsync(string question)
+        private async Task<List<string>> DecomposeQuestionAsync(string question, CancellationToken cancellationToken)
         {
             _logger.LogDebug("Auto-decomposing question into phases");
 
@@ -168,7 +172,8 @@ List the phases, one per line, without numbering:";
             var response = await _llmClient.GenerateCompletionAsync(
                 decompositionPrompt,
                 maxTokens: 400,
-                temperature: 0.5f
+                temperature: 0.5f,
+                cancellationToken: cancellationToken
             );
 
             var phases = response

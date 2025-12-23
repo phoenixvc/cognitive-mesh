@@ -1,8 +1,7 @@
-using System;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
+namespace MetacognitiveLayer.Protocols.Common.Memory
 {
     /// <summary>
     /// Utility class for safely parsing vector embeddings.

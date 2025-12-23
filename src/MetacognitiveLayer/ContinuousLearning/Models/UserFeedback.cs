@@ -1,4 +1,4 @@
-namespace CognitiveMesh.MetacognitiveLayer.ContinuousLearning.Models
+namespace MetacognitiveLayer.ContinuousLearning.Models
 {
     /// <summary>
     /// Represents feedback provided by a user for a specific query or interaction.

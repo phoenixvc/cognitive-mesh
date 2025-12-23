@@ -1,7 +1,7 @@
-using StackExchange.Redis;
 using System.Text.Json;
+using StackExchange.Redis;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
+namespace MetacognitiveLayer.Protocols.Common.Memory
 {
     public class RedisVectorSearchProvider : IVectorSearchProvider
     {

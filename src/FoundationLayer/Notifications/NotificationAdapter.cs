@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using CognitiveMesh.BusinessApplications.Common.Models;
-using CognitiveMesh.FoundationLayer.EnterpriseConnectors;
+using FoundationLayer.EnterpriseConnectors;
 
-namespace CognitiveMesh.FoundationLayer.Notifications
+namespace FoundationLayer.Notifications
 {
     /// <summary>
     /// Adapter for sending notifications related to agent activities and events.

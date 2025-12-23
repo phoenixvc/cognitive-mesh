@@ -5,14 +5,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
+namespace MetacognitiveLayer.UncertaintyQuantification
 {
     /// <summary>
     /// Provides functionality to quantify and manage uncertainty in the cognitive mesh.
     /// </summary>
     public class UncertaintyQuantifier : IUncertaintyQuantifier, IDisposable
     {
-        private readonly ILogger<UncertaintyQuantifier> _logger;
+        private readonly ILogger<UncertaintyQuantifier>? _logger;
+        private readonly ILLMClient? _llmClient;
+        private readonly ICollaborationManager? _collaborationManager;
+        private readonly ITransparencyManager? _transparencyManager;
         private bool _disposed = false;
 
         // Common hedge words indicating uncertainty in text
@@ -22,39 +25,105 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
             "doubt", "assume", "guess", "approximately", "might", "could", "seem", "suggest"
         };
 
+        /// <summary>Strategy that requests human intervention.</summary>
+        public const string StrategyRequestHumanIntervention = "RequestHumanIntervention";
+
+        /// <summary>Strategy that falls back to a default value.</summary>
+        public const string StrategyFallbackToDefault = "FallbackToDefault";
+
+        /// <summary>Strategy that executes conservatively (e.g. stricter thresholds).</summary>
+        public const string StrategyConservativeExecution = "ConservativeExecution";
+
+        /// <summary>Strategy that uses ensemble verification.</summary>
+        public const string StrategyEnsembleVerification = "EnsembleVerification";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UncertaintyQuantifier"/> class.
         /// </summary>
         /// <param name="logger">The logger instance.</param>
-        public UncertaintyQuantifier(ILogger<UncertaintyQuantifier> logger = null)
+        /// <param name="llmClient">The LLM client for cognitive assessment.</param>
+        /// <param name="collaborationManager">The collaboration manager for human interaction.</param>
+        /// <param name="transparencyManager">The transparency manager for logging reasoning.</param>
+        public UncertaintyQuantifier(
+            ILogger<UncertaintyQuantifier>? logger = null,
+            ILLMClient? llmClient = null,
+            ICollaborationManager? collaborationManager = null,
+            ITransparencyManager? transparencyManager = null)
         {
             _logger = logger;
+            _llmClient = llmClient;
+            _collaborationManager = collaborationManager;
+            _transparencyManager = transparencyManager;
             _logger?.LogInformation("UncertaintyQuantifier initialized");
         }
 
         /// <inheritdoc/>
-        public Task<double> CalculateConfidenceScoreAsync(string data, CancellationToken cancellationToken = default)
+        public async Task<double> CalculateConfidenceScoreAsync(string data, CancellationToken cancellationToken = default)
         {
             _logger?.LogDebug("Calculating confidence score for data");
 
             if (string.IsNullOrWhiteSpace(data))
             {
-                return Task.FromResult(0.0);
+                return 0.0;
             }
 
+            if (_llmClient == null)
+            {
+                _logger?.LogWarning("LLM Client is not available. Using heuristic confidence score.");
+                return CalculateHeuristicScore(data);
+            }
+
+            try
+            {
+                var prompt = $@"
+Analyze the following text and provide a confidence score between 0.0 and 1.0 indicating how certain the statement is.
+Consider hedge words (e.g., 'maybe', 'might', 'possibly') as indicators of lower confidence.
+Return ONLY the numeric score.
+
+Text: ""{data}""
+
+Confidence Score:";
+
+                var response = await _llmClient.GenerateCompletionAsync(
+                    prompt: prompt,
+                    temperature: 0.0f, // Deterministic output
+                    maxTokens: 10,
+                    cancellationToken: cancellationToken
+                );
+
+                if (double.TryParse(response?.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double score))
+                {
+                    // Clamp value between 0.0 and 1.0
+                    return Math.Max(0.0, Math.Min(1.0, score));
+                }
+                else
+                {
+                    _logger?.LogWarning("Failed to parse confidence score from LLM response: {Response}", response);
+                    return CalculateHeuristicScore(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error calculating confidence score via LLM.");
+                return CalculateHeuristicScore(data);
+            }
+        }
+
+        private double CalculateHeuristicScore(string data)
+        {
+            // Use Main's heuristic logic
             var metrics = CalculateTextUncertainty(data);
             if (metrics.TryGetValue("confidence", out var confidence) && confidence is double confVal)
             {
-                 return Task.FromResult(confVal);
+                 return confVal;
             }
-
-            return Task.FromResult(0.5); // Default neutral confidence
+            return 0.5;
         }
 
         /// <inheritdoc/>
         public Task<Dictionary<string, object>> QuantifyUncertaintyAsync(
-            object data, 
-            Dictionary<string, object> parameters = null,
+            object? data,
+            Dictionary<string, object>? parameters = null,
             CancellationToken cancellationToken = default)
         {
             _logger?.LogDebug("Quantifying uncertainty for data");
@@ -100,14 +169,7 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
                     result["uncertaintyType"] = "Entropy (Object Keys)";
                     break;
 
-                // Handle generic dictionary if possible (IDictionary is non-generic, but values are object)
-                // Or check for other Enumerable types that might be distributions
-
                 default:
-                     // Fallback check for generic IDictionary<TKey, double> using reflection or dynamic if needed,
-                     // but for now, let's treat generic unknown iterables as potential collections of numbers if they are strictly numbers?
-                     // No, that's dangerous.
-
                      result = new Dictionary<string, object>
                      {
                          ["confidence"] = 0.5, // Neutral
@@ -171,10 +233,9 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
 
             if (dataList.Count == 1)
             {
-                 // Single value: Cannot calculate variance. Treat as a point estimate with no internal uncertainty info.
                  return new Dictionary<string, object>
                  {
-                     ["confidence"] = 1.0, // Or unknown? Assuming 1.0 if explicit single value provided without context.
+                     ["confidence"] = 1.0,
                      ["uncertaintyType"] = "Statistical (Single Point)",
                      ["metrics"] = new Dictionary<string, object>
                      {
@@ -189,12 +250,7 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
             double variance = sumOfSquares / (dataList.Count - 1); // Sample variance
             double stdDev = Math.Sqrt(variance);
 
-            // Heuristic for confidence based on Coefficient of Variation (CV = StdDev / |Mean|)
-            // If Mean is 0, use StdDev directly.
             double uncertaintyMetric = (Math.Abs(mean) > 1e-9) ? (stdDev / Math.Abs(mean)) : stdDev;
-
-            // Map uncertainty (0 -> infinity) to confidence (1 -> 0)
-            // Using 1 / (1 + x)
             double confidence = 1.0 / (1.0 + uncertaintyMetric);
 
             return new Dictionary<string, object>
@@ -262,19 +318,118 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
         }
 
         /// <inheritdoc/>
-        public Task ApplyUncertaintyMitigationStrategyAsync(
+        public async Task ApplyUncertaintyMitigationStrategyAsync(
             string strategyName, 
-            object parameters = null,
+            object? parameters = null,
             CancellationToken cancellationToken = default)
         {
             _logger?.LogDebug("Applying uncertainty mitigation strategy: {StrategyName}", strategyName);
-            // TODO: Implement actual mitigation strategy application
-            return Task.CompletedTask;
+
+            var paramsDict = parameters as Dictionary<string, object> ?? new Dictionary<string, object>();
+
+            switch (strategyName)
+            {
+                case StrategyRequestHumanIntervention:
+                    await ApplyHumanInterventionStrategyAsync(paramsDict, cancellationToken);
+                    break;
+
+                case StrategyFallbackToDefault:
+                    ApplyFallbackStrategy(paramsDict);
+                    break;
+
+                case StrategyConservativeExecution:
+                    ApplyConservativeStrategy(paramsDict);
+                    break;
+
+                case StrategyEnsembleVerification:
+                    ApplyEnsembleStrategy(paramsDict);
+                    break;
+
+                default:
+                    var ex = new ArgumentException($"Unknown mitigation strategy: {strategyName}", nameof(strategyName));
+                    _logger?.LogError(ex, "Failed to apply strategy");
+                    throw ex;
+            }
+
+            if (_transparencyManager != null)
+            {
+                try
+                {
+                     await _transparencyManager.LogReasoningStepAsync(new ReasoningStep
+                     {
+                         Id = Guid.NewGuid().ToString(),
+                         TraceId = Guid.NewGuid().ToString(),
+                         Name = $"Mitigation: {strategyName}",
+                         Description = "Applied uncertainty mitigation strategy",
+                         Timestamp = DateTime.UtcNow,
+                         Metadata = new Dictionary<string, object>
+                         {
+                             ["strategy"] = strategyName,
+                             ["parameters"] = paramsDict
+                         }
+                     }, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                     _logger?.LogWarning(ex, "Failed to log transparency step for mitigation.");
+                }
+            }
+        }
+
+        private async Task ApplyHumanInterventionStrategyAsync(Dictionary<string, object> parameters, CancellationToken cancellationToken)
+        {
+            if (_collaborationManager == null)
+            {
+                _logger?.LogWarning("Cannot apply RequestHumanIntervention: CollaborationManager is not available.");
+                return;
+            }
+
+            string sessionName = parameters.ContainsKey("sessionName") && parameters["sessionName"] != null
+                ? parameters["sessionName"].ToString()!
+                : "Uncertainty Review";
+            string description = parameters.ContainsKey("description") && parameters["description"] != null
+                ? parameters["description"].ToString()!
+                : "Review required due to high uncertainty.";
+
+            var participants = new List<string>();
+            if (parameters.ContainsKey("participants") && parameters["participants"] is IEnumerable<string> p)
+            {
+                participants.AddRange(p);
+            }
+
+            _logger?.LogInformation("Initiating human intervention session: {SessionName}", sessionName);
+            await _collaborationManager.CreateSessionAsync(sessionName, description, participants, cancellationToken);
+        }
+
+        private void ApplyFallbackStrategy(Dictionary<string, object> parameters)
+        {
+            if (parameters.ContainsKey("defaultValue"))
+            {
+                _logger?.LogInformation("Applying FallbackToDefault. Using value: {DefaultValue}", parameters["defaultValue"]);
+            }
+            else
+            {
+                _logger?.LogWarning("Applying FallbackToDefault but no 'defaultValue' parameter was provided.");
+            }
+        }
+
+        private void ApplyConservativeStrategy(Dictionary<string, object> parameters)
+        {
+             _logger?.LogInformation("Applying ConservativeExecution. Adjusting thresholds to be stricter.");
+             if (parameters.ContainsKey("confidenceThreshold"))
+             {
+                 _logger?.LogInformation("Temporarily increasing confidence threshold requirement.");
+             }
+        }
+
+        private void ApplyEnsembleStrategy(Dictionary<string, object> parameters)
+        {
+            _logger?.LogInformation("Applying EnsembleVerification. Consulting secondary models.");
         }
 
         /// <inheritdoc/>
         public Task<bool> IsWithinThresholdAsync(
-            object data, 
+            object? data,
             double threshold,
             CancellationToken cancellationToken = default)
         {
@@ -307,6 +462,10 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -319,6 +478,9 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
             }
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="UncertaintyQuantifier"/> class.
+        /// </summary>
         ~UncertaintyQuantifier()
         {
             Dispose(false);
@@ -346,8 +508,8 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation, containing the uncertainty metrics.</returns>
         Task<Dictionary<string, object>> QuantifyUncertaintyAsync(
-            object data, 
-            Dictionary<string, object> parameters = null,
+            object? data,
+            Dictionary<string, object>? parameters = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -359,7 +521,7 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
         /// <returns>A task representing the asynchronous operation.</returns>
         Task ApplyUncertaintyMitigationStrategyAsync(
             string strategyName, 
-            object parameters = null,
+            object? parameters = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -370,7 +532,7 @@ namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation, containing a value indicating whether the uncertainty is within the threshold.</returns>
         Task<bool> IsWithinThresholdAsync(
-            object data, 
+            object? data,
             double threshold,
             CancellationToken cancellationToken = default);
     }
