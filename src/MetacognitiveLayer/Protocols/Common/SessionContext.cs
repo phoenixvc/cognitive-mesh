@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common
+namespace MetacognitiveLayer.Protocols.Common
 {
     /// <summary>
     /// Represents the context for a session in the protocol system.

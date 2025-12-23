@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
 using Moq;
-using Microsoft.Extensions.Logging;
-using CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification;
-using CognitiveMesh.Shared.Interfaces;
+using Xunit;
 
-namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification.Tests
+namespace UncertaintyQuantification.Tests
 {
     /// <summary>
     /// Tests for the UncertaintyQuantifier class.

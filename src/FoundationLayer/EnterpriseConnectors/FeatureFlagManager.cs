@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Configuration;
-
-namespace CognitiveMesh.FoundationLayer.EnterpriseConnectors;
+namespace FoundationLayer.EnterpriseConnectors;
 
 public class FeatureFlagManager
 {

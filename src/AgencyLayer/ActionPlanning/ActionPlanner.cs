@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.Shared.Interfaces;
-using CognitiveMesh.Shared.Models;
 
-namespace CognitiveMesh.AgencyLayer.ActionPlanning
+namespace AgencyLayer.ActionPlanning
 {
     /// <summary>
     /// Handles planning and orchestrating actions based on goals and constraints

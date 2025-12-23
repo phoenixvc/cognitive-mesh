@@ -1,13 +1,7 @@
-using CognitiveMesh.FoundationLayer.ConvenerData.Interfaces;
-using CognitiveMesh.MetacognitiveLayer.CommunityPulse.Ports;
-using CognitiveMesh.MetacognitiveLayer.CommunityPulse.Ports.Models;
+using MetacognitiveLayer.CommunityPulse.Ports;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace CognitiveMesh.MetacognitiveLayer.CommunityPulse.Engines
+namespace MetacognitiveLayer.CommunityPulse.Engines
 {
     /// <summary>
     /// A pure domain engine that implements the core business logic for analyzing

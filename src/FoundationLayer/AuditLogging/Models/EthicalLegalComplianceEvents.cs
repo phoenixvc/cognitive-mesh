@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace CognitiveMesh.FoundationLayer.AuditLogging.Models
+namespace FoundationLayer.AuditLogging.Models
 {
     /// <summary>
     /// Event data for when a new governance/ethical/legal policy was approved.

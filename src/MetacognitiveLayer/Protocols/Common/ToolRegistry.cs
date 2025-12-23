@@ -1,11 +1,7 @@
-using System;
 using System.Text.Json;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using System.Text.Json.Serialization;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common
+namespace MetacognitiveLayer.Protocols.Common
 {
     /// <summary>
     /// Manages the registration and resolution of tools used by the Hybrid MCP + ACP Protocol.

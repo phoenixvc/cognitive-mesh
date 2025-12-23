@@ -1,4 +1,4 @@
-namespace CognitiveMesh.AgencyLayer.ToolIntegration.Models
+namespace AgencyLayer.ToolIntegration.Models
 {
     /// <summary>
     /// Defines the configuration for a generic, mock tool.

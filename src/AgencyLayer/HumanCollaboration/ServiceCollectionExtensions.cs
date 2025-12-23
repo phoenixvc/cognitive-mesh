@@ -1,8 +1,6 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
-using CognitiveMesh.AgencyLayer.HumanCollaboration.Features.Messages;
 
-namespace CognitiveMesh.AgencyLayer.HumanCollaboration
+namespace AgencyLayer.HumanCollaboration
 {
     /// <summary>
     /// Extension methods for registering Human Collaboration services.

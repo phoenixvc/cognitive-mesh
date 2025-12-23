@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
-using CognitiveMesh.Shared.Interfaces;
-using CognitiveMesh.FoundationLayer.AzureCosmosDB.Abstractions;
+using FoundationLayer.AzureCosmosDB.Abstractions;
 
-namespace CognitiveMesh.FoundationLayer.AzureCosmosDB
+namespace FoundationLayer.AzureCosmosDB
 {
     /// <summary>
     /// Implementation of ICosmosDbAdapter using Microsoft.Azure.Cosmos

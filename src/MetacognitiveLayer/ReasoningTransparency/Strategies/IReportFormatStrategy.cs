@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency;
-
-namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Strategies
+namespace MetacognitiveLayer.ReasoningTransparency.Strategies
 {
     /// <summary>
     /// Strategy interface for formatting transparency reports.

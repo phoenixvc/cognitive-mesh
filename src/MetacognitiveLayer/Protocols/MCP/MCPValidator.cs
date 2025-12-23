@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Json.Schema; // Using JsonSchema.Net library for validation
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.MCP
+
+// Using JsonSchema.Net library for validation
+namespace MetacognitiveLayer.Protocols.MCP
 {
     /// <summary>
     /// Validates MCP (Model Context Protocol) JSON messages against the schema.

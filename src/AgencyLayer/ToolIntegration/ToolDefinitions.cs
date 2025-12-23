@@ -1,8 +1,7 @@
-using CognitiveMesh.AgencyLayer.ToolIntegration.Models;
-using System.Collections.Generic;
 using System.Reflection;
+using AgencyLayer.ToolIntegration.Models;
 
-namespace CognitiveMesh.AgencyLayer.ToolIntegration
+namespace AgencyLayer.ToolIntegration
 {
     /// <summary>
     /// Provides a central, static registry of predefined ToolDefinition objects.

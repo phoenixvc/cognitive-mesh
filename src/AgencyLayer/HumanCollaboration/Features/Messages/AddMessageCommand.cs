@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using MediatR;
-
-namespace CognitiveMesh.AgencyLayer.HumanCollaboration.Features.Messages
+namespace AgencyLayer.HumanCollaboration.Features.Messages
 {
     /// <summary>
     /// Command to add a message to a collaboration session.

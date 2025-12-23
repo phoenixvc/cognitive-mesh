@@ -1,4 +1,4 @@
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
+namespace MetacognitiveLayer.Protocols.Common.Memory
 {
     /// <summary>
     /// Common interface for all mesh memory stores.

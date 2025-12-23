@@ -1,6 +1,7 @@
-using Microsoft.Azure.Cosmos;
 using Azure.AI.OpenAI;
-using System.Text.Json;
+using MetacognitiveLayer.SelfEvaluation;
+
+namespace MetacognitiveLayer.ContinuousLearning;
 
 public class ContinuousLearningComponent
 {
@@ -101,7 +102,7 @@ public class ContinuousLearningComponent
     private async Task<List<InteractionRecord>> GetRecentInteractionsAsync(DateTimeOffset cutoffDate)
     {
         var query = new QueryDefinition(
-            "SELECT * FROM c WHERE c.type = 'Interaction' AND c.timestamp >= @cutoffDate")
+                "SELECT * FROM c WHERE c.type = 'Interaction' AND c.timestamp >= @cutoffDate")
             .WithParameter("@cutoffDate", cutoffDate);
             
         var iterator = _learningDataContainer.GetItemQueryIterator<InteractionRecord>(query);
@@ -119,7 +120,7 @@ public class ContinuousLearningComponent
     private async Task<List<FeedbackRecord>> GetRecentFeedbackAsync(DateTimeOffset cutoffDate)
     {
         var query = new QueryDefinition(
-            "SELECT * FROM c WHERE c.type = 'Feedback' AND c.timestamp >= @cutoffDate")
+                "SELECT * FROM c WHERE c.type = 'Feedback' AND c.timestamp >= @cutoffDate")
             .WithParameter("@cutoffDate", cutoffDate);
             
         var iterator = _learningDataContainer.GetItemQueryIterator<FeedbackRecord>(query);
@@ -179,13 +180,13 @@ public class ContinuousLearningComponent
         
         // Create system prompt
         var systemPrompt = "You are a performance trend analysis system. " +
-                          "Analyze the daily performance metrics to identify significant trends, patterns, or anomalies. " +
-                          "Generate insights about performance improvements or degradations over time.";
+                           "Analyze the daily performance metrics to identify significant trends, patterns, or anomalies. " +
+                           "Generate insights about performance improvements or degradations over time.";
                           
         var userPrompt = $"Daily Performance Metrics:\n\n{trendsData}\n\n" +
-                        "Analyze these metrics to identify significant trends, patterns, or anomalies. " +
-                        "Generate 2-3 insights about performance improvements or degradations over time. " +
-                        "For each insight, provide a title, description, and severity (High, Medium, Low).";
+                         "Analyze these metrics to identify significant trends, patterns, or anomalies. " +
+                         "Generate 2-3 insights about performance improvements or degradations over time. " +
+                         "For each insight, provide a title, description, and severity (High, Medium, Low).";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {
@@ -249,13 +250,13 @@ public class ContinuousLearningComponent
         
         // Create system prompt
         var systemPrompt = "You are a feedback analysis system. " +
-                          "Analyze user feedback and corresponding interaction metrics to identify patterns and insights. " +
-                          "Focus on understanding what factors correlate with positive or negative feedback.";
+                           "Analyze user feedback and corresponding interaction metrics to identify patterns and insights. " +
+                           "Focus on understanding what factors correlate with positive or negative feedback.";
                           
         var userPrompt = $"Feedback and Interaction Data:\n\n{feedbackData}\n\n" +
-                        "Analyze this data to identify patterns and insights about user satisfaction. " +
-                        "Generate 2-3 insights about what factors correlate with positive or negative feedback. " +
-                        "For each insight, provide a title, description, and severity (High, Medium, Low).";
+                         "Analyze this data to identify patterns and insights about user satisfaction. " +
+                         "Generate 2-3 insights about what factors correlate with positive or negative feedback. " +
+                         "For each insight, provide a title, description, and severity (High, Medium, Low).";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {
@@ -314,13 +315,13 @@ public class ContinuousLearningComponent
         
         // Create system prompt
         var systemPrompt = "You are an improvement opportunity analysis system. " +
-                          "Analyze low-scoring interactions to identify systematic weaknesses and improvement opportunities. " +
-                          "Focus on patterns that suggest specific areas for enhancement.";
+                           "Analyze low-scoring interactions to identify systematic weaknesses and improvement opportunities. " +
+                           "Focus on patterns that suggest specific areas for enhancement.";
                           
         var userPrompt = $"Low-Scoring Interactions:\n\n{opportunitiesData}\n\n" +
-                        "Analyze these interactions to identify systematic weaknesses and improvement opportunities. " +
-                        "Generate 2-3 insights about specific areas that need enhancement. " +
-                        "For each insight, provide a title, description, and severity (High, Medium, Low).";
+                         "Analyze these interactions to identify systematic weaknesses and improvement opportunities. " +
+                         "Generate 2-3 insights about specific areas that need enhancement. " +
+                         "For each insight, provide a title, description, and severity (High, Medium, Low).";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {
@@ -385,13 +386,13 @@ public class ContinuousLearningComponent
         
         // Create system prompt
         var systemPrompt = "You are a system improvement recommendation system. " +
-                          "Based on learning insights, suggest specific improvements to the Cognitive Mesh system. " +
-                          "Focus on actionable changes to components, processes, or configurations.";
+                           "Based on learning insights, suggest specific improvements to the Cognitive Mesh system. " +
+                           "Focus on actionable changes to components, processes, or configurations.";
                           
         var userPrompt = $"Learning Insights:\n\n{insightsText}\n\n" +
-                        "Based on these insights, suggest 3-5 specific improvements to the Cognitive Mesh system. " +
-                        "Focus on actionable changes to components, processes, or configurations. " +
-                        "For each suggestion, provide a clear description of the change and its expected impact.";
+                         "Based on these insights, suggest 3-5 specific improvements to the Cognitive Mesh system. " +
+                         "Focus on actionable changes to components, processes, or configurations. " +
+                         "For each suggestion, provide a clear description of the change and its expected impact.";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {

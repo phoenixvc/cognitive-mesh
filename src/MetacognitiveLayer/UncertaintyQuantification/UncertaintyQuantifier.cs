@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Globalization;
+using MetacognitiveLayer.ReasoningTransparency;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.Shared.Interfaces;
-using CognitiveMesh.AgencyLayer.HumanCollaboration;
-using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency;
 
-namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification
+namespace MetacognitiveLayer.UncertaintyQuantification
 {
     /// <summary>
     /// Provides functionality to quantify and manage uncertainty in the cognitive mesh.

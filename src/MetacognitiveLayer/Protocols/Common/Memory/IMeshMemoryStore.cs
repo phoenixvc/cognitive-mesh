@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
+namespace MetacognitiveLayer.Protocols.Common.Memory
 {
     /// <summary>
     /// Interface for mesh memory storage systems that manage context, embeddings and retrieval across the protocol system.

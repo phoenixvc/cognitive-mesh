@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using System.Linq;
-using Microsoft.Extensions.Options;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
+namespace MetacognitiveLayer.Protocols.Common.Memory
 {
     /// <summary>
     /// Hybrid implementation of the mesh memory store that combines DuckDB and Redis.

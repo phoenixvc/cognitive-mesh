@@ -1,17 +1,6 @@
-using System;
-using System.Text.Json;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Threading.Tasks;
-using System.Linq;
 using Microsoft.Extensions.Logging;
-using System.Text.Json.Serialization;
-using NetTopologySuite.Index.Vector;
-using DuckDB.NET.Data;
-using Newtonsoft.Json;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
+namespace MetacognitiveLayer.Protocols.Common.Memory
 {
     /// <summary>
     /// DuckDB-based implementation of the mesh memory store.

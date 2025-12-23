@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using CognitiveMesh.Shared.Interfaces;
-using Microsoft.Extensions.Logging;
+using FoundationLayer.AzureCosmosDB.Abstractions;
 
-namespace CognitiveMesh.FoundationLayer.AzureCosmosDB
+namespace FoundationLayer.AzureCosmosDB
 {
     /// <summary>
     /// High-level manager for Azure Cosmos DB operations.

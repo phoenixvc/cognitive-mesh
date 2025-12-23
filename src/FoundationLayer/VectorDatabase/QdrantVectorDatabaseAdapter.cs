@@ -1,17 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using CognitiveMesh.FoundationLayer.VectorDatabase.Abstractions;
-using CognitiveMesh.Shared.Interfaces;
-using Microsoft.Extensions.Logging;
-using Qdrant.Client;
-using Qdrant.Client.Grpc;
-using static Qdrant.Client.Grpc.Conditions;
-using GrpcClient = Qdrant.Client.Grpc.Qdrant.QdrantClient;
-
-namespace CognitiveMesh.FoundationLayer.VectorDatabase
+namespace FoundationLayer.VectorDatabase
 {
     /// <summary>
     /// Qdrant implementation of the IVectorDatabaseAdapter interface

@@ -1,3 +1,5 @@
+namespace MetacognitiveLayer.ContinuousLearning;
+
 public class LearningInsight
 {
     public string Id { get; set; }

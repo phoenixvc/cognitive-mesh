@@ -1,7 +1,6 @@
-using System.Collections.Generic;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Integration;
+using MetacognitiveLayer.Protocols.Integration;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Templates
+namespace MetacognitiveLayer.Protocols.Common.Templates
 {
     /// <summary>
     /// Interface for resolving context templates into prompts.

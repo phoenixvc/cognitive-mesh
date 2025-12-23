@@ -1,7 +1,7 @@
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using Azure.AI.OpenAI;
+
+namespace CognitiveMesh.ReasoningLayer.AnalyticalReasoning;
 
 public class MultiPerspectiveCognition
 {
@@ -104,28 +104,28 @@ public class MultiPerspectiveCognition
         {
             case "analytical":
                 return "You are an analytical thinker who breaks down problems into their component parts. " +
-                      "Focus on logical analysis, evidence, and methodical reasoning. " +
-                      "Identify key factors, relationships, and implications.";
+                       "Focus on logical analysis, evidence, and methodical reasoning. " +
+                       "Identify key factors, relationships, and implications.";
                   
             case "creative":
                 return "You are a creative thinker who generates novel ideas and connections. " +
-                      "Focus on possibilities, alternatives, and innovative approaches. " +
-                      "Think outside conventional boundaries and suggest unique perspectives.";
+                       "Focus on possibilities, alternatives, and innovative approaches. " +
+                       "Think outside conventional boundaries and suggest unique perspectives.";
                   
             case "critical":
                 return "You are a critical thinker who evaluates claims and identifies flaws. " +
-                      "Focus on questioning assumptions, spotting logical fallacies, and assessing evidence quality. " +
-                      "Provide balanced evaluation of strengths and weaknesses.";
+                       "Focus on questioning assumptions, spotting logical fallacies, and assessing evidence quality. " +
+                       "Provide balanced evaluation of strengths and weaknesses.";
                   
             case "practical":
                 return "You are a practical thinker who focuses on implementation and real-world application. " +
-                      "Focus on feasibility, resources required, and concrete steps. " +
-                      "Consider constraints and provide actionable recommendations.";
+                       "Focus on feasibility, resources required, and concrete steps. " +
+                       "Consider constraints and provide actionable recommendations.";
                   
             case "ethical":
                 return "You are an ethical thinker who considers moral implications and values. " +
-                      "Focus on principles, stakeholder impacts, and ethical frameworks. " +
-                      "Identify potential ethical dilemmas and considerations.";
+                       "Focus on principles, stakeholder impacts, and ethical frameworks. " +
+                       "Identify potential ethical dilemmas and considerations.";
                   
             default:
                 return $"You are a {perspective} thinker. Analyze the query from this perspective.";
@@ -147,7 +147,7 @@ public class MultiPerspectiveCognition
         
         // Create synthesis prompt
         var systemPrompt = "You are a meta-cognitive system that synthesizes multiple perspectives into a comprehensive understanding. " +
-                          "Identify common themes, resolve contradictions, and create an integrated view that incorporates insights from all perspectives.";
+                           "Identify common themes, resolve contradictions, and create an integrated view that incorporates insights from all perspectives.";
                           
         var userPrompt = $"Query: {query}\n\nPerspectives:\n{perspectivesText}\n\nPlease synthesize these perspectives into a coherent, integrated analysis.";
         

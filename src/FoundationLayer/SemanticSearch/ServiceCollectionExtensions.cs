@@ -1,8 +1,4 @@
-using System;
-using Microsoft.Extensions.DependencyInjection;
-using CognitiveMesh.Shared.Interfaces;
-
-namespace CognitiveMesh.FoundationLayer.SemanticSearch
+namespace FoundationLayer.SemanticSearch
 {
     public static class ServiceCollectionExtensions
     {

@@ -1,9 +1,6 @@
-using System;
-using System.Text.Json;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.MCP.Models
+namespace MetacognitiveLayer.Protocols.MCP.Models
 {
     /// <summary>
     /// Represents the context for a Model Context Protocol (MCP) request.

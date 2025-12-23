@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace CognitiveMesh.MetacognitiveLayer.PerformanceMonitoring
+namespace MetacognitiveLayer.PerformanceMonitoring
 {
     /// <summary>
     /// Tracks performance metrics across the mesh and triggers alerts on anomalies.

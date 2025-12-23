@@ -1,16 +1,9 @@
 // Refactored KnowledgeGraphManager.cs
 // - Full SOLID + DRY pass
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using CognitiveMesh.FoundationLayer.KnowledgeGraph.Abstractions;
-using CognitiveMesh.Shared.Interfaces;
-using Microsoft.Extensions.Logging;
+using FoundationLayer.KnowledgeGraph.Abstractions;
 
-namespace CognitiveMesh.FoundationLayer.KnowledgeGraph
+namespace FoundationLayer.KnowledgeGraph
 {
     public class KnowledgeGraphManager : IKnowledgeGraphManager, IDisposable
     {

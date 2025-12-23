@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using CognitiveMesh.FoundationLayer.AzureBlobStorage.Abstractions;
-using CognitiveMesh.FoundationLayer.VectorDatabase.Abstractions;
-
-namespace CognitiveMesh.FoundationLayer.DocumentProcessing
+namespace FoundationLayer.DocumentProcessing
 {
     /// <summary>
     /// Handles ingestion, chunking, and indexing of documents for RAG and knowledge services.
