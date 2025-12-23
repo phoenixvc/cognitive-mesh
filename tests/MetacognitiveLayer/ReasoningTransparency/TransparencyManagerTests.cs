@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Moq;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency;
+using MetacognitiveLayer.ReasoningTransparency;
 using CognitiveMesh.Shared.Interfaces;
 using System.Text.Json;
 
@@ -119,43 +119,38 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Tests
         {
             // Arrange
             string decisionId = "decision-789";
-            var mockResults = new List<Dictionary<string, object>>
+            var rationaleNode = new DecisionRationaleNode
             {
-                new Dictionary<string, object>
-                {
-                    { "id", "rationale-1" },
-                    { "decisionId", decisionId },
-                    { "description", "Because A and B" },
-                    { "confidence", "0.85" },
-                    { "createdAt", DateTime.UtcNow.ToString() }
-                },
-                 new Dictionary<string, object>
-                {
-                    { "id", "rationale-2" },
-                    { "decisionId", decisionId },
-                    { "description", "Also C" },
-                    { "confidence", "0.75" },
-                    { "createdAt", DateTime.UtcNow.ToString() }
-                }
+                Id = "rationale-1",
+                DecisionId = decisionId,
+                Description = "Because x",
+                Confidence = 0.8f,
+                CreatedAt = DateTime.UtcNow,
+                FactorsJson = "{\"cost\":0.5}"
             };
 
             _mockKgManager
-                .Setup(m => m.QueryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(mockResults);
+                .Setup(m => m.FindNodesAsync<DecisionRationaleNode>(
+                    It.Is<Dictionary<string, object>>(d => d.ContainsKey("DecisionId") && d["DecisionId"].ToString() == decisionId),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new[] { rationaleNode });
 
             // Act
             var rationales = await _manager.GetDecisionRationalesAsync(decisionId);
 
             // Assert
             Assert.NotNull(rationales);
-            Assert.Collection(rationales,
-                r1 => Assert.Equal("rationale-1", r1.Id),
-                r2 => Assert.Equal("rationale-2", r2.Id)
-            );
+            Assert.NotEmpty(rationales);
+            var firstRationale = System.Linq.Enumerable.First(rationales);
+            Assert.Equal(decisionId, firstRationale.DecisionId);
+            Assert.Equal("rationale-1", firstRationale.Id);
+            Assert.Equal("Because x", firstRationale.Description);
+            Assert.True(firstRationale.Factors.ContainsKey("cost"));
+            Assert.Equal(0.5f, firstRationale.Factors["cost"]);
 
-            _mockKgManager.Verify(m => m.QueryAsync(
-                It.Is<string>(q => q.Contains(decisionId) && q.Contains("DecisionRationale")),
-                It.IsAny<CancellationToken>()), Times.Once);
+            _mockKgManager.Verify(m => m.FindNodesAsync<DecisionRationaleNode>(
+                    It.Is<Dictionary<string, object>>(d => d.ContainsKey("DecisionId") && d["DecisionId"].ToString() == decisionId),
+                    It.IsAny<CancellationToken>()), Times.Once);
         }
 
         /// <summary>

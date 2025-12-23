@@ -83,4 +83,40 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
         /// </summary>
         public string MetadataJson { get; set; } = "{}";
     }
+
+    /// <summary>
+    /// Represents the storage model for a decision rationale node in the knowledge graph.
+    /// </summary>
+    public class DecisionRationaleNode
+    {
+        /// <summary>
+        /// Unique identifier for the rationale.
+        /// </summary>
+        public string Id { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Identifier of the decision this rationale is for.
+        /// </summary>
+        public string DecisionId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Description of the rationale.
+        /// </summary>
+        public string Description { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Confidence score (0-1).
+        /// </summary>
+        public float Confidence { get; set; }
+
+        /// <summary>
+        /// JSON serialized factors.
+        /// </summary>
+        public string FactorsJson { get; set; } = "{}";
+
+        /// <summary>
+        /// When the rationale was created.
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
+    }
 }
