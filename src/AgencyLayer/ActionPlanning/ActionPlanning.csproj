@@ -7,9 +7,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="ActionPlanner.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
@@ -17,6 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
 
 </Project>

@@ -83,10 +83,31 @@ namespace CognitiveMesh.FoundationLayer.KnowledgeGraph
 
             try
             {
-                LogDebug("Updating node: {NodeId}", nodeId);
-                await DeleteNodeAsync(nodeId, cancellationToken);
-                await AddNodeAsync(nodeId, properties, null, cancellationToken);
-                LogInfo("Node updated: {NodeId}", nodeId);
+                LogDebug("Updating node properties: {NodeId}", nodeId);
+
+                // Fetch existing triples for this node
+                var existingTriples = await _graphAdapter.GetTriplesBySubjectAsync(nodeId);
+
+                // Identify property triples (predicates starting with "prop:")
+                var propertyTriples = existingTriples.Where(t => t.Predicate.StartsWith("prop:")).ToList();
+
+                // Delete old property triples
+                if (propertyTriples.Any())
+                {
+                    await _graphAdapter.DeleteTriplesAsync(propertyTriples);
+                }
+
+                // Convert new properties to triples (without rdf:type unless we want to reset it, which we usually don't for property updates)
+                // Note: ConvertToTriples adds rdf:type if label is provided. Here we pass null to just get properties.
+                var newTriples = ConvertToTriples(nodeId, properties, null);
+
+                // Upsert new triples
+                if (newTriples.Any())
+                {
+                    await _graphAdapter.UpsertTriplesAsync(newTriples);
+                }
+
+                LogInfo("Node properties updated: {NodeId}", nodeId);
             }
             catch (Exception ex)
             {
