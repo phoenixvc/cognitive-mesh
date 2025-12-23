@@ -20,18 +20,27 @@ namespace CognitiveMesh.Tests.AgencyLayer.ActionPlanning
         private readonly Mock<ISemanticSearchManager> _mockSemanticSearchManager;
         private readonly ActionPlanner _planner;
 
+        private readonly Mock<ILogger<ActionPlanner>> _mockLogger;
+        private readonly Mock<IKnowledgeGraphManager> _mockKnowledgeGraphManager;
+        private readonly Mock<ILLMClient> _mockLlmClient;
+        private readonly Mock<ISemanticSearchManager> _mockSemanticSearchManager;
+        private readonly Mock<IMessageBus> _mockBus;
+        private readonly ActionPlanner _planner;
+
         public ActionPlannerTests()
         {
             _mockLogger = new Mock<ILogger<ActionPlanner>>();
             _mockKnowledgeGraphManager = new Mock<IKnowledgeGraphManager>();
             _mockLlmClient = new Mock<ILLMClient>();
             _mockSemanticSearchManager = new Mock<ISemanticSearchManager>();
+            _mockBus = new Mock<IMessageBus>();
 
             _planner = new ActionPlanner(
                 _mockLogger.Object,
                 _mockKnowledgeGraphManager.Object,
                 _mockLlmClient.Object,
-                _mockSemanticSearchManager.Object
+                _mockSemanticSearchManager.Object,
+                _mockBus.Object
             );
         }
 
