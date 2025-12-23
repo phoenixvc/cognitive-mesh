@@ -108,13 +108,11 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Tests
         public async Task LogReasoningStepAsync_ShouldThrow_WhenStepIsNull()
         {
             // Act & Assert
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _manager.LogReasoningStepAsync(null));
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _manager.LogReasoningStepAsync(null!));
         }
 
         /// <summary>
-        /// Verifies that GetDecisionRationalesAsync returns rationales.
+        /// Verifies that GetDecisionRationalesAsync returns rationales when found.
         /// </summary>
         [Fact]
         public async Task GetDecisionRationalesAsync_ShouldReturnRationales_WhenFound()
@@ -156,7 +154,7 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Tests
         }
 
         /// <summary>
-        /// Verifies that GetReasoningTraceAsync returns a trace with its steps.
+        /// Verifies that GetReasoningTraceAsync returns a trace with steps when found.
         /// </summary>
         [Fact]
         public async Task GetReasoningTraceAsync_ShouldReturnTraceWithSteps_WhenFound()

@@ -1,16 +1,13 @@
-using Moq;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
+using CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification;
 
-namespace UncertaintyQuantification.Tests
+namespace CognitiveMesh.MetacognitiveLayer.UncertaintyQuantification.Tests
 {
-    /// <summary>
-    /// Tests for the UncertaintyQuantifier class.
-    /// </summary>
     public class UncertaintyQuantifierTests
     {
-        /// <summary>
-        /// Verifies that QuantifyUncertaintyAsync handles null data correctly.
-        /// </summary>
         [Fact]
         public async Task QuantifyUncertaintyAsync_NullData_ReturnsZeroConfidence()
         {

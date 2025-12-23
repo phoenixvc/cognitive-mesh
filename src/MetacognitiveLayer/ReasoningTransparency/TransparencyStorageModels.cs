@@ -1,4 +1,6 @@
-namespace MetacognitiveLayer.ReasoningTransparency
+using System;
+
+namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
 {
     /// <summary>
     /// Represents the storage model for a reasoning trace node in the knowledge graph.

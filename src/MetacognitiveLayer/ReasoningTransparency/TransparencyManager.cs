@@ -1,9 +1,14 @@
+using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using MetacognitiveLayer.ReasoningTransparency.Strategies;
 using CognitiveMesh.Shared.Interfaces;
 using Microsoft.Extensions.Logging;
+using CognitiveMesh.Shared.Interfaces;
+using System.Linq;
+using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Strategies;
 
-namespace MetacognitiveLayer.ReasoningTransparency
+namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
 {
     /// <summary>
     /// Manages transparency in the reasoning process, providing insights into decision-making

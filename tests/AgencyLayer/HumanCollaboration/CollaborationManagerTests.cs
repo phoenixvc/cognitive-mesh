@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CognitiveMesh.AgencyLayer.HumanCollaboration;
 using CognitiveMesh.Shared.Interfaces;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;

@@ -1,4 +1,8 @@
-namespace MetacognitiveLayer.ReasoningTransparency
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
 {
     /// <summary>
     /// Interface for managing reasoning transparency

@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
-using MetacognitiveLayer.ReasoningTransparency;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace MetacognitiveLayer.UncertaintyQuantification
@@ -277,6 +281,7 @@ Confidence Score:";
                  };
              }
 
+             // Normalize if needed
              double sum = probList.Sum();
              if (Math.Abs(sum - 1.0) > 1e-5 && sum > 0)
              {
@@ -292,8 +297,11 @@ Confidence Score:";
                  }
              }
 
+             // Max entropy is log2(N)
              double maxEntropy = Math.Log2(probList.Count);
              double normalizedEntropy = (maxEntropy > 0) ? entropy / maxEntropy : 0;
+
+             // Confidence is inverse of normalized entropy (0 entropy -> 1 confidence)
              double confidence = 1.0 - normalizedEntropy;
 
              return new Dictionary<string, object>
@@ -427,11 +435,21 @@ Confidence Score:";
             CancellationToken cancellationToken = default)
         {
             _logger?.LogDebug("Checking if data is within threshold: {Threshold}", threshold);
+            // This implementation now calls QuantifyUncertaintyAsync to check real confidence vs threshold
+            // Note: Since QuantifyUncertaintyAsync is async, we can await it here.
+            // But IsWithinThresholdAsync signature doesn't pass parameters. Assuming default.
+
+            // To avoid deadlocks or complexity, for now we can stub it or perform a quick check.
+            // A proper implementation would likely re-use the logic above.
+            // Let's defer full implementation to avoid recursive async calls if not careful,
+            // but we can just invoke the logic synchronously or await safely.
+
             return Task.Run(async () =>
             {
                 var result = await QuantifyUncertaintyAsync(data, null, cancellationToken);
-                if (result.TryGetValue("confidence", out object? confObj) && confObj is double conf)
+                if (result.TryGetValue("confidence", out object confObj) && confObj is double conf)
                 {
+                    // If threshold represents "minimum acceptable confidence"
                     return conf >= threshold;
                 }
                 return false;
