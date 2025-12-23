@@ -6,9 +6,18 @@ DOTNET_VERSION="9.0.104"
 
 echo "Installing .NET SDK version $DOTNET_VERSION..."
 
-# Download and run the official install script
-# We install to the default location: ~/.dotnet
-curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version "$DOTNET_VERSION"
+# Download the install script
+curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+
+# Optional: Verify checksum here if Microsoft provides one
+# Example: curl -fsSL https://dot.net/v1/dotnet-install.sh.sha256 -o /tmp/dotnet-install.sh.sha256
+#          cd /tmp && sha256sum -c dotnet-install.sh.sha256
+
+# Ensure cleanup on exit
+trap 'rm -f /tmp/dotnet-install.sh' EXIT
+
+# Run the install script
+bash /tmp/dotnet-install.sh --version "$DOTNET_VERSION"
 
 # Configure environment variables for the current user
 DOTNET_ROOT="$HOME/.dotnet"

@@ -1,6 +1,8 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
+using CognitiveMesh.Shared.Interfaces;
 
-namespace AgencyLayer.ActionPlanning
+namespace CognitiveMesh.AgencyLayer.ActionPlanning
 {
     public static class ServiceCollectionExtensions
     {

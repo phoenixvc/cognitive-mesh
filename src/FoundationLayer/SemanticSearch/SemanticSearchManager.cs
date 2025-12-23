@@ -1,5 +1,10 @@
-using FoundationLayer.LLM.Abstractions;
-using FoundationLayer.VectorDatabase;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using CognitiveMesh.FoundationLayer.LLM.Abstractions;
+using CognitiveMesh.FoundationLayer.VectorDatabase;
+using CognitiveMesh.Shared.Interfaces;
 
 namespace FoundationLayer.SemanticSearch
 {

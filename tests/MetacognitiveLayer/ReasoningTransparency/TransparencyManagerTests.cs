@@ -108,36 +108,58 @@ namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Tests
         public async Task LogReasoningStepAsync_ShouldThrow_WhenStepIsNull()
         {
             // Act & Assert
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _manager.LogReasoningStepAsync(null));
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _manager.LogReasoningStepAsync(null!));
         }
 
         /// <summary>
-        /// Verifies that GetDecisionRationalesAsync returns rationales.
+        /// Verifies that GetDecisionRationalesAsync returns rationales when found.
         /// </summary>
         [Fact]
         public async Task GetDecisionRationalesAsync_ShouldReturnRationales_WhenFound()
         {
             // Arrange
             string decisionId = "decision-789";
+            var mockResults = new List<Dictionary<string, object>>
+            {
+                new Dictionary<string, object>
+                {
+                    { "id", "rationale-1" },
+                    { "decisionId", decisionId },
+                    { "description", "Because A and B" },
+                    { "confidence", "0.85" },
+                    { "createdAt", DateTime.UtcNow.ToString() }
+                },
+                 new Dictionary<string, object>
+                {
+                    { "id", "rationale-2" },
+                    { "decisionId", decisionId },
+                    { "description", "Also C" },
+                    { "confidence", "0.75" },
+                    { "createdAt", DateTime.UtcNow.ToString() }
+                }
+            };
 
-            // Note: The current implementation of GetDecisionRationalesAsync in TransparencyManager
-            // is a placeholder that returns hardcoded data and does NOT query the KG manager.
-            // So we don't mock the KG manager calls for this specific test until the implementation is updated.
+            _mockKgManager
+                .Setup(m => m.QueryAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(mockResults);
 
             // Act
             var rationales = await _manager.GetDecisionRationalesAsync(decisionId);
 
             // Assert
             Assert.NotNull(rationales);
-            Assert.NotEmpty(rationales);
-            var firstRationale = System.Linq.Enumerable.First(rationales);
-            Assert.Equal(decisionId, firstRationale.DecisionId);
+            Assert.Collection(rationales,
+                r1 => Assert.Equal("rationale-1", r1.Id),
+                r2 => Assert.Equal("rationale-2", r2.Id)
+            );
+
+            _mockKgManager.Verify(m => m.QueryAsync(
+                It.Is<string>(q => q.Contains(decisionId) && q.Contains("DecisionRationale")),
+                It.IsAny<CancellationToken>()), Times.Once);
         }
 
         /// <summary>
-        /// Verifies that GetReasoningTraceAsync returns a trace with its steps.
+        /// Verifies that GetReasoningTraceAsync returns a trace with steps when found.
         /// </summary>
         [Fact]
         public async Task GetReasoningTraceAsync_ShouldReturnTraceWithSteps_WhenFound()
