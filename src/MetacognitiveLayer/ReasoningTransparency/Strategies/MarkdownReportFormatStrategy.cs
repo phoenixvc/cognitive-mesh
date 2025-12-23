@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency;
 
-namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Strategies
+namespace MetacognitiveLayer.ReasoningTransparency.Strategies
 {
     /// <summary>
     /// Generates transparency reports in Markdown format.

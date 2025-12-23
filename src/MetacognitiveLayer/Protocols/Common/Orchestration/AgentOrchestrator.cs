@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
-using System.Threading.Tasks;
+using MetacognitiveLayer.Protocols.Integration;
+using MetacognitiveLayer.Protocols.LLM;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common.Templates;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common.Tools;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Integration;
-using CognitiveMesh.MetacognitiveLayer.Protocols.LLM;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Orchestration
+namespace MetacognitiveLayer.Protocols.Common.Orchestration
 {
     /// <summary>
     /// Orchestrates the execution of agents using templates, LLM providers, and tools.

@@ -1,18 +1,17 @@
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
+using MetacognitiveLayer.Protocols.Common.Memory;
+using MetacognitiveLayer.Protocols.Common.Orchestration;
+using MetacognitiveLayer.Protocols.Common.Templates;
+using MetacognitiveLayer.Protocols.Common.Tools;
+using MetacognitiveLayer.Protocols.Integration;
+using MetacognitiveLayer.Protocols.LLM;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common.Orchestration;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common.Templates;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common.Tools;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Integration;
-using CognitiveMesh.MetacognitiveLayer.Protocols.LLM;
+using IAgentOrchestrator = MetacognitiveLayer.Protocols.Integration.IAgentOrchestrator;
+using IContextTemplateResolver = MetacognitiveLayer.Protocols.Integration.IContextTemplateResolver;
+using IMeshMemoryStore = MetacognitiveLayer.Protocols.Integration.IMeshMemoryStore;
+using IToolRunner = MetacognitiveLayer.Protocols.Integration.IToolRunner;
 
 namespace CognitiveMesh.MeshSimRuntime
 {

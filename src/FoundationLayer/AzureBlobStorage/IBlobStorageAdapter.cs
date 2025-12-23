@@ -1,10 +1,4 @@
-using Azure.Storage.Blobs;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace CognitiveMesh.FoundationLayer.AzureBlobStorage
+namespace FoundationLayer.AzureBlobStorage
 {
     /// <summary>
     /// Defines the contract for blob storage operations.

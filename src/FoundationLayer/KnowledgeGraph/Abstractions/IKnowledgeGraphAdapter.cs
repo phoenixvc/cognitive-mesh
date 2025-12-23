@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace CognitiveMesh.FoundationLayer.KnowledgeGraph.Abstractions
+namespace FoundationLayer.KnowledgeGraph.Abstractions
 {
     /// <summary>
     /// Defines the contract for knowledge graph operations.

@@ -1,13 +1,9 @@
-using CognitiveMesh.MetacognitiveLayer.CulturalAdaptation.Ports;
-using CognitiveMesh.MetacognitiveLayer.CulturalAdaptation.Ports.Models;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Threading.Tasks;
+using MetacognitiveLayer.CulturalAdaptation.Ports;
+using Microsoft.Extensions.Logging;
 
-namespace CognitiveMesh.MetacognitiveLayer.CulturalAdaptation.Engines
+namespace MetacognitiveLayer.CulturalAdaptation.Engines
 {
     /// <summary>
     /// Implements the core logic for adapting UI/UX and interaction patterns based on Geert Hofstede's

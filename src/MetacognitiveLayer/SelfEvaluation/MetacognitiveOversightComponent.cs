@@ -1,7 +1,9 @@
 using Azure.AI.OpenAI;
-using System.Text.Json;
+using CognitiveMesh.ReasoningLayer.AnalyticalReasoning;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
+
+namespace MetacognitiveLayer.SelfEvaluation;
 
 public class MetacognitiveOversightComponent
 {
@@ -104,15 +106,15 @@ public class MetacognitiveOversightComponent
         
         // Create system prompt
         var systemPrompt = "You are a factual accuracy evaluation system. " +
-                          "Assess whether the response contains factual claims that are supported by the provided knowledge. " +
-                          "Identify any factual errors or unsupported claims.";
+                           "Assess whether the response contains factual claims that are supported by the provided knowledge. " +
+                           "Identify any factual errors or unsupported claims.";
                           
         var userPrompt = $"Query: {query}\n\n" +
-                        $"Response to evaluate: {response}\n\n" +
-                        $"Knowledge sources:\n{knowledgeText}\n\n" +
-                        "Evaluate the factual accuracy of the response. " +
-                        "Provide a score from 0.0 (completely inaccurate) to 1.0 (completely accurate). " +
-                        "Explain your reasoning and identify any factual errors or unsupported claims.";
+                         $"Response to evaluate: {response}\n\n" +
+                         $"Knowledge sources:\n{knowledgeText}\n\n" +
+                         "Evaluate the factual accuracy of the response. " +
+                         "Provide a score from 0.0 (completely inaccurate) to 1.0 (completely accurate). " +
+                         "Explain your reasoning and identify any factual errors or unsupported claims.";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {
@@ -159,14 +161,14 @@ public class MetacognitiveOversightComponent
         
         // Create system prompt
         var systemPrompt = "You are a reasoning quality evaluation system. " +
-                          "Assess the logical coherence, consideration of multiple perspectives, and quality of inferences in the response.";
+                           "Assess the logical coherence, consideration of multiple perspectives, and quality of inferences in the response.";
                           
         var userPrompt = $"Query: {query}\n\n" +
-                        $"Response to evaluate: {response}\n\n" +
-                        $"Perspective analyses:\n{perspectivesText}\n\n" +
-                        "Evaluate the reasoning quality of the response. " +
-                        "Provide a score from 0.0 (poor reasoning) to 1.0 (excellent reasoning). " +
-                        "Consider logical coherence, consideration of multiple perspectives, and quality of inferences.";
+                         $"Response to evaluate: {response}\n\n" +
+                         $"Perspective analyses:\n{perspectivesText}\n\n" +
+                         "Evaluate the reasoning quality of the response. " +
+                         "Provide a score from 0.0 (poor reasoning) to 1.0 (excellent reasoning). " +
+                         "Consider logical coherence, consideration of multiple perspectives, and quality of inferences.";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {
@@ -198,13 +200,13 @@ public class MetacognitiveOversightComponent
     {
         // Create system prompt
         var systemPrompt = "You are a relevance evaluation system. " +
-                          "Assess how directly the response addresses the query and whether it contains irrelevant information.";
+                           "Assess how directly the response addresses the query and whether it contains irrelevant information.";
                           
         var userPrompt = $"Query: {query}\n\n" +
-                        $"Response to evaluate: {response}\n\n" +
-                        "Evaluate the relevance of the response to the query. " +
-                        "Provide a score from 0.0 (completely irrelevant) to 1.0 (perfectly relevant). " +
-                        "Explain your reasoning and identify any irrelevant content.";
+                         $"Response to evaluate: {response}\n\n" +
+                         "Evaluate the relevance of the response to the query. " +
+                         "Provide a score from 0.0 (completely irrelevant) to 1.0 (perfectly relevant). " +
+                         "Explain your reasoning and identify any irrelevant content.";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {
@@ -236,13 +238,13 @@ public class MetacognitiveOversightComponent
     {
         // Create system prompt
         var systemPrompt = "You are a completeness evaluation system. " +
-                          "Assess whether the response fully addresses all aspects of the query or if important elements are missing.";
+                           "Assess whether the response fully addresses all aspects of the query or if important elements are missing.";
                           
         var userPrompt = $"Query: {query}\n\n" +
-                        $"Response to evaluate: {response}\n\n" +
-                        "Evaluate the completeness of the response. " +
-                        "Provide a score from 0.0 (very incomplete) to 1.0 (fully complete). " +
-                        "Explain your reasoning and identify any missing elements.";
+                         $"Response to evaluate: {response}\n\n" +
+                         "Evaluate the completeness of the response. " +
+                         "Provide a score from 0.0 (very incomplete) to 1.0 (fully complete). " +
+                         "Explain your reasoning and identify any missing elements.";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {
@@ -297,13 +299,13 @@ public class MetacognitiveOversightComponent
         
         // Create system prompt
         var systemPrompt = "You are an improvement suggestion system. " +
-                          "Based on the evaluations of a response, suggest specific ways to improve it.";
+                           "Based on the evaluations of a response, suggest specific ways to improve it.";
                           
         var userPrompt = $"Query: {query}\n\n" +
-                        $"Response: {response}\n\n" +
-                        $"Evaluations:\n{evaluationsText}\n\n" +
-                        "Suggest 3-5 specific improvements that would address the weaknesses identified in the evaluations. " +
-                        "Format each suggestion as a separate point.";
+                         $"Response: {response}\n\n" +
+                         $"Evaluations:\n{evaluationsText}\n\n" +
+                         "Suggest 3-5 specific improvements that would address the weaknesses identified in the evaluations. " +
+                         "Format each suggestion as a separate point.";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {
@@ -421,15 +423,15 @@ public class MetacognitiveOversightComponent
         
         // Create system prompt
         var systemPrompt = "You are a response improvement system. " +
-                          "Your task is to generate an improved version of a response based on evaluation feedback. " +
-                          "Maintain the core information while addressing the identified weaknesses.";
+                           "Your task is to generate an improved version of a response based on evaluation feedback. " +
+                           "Maintain the core information while addressing the identified weaknesses.";
                           
         var userPrompt = $"Query: {query}\n\n" +
-                        $"Original Response: {originalResponse}\n\n" +
-                        $"Improvement Suggestions:\n{suggestionsText}\n\n" +
-                        $"Relevant Knowledge:\n{knowledgeText}\n\n" +
-                        $"Perspective Analyses:\n{perspectivesText}\n\n" +
-                        "Generate an improved response that addresses the suggestions while maintaining the core information.";
+                         $"Original Response: {originalResponse}\n\n" +
+                         $"Improvement Suggestions:\n{suggestionsText}\n\n" +
+                         $"Relevant Knowledge:\n{knowledgeText}\n\n" +
+                         $"Perspective Analyses:\n{perspectivesText}\n\n" +
+                         "Generate an improved response that addresses the suggestions while maintaining the core information.";
         
         var chatCompletionOptions = new ChatCompletionsOptions
         {

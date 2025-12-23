@@ -1,5 +1,6 @@
 using Azure.AI.OpenAI;
-using System.Text.Json;
+
+namespace MetacognitiveLayer.ContinuousLearning;
 
 public class LearningManager
 {

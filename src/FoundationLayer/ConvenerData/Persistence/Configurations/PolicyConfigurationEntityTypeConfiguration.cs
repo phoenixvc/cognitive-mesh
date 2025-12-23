@@ -1,9 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using CognitiveMesh.Shared.Models;
 using System.Text.Json;
 
-namespace CognitiveMesh.FoundationLayer.ConvenerData.Persistence.Configurations
+namespace FoundationLayer.ConvenerData.Persistence.Configurations
 {
     /// <summary>
     /// EF Core configuration for the PolicyConfiguration entity.

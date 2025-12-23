@@ -1,21 +1,10 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SendGrid;
-using SendGrid.Helpers.Mail;
-using CognitiveMesh.FoundationLayer.EnterpriseConnectors;
-using CognitiveMesh.FoundationLayer.Notifications;
+using FoundationLayer.EnterpriseConnectors;
 
-namespace CognitiveMesh.FoundationLayer.Notifications.Services
+namespace FoundationLayer.Notifications.Services
 {
     /// <summary>
     /// Concrete implementation of INotificationDeliveryService using SendGrid for email delivery.

@@ -1,11 +1,9 @@
-using System;
-using System.Threading.Tasks;
-using CognitiveMesh.MetacognitiveLayer.Protocols.MCP;
-using CognitiveMesh.MetacognitiveLayer.Protocols.ACP;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common;
+using MetacognitiveLayer.Protocols.ACP;
+using MetacognitiveLayer.Protocols.Common;
+using MetacognitiveLayer.Protocols.MCP;
 using Microsoft.Extensions.Logging;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols
+namespace MetacognitiveLayer.Protocols
 {
     /// <summary>
     /// The ProtocolOrchestrator is the main entry point for the Hybrid MCP + ACP Protocol system.

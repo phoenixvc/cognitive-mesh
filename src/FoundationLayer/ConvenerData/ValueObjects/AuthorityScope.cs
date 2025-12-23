@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace CognitiveMesh.FoundationLayer.ConvenerData.ValueObjects
+namespace FoundationLayer.ConvenerData.ValueObjects
 {
     /// <summary>
     /// Defines the scope of authority for an agent, including what domains it can act in,

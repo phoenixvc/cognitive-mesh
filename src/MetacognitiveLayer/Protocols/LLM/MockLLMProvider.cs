@@ -1,10 +1,8 @@
-using System;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.LLM
+namespace MetacognitiveLayer.Protocols.LLM
 {
     /// <summary>
     /// A mock LLM provider for testing purposes.

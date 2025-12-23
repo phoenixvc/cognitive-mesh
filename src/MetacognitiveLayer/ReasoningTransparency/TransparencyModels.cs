@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
+namespace MetacognitiveLayer.ReasoningTransparency
 {
     /// <summary>
     /// Represents a step in a reasoning process

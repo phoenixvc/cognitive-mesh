@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Xml;
-using System.Xml.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
+using MetacognitiveLayer.Protocols.Integration;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Integration;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Templates
+namespace MetacognitiveLayer.Protocols.Common.Templates
 {
     /// <summary>
     /// Implementation of the context template resolver for parsing XML-based ACP request templates.

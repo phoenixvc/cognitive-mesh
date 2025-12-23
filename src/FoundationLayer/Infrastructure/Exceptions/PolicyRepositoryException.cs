@@ -1,6 +1,4 @@
-using System;
-
-namespace CognitiveMesh.FoundationLayer.Infrastructure.Exceptions
+namespace FoundationLayer.Infrastructure.Exceptions
 {
     /// <summary>
     /// Exception thrown when an error occurs in the PolicyRepository.

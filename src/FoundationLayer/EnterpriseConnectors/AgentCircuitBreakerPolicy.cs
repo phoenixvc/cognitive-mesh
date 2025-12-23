@@ -1,9 +1,4 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-
-namespace CognitiveMesh.FoundationLayer.EnterpriseConnectors
+namespace FoundationLayer.EnterpriseConnectors
 {
     /// <summary>
     /// Implements a circuit breaker pattern for resilient API calls.

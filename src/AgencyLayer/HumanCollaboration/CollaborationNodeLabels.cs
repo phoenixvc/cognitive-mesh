@@ -1,4 +1,4 @@
-namespace CognitiveMesh.AgencyLayer.HumanCollaboration
+namespace AgencyLayer.HumanCollaboration
 {
     /// <summary>
     /// Defines node labels used in the collaboration knowledge graph.

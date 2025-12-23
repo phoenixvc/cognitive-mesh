@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+using AgencyLayer.HumanCollaboration.Features.Messages;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.Shared.Interfaces;
-using CognitiveMesh.AgencyLayer.HumanCollaboration.Features.Messages;
 
-namespace CognitiveMesh.AgencyLayer.HumanCollaboration
+namespace AgencyLayer.HumanCollaboration
 {
     /// <summary>
     /// Manages human-AI collaboration workflows and interactions

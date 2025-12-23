@@ -1,11 +1,6 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Azure.Storage.Files.DataLake;
-using Microsoft.Extensions.Logging;
-using CognitiveMesh.FoundationLayer.EnterpriseConnectors;
+using FoundationLayer.EnterpriseConnectors;
 
-namespace CognitiveMesh.FoundationLayer.OneLakeIntegration;
+namespace FoundationLayer.OneLakeIntegration;
 
 public class OneLakeIntegrationManager
 {

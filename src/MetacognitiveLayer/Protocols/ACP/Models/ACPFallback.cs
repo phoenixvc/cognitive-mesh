@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.ACP.Models
+namespace MetacognitiveLayer.Protocols.ACP.Models
 {
     /// <summary>
     /// Represents fallback behavior for an ACP task in case of failure.

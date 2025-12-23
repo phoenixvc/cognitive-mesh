@@ -1,14 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Search.Documents;
-using Azure.Search.Documents.Indexes;
-using Azure.Search.Documents.Indexes.Models;
-using Azure.Search.Documents.Models;
+
+namespace FoundationLayer.SemanticSearch;
 
 public class EnhancedRAGSystem
 {
@@ -188,7 +180,7 @@ public class EnhancedRAGSystem
         if (string.IsNullOrEmpty(systemPrompt))
         {
             systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
-                          "If the answer cannot be found in the context, say that you don't know.";
+                           "If the answer cannot be found in the context, say that you don't know.";
         }
         
         // Create completion options

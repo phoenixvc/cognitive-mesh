@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace CognitiveMesh.MetacognitiveLayer.SelfEvaluation
+namespace MetacognitiveLayer.SelfEvaluation
 {
     /// <summary>
     /// Provides self-evaluation capabilities for the cognitive mesh.

@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
 
-namespace CognitiveMesh.FoundationLayer.Security.Ports.Models
+namespace FoundationLayer.Security.Ports.Models
 {
     /// <summary>
     /// Represents the result of an authentication operation

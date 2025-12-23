@@ -1,7 +1,4 @@
-using System;
-using System.Threading.Tasks;
-using Azure.AI.OpenAI;
-using Microsoft.Extensions.Logging;
+namespace CognitiveMesh.ReasoningLayer.EthicalReasoning;
 
 public class EthicalReasoner
 {

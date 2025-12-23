@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Schema;
 using System.Xml.Serialization;
-using CognitiveMesh.MetacognitiveLayer.Protocols.ACP.Models;
-using CognitiveMesh.MetacognitiveLayer.Protocols.Common;
+using MetacognitiveLayer.Protocols.ACP.Models;
+using MetacognitiveLayer.Protocols.Common;
 using Microsoft.Extensions.Logging;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.ACP
+namespace MetacognitiveLayer.Protocols.ACP
 {
     /// <summary>
     /// Handles the AI Communication Protocol (ACP) operations, including parsing,

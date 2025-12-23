@@ -1,20 +1,9 @@
-using CognitiveMesh.FoundationLayer.ConvenerData.Persistence;
-using CognitiveMesh.FoundationLayer.Infrastructure.Exceptions;
-using CognitiveMesh.Shared.Interfaces;
-using CognitiveMesh.Shared.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
+using FoundationLayer.ConvenerData.Persistence;
+using FoundationLayer.Infrastructure.Exceptions;
 
 // --- Repository Implementation ---
-namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
+namespace FoundationLayer.Infrastructure.Repositories
 {
-    using CognitiveMesh.FoundationLayer.Infrastructure.Persistence;
-
     /// <summary>
     /// Implements the IPolicyRepository interface using Entity Framework Core.
     /// This class is responsible for all database operations related to routing policies,

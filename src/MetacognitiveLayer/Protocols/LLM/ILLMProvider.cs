@@ -1,6 +1,4 @@
-using System.Threading.Tasks;
-
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.LLM
+namespace MetacognitiveLayer.Protocols.LLM
 {
     /// <summary>
     /// Options for LLM completion requests.

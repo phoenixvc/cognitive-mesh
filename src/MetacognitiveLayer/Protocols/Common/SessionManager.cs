@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Concurrent;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common
+namespace MetacognitiveLayer.Protocols.Common
 {
     /// <summary>
     /// Manages sessions for the protocol system, including creation, retrieval, and cleanup.

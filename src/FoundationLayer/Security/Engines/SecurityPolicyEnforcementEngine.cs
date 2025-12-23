@@ -1,17 +1,8 @@
-using CognitiveMesh.FoundationLayer.Security.Ports;
-using CognitiveMesh.FoundationLayer.Security.Ports.Models;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
+using FoundationLayer.Security.Ports;
 
-namespace CognitiveMesh.FoundationLayer.Security.Engines
+namespace FoundationLayer.Security.Engines
 {
     /// <summary>
     /// Implements the core Zero-Trust security policy evaluation and enforcement logic.

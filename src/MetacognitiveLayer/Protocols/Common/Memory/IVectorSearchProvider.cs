@@ -1,4 +1,4 @@
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.Common.Memory
+namespace MetacognitiveLayer.Protocols.Common.Memory
 {
     public interface IVectorSearchProvider
     {

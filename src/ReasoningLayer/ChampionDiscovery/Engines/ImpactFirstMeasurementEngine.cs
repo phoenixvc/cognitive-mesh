@@ -1,10 +1,4 @@
 using CognitiveMesh.ReasoningLayer.ChampionDiscovery.Ports;
-using CognitiveMesh.ReasoningLayer.ChampionDiscovery.Ports.Models;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CognitiveMesh.ReasoningLayer.ChampionDiscovery.Engines
 {

@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.Shared.Interfaces;
 
-namespace CognitiveMesh.AgencyLayer.HumanCollaboration.Features.Messages
+namespace AgencyLayer.HumanCollaboration.Features.Messages
 {
     /// <summary>
     /// Handler for retrieving session messages.

@@ -1,9 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using CognitiveMesh.FoundationLayer.ConvenerData.Entities;
-using CognitiveMesh.Shared.Models;
-using CognitiveMesh.FoundationLayer.ConvenerData.Persistence.Configurations;
+using FoundationLayer.ConvenerData.Persistence.Configurations;
 
-namespace CognitiveMesh.FoundationLayer.ConvenerData.Persistence
+namespace FoundationLayer.ConvenerData.Persistence
 {
     public class ConvenerDbContext : DbContext
     {

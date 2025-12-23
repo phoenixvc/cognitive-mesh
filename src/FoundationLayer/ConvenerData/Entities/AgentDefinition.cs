@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using CognitiveMesh.FoundationLayer.ConvenerData.ValueObjects;
-
-namespace CognitiveMesh.FoundationLayer.ConvenerData.Entities
+namespace FoundationLayer.ConvenerData.Entities
 {
     /// <summary>
     /// Represents the definition of an agent in the system.

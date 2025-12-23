@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace CognitiveMesh.FoundationLayer.LLM.Abstractions
+namespace FoundationLayer.LLM.Abstractions
 {
     /// <summary>
     /// Defines the contract for interacting with a Language Model (LLM) service.

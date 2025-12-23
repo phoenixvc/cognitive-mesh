@@ -1,12 +1,8 @@
-using System;
 using System.Text.Json;
-using System.Threading.Tasks;
-using CognitiveMesh.MetacognitiveLayer.Protocols.MCP.Models;
+using MetacognitiveLayer.Protocols.MCP.Models;
 using Microsoft.Extensions.Logging;
-using System.Text.Json.Serialization;
-using System.Text.Json.Nodes;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.MCP
+namespace MetacognitiveLayer.Protocols.MCP
 {
     /// <summary>
     /// Handles the Model Context Protocol (MCP) operations, including parsing,

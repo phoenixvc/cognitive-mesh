@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-using Azure.AI.OpenAI;
 using CognitiveMesh.ReasoningLayer.AnalyticalReasoning.Models;
 
 namespace CognitiveMesh.ReasoningLayer.AnalyticalReasoning;

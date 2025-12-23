@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using MediatR;
-
-namespace CognitiveMesh.AgencyLayer.HumanCollaboration.Features.Messages
+namespace AgencyLayer.HumanCollaboration.Features.Messages
 {
     /// <summary>
     /// Query to retrieve messages for a session.

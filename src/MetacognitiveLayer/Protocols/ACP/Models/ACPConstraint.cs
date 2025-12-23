@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
 
-namespace CognitiveMesh.MetacognitiveLayer.Protocols.ACP.Models
+namespace MetacognitiveLayer.Protocols.ACP.Models
 {
     /// <summary>
     /// Represents a constraint on a parameter in an ACP task.
