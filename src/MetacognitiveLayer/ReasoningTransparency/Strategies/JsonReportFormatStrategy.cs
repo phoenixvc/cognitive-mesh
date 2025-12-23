@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace MetacognitiveLayer.ReasoningTransparency.Strategies
+namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Strategies
 {
     /// <summary>
     /// Generates transparency reports in JSON format.
