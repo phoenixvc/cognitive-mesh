@@ -1,5 +1,6 @@
 using System.Text.Json;
 using MetacognitiveLayer.ReasoningTransparency.Strategies;
+using CognitiveMesh.Shared.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace MetacognitiveLayer.ReasoningTransparency
@@ -98,30 +99,56 @@ namespace MetacognitiveLayer.ReasoningTransparency
             {
                 _logger.LogInformation("Retrieving rationales for decision: {DecisionId}", decisionId);
                 
-                // Placeholder implementation
-                await Task.Delay(100, cancellationToken);
-                
-                return new[]
+                var searchProps = new Dictionary<string, object>
                 {
-                    new DecisionRationale
-                    {
-                        Id = $"{decisionId}-1",
-                        DecisionId = decisionId,
-                        Description = "Sample rationale for the decision",
-                        Confidence = 0.9f,
-                        Factors = new Dictionary<string, float>
-                        {
-                            ["factor1"] = 0.8f,
-                            ["factor2"] = 0.7f
-                        },
-                        CreatedAt = DateTime.UtcNow
-                    }
+                    { nameof(DecisionRationaleNode.DecisionId), decisionId }
                 };
+
+                var rationaleNodes = await _knowledgeGraphManager.FindNodesAsync<DecisionRationaleNode>(searchProps, cancellationToken);
+
+                var rationales = new List<DecisionRationale>();
+                if (rationaleNodes != null)
+                {
+                    foreach (var node in rationaleNodes.Take(limit))
+                    {
+                        rationales.Add(MapToDecisionRationale(node));
+                    }
+                }
+
+                return rationales;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving decision rationales for decision: {DecisionId}", decisionId);
                 throw;
+            }
+        }
+
+        private DecisionRationale MapToDecisionRationale(DecisionRationaleNode node)
+        {
+            return new DecisionRationale
+            {
+                Id = node.Id,
+                DecisionId = node.DecisionId,
+                Description = node.Description,
+                Confidence = node.Confidence,
+                CreatedAt = node.CreatedAt,
+                Factors = DeserializeFactors(node.FactorsJson)
+            };
+        }
+
+        private Dictionary<string, float> DeserializeFactors(string json)
+        {
+            if (string.IsNullOrEmpty(json))
+                return new Dictionary<string, float>();
+
+            try
+            {
+                return JsonSerializer.Deserialize<Dictionary<string, float>>(json) ?? new Dictionary<string, float>();
+            }
+            catch (JsonException)
+            {
+                return new Dictionary<string, float>();
             }
         }
 
