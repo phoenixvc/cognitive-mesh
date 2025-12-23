@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FoundationLayer.AuditLogging.Models;
+using FoundationLayer.EnterpriseConnectors;
 
 namespace FoundationLayer.AuditLogging;
 // <-- new models (ethical/legal events)
