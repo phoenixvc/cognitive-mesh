@@ -1,4 +1,4 @@
-namespace MetacognitiveLayer.ReasoningTransparency.Strategies
+namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Strategies
 {
     /// <summary>
     /// Strategy interface for formatting transparency reports.
