@@ -1,0 +1,65 @@
+using System.Text.Json;
+
+namespace AgencyLayer.Orchestration.Checkpointing;
+
+/// <summary>
+/// Manages execution checkpoints for durable workflow execution.
+/// Enables crash recovery and long-horizon sequential task completion.
+/// </summary>
+public interface ICheckpointManager
+{
+    /// <summary>
+    /// Saves an execution checkpoint that can be used to resume from this point.
+    /// </summary>
+    Task SaveCheckpointAsync(ExecutionCheckpoint checkpoint, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves a specific checkpoint by its ID.
+    /// </summary>
+    Task<ExecutionCheckpoint?> GetCheckpointAsync(string workflowId, string checkpointId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the latest checkpoint for a workflow, enabling resume-from-last-good-state.
+    /// </summary>
+    Task<ExecutionCheckpoint?> GetLatestCheckpointAsync(string workflowId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Lists all checkpoints for a workflow in step order.
+    /// </summary>
+    Task<IEnumerable<ExecutionCheckpoint>> GetWorkflowCheckpointsAsync(string workflowId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes all checkpoints for a completed workflow to free resources.
+    /// </summary>
+    Task PurgeWorkflowCheckpointsAsync(string workflowId, CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+/// Represents a single checkpoint in a workflow execution chain.
+/// </summary>
+public class ExecutionCheckpoint
+{
+    public string CheckpointId { get; set; } = Guid.NewGuid().ToString();
+    public string WorkflowId { get; set; } = string.Empty;
+    public int StepNumber { get; set; }
+    public string StepName { get; set; } = string.Empty;
+    public ExecutionStepStatus Status { get; set; } = ExecutionStepStatus.Completed;
+    public string StateJson { get; set; } = "{}";
+    public string InputJson { get; set; } = "{}";
+    public string OutputJson { get; set; } = "{}";
+    public string? ErrorMessage { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public TimeSpan ExecutionDuration { get; set; }
+
+    public T? DeserializeState<T>() => JsonSerializer.Deserialize<T>(StateJson);
+    public T? DeserializeOutput<T>() => JsonSerializer.Deserialize<T>(OutputJson);
+}
+
+public enum ExecutionStepStatus
+{
+    Pending,
+    Running,
+    Completed,
+    Failed,
+    Skipped
+}
