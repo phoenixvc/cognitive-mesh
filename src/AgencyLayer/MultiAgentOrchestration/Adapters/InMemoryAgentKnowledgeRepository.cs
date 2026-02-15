@@ -20,6 +20,7 @@ public class InMemoryAgentKnowledgeRepository : IAgentKnowledgeRepository
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <inheritdoc/>
     public Task StoreAgentDefinitionAsync(AgentDefinition definition)
     {
         _definitions[definition.AgentType] = definition;
@@ -27,12 +28,18 @@ public class InMemoryAgentKnowledgeRepository : IAgentKnowledgeRepository
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public Task<AgentDefinition> GetAgentDefinitionAsync(string agentType)
     {
         _definitions.TryGetValue(agentType, out var definition);
+        if (definition == null)
+        {
+            _logger.LogWarning("Agent definition not found for type: {AgentType}", agentType);
+        }
         return Task.FromResult(definition!);
     }
 
+    /// <inheritdoc/>
     public Task StoreLearningInsightAsync(AgentLearningInsight insight)
     {
         _insights.Add(insight);
@@ -40,9 +47,9 @@ public class InMemoryAgentKnowledgeRepository : IAgentKnowledgeRepository
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public Task<IEnumerable<AgentLearningInsight>> GetRelevantInsightsAsync(string taskGoal)
     {
-        // Simple keyword matching — a real implementation would use vector search
         var relevant = _insights
             .Where(i => i.InsightType != null &&
                 (taskGoal.Contains(i.InsightType, StringComparison.OrdinalIgnoreCase) ||

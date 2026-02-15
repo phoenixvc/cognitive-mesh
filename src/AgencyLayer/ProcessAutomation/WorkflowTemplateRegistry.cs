@@ -31,6 +31,7 @@ public class WorkflowTemplateRegistry
 
     /// <summary>
     /// Creates a WorkflowDefinition from a registered template.
+    /// Thread-safe: captures the template reference atomically via ConcurrentDictionary.TryGetValue.
     /// </summary>
     public WorkflowDefinition? CreateWorkflowFromTemplate(string templateId, Dictionary<string, object>? parameters = null)
     {
@@ -40,14 +41,22 @@ public class WorkflowTemplateRegistry
             return null;
         }
 
-        var workflow = template.BuildWorkflow(parameters ?? new Dictionary<string, object>());
+        // template is a snapshot reference — safe to use even if registry is modified concurrently
+        var buildFunc = template.BuildWorkflow;
+        var workflow = buildFunc(parameters ?? new Dictionary<string, object>());
         _logger.LogInformation("Created workflow {WorkflowId} from template {TemplateId}", workflow.WorkflowId, templateId);
         return workflow;
     }
 
+    /// <summary>
+    /// Checks if a registered template is pre-approved for governance bypass.
+    /// </summary>
     public bool IsPreApproved(string templateId) =>
         _templates.TryGetValue(templateId, out var template) && template.IsPreApproved;
 
+    /// <summary>
+    /// Returns all registered workflow templates.
+    /// </summary>
     public IEnumerable<WorkflowTemplate> GetAllTemplates() => _templates.Values;
 }
 

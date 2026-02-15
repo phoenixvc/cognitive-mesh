@@ -292,4 +292,140 @@ public class DurableWorkflowEngineTests
         result.CompletedSteps.Should().Be(100);
         result.Checkpoints.Should().HaveCount(100);
     }
+
+    [Fact]
+    public async Task ResumeWorkflowAsync_ResumesFromLastCheckpoint()
+    {
+        int executionCount = 0;
+        var workflow = new WorkflowDefinition
+        {
+            Name = "ResumeTest",
+            MaxRetryPerStep = 0,
+            Steps = new List<WorkflowStepDefinition>
+            {
+                new()
+                {
+                    StepNumber = 0,
+                    Name = "Step 0",
+                    ExecuteFunc = (ctx, ct) =>
+                    {
+                        executionCount++;
+                        return Task.FromResult(new WorkflowStepResult
+                        {
+                            Success = true,
+                            Output = "step0",
+                            StateUpdates = new Dictionary<string, object> { ["progress"] = 0 }
+                        });
+                    }
+                },
+                new()
+                {
+                    StepNumber = 1,
+                    Name = "Step 1 - Fails first time",
+                    ExecuteFunc = (ctx, ct) =>
+                    {
+                        executionCount++;
+                        // Fail on first run (count <= 2 means first workflow attempt)
+                        bool shouldSucceed = executionCount > 3;
+                        return Task.FromResult(new WorkflowStepResult
+                        {
+                            Success = shouldSucceed,
+                            Output = shouldSucceed ? "recovered" : null,
+                            ErrorMessage = shouldSucceed ? null : "Simulated crash"
+                        });
+                    }
+                },
+                new()
+                {
+                    StepNumber = 2,
+                    Name = "Step 2",
+                    ExecuteFunc = (ctx, ct) =>
+                    {
+                        executionCount++;
+                        return Task.FromResult(new WorkflowStepResult
+                        {
+                            Success = true,
+                            Output = "final"
+                        });
+                    }
+                }
+            }
+        };
+
+        // First attempt: should fail at step 1
+        var firstResult = await _sut.ExecuteWorkflowAsync(workflow);
+        firstResult.Success.Should().BeFalse();
+        firstResult.CompletedSteps.Should().Be(1); // Step 0 succeeded
+
+        // Resume: should retry step 1 (which now succeeds) and continue to step 2
+        var resumeResult = await _sut.ResumeWorkflowAsync(workflow.WorkflowId);
+        resumeResult.Success.Should().BeTrue();
+        resumeResult.FinalOutput.Should().Be("final");
+    }
+
+    [Fact]
+    public async Task ExecuteWorkflowAsync_StateIntegrity_PreservesAcrossAllSteps()
+    {
+        // Verify that state accumulates correctly across many steps
+        var workflow = new WorkflowDefinition
+        {
+            Name = "StateIntegrity",
+            Steps = Enumerable.Range(0, 50).Select(i => new WorkflowStepDefinition
+            {
+                StepNumber = i,
+                Name = $"Accumulate {i}",
+                ExecuteFunc = (ctx, ct) =>
+                {
+                    // Verify all previous state entries exist
+                    for (int j = 0; j < i; j++)
+                    {
+                        if (!ctx.State.ContainsKey($"step_{j}"))
+                        {
+                            return Task.FromResult(new WorkflowStepResult
+                            {
+                                Success = false,
+                                ErrorMessage = $"State corruption: missing step_{j} at step {i}"
+                            });
+                        }
+                    }
+
+                    return Task.FromResult(new WorkflowStepResult
+                    {
+                        Success = true,
+                        Output = i,
+                        StateUpdates = new Dictionary<string, object> { [$"step_{i}"] = i * 10 }
+                    });
+                }
+            }).ToList()
+        };
+
+        var result = await _sut.ExecuteWorkflowAsync(workflow);
+
+        result.Success.Should().BeTrue("all 50 steps should find their predecessor's state");
+        result.CompletedSteps.Should().Be(50);
+    }
+
+    [Fact]
+    public async Task ExecuteWorkflowAsync_ExceptionInStep_HandledAsFailure()
+    {
+        var workflow = new WorkflowDefinition
+        {
+            Name = "ExceptionTest",
+            MaxRetryPerStep = 0,
+            Steps = new List<WorkflowStepDefinition>
+            {
+                new()
+                {
+                    StepNumber = 0,
+                    Name = "Throws",
+                    ExecuteFunc = (ctx, ct) => throw new InvalidOperationException("Step exploded")
+                }
+            }
+        };
+
+        var result = await _sut.ExecuteWorkflowAsync(workflow);
+
+        result.Success.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("Step exploded");
+    }
 }

@@ -30,6 +30,7 @@ public class InProcessAgentRuntimeAdapter : IAgentRuntimeAdapter
         _logger.LogInformation("Registered handler for agent type: {AgentType}", agentType);
     }
 
+    /// <inheritdoc/>
     public async Task<object> ExecuteAgentLogicAsync(string agentId, AgentTask subTask)
     {
         _logger.LogDebug("Executing agent logic for {AgentId}, goal: {Goal}", agentId, subTask.Goal);
@@ -58,6 +59,7 @@ public class InProcessAgentRuntimeAdapter : IAgentRuntimeAdapter
         return new { AgentId = agentId, Goal = subTask.Goal, Result = "Acknowledged", Status = "NoHandler" };
     }
 
+    /// <inheritdoc/>
     public Task<string> ProvisionAgentInstanceAsync(DynamicAgentSpawnRequest request)
     {
         var agentId = $"agent-{request.AgentType}-{Guid.NewGuid():N}".Substring(0, 40);

@@ -64,19 +64,41 @@ public class TaskRouter
     }
 }
 
+/// <summary>
+/// Request to route a task to the appropriate execution path.
+/// </summary>
 public class TaskRoutingRequest
 {
+    /// <summary>Workflow definition for multi-step sequential execution.</summary>
     public WorkflowDefinition? WorkflowDefinition { get; set; }
+
+    /// <summary>Agent execution request for single-step multi-agent coordination.</summary>
     public AgentExecutionRequest? AgentExecutionRequest { get; set; }
 }
 
+/// <summary>
+/// Result of a routed task execution.
+/// </summary>
 public class TaskRoutingResult
 {
+    /// <summary>Whether the routed task completed successfully.</summary>
     public bool Success { get; set; }
+
+    /// <summary>Final output of the executed task.</summary>
     public object? Output { get; set; }
+
+    /// <summary>Error message if the task failed.</summary>
     public string? ErrorMessage { get; set; }
+
+    /// <summary>Number of steps completed.</summary>
     public int CompletedSteps { get; set; }
+
+    /// <summary>Total number of steps in the task.</summary>
     public int TotalSteps { get; set; }
+
+    /// <summary>Total execution duration.</summary>
     public TimeSpan Duration { get; set; }
+
+    /// <summary>Which execution path was used (WorkflowEngine or MultiAgentOrchestration).</summary>
     public string RoutedTo { get; set; } = string.Empty;
 }

@@ -109,12 +109,21 @@ public class WorkflowStatus
     public DateTime? CompletedAt { get; set; }
 }
 
+/// <summary>
+/// State of a workflow execution lifecycle.
+/// </summary>
 public enum WorkflowState
 {
+    /// <summary>Workflow has not started.</summary>
     Pending,
+    /// <summary>Workflow is actively executing steps.</summary>
     Running,
+    /// <summary>All steps completed successfully.</summary>
     Completed,
+    /// <summary>Workflow failed at a step after exhausting retries.</summary>
     Failed,
+    /// <summary>Workflow was cancelled by the caller.</summary>
     Cancelled,
+    /// <summary>Workflow is suspended and can be resumed.</summary>
     Suspended
 }

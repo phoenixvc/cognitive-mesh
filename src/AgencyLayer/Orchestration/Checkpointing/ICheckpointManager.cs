@@ -55,11 +55,19 @@ public class ExecutionCheckpoint
     public T? DeserializeOutput<T>() => JsonSerializer.Deserialize<T>(OutputJson);
 }
 
+/// <summary>
+/// Status of a single execution step within a workflow.
+/// </summary>
 public enum ExecutionStepStatus
 {
+    /// <summary>Step has not started.</summary>
     Pending,
+    /// <summary>Step is currently executing.</summary>
     Running,
+    /// <summary>Step completed successfully.</summary>
     Completed,
+    /// <summary>Step failed after exhausting retries.</summary>
     Failed,
+    /// <summary>Step was skipped (e.g., due to conditional logic).</summary>
     Skipped
 }
