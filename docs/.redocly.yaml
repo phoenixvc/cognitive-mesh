@@ -5,157 +5,43 @@ extends:
 rules:
   # Information rules
   info-contact: error
-  info-description: error
   info-license: error
-  info-license-url: error
+  info-license-strict: error
   tag-description: error
+
+  # Operation rules
   operation-description: error
   operation-tag-defined: error
-  operation-tag-naming-convention: error
   operation-operationId: error
   operation-summary: error
   operation-operationId-unique: error
-  operation-2xx-response: error
   operation-operationId-url-safe: error
-  
+  operation-2xx-response: error
+  operation-4xx-response: warn
+
   # Parameter rules
   parameter-description: error
   path-parameters-defined: error
   path-declaration-must-exist: error
   path-not-include-query: error
-  path-params-defined: error
-  
+
   # Schema rules
-  no-schema-anyof: error
   no-identical-paths: error
   no-http-verbs-in-paths: error
   no-invalid-parameter-examples: error
   no-invalid-schema-examples: error
   no-invalid-media-type-examples: error
-  
-  # Security rules
-  security-defined: error
-  oas3-api-servers: error
-  no-server-example.com: error
-  no-server-trailing-slash: error
-  
-  # Style rules
-  spec: error
-  spec-components-invalid-map-name: error
-  spec-components-valid-structure: error
-  spec-components-valid-type: error
-  spec-paths: error
-  spec-components-security-schemes: error
-  spec-oas3-apis: error
-  spec-components-schemas: error
-  spec-components-responses: error
-  spec-components-parameters: error
-  spec-components-examples: error
-  spec-components-request-bodies: error
-  spec-components-headers: error
-  spec-components-links: error
-  spec-components-callbacks: error
-  spec-components-security-schemes-oauth2: error
-  spec-components-security-schemes-api-key: error
-  spec-components-security-schemes-http: error
-  spec-components-security-schemes-open-id-connect: error
-  spec-components-security-schemes-oauth-flows: error
-  spec-components-security-schemes-oauth2-flows: error
-  spec-components-security-schemes-oauth2-flow: error
-  spec-components-security-schemes-oauth2-flows-password: error
-  spec-components-security-schemes-oauth2-flows-client-credentials: error
-  spec-components-security-schemes-oauth2-flows-authorization-code: error
-  spec-components-security-schemes-oauth2-flows-implicit: error
-  spec-components-security-schemes-oauth2-flows-token-url: error
-  spec-components-security-schemes-oauth2-flows-authorization-url: error
-  spec-components-security-schemes-oauth2-flows-refresh-url: error
-  spec-components-security-schemes-oauth2-flows-scopes: error
-  spec-components-security-schemes-oauth2-flows-scope: error
-  spec-components-security-schemes-oauth2-flows-scope-name: error
-  spec-components-security-schemes-oauth2-flows-scope-description: error
-  spec-components-security-schemes-oauth2-flows-scope-required: error
-  spec-components-security-schemes-oauth2-flows-scope-required-false: error
-  spec-components-security-schemes-oauth2-flows-scope-required-true: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2: error
-  spec-components-security-schemes-oauth2-flows-scope-required-open-id-connect: error
-  spec-components-security-schemes-oauth2-flows-scope-required-api-key: error
-  spec-components-security-schemes-oauth2-flows-scope-required-http: error
-  spec-components-security-schemes-oauth2-flows-scope-required-mutual-tls: error
-  spec-components-security-schemes-oauth2-flows-scope-required-openid-connect: error
-  # Removed duplicate: spec-components-security-schemes-oauth2-flows-scope-required-oauth2: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-implicit: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-password: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-client-credentials: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-authorization-code: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-token: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-authorization: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-implicit-token: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-implicit-authorization: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-password-token: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-password-authorization: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-client-credentials-token: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-client-credentials-authorization: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-authorization-code-token: error
-  spec-components-security-schemes-oauth2-flows-scope-required-oauth2-authorization-code-authorization: error
-  
-  # Custom rules
-  no-single-allof: off
-  no-empty-servers: off
+  no-unused-components: warn
   no-example-value-and-externalValue: warn
 
-  # Disable some strict rules
+  # Security rules
+  security-defined: error
+
+  # Server rules
+  no-server-example.com: error
+  no-server-trailing-slash: error
+  no-empty-servers: off
+
+  # Style rules
+  spec-components-invalid-map-name: error
   no-ambiguous-paths: off
-  path-http-verbs-order: off
-  
-  # Customize rule settings
-  operation-4xx-response: warn
-  no-unused-schemas: warn
-  no-unused-parameters: warn
-  no-unused-responses: warn
-  no-unused-examples: warn
-  no-unused-request-bodies: warn
-  no-unused-headers: warn
-  no-unused-security-schemes: warn
-  no-unused-callbacks: warn
-  no-unused-links: warn
-  no-unused-components: warn
-  no-unused-components-schemas: warn
-  no-unused-components-parameters: warn
-  no-unused-components-responses: warn
-  no-unused-components-examples: warn
-  no-unused-components-request-bodies: warn
-  no-unused-components-headers: warn
-  no-unused-components-security-schemes: warn
-  no-unused-components-links: warn
-  no-unused-components-callbacks: warn
-  no-unused-components-path-items: warn
-  no-unused-components-message: warn
-  no-unused-components-correlation-id: warn
-  no-unused-components-parameter: warn
-  no-unused-components-header: warn
-  no-unused-components-encoding: warn
-  no-unused-components-example: warn
-  no-unused-components-link: warn
-  no-unused-components-callback: warn
-  no-unused-components-schema: warn
-  no-unused-components-response: warn
-  no-unused-components-request-body: warn
-  no-unused-components-security-scheme: warn
-  no-unused-components-path-item: warn
-  no-unused-components-message-trait: warn
-  no-unused-components-message-example: warn
-  no-unused-components-message-trait-example: warn
-  no-unused-components-message-trait-message: warn
-  no-unused-components-message-trait-message-example: warn
-  no-unused-components-message-trait-message-trait: warn
-  no-unused-components-message-trait-message-trait-example: warn
-  no-unused-components-message-trait-message-trait-message: warn
-  no-unused-components-message-trait-message-trait-message-example: warn
-  no-unused-components-message-trait-message-trait-message-trait: warn
-  no-unused-components-message-trait-message-trait-message-trait-example: warn
-  no-unused-components-message-trait-message-trait-message-trait-message: warn
-  no-unused-components-message-trait-message-trait-message-trait-message-example: warn
-  no-unused-components-message-trait-message-trait-message-trait-message-trait: warn
-  no-unused-components-message-trait-message-trait-message-trait-message-trait-example: warn
-  no-unused-components-message-trait-message-trait-message-trait-message-trait-message: warn
-  no-unused-components-message-trait-message-trait-message-trait-message-trait-message-example: warn
