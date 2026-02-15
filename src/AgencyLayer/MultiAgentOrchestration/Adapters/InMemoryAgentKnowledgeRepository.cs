@@ -23,20 +23,23 @@ public class InMemoryAgentKnowledgeRepository : IAgentKnowledgeRepository
     /// <inheritdoc/>
     public Task StoreAgentDefinitionAsync(AgentDefinition definition)
     {
+        ArgumentNullException.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(definition.AgentType);
+
         _definitions[definition.AgentType] = definition;
         _logger.LogDebug("Stored agent definition for type: {AgentType}", definition.AgentType);
         return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
-    public Task<AgentDefinition> GetAgentDefinitionAsync(string agentType)
+    public Task<AgentDefinition?> GetAgentDefinitionAsync(string agentType)
     {
         _definitions.TryGetValue(agentType, out var definition);
         if (definition == null)
         {
             _logger.LogWarning("Agent definition not found for type: {AgentType}", agentType);
         }
-        return Task.FromResult(definition!);
+        return Task.FromResult(definition);
     }
 
     /// <inheritdoc/>

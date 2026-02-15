@@ -23,7 +23,7 @@ public interface IAgentRuntimeAdapter
 public interface IAgentKnowledgeRepository
 {
     Task StoreAgentDefinitionAsync(AgentDefinition definition);
-    Task<AgentDefinition> GetAgentDefinitionAsync(string agentType);
+    Task<AgentDefinition?> GetAgentDefinitionAsync(string agentType);
     Task StoreLearningInsightAsync(AgentLearningInsight insight);
     Task<IEnumerable<AgentLearningInsight>> GetRelevantInsightsAsync(string taskGoal);
 }
@@ -84,7 +84,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     }
 
     /// <inheritdoc />
-    public async Task<AgentExecutionResponse> ExecuteTaskAsync(AgentExecutionRequest request)
+    public async Task<AgentExecutionResponse> ExecuteTaskAsync(AgentExecutionRequest request, CancellationToken cancellationToken = default)
     {
         var task = request.Task;
         _activeTasks[task.TaskId] = task;

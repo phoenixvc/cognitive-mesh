@@ -25,7 +25,7 @@ public class MakerBenchmarkTests
     }
 
     [Fact]
-    public async Task GenerateHanoiMoves_1Disc_Returns1Move()
+    public void GenerateHanoiMoves_1Disc_Returns1Move()
     {
         var moves = MakerBenchmark.GenerateHanoiMoves(1);
         moves.Should().HaveCount(1);
@@ -35,14 +35,14 @@ public class MakerBenchmarkTests
     }
 
     [Fact]
-    public async Task GenerateHanoiMoves_3Discs_Returns7Moves()
+    public void GenerateHanoiMoves_3Discs_Returns7Moves()
     {
         var moves = MakerBenchmark.GenerateHanoiMoves(3);
         moves.Should().HaveCount(7); // 2^3 - 1
     }
 
     [Fact]
-    public async Task GenerateHanoiMoves_ValidMovesOnly()
+    public void GenerateHanoiMoves_ValidMovesOnly()
     {
         // Verify no move places a larger disc on a smaller disc
         var moves = MakerBenchmark.GenerateHanoiMoves(4);

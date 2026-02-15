@@ -33,6 +33,10 @@ public class DurableWorkflowEngine : IWorkflowEngine
         if (workflow.Steps.Count == 0) throw new ArgumentException("Workflow must have at least one step.", nameof(workflow));
 
         _workflowDefinitions[workflow.WorkflowId] = workflow;
+        if (_cancellationTokens.TryRemove(workflow.WorkflowId, out var previousCts))
+        {
+            previousCts.Dispose();
+        }
         var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _cancellationTokens[workflow.WorkflowId] = cts;
 
@@ -62,6 +66,10 @@ public class DurableWorkflowEngine : IWorkflowEngine
         if (latestCheckpoint == null)
             throw new InvalidOperationException($"No checkpoints found for workflow {workflowId}. Cannot resume.");
 
+        if (_cancellationTokens.TryRemove(workflowId, out var previousCts))
+        {
+            previousCts.Dispose();
+        }
         var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _cancellationTokens[workflowId] = cts;
 
@@ -137,7 +145,9 @@ public class DurableWorkflowEngine : IWorkflowEngine
                 status.CurrentStepName = step.Name;
             }
 
+            var stepStopwatch = Stopwatch.StartNew();
             var stepResult = await ExecuteStepWithRetryAsync(workflow, step, state, currentOutput, cancellationToken);
+            stepStopwatch.Stop();
 
             var checkpoint = new ExecutionCheckpoint
             {
@@ -149,7 +159,7 @@ public class DurableWorkflowEngine : IWorkflowEngine
                 InputJson = JsonSerializer.Serialize(new { PreviousOutput = currentOutput }),
                 OutputJson = stepResult.Output != null ? JsonSerializer.Serialize(stepResult.Output) : "{}",
                 ErrorMessage = stepResult.ErrorMessage,
-                ExecutionDuration = overallStopwatch.Elapsed
+                ExecutionDuration = stepStopwatch.Elapsed
             };
 
             await _checkpointManager.SaveCheckpointAsync(checkpoint, cancellationToken);
@@ -290,7 +300,13 @@ public class DurableWorkflowEngine : IWorkflowEngine
         {
             status.State = state;
             if (state is WorkflowState.Completed or WorkflowState.Failed or WorkflowState.Cancelled)
+            {
                 status.CompletedAt = DateTime.UtcNow;
+                if (_cancellationTokens.TryRemove(workflowId, out var cts))
+                {
+                    cts.Dispose();
+                }
+            }
         }
     }
 }

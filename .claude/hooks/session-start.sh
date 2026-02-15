@@ -28,7 +28,7 @@ fi
 echo "Building..."
 BUILD_OUTPUT=$(dotnet build CognitiveMesh.sln --no-restore --verbosity quiet 2>&1 || true)
 if echo "$BUILD_OUTPUT" | grep -q "Build succeeded"; then
-    WARN_COUNT=$(echo "$BUILD_OUTPUT" | grep -oP '\d+ Warning' | head -1 || echo "0")
+    WARN_COUNT=$(echo "$BUILD_OUTPUT" | grep -E -o '[0-9]+ Warning' | head -1 || echo "0")
     echo "Build: PASSED ($WARN_COUNT)"
 else
     ERROR_LINES=$(echo "$BUILD_OUTPUT" | grep -E "error [A-Z]+[0-9]+" | head -5)

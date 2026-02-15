@@ -200,11 +200,12 @@ public interface IMultiAgentOrchestrationPort
     /// Executes a complex task by assembling and coordinating a team of agents.
     /// </summary>
     /// <param name="request">The request detailing the task to be executed.</param>
+    /// <param name="cancellationToken">Token to cancel the orchestration.</param>
     /// <returns>The result of the multi-agent task execution.</returns>
     /// <remarks>
     /// **Acceptance Criteria:** Given an agent workflow, when triggered, the orchestrator makes a decision and dispatches tasks to the appropriate agents.
     /// </remarks>
-    Task<AgentExecutionResponse> ExecuteTaskAsync(AgentExecutionRequest request);
+    Task<AgentExecutionResponse> ExecuteTaskAsync(AgentExecutionRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Dynamically sets the autonomy level for a specific agent instance or type.

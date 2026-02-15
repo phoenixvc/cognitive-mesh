@@ -296,7 +296,7 @@ public class DurableWorkflowEngineTests
     [Fact]
     public async Task ResumeWorkflowAsync_ResumesFromLastCheckpoint()
     {
-        int executionCount = 0;
+        bool step1FirstAttempt = true;
         var workflow = new WorkflowDefinition
         {
             Name = "ResumeTest",
@@ -307,16 +307,12 @@ public class DurableWorkflowEngineTests
                 {
                     StepNumber = 0,
                     Name = "Step 0",
-                    ExecuteFunc = (ctx, ct) =>
+                    ExecuteFunc = (ctx, ct) => Task.FromResult(new WorkflowStepResult
                     {
-                        executionCount++;
-                        return Task.FromResult(new WorkflowStepResult
-                        {
-                            Success = true,
-                            Output = "step0",
-                            StateUpdates = new Dictionary<string, object> { ["progress"] = 0 }
-                        });
-                    }
+                        Success = true,
+                        Output = "step0",
+                        StateUpdates = new Dictionary<string, object> { ["progress"] = 0 }
+                    })
                 },
                 new()
                 {
@@ -324,9 +320,8 @@ public class DurableWorkflowEngineTests
                     Name = "Step 1 - Fails first time",
                     ExecuteFunc = (ctx, ct) =>
                     {
-                        executionCount++;
-                        // Fail on first run (count <= 2 means first workflow attempt)
-                        bool shouldSucceed = executionCount > 3;
+                        bool shouldSucceed = !step1FirstAttempt;
+                        step1FirstAttempt = false;
                         return Task.FromResult(new WorkflowStepResult
                         {
                             Success = shouldSucceed,
@@ -339,15 +334,11 @@ public class DurableWorkflowEngineTests
                 {
                     StepNumber = 2,
                     Name = "Step 2",
-                    ExecuteFunc = (ctx, ct) =>
+                    ExecuteFunc = (ctx, ct) => Task.FromResult(new WorkflowStepResult
                     {
-                        executionCount++;
-                        return Task.FromResult(new WorkflowStepResult
-                        {
-                            Success = true,
-                            Output = "final"
-                        });
-                    }
+                        Success = true,
+                        Output = "final"
+                    })
                 }
             }
         };

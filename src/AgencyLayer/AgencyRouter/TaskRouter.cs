@@ -39,6 +39,7 @@ public class TaskRouter
             {
                 Success = result.Success,
                 Output = result.FinalOutput,
+                ErrorMessage = result.ErrorMessage,
                 CompletedSteps = result.CompletedSteps,
                 TotalSteps = result.TotalSteps,
                 Duration = result.TotalDuration,
@@ -49,11 +50,12 @@ public class TaskRouter
         if (request.AgentExecutionRequest != null)
         {
             _logger.LogInformation("Routing to multi-agent orchestration: {Goal}", request.AgentExecutionRequest.Task.Goal);
-            var result = await _orchestrationPort.ExecuteTaskAsync(request.AgentExecutionRequest);
+            var result = await _orchestrationPort.ExecuteTaskAsync(request.AgentExecutionRequest, cancellationToken);
             return new TaskRoutingResult
             {
                 Success = result.IsSuccess,
                 Output = result.Result,
+                ErrorMessage = result.IsSuccess ? null : result.Summary,
                 CompletedSteps = result.IsSuccess ? 1 : 0,
                 TotalSteps = 1,
                 RoutedTo = "MultiAgentOrchestration"

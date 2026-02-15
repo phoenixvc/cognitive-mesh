@@ -24,6 +24,7 @@ public class WorkflowTemplateRegistry
     /// </summary>
     public void RegisterTemplate(WorkflowTemplate template)
     {
+        ArgumentNullException.ThrowIfNull(template);
         _templates[template.TemplateId] = template;
         _logger.LogInformation("Registered workflow template: {TemplateId} ({TemplateName}), PreApproved={IsPreApproved}",
             template.TemplateId, template.Name, template.IsPreApproved);

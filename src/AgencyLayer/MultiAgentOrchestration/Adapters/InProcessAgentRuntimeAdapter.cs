@@ -62,16 +62,19 @@ public class InProcessAgentRuntimeAdapter : IAgentRuntimeAdapter
     /// <inheritdoc/>
     public Task<string> ProvisionAgentInstanceAsync(DynamicAgentSpawnRequest request)
     {
-        var agentId = $"agent-{request.AgentType}-{Guid.NewGuid():N}".Substring(0, 40);
+        ArgumentNullException.ThrowIfNull(request);
+        var safeAgentType = request.AgentType ?? string.Empty;
+        var baseId = $"agent-{safeAgentType}-{Guid.NewGuid():N}";
+        var agentId = baseId.Length > 40 ? baseId[..40] : baseId;
         _provisionedAgents[agentId] = new AgentInstanceInfo
         {
             AgentId = agentId,
-            AgentType = request.AgentType,
-            TenantId = request.TenantId,
+            AgentType = safeAgentType,
+            TenantId = request.TenantId ?? string.Empty,
             ProvisionedAt = DateTime.UtcNow
         };
 
-        _logger.LogInformation("Provisioned agent instance {AgentId} of type {AgentType}", agentId, request.AgentType);
+        _logger.LogInformation("Provisioned agent instance {AgentId} of type {AgentType}", agentId, safeAgentType);
         return Task.FromResult(agentId);
     }
 

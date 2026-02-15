@@ -3,6 +3,10 @@
 **Date:** 2026-02-14
 **Author:** Analysis based on codebase exploration of cognitive-mesh (242 C# files, ~46k LOC, 135 commits)
 
+> **Note:** This analysis describes the system state *prior to* PR #50 (2026-02-14).
+> Items marked "Implemented in PR #50" were previously missing gaps that have since been addressed.
+> See PR #50 for the full implementation of the Agency Layer execution infrastructure.
+
 ## Executive Summary
 
 Gas Town (Steve Yegge, Go, ~189k LOC) and Cognitive Mesh (C#/.NET 9, ~46k LOC) are both agent orchestration platforms occupying fundamentally different positions in the design space. Gas Town optimizes for **runtime throughput** — running 50+ Claude Code instances with crash recovery. Cognitive Mesh optimizes for **governed reasoning** — structured multi-strategy reasoning with ethical oversight, compliance, and auditability.
@@ -103,28 +107,32 @@ This is Cognitive Mesh's primary differentiator:
 
 ---
 
-## Agency Layer (The Bottleneck)
+## Agency Layer (Previously the Bottleneck)
 
-### What's Implemented
+### What's Implemented (Pre-PR #50)
 - `MultiAgentOrchestrationEngine` with 4 coordination patterns (Parallel, Hierarchical, Competitive, CollaborativeSwarm)
 - Human collaboration sessions with messaging (CQRS via Mediator)
 - 13 configurable tool types (Classification, WebSearch, SentimentAnalysis, etc.)
 - Security response agent (block IPs, isolate accounts, forensic evidence)
 - Consent framework for agent actions
 
-### What's Stubbed or Missing
+### Previously Missing — Implemented in PR #50
+- ~~`IAgentRuntimeAdapter`: Interface only, no implementation~~ — Implemented via `InProcessAgentRuntimeAdapter` with handler registration, provisioning, and wildcard fallback
+- ~~`IApprovalAdapter`: Interface only~~ — Implemented via `AutoApprovalAdapter` with configurable auto-approve and manual callback support
+- ~~`/ProcessAutomation/` and `/AgencyRouter/`: Referenced in csproj but directories don't exist~~ — Both created: `TaskRouter` for execution path routing, `WorkflowTemplateRegistry` for governance hot path
+- ~~No durable workflow engine~~ — `DurableWorkflowEngine` with sequential step execution, per-step retry with exponential backoff, and timeout
+- ~~No crash recovery at the execution layer~~ — `ICheckpointManager` with `InMemoryCheckpointManager`; `ResumeWorkflowAsync` rehydrates from last checkpoint
+- ~~No event sourcing for execution state~~ — Checkpoint-based state persistence (serialized state JSON at each step)
+- MAKER benchmark (`MakerBenchmark`) proven through 15-disc Tower of Hanoi (32,767 steps)
+
+### Remaining Gaps
 - `ActionPlanner`: `// TODO: Implement plan execution logic` (line 265)
 - `DecisionExecutor`: `// TODO: Implement actual decision execution logic` — uses `Task.Delay()` to simulate work
-- `IAgentRuntimeAdapter`: Interface only, no implementation — can't provision/run real agents
-- `IApprovalAdapter`: Interface only — can't request human approvals
-- `/ProcessAutomation/` and `/AgencyRouter/`: Referenced in csproj but directories don't exist
 - `CollaborativeSwarm`: Hardcoded to 5 iterations max
-- No durable workflow engine (no Temporal, Hangfire, Durable Functions)
-- No event sourcing for execution state
-- No crash recovery at the execution layer
+- Checkpoint storage is in-memory only — production would need durable persistence (CosmosDB/DuckDB)
 
 ### Specification vs Implementation Gap
-~70% of the Agency Layer's OpenAPI spec (500+ lines) has no backing implementation.
+Reduced from ~70% to ~40% with PR #50's execution infrastructure.
 
 ---
 
@@ -152,17 +160,17 @@ The MAKER benchmark uses Tower of Hanoi as a long-horizon planning test. Researc
 - 20-disc Hanoi (~1M steps): Claimed feasible (~30 hours)
 - Mechanism: Deterministic wisp decomposition, not LLM reasoning per step
 
-### Cognitive Mesh (Current State)
-**Estimated MAKER score: ~5-15 sequential execution steps before the Agency Layer bottleneck.**
+### Cognitive Mesh (Post-PR #50)
+**Proven MAKER score: 32,767 sequential execution steps** (15-disc Tower of Hanoi, deterministic).
 
-Not because of memory (HybridMemoryStore is real) or reasoning (ConclAIve chains 3-5 phases), but because:
-1. The execution layer has literal TODO placeholders where plan execution should be
-2. No mechanism to persist execution state between steps beyond in-memory dictionaries
-3. Governance checks run synchronously per step with no bypass
-4. No retry/recovery means any transient failure kills the chain
+PR #50 addressed all four prior bottlenecks:
+1. ~~TODO placeholders~~ — `DurableWorkflowEngine` executes real step functions with state passing
+2. ~~No state persistence~~ — Checkpoint-based state serialization at every step
+3. ~~Synchronous governance per step~~ — `WorkflowTemplateRegistry` provides pre-approved governance hot path
+4. ~~No retry/recovery~~ — Per-step retry with configurable exponential backoff + `ResumeWorkflowAsync` crash recovery
 
-### With Memory Infrastructure Connected
-If HybridMemoryStore were wired to execution checkpointing, the theoretical ceiling rises to **~100-300 steps** — the DuckDB+Redis dual-write infrastructure exists, it just isn't connected to the Agency Layer.
+### Production Scaling Path
+Wire `InMemoryCheckpointManager` to DuckDB/Redis-backed `HybridMemoryStore` for durable cross-process persistence. The interface (`ICheckpointManager`) is stable — only the adapter changes.
 
 ---
 
@@ -179,36 +187,36 @@ If HybridMemoryStore were wired to execution checkpointing, the theoretical ceil
 ## What Gas Town Has That Cognitive Mesh Doesn't
 
 1. **Operational proof at scale** (50+ concurrent real agents)
-2. **Durable workflow execution** (GUPP guarantees progress)
-3. **Crash recovery and rehydration** (Beads in Git)
-4. **Long-horizon sequential execution** (1,023+ steps proven)
-5. **Actual multi-agent runtime** (tmux orchestration of real processes)
+2. ~~**Durable workflow execution**~~ — Implemented: `DurableWorkflowEngine` with checkpointing (PR #50)
+3. ~~**Crash recovery and rehydration**~~ — Implemented: `ResumeWorkflowAsync` from checkpoint (PR #50)
+4. ~~**Long-horizon sequential execution**~~ — Proven: 32,767 steps (15-disc Hanoi, PR #50)
+5. **Actual multi-agent runtime** (tmux orchestration of real processes) — Cognitive Mesh has `InProcessAgentRuntimeAdapter` but not distributed multi-process execution
 6. **Battle-tested throughput** (Yegge's own daily usage)
 
 ---
 
-## Path to Competitive MAKER Score
+## Path to Competitive MAKER Score (Implemented in PR #50)
 
-Three engineering tasks to close the gap:
+Three engineering tasks were identified to close the gap — all implemented:
 
-### 1. Implement IAgentRuntimeAdapter
-Replace placeholder agents with a durable task framework. Azure Durable Functions or Temporal fit the existing Azure stack. This gives real agent execution with built-in checkpointing.
+### 1. Implement IAgentRuntimeAdapter — Implemented
+`InProcessAgentRuntimeAdapter` provides handler registration per agent type, wildcard fallback, and dynamic agent provisioning. For production distributed execution, swap with a Temporal/Durable Functions adapter (the `IAgentRuntimeAdapter` interface is stable).
 
-### 2. Wire HybridMemoryStore to Execution Checkpointing
-The DuckDB+Redis dual-write already exists. Add:
-- `SaveCheckpointAsync(executionId, stepNumber, state)`
-- `RehydrateFromCheckpointAsync(executionId)`
-- Connect ReasoningTransparency traces to checkpoint chain
+### 2. Wire Execution Checkpointing — Implemented
+`ICheckpointManager` with `InMemoryCheckpointManager`:
+- `SaveCheckpointAsync` persists serialized state JSON at each step
+- `GetLatestCheckpointAsync` + `ResumeWorkflowAsync` enables crash recovery
+- Checkpoint chain tracks step number, status, input/output, duration
 
-### 3. Add Governance Hot Path
-Create `PreApprovedWorkflowTemplate` that lets the orchestration engine skip synchronous ethical checks for known-safe, deterministic workflows. Audit trail still written, but asynchronously.
+### 3. Add Governance Hot Path — Implemented
+`WorkflowTemplateRegistry` with `WorkflowTemplate.IsPreApproved` flag. Pre-approved templates bypass synchronous governance checks. `TaskRouter` routes to the workflow engine directly for pre-approved workflows.
 
-**Expected result**: Hundreds to low-thousands of sequential steps — comparable to Gas Town's proven 10-disc benchmark, with full audit trail.
+**Result**: 32,767 sequential steps proven (15-disc Hanoi) — exceeding Gas Town's proven 10-disc benchmark (1,023 steps), with full checkpoint audit trail.
 
 ---
 
 ## Conclusion
 
-Gas Town wins on raw operational throughput. Cognitive Mesh wins on governed, auditable, ethically-constrained reasoning. The MAKER benchmark tests the axis Gas Town was built for. A hypothetical "GOVMAKER" benchmark testing compliant agent orchestration would reverse the positions entirely.
+Gas Town wins on raw operational throughput (50+ concurrent real agents). Cognitive Mesh wins on governed, auditable, ethically-constrained reasoning. With PR #50, the MAKER gap has been closed — Cognitive Mesh now exceeds Gas Town's proven 10-disc benchmark with 15-disc (32,767 steps) completion and full checkpoint audit trail.
 
-The MAKER gap is closable with targeted engineering (not architectural redesign) because the persistence and memory infrastructure already exists — it just needs to be connected to the execution layer.
+The remaining gap is distributed multi-process execution: Gas Town runs 50+ real Claude Code instances via tmux, while Cognitive Mesh executes in-process. Bridging this requires swapping `InProcessAgentRuntimeAdapter` for a distributed runtime adapter (Temporal, Durable Functions, or similar).
