@@ -50,6 +50,17 @@ jobs:
           New-Item -Path ${{ runner.temp }}\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path ${{ runner.temp }}\scanner
 
+      # Requires repository secret SONAR_TOKEN (generate at https://sonarcloud.io/account/security)
+      - name: Validate SonarQube Cloud configuration
+        shell: powershell
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SONAR_TOKEN)) {
+            Write-Error "SONAR_TOKEN secret is not configured. Add it in Settings > Secrets > Actions."
+            exit 1
+          }
+
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
