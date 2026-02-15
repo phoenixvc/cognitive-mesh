@@ -300,6 +300,12 @@ public class DurableWorkflowEngine : IWorkflowEngine
             {
                 if (attempt >= maxRetries)
                     return new WorkflowStepResult { Success = false, ErrorMessage = $"Step {step.Name} timed out after {workflow.StepTimeout}" };
+
+                var backoff = TimeSpan.FromMilliseconds(Math.Pow(2, attempt) * 100);
+                _logger.LogWarning(
+                    "Step {StepNumber}/{StepName} timed out on attempt {Attempt}, retrying after {Backoff}ms",
+                    step.StepNumber, step.Name, attempt + 1, backoff.TotalMilliseconds);
+                await Task.Delay(backoff, cancellationToken);
             }
             catch (Exception ex)
             {

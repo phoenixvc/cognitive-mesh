@@ -46,7 +46,9 @@ public class WorkflowTemplateRegistry
         var buildFunc = template.BuildWorkflow
             ?? throw new InvalidOperationException(
                 $"Workflow template '{templateId}' ({template.Name}) has no BuildWorkflow delegate.");
-        var workflow = buildFunc(parameters ?? new Dictionary<string, object>());
+        var workflow = buildFunc(parameters ?? new Dictionary<string, object>())
+            ?? throw new InvalidOperationException(
+                $"BuildWorkflow delegate for template '{templateId}' ({template.Name}) returned null.");
         _logger.LogInformation("Created workflow {WorkflowId} from template {TemplateId}", workflow.WorkflowId, templateId);
         return workflow;
     }

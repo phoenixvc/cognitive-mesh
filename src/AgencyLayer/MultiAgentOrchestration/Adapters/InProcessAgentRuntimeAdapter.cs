@@ -70,8 +70,16 @@ public class InProcessAgentRuntimeAdapter : IAgentRuntimeAdapter
     {
         ArgumentNullException.ThrowIfNull(request);
         var safeAgentType = request.AgentType ?? string.Empty;
-        var baseId = $"agent-{safeAgentType}-{Guid.NewGuid():N}";
-        var agentId = baseId.Length > 40 ? baseId[..40] : baseId;
+        var guid = Guid.NewGuid().ToString("N");
+        // Reserve space for "agent-" prefix (6), separator (1), and GUID (32) = 39 chars
+        const int maxLength = 80;
+        const int reservedLength = 6 + 1 + 32; // "agent-" + "-" + guid
+        var maxSafeLen = maxLength - reservedLength;
+        if (safeAgentType.Length > maxSafeLen)
+        {
+            safeAgentType = safeAgentType[..maxSafeLen];
+        }
+        var agentId = $"agent-{safeAgentType}-{guid}";
         _provisionedAgents[agentId] = new AgentInstanceInfo
         {
             AgentId = agentId,
