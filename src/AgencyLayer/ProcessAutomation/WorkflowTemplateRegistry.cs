@@ -43,7 +43,9 @@ public class WorkflowTemplateRegistry
         }
 
         // template is a snapshot reference — safe to use even if registry is modified concurrently
-        var buildFunc = template.BuildWorkflow;
+        var buildFunc = template.BuildWorkflow
+            ?? throw new InvalidOperationException(
+                $"Workflow template '{templateId}' ({template.Name}) has no BuildWorkflow delegate.");
         var workflow = buildFunc(parameters ?? new Dictionary<string, object>());
         _logger.LogInformation("Created workflow {WorkflowId} from template {TemplateId}", workflow.WorkflowId, templateId);
         return workflow;

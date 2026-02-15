@@ -11,7 +11,7 @@ BUILD_OUTPUT=$(dotnet build CognitiveMesh.sln --no-restore --verbosity quiet 2>&
 if echo "$BUILD_OUTPUT" | grep -q "Build succeeded"; then
     echo "Build check: PASSED"
 else
-    ERROR_COUNT=$(echo "$BUILD_OUTPUT" | grep -c "error [A-Z]*[0-9]*" || echo "0")
+    ERROR_COUNT=$(echo "$BUILD_OUTPUT" | grep -E "error [A-Z]+[0-9]+" | wc -l)
     echo "Build check: FAILED ($ERROR_COUNT errors)"
     echo "Fix build errors before finishing."
     echo "$BUILD_OUTPUT" | grep -E "error [A-Z]+[0-9]+" | head -10

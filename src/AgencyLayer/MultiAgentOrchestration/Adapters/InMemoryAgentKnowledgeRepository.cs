@@ -45,6 +45,8 @@ public class InMemoryAgentKnowledgeRepository : IAgentKnowledgeRepository
     /// <inheritdoc/>
     public Task StoreLearningInsightAsync(AgentLearningInsight insight)
     {
+        ArgumentNullException.ThrowIfNull(insight);
+
         _insights.Add(insight);
         _logger.LogDebug("Stored learning insight: {InsightId} ({InsightType})", insight.InsightId, insight.InsightType);
         return Task.CompletedTask;

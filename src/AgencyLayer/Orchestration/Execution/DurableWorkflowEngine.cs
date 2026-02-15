@@ -107,11 +107,7 @@ public class DurableWorkflowEngine : IWorkflowEngine
         if (_cancellationTokens.TryGetValue(workflowId, out var cts))
         {
             cts.Cancel();
-            if (_activeWorkflows.TryGetValue(workflowId, out var status))
-            {
-                status.State = WorkflowState.Cancelled;
-                status.CompletedAt = DateTime.UtcNow;
-            }
+            UpdateWorkflowState(workflowId, WorkflowState.Cancelled);
             _logger.LogInformation("Workflow {WorkflowId} cancelled", workflowId);
         }
         return Task.CompletedTask;
@@ -132,71 +128,98 @@ public class DurableWorkflowEngine : IWorkflowEngine
 
         var orderedSteps = workflow.Steps.OrderBy(s => s.StepNumber).ToList();
 
-        for (int i = 0; i < orderedSteps.Count; i++)
+        try
         {
-            var step = orderedSteps[i];
-            if (step.StepNumber < startStep) continue;
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (_activeWorkflows.TryGetValue(workflow.WorkflowId, out var status))
+            for (int i = 0; i < orderedSteps.Count; i++)
             {
-                status.CurrentStep = step.StepNumber;
-                status.CurrentStepName = step.Name;
-            }
+                var step = orderedSteps[i];
+                if (step.StepNumber < startStep) continue;
 
-            var stepStopwatch = Stopwatch.StartNew();
-            var stepResult = await ExecuteStepWithRetryAsync(workflow, step, state, currentOutput, cancellationToken);
-            stepStopwatch.Stop();
+                cancellationToken.ThrowIfCancellationRequested();
 
-            var checkpoint = new ExecutionCheckpoint
-            {
-                WorkflowId = workflow.WorkflowId,
-                StepNumber = step.StepNumber,
-                StepName = step.Name,
-                Status = stepResult.Success ? ExecutionStepStatus.Completed : ExecutionStepStatus.Failed,
-                StateJson = JsonSerializer.Serialize(state),
-                InputJson = JsonSerializer.Serialize(new { PreviousOutput = currentOutput }),
-                OutputJson = stepResult.Output != null ? JsonSerializer.Serialize(stepResult.Output) : "{}",
-                ErrorMessage = stepResult.ErrorMessage,
-                ExecutionDuration = stepStopwatch.Elapsed
-            };
-
-            await _checkpointManager.SaveCheckpointAsync(checkpoint, cancellationToken);
-            checkpoints.Add(checkpoint);
-
-            if (stepResult.Success)
-            {
-                // Merge state updates
-                foreach (var kvp in stepResult.StateUpdates)
+                if (_activeWorkflows.TryGetValue(workflow.WorkflowId, out var status))
                 {
-                    state[kvp.Key] = kvp.Value;
+                    status.CurrentStep = step.StepNumber;
+                    status.CurrentStepName = step.Name;
                 }
-                currentOutput = stepResult.Output;
-                completedSteps++;
-            }
-            else
-            {
-                failedSteps++;
-                _logger.LogError(
-                    "Workflow {WorkflowId} failed at step {StepNumber}/{StepName}: {Error}",
-                    workflow.WorkflowId, step.StepNumber, step.Name, stepResult.ErrorMessage);
 
-                overallStopwatch.Stop();
-                UpdateWorkflowState(workflow.WorkflowId, WorkflowState.Failed);
+                var stepStopwatch = Stopwatch.StartNew();
+                var stepResult = await ExecuteStepWithRetryAsync(workflow, step, state, currentOutput, cancellationToken);
+                stepStopwatch.Stop();
 
-                return new WorkflowResult
+                var checkpoint = new ExecutionCheckpoint
                 {
                     WorkflowId = workflow.WorkflowId,
-                    Success = false,
-                    TotalSteps = orderedSteps.Count,
-                    CompletedSteps = completedSteps,
-                    FailedSteps = failedSteps,
-                    ErrorMessage = $"Failed at step {step.StepNumber} ({step.Name}): {stepResult.ErrorMessage}",
-                    TotalDuration = overallStopwatch.Elapsed,
-                    Checkpoints = checkpoints
+                    StepNumber = step.StepNumber,
+                    StepName = step.Name,
+                    Status = stepResult.Success ? ExecutionStepStatus.Completed : ExecutionStepStatus.Failed,
+                    StateJson = JsonSerializer.Serialize(state),
+                    InputJson = JsonSerializer.Serialize(new { PreviousOutput = currentOutput }),
+                    OutputJson = stepResult.Output != null ? JsonSerializer.Serialize(stepResult.Output) : "{}",
+                    ErrorMessage = stepResult.ErrorMessage,
+                    ExecutionDuration = stepStopwatch.Elapsed
                 };
+
+                await _checkpointManager.SaveCheckpointAsync(checkpoint, cancellationToken);
+                checkpoints.Add(checkpoint);
+
+                if (stepResult.Success)
+                {
+                    // Merge state updates
+                    foreach (var kvp in stepResult.StateUpdates)
+                    {
+                        state[kvp.Key] = kvp.Value;
+                    }
+                    currentOutput = stepResult.Output;
+                    completedSteps++;
+                }
+                else
+                {
+                    failedSteps++;
+                    _logger.LogError(
+                        "Workflow {WorkflowId} failed at step {StepNumber}/{StepName}: {Error}",
+                        workflow.WorkflowId, step.StepNumber, step.Name, stepResult.ErrorMessage);
+
+                    overallStopwatch.Stop();
+                    UpdateWorkflowState(workflow.WorkflowId, WorkflowState.Failed);
+
+                    return new WorkflowResult
+                    {
+                        WorkflowId = workflow.WorkflowId,
+                        Success = false,
+                        TotalSteps = orderedSteps.Count,
+                        CompletedSteps = completedSteps,
+                        FailedSteps = failedSteps,
+                        ErrorMessage = $"Failed at step {step.StepNumber} ({step.Name}): {stepResult.ErrorMessage}",
+                        TotalDuration = overallStopwatch.Elapsed,
+                        Checkpoints = checkpoints
+                    };
+                }
             }
+        }
+        catch (OperationCanceledException)
+        {
+            overallStopwatch.Stop();
+            UpdateWorkflowState(workflow.WorkflowId, WorkflowState.Cancelled);
+
+            if (checkpoints.Count > 0)
+            {
+                var cancellationCheckpoint = new ExecutionCheckpoint
+                {
+                    WorkflowId = workflow.WorkflowId,
+                    StepNumber = completedSteps,
+                    StepName = "Cancelled",
+                    Status = ExecutionStepStatus.Failed,
+                    StateJson = JsonSerializer.Serialize(state),
+                    InputJson = "{}",
+                    OutputJson = "{}",
+                    ErrorMessage = "Workflow cancelled via CancellationToken",
+                    ExecutionDuration = overallStopwatch.Elapsed
+                };
+                await _checkpointManager.SaveCheckpointAsync(cancellationCheckpoint, CancellationToken.None);
+            }
+
+            throw;
         }
 
         overallStopwatch.Stop();

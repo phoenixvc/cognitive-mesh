@@ -26,6 +26,10 @@ public class InProcessAgentRuntimeAdapter : IAgentRuntimeAdapter
     /// </summary>
     public void RegisterHandler(string agentType, Func<AgentTask, Task<object>> handler)
     {
+        ArgumentNullException.ThrowIfNull(agentType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(agentType);
+        ArgumentNullException.ThrowIfNull(handler);
+
         _agentHandlers[agentType] = handler;
         _logger.LogInformation("Registered handler for agent type: {AgentType}", agentType);
     }
@@ -33,6 +37,8 @@ public class InProcessAgentRuntimeAdapter : IAgentRuntimeAdapter
     /// <inheritdoc/>
     public async Task<object> ExecuteAgentLogicAsync(string agentId, AgentTask subTask)
     {
+        ArgumentNullException.ThrowIfNull(subTask);
+
         _logger.LogDebug("Executing agent logic for {AgentId}, goal: {Goal}", agentId, subTask.Goal);
 
         // Try to find a handler by agent type from provisioned instances

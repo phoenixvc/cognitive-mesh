@@ -3,7 +3,10 @@
 # Output goes to Claude's context so it knows the current project state.
 
 set -e
-cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || cd "$(dirname "$0")/../.."
+cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || cd "$(dirname "$0")/../.." 2>/dev/null || {
+    echo "Failed to change directory to project dir" >&2
+    exit 1
+}
 
 echo "=== Cognitive Mesh Session Start ==="
 
