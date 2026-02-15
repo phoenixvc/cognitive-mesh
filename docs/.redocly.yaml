@@ -1,6 +1,5 @@
 extends:
   - recommended
-  - 'redocly-registry:all'
 
 rules:
   # Information rules
