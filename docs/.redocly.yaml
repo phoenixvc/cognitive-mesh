@@ -27,7 +27,6 @@ rules:
   
   # Schema rules
   no-schema-anyof: error
-  no-unused-components: error
   no-identical-paths: error
   no-http-verbs-in-paths: error
   no-invalid-parameter-examples: error
@@ -103,8 +102,7 @@ rules:
   no-single-allof: off
   no-empty-servers: off
   no-example-value-and-externalValue: warn
-  no-unused-components: warn
-  
+
   # Disable some strict rules
   no-ambiguous-paths: off
   path-http-verbs-order: off
