@@ -10,13 +10,42 @@ cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || cd "$(dirname "$0")/../.." 2>/dev/null |
 
 echo "=== Cognitive Mesh Session Start ==="
 
-# Check .NET SDK
+# Install .NET 9 SDK if missing
+if ! command -v dotnet &>/dev/null; then
+    echo "Installing .NET 9 SDK..."
+    curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 9.0 2>&1
+    export DOTNET_ROOT="$HOME/.dotnet"
+    export PATH="$DOTNET_ROOT:$PATH"
+fi
+
 if command -v dotnet &>/dev/null; then
     SDK_VERSION=$(dotnet --version 2>/dev/null || echo "unknown")
     echo "SDK: .NET $SDK_VERSION"
 else
-    echo "WARNING: dotnet SDK not found. Install .NET 9 SDK."
+    echo "WARNING: dotnet SDK installation failed."
     exit 0
+fi
+
+# Install GitHub CLI if missing
+if ! command -v gh &>/dev/null; then
+    echo "Installing GitHub CLI..."
+    GH_VERSION=$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+    if [ -n "$GH_VERSION" ]; then
+        GH_ARCHIVE="gh_${GH_VERSION}_linux_amd64.tar.gz"
+        curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_ARCHIVE}" -o "/tmp/${GH_ARCHIVE}" \
+            && mkdir -p "$HOME/.local/bin" \
+            && tar -xzf "/tmp/${GH_ARCHIVE}" -C /tmp \
+            && cp "/tmp/gh_${GH_VERSION}_linux_amd64/bin/gh" "$HOME/.local/bin/gh" \
+            && chmod +x "$HOME/.local/bin/gh" \
+            && rm -rf "/tmp/${GH_ARCHIVE}" "/tmp/gh_${GH_VERSION}_linux_amd64"
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+fi
+
+if command -v gh &>/dev/null; then
+    echo "CLI: gh $(gh --version | head -1 | awk '{print $3}')"
+else
+    echo "WARNING: GitHub CLI installation failed."
 fi
 
 # Restore packages (quiet mode)

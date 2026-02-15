@@ -61,6 +61,8 @@
 
   "env": {
     "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
-    "DOTNET_NOLOGO": "1"
+    "DOTNET_NOLOGO": "1",
+    "DOTNET_ROOT": "$HOME/.dotnet",
+    "PATH": "$HOME/.dotnet:$HOME/.local/bin:$PATH"
   }
 }
