@@ -19,7 +19,7 @@
     "test:performance:rate-limiting": "k6 run tests/performance/rate-limiting.test.js",
     "test:edge-cases": "jest __tests__/edge-cases.test.js",
     "serve": "npx @redocly/cli preview-docs",
-    "prepare": "husky install || true",
+    "prepare": "husky install",
     "preview": "npx @redocly/cli preview-docs openapi.yaml",
     "bundle": "npx @redocly/cli bundle openapi.yaml --output bundled-openapi.yaml"
   },
