@@ -2,10 +2,19 @@
 # Stop hook: Verify build still succeeds before Claude finishes responding.
 # Catches regressions introduced during the conversation.
 
+# Ensure dotnet and gh are on PATH if installed by session-start hook
+export PATH="$HOME/.dotnet:$HOME/.local/bin:$PATH"
+export DOTNET_ROOT="$HOME/.dotnet"
+
 cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || cd "$(dirname "$0")/../.." 2>/dev/null || {
     echo "Failed to change to project directory" >&2
     exit 1
 }
+
+if ! command -v dotnet &>/dev/null; then
+    echo "Build check: SKIPPED (dotnet not found)"
+    exit 0
+fi
 
 BUILD_OUTPUT=$(dotnet build CognitiveMesh.sln --no-restore --verbosity quiet 2>&1 || true)
 if echo "$BUILD_OUTPUT" | grep -q "Build succeeded"; then

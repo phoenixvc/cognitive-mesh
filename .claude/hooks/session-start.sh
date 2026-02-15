@@ -10,12 +10,24 @@ cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || cd "$(dirname "$0")/../.." 2>/dev/null |
 
 echo "=== Cognitive Mesh Session Start ==="
 
+# Ensure PATH includes user-local install directories
+export PATH="$HOME/.dotnet:$HOME/.local/bin:$PATH"
+export DOTNET_ROOT="$HOME/.dotnet"
+
+# Install jq if missing (needed by protect-sensitive.sh hook)
+if ! command -v jq &>/dev/null; then
+    echo "Installing jq..."
+    mkdir -p "$HOME/.local/bin"
+    curl -fsSL "https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64" -o "$HOME/.local/bin/jq" \
+        && chmod +x "$HOME/.local/bin/jq" \
+        && echo "Tools: jq installed" \
+        || echo "WARNING: jq installation failed."
+fi
+
 # Install .NET 9 SDK if missing
 if ! command -v dotnet &>/dev/null; then
     echo "Installing .NET 9 SDK..."
     curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 9.0 2>&1
-    export DOTNET_ROOT="$HOME/.dotnet"
-    export PATH="$DOTNET_ROOT:$PATH"
 fi
 
 if command -v dotnet &>/dev/null; then
@@ -38,7 +50,6 @@ if ! command -v gh &>/dev/null; then
             && cp "/tmp/gh_${GH_VERSION}_linux_amd64/bin/gh" "$HOME/.local/bin/gh" \
             && chmod +x "$HOME/.local/bin/gh" \
             && rm -rf "/tmp/${GH_ARCHIVE}" "/tmp/gh_${GH_VERSION}_linux_amd64"
-        export PATH="$HOME/.local/bin:$PATH"
     fi
 fi
 
