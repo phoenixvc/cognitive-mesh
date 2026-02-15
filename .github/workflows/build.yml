@@ -88,6 +88,8 @@ jobs:
       - name: Install dependencies
         working-directory: docs
         run: npm ci
+        env:
+          HUSKY: '0'
 
       - name: Validate OpenAPI specs
         working-directory: docs
