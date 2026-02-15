@@ -70,6 +70,9 @@ msbuild.*
 build_output.txt
 build_errors.txt
 
+# Claude Code local settings (personal overrides, not committed)
+.claude/settings.local.json
+
 # Misc
 .DS_Store
 Thumbs.db
