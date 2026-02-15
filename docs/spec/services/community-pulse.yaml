@@ -59,6 +59,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommunitySentiment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   /community-pulse/health:
     get:
@@ -74,6 +76,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommunityHealth'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
 components:
   schemas:

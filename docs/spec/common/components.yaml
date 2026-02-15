@@ -1,18 +1,5 @@
 components:
   schemas:
-    # Common Metadata
-    Timestamp:
-      type: object
-      properties:
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-      required:
-        - createdAt
-
     # Pagination
     Pagination:
       type: object
@@ -55,10 +42,11 @@ components:
                 type: string
                 example: "must be a valid email address"
 
-    # Common Query Parameters
+  parameters:
     PaginationQuery:
       in: query
       name: pagination
+      description: Pagination parameters for controlling page number and page size
       schema:
         type: object
         properties:
@@ -77,11 +65,12 @@ components:
     SortQuery:
       in: query
       name: sort
+      description: Sort order fields with optional direction prefix (e.g., -priority for descending)
       schema:
         type: array
         items:
           type: string
           pattern: '^[+-]?[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)*$'
-        example: ["createdAt,-priority"]
+        example: ["createdAt", "-priority"]
       style: form
       explode: false

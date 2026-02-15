@@ -53,6 +53,7 @@ paths:
   /champion-discovery/matches/{championId}:
     get:
       summary: Get detailed match information for a specific champion
+      description: Retrieves detailed match information, including bio, availability, projects, and feedback score for a specific champion.
       operationId: getChampionMatchDetails
       tags:
         - Champion Discovery

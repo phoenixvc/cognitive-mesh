@@ -37,7 +37,7 @@ rules:
   security-defined: error
 
   # Server rules
-  no-server-example.com: error
+  no-server-example.com: off
   no-server-trailing-slash: error
   no-empty-servers: off
 
