@@ -11,25 +11,25 @@
   "packageRules": [
     {
       "description": "Group Microsoft.Extensions packages",
-      "matchPackagePatterns": ["^Microsoft\\.Extensions\\."],
+      "matchPackageNames": ["/^Microsoft\\.Extensions\\./"],
       "groupName": "Microsoft.Extensions",
       "matchManagers": ["nuget"]
     },
     {
       "description": "Group Azure SDK packages",
-      "matchPackagePatterns": ["^Azure\\.", "^Microsoft\\.Azure\\."],
+      "matchPackageNames": ["/^Azure\\./", "/^Microsoft\\.Azure\\./"],
       "groupName": "Azure SDKs",
       "matchManagers": ["nuget"]
     },
     {
       "description": "Group Entity Framework Core packages",
-      "matchPackagePatterns": ["^Microsoft\\.EntityFrameworkCore"],
+      "matchPackageNames": ["/^Microsoft\\.EntityFrameworkCore/"],
       "groupName": "Entity Framework Core",
       "matchManagers": ["nuget"]
     },
     {
       "description": "Group xUnit testing packages",
-      "matchPackagePatterns": ["^xunit"],
+      "matchPackageNames": ["/^xunit/"],
       "groupName": "xUnit",
       "matchManagers": ["nuget"]
     },
@@ -46,7 +46,7 @@
     },
     {
       "description": "Do not update pre-release packages automatically",
-      "matchPackagePatterns": ["^Azure\\.AI\\.OpenAI$", "^System\\.CommandLine$"],
+      "matchPackageNames": ["/^Azure\\.AI\\.OpenAI$/", "/^System\\.CommandLine$/"],
       "matchManagers": ["nuget"],
       "enabled": false
     }

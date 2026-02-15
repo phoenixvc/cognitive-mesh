@@ -19,6 +19,11 @@ public class DurableWorkflowEngine : IWorkflowEngine
     private readonly ConcurrentDictionary<string, CancellationTokenSource> _cancellationTokens = new();
     private readonly ConcurrentDictionary<string, WorkflowDefinition> _workflowDefinitions = new();
 
+    private static readonly JsonSerializerOptions ClrTypeOptions = new()
+    {
+        Converters = { new JsonElementObjectConverter() }
+    };
+
     public DurableWorkflowEngine(
         ICheckpointManager checkpointManager,
         ILogger<DurableWorkflowEngine> logger)
@@ -78,9 +83,9 @@ public class DurableWorkflowEngine : IWorkflowEngine
             ? latestCheckpoint.StepNumber + 1
             : latestCheckpoint.StepNumber; // Retry the failed step
 
-        var state = latestCheckpoint.DeserializeState<Dictionary<string, object>>() ?? new Dictionary<string, object>();
+        var state = latestCheckpoint.DeserializeState<Dictionary<string, object>>(ClrTypeOptions) ?? new Dictionary<string, object>();
         var previousOutput = latestCheckpoint.Status == ExecutionStepStatus.Completed
-            ? latestCheckpoint.DeserializeOutput<object>()
+            ? latestCheckpoint.DeserializeOutput<object>(ClrTypeOptions)
             : null;
 
         _logger.LogInformation(
@@ -252,24 +257,24 @@ public class DurableWorkflowEngine : IWorkflowEngine
         if (step.ExecuteFunc == null)
             return new WorkflowStepResult { Success = false, ErrorMessage = $"Step {step.StepNumber} ({step.Name}) has no execution function." };
 
-        var context = new WorkflowStepContext
-        {
-            WorkflowId = workflow.WorkflowId,
-            StepNumber = step.StepNumber,
-            StepName = step.Name,
-            State = new Dictionary<string, object>(state),
-            PreviousStepOutput = previousOutput
-        };
-
         int maxRetries = workflow.MaxRetryPerStep;
         for (int attempt = 0; attempt <= maxRetries; attempt++)
         {
+            var attemptContext = new WorkflowStepContext
+            {
+                WorkflowId = workflow.WorkflowId,
+                StepNumber = step.StepNumber,
+                StepName = step.Name,
+                State = new Dictionary<string, object>(state),
+                PreviousStepOutput = previousOutput
+            };
+
             try
             {
                 using var stepCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 stepCts.CancelAfter(workflow.StepTimeout);
 
-                var result = await step.ExecuteFunc(context, stepCts.Token);
+                var result = await step.ExecuteFunc(attemptContext, stepCts.Token);
 
                 if (result.Success)
                 {

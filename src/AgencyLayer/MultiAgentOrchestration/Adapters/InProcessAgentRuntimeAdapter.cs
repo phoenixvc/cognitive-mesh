@@ -49,10 +49,14 @@ public class InProcessAgentRuntimeAdapter : IAgentRuntimeAdapter
         }
 
         // Fallback: try to extract agent type from context or use a default handler
-        if (subTask.Context.TryGetValue("AgentType", out var agentTypeObj) &&
-            _agentHandlers.TryGetValue(agentTypeObj.ToString()!, out var contextHandler))
+        if (subTask.Context.TryGetValue("AgentType", out var agentTypeObj))
         {
-            return await contextHandler(subTask);
+            var agentType = agentTypeObj?.ToString();
+            if (!string.IsNullOrEmpty(agentType) &&
+                _agentHandlers.TryGetValue(agentType, out var contextHandler))
+            {
+                return await contextHandler(subTask);
+            }
         }
 
         // Default: if there's a wildcard handler registered
@@ -69,26 +73,25 @@ public class InProcessAgentRuntimeAdapter : IAgentRuntimeAdapter
     public Task<string> ProvisionAgentInstanceAsync(DynamicAgentSpawnRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var safeAgentType = request.AgentType ?? string.Empty;
+        var originalAgentType = request.AgentType ?? string.Empty;
         var guid = Guid.NewGuid().ToString("N");
         // Reserve space for "agent-" prefix (6), separator (1), and GUID (32) = 39 chars
         const int maxLength = 80;
         const int reservedLength = 6 + 1 + 32; // "agent-" + "-" + guid
         var maxSafeLen = maxLength - reservedLength;
-        if (safeAgentType.Length > maxSafeLen)
-        {
-            safeAgentType = safeAgentType[..maxSafeLen];
-        }
-        var agentId = $"agent-{safeAgentType}-{guid}";
+        var truncatedSafeAgentType = originalAgentType.Length > maxSafeLen
+            ? originalAgentType[..maxSafeLen]
+            : originalAgentType;
+        var agentId = $"agent-{truncatedSafeAgentType}-{guid}";
         _provisionedAgents[agentId] = new AgentInstanceInfo
         {
             AgentId = agentId,
-            AgentType = safeAgentType,
+            AgentType = originalAgentType,
             TenantId = request.TenantId ?? string.Empty,
             ProvisionedAt = DateTime.UtcNow
         };
 
-        _logger.LogInformation("Provisioned agent instance {AgentId} of type {AgentType}", agentId, safeAgentType);
+        _logger.LogInformation("Provisioned agent instance {AgentId} of type {AgentType}", agentId, originalAgentType);
         return Task.FromResult(agentId);
     }
 

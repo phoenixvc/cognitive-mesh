@@ -51,8 +51,17 @@ public class ExecutionCheckpoint
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public TimeSpan ExecutionDuration { get; set; }
 
+    /// <summary>Deserializes the checkpoint state from JSON.</summary>
     public T? DeserializeState<T>() => JsonSerializer.Deserialize<T>(StateJson);
+
+    /// <summary>Deserializes the checkpoint state from JSON with custom options.</summary>
+    public T? DeserializeState<T>(JsonSerializerOptions options) => JsonSerializer.Deserialize<T>(StateJson, options);
+
+    /// <summary>Deserializes the checkpoint output from JSON.</summary>
     public T? DeserializeOutput<T>() => JsonSerializer.Deserialize<T>(OutputJson);
+
+    /// <summary>Deserializes the checkpoint output from JSON with custom options.</summary>
+    public T? DeserializeOutput<T>(JsonSerializerOptions options) => JsonSerializer.Deserialize<T>(OutputJson, options);
 }
 
 /// <summary>
