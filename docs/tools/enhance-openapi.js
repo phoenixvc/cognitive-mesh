@@ -286,5 +286,23 @@ const enhanceOpenAPI = async () => {
   }
 };
 
-// Run the enhancement
-enhanceOpenAPI();
+// Synchronous function to enhance a spec object (for testing and programmatic use)
+const enhanceOpenAPISpec = (spec) => {
+  if (!spec) return spec;
+  const enhanced = JSON.parse(JSON.stringify(spec)); // deep clone
+  if (enhanced.components) {
+    enhanced.components = enhanceComponents(enhanced.components);
+  }
+  if (enhanced.paths) {
+    enhanced.paths = enhancePaths(enhanced.paths);
+  }
+  return enhanced;
+};
+
+// Export for testing
+module.exports = { enhanceOpenAPI, enhanceOpenAPISpec };
+
+// Run the enhancement only when executed directly
+if (require.main === module) {
+  enhanceOpenAPI();
+}
