@@ -1,4 +1,7 @@
+using CognitiveMesh.Shared.Models;
+using FoundationLayer.ConvenerData.Entities;
 using FoundationLayer.ConvenerData.Persistence.Configurations;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoundationLayer.ConvenerData.Persistence
 {

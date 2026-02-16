@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+
 namespace FoundationLayer.EnterpriseConnectors;
 
 public class FeatureFlagManager

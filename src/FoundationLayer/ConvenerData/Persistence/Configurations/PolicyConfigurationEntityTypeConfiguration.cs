@@ -1,4 +1,7 @@
 using System.Text.Json;
+using CognitiveMesh.Shared.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FoundationLayer.ConvenerData.Persistence.Configurations
 {

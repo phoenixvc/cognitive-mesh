@@ -1,3 +1,5 @@
+using MediatR;
+
 namespace AgencyLayer.HumanCollaboration.Features.Messages
 {
     /// <summary>
