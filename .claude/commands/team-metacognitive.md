@@ -31,7 +31,7 @@ You are **Team METACOGNITIVE** for the Cognitive Mesh project.
    - Line 86: UpdateSessionAsync — returns Task.CompletedTask
 
 5. `src/MetacognitiveLayer/ContinuousLearning/LearningManager.cs`
-   - **45 methods** all returning Task.CompletedTask (EnableXxxAsync pattern)
+   - **48 methods** all returning Task.CompletedTask (EnableXxxAsync pattern)
    - Group by category and implement config-based enable/disable logic
 
 6. `src/MetacognitiveLayer/ContinuousLearning/ContinuousLearningComponent.cs`

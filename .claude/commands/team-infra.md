@@ -17,10 +17,12 @@ You are **Team INFRA** for the Cognitive Mesh project. Your focus is defining al
 ## Current State
 
 **Infrastructure is 100% manually provisioned.** No IaC exists. Known Azure resources:
-- Subscription: `22f9eb18-6553-4b7d-9451-47d0195085fe`
-- Resource Group: `dev-euw-rg-phoenixvc-ai` (West Europe)
-- Azure OpenAI: `dev-euw-aiproj-phoenixvc-ai`
-- Azure AI Search: `dev-euw-aisearch-phoenixvc-ai484040377717`
+- Subscription: *(read from `.env` or `tools/mcpsetup.ps1` — do not hardcode)*
+- Resource Group: *(naming pattern: `{env}-euw-rg-{project}`, region: West Europe)*
+- Azure OpenAI: *(naming pattern: `{env}-euw-aiproj-{project}`)*
+- Azure AI Search: *(naming pattern: `{env}-euw-aisearch-{project}`)*
+
+> **Note:** Retrieve actual resource names from `.env.example` or `tools/mcpsetup.ps1` at runtime. Do not commit subscription IDs or resource names to source control.
 
 ## Required Azure Resources (from code + IntegrationPlan.md)
 
@@ -79,7 +81,7 @@ You are **Team INFRA** for the Cognitive Mesh project. Your focus is defining al
 ### Phase 1: Terraform Module Structure
 
 Create `infra/` with this layout:
-```
+```text
 infra/
   modules/
     cosmosdb/          main.tf, variables.tf, outputs.tf
@@ -112,7 +114,7 @@ Each environment file should:
 
 ### Phase 3: Docker & Local Development
 
-```
+```text
 Dockerfile              Multi-stage .NET 9 build
 docker-compose.yml      Local dev: CosmosDB emulator, Redis, Qdrant, Azurite (blob)
 docker-compose.prod.yml Production overrides
@@ -121,7 +123,7 @@ docker-compose.prod.yml Production overrides
 
 ### Phase 4: Kubernetes Manifests (if AKS chosen)
 
-```
+```text
 k8s/
   base/
     deployment.yaml

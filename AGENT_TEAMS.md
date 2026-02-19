@@ -6,7 +6,7 @@
 
 ## Strategy Overview
 
-The Cognitive Mesh has **5 architectural layers**, **100+ PRDs**, **19 TODO comments**, **57 stub implementations**, and **12 test projects**. A single agent cannot efficiently tackle all of this. Instead, partition the work into **6 specialized agent teams**, each owning a layer or cross-cutting concern.
+The Cognitive Mesh has **5 architectural layers**, **100+ PRDs**, **~21 TODO comments**, **64+ stub implementations**, and **12 test projects**. A single agent cannot efficiently tackle all of this. Instead, partition the work into **9 specialized code teams + 5 workflow agents**, each owning a layer or cross-cutting concern.
 
 **Key principle:** Respect the dependency direction `Foundation <- Reasoning <- Metacognitive <- Agency <- Business`. Teams working on lower layers should complete first (or provide interfaces) before upper-layer teams integrate.
 
@@ -23,8 +23,8 @@ The Cognitive Mesh has **5 architectural layers**, **100+ PRDs**, **19 TODO comm
 - `docs/prds/01-foundational/nist-ai-rmf-maturity/backend-architecture.md` (FI-03)
 - `docs/prds/01-foundational/nist-ai-rmf-maturity/mesh-widget.md` (FI-03)
 - `docs/prds/02-adaptive-balance/backend-architecture.md` (FI-04)
-- `docs/prds/01_Foundational-Infrastructure/Policy Access Control.md`
-- `docs/prds/01_Foundational-Infrastructure/Connector Plugin.md`
+- `docs/prds/01_Foundational-Infrastructure/policy-access-control.md`
+- `docs/prds/01_Foundational-Infrastructure/connector-plugin.md`
 
 **Outstanding stubs to complete:**
 - `src/FoundationLayer/DocumentProcessing/DocumentIngestionFunction.cs:52` — Fabric integration placeholder
@@ -36,7 +36,7 @@ The Cognitive Mesh has **5 architectural layers**, **100+ PRDs**, **19 TODO comm
 - Add tests for Document Processing, Semantic Search, Vector Database adapters
 
 **Claude Code session prompt:**
-```
+```text
 You are working on the FoundationLayer of the Cognitive Mesh .NET 9 solution.
 Read CLAUDE.md for conventions. Your focus:
 1. Implement the Ethical & Legal Compliance Core (FI-02) per docs/prds/01-foundational/ethical-legal-compliance-framework.md
@@ -67,7 +67,7 @@ Do NOT modify files outside src/FoundationLayer/ and tests/FoundationLayer/ with
 - Add tests for temporal decision capabilities once implemented
 
 **Claude Code session prompt:**
-```
+```text
 You are working on the ReasoningLayer of the Cognitive Mesh .NET 9 solution.
 Read CLAUDE.md for conventions. Your focus:
 1. Complete SystemsReasoner stub implementations
@@ -85,16 +85,16 @@ Do NOT create dependencies on AgencyLayer or MetacognitiveLayer (dependency flow
 **Scope:** `src/MetacognitiveLayer/` + related epics
 
 **PRDs to implement:**
-- `docs/prds/03_Agentic-Cognitive-Systems/Context Engineer.md`
-- `docs/prds/03_Agentic-Cognitive-Systems/Human Boundary.md`
-- `docs/prds/01_Foundational-Infrastructure/Human-AI Boundary Definition Protocol PRD.md`
+- `docs/prds/03_Agentic-Cognitive-Systems/context-engineer.md`
+- `docs/prds/03_Agentic-Cognitive-Systems/human-boundary.md`
+- `docs/prds/01_Foundational-Infrastructure/human-ai-boundary-definition-protocol-prd.md`
 
 **Outstanding stubs to complete (HIGH PRIORITY — 50+ stubs):**
 - `src/MetacognitiveLayer/SelfEvaluation/SelfEvaluator.cs:30,46,62,78` — 4 TODO stubs returning hardcoded perfect scores
 - `src/MetacognitiveLayer/PerformanceMonitoring/PerformanceMonitor.cs:108` — Threshold checking returns empty
 - `src/MetacognitiveLayer/Protocols/ACP/ACPHandler.cs:240` — Tool execution placeholder
 - `src/MetacognitiveLayer/Protocols/Common/SessionManager.cs:86` — UpdateSession placeholder
-- `src/MetacognitiveLayer/ContinuousLearning/LearningManager.cs` — **45 methods** returning Task.CompletedTask
+- `src/MetacognitiveLayer/ContinuousLearning/LearningManager.cs` — **48 methods** returning Task.CompletedTask
 - `src/MetacognitiveLayer/ContinuousLearning/ContinuousLearningComponent.cs:455,461` — Placeholders
 
 **Tests to add:**
@@ -103,13 +103,13 @@ Do NOT create dependencies on AgencyLayer or MetacognitiveLayer (dependency flow
 - Add tests for SelfEvaluator, PerformanceMonitor, LearningManager, SessionManager
 
 **Claude Code session prompt:**
-```
+```text
 You are working on the MetacognitiveLayer of the Cognitive Mesh .NET 9 solution.
 Read CLAUDE.md for conventions. Your focus:
 1. Implement SelfEvaluator (4 TODO methods) with real evaluation logic
 2. Implement PerformanceMonitor.CheckThresholdsAsync with actual threshold checking
 3. Implement ACPHandler.ExecuteToolsAsync with proper tool dispatch
-4. Implement the 45 LearningManager framework-enablement methods (group by pattern)
+4. Implement the 48 LearningManager framework-enablement methods (group by pattern)
 5. Add comprehensive tests for all implementations
 CRITICAL: Do NOT reference AgencyLayer from this layer (circular dependency violation).
 ```
@@ -125,8 +125,8 @@ CRITICAL: Do NOT reference AgencyLayer from this layer (circular dependency viol
 - `docs/prds/07-agentic-systems/agentic-ai-system/backend-architecture.md`
 - `docs/prds/07-agentic-systems/agentic-ai-system/implementation.md`
 - `docs/prds/01_Foundational-Infrastructure/mesh-orchestration-hitl.md` (AC-02)
-- `docs/prds/03_Agentic-Cognitive-Systems/Agent Comms.md`
-- `docs/prds/03_Agentic-Cognitive-Systems/Mesh Agent Communication Protocols.md`
+- `docs/prds/03_Agentic-Cognitive-Systems/agent-comms.md`
+- `docs/prds/03_Agentic-Cognitive-Systems/mesh-agent-communication-protocols.md`
 
 **Outstanding stubs to complete:**
 - `src/AgencyLayer/DecisionExecution/DecisionExecutor.cs:36,82,112` — 3 TODO stubs with Task.Delay simulation
@@ -151,7 +151,7 @@ CRITICAL: Do NOT reference AgencyLayer from this layer (circular dependency viol
 - Add multi-agent orchestration engine tests (none currently exist)
 
 **Claude Code session prompt:**
-```
+```text
 You are working on the AgencyLayer of the Cognitive Mesh .NET 9 solution.
 Read CLAUDE.md and TODO.md for context. Your focus:
 1. Fix build: add XML doc comments to Shared/NodeLabels.cs
@@ -188,7 +188,7 @@ Read CLAUDE.md and TODO.md for context. Your focus:
 - Add integration tests for ConvenerServices
 
 **Claude Code session prompt:**
-```
+```text
 You are working on the BusinessApplications layer of the Cognitive Mesh .NET 9 solution.
 Read CLAUDE.md for conventions. Your focus:
 1. Replace all 12 TODO stub methods with real implementations that integrate with lower-layer services
@@ -283,7 +283,7 @@ This layer depends on Foundation, Reasoning, Metacognitive, and Agency layers.
 
 ## Execution Order
 
-```
+```text
 Phase 1 (parallel — 5 teams):
   +-- Team 1: FOUNDATION    --- Fix stubs, implement FI-02
   +-- Team 2: REASONING     --- Complete SystemsReasoner, add temporal features
@@ -334,7 +334,7 @@ The orchestrator is **fully autonomous across sessions**:
 5. Runs `/sync-backlog`, `/review-pr`, `/pickup-comments` after phase
 6. Saves state — next `/orchestrate` picks up from here
 
-```
+```text
   Session 1: /orchestrate → Phase 1 → Save State
   Session 2: /orchestrate → Load State → Phase 2 → Save State
   Session 3: /orchestrate → Load State → Phase 3+4 → DONE
@@ -416,7 +416,7 @@ The orchestrator is **fully autonomous across sessions**:
 
 ## Autonomous Development Loop
 
-```
+```text
   ┌──────────────────────────────────────────────────────────────┐
   │  /orchestrate                                                │
   │                                                              │
@@ -488,7 +488,7 @@ Manual verification:
 dotnet build CognitiveMesh.sln
 dotnet test CognitiveMesh.sln --no-build
 grep -r "// TODO" src/ --include="*.cs" | wc -l
-grep -r "Task.CompletedTask" src/ --include="*.cs" | wc -l
+grep -rE "// TODO: Implement|// Placeholder|throw new NotImplementedException" src/ --include="*.cs" | wc -l
 ```
 
 ---

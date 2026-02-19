@@ -28,11 +28,15 @@ LOG_DIR="logs/agent-teams/$(date +%Y%m%d-%H%M%S)"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --phase)   PHASE="$2"; shift 2 ;;
-        --team)    TEAM="$2"; shift 2 ;;
+        --phase)
+            [[ -z "${2:-}" ]] && { echo "Error: --phase requires a value (1-4)" >&2; exit 1; }
+            PHASE="$2"; shift 2 ;;
+        --team)
+            [[ -z "${2:-}" ]] && { echo "Error: --team requires a team name" >&2; exit 1; }
+            TEAM="$2"; shift 2 ;;
         --dry-run) DRY_RUN=true; shift ;;
         --bg)      BACKGROUND=true; shift ;;
-        *)         echo "Unknown option: $1"; exit 1 ;;
+        *)         echo "Unknown option: $1" >&2; exit 1 ;;
     esac
 done
 
@@ -68,8 +72,21 @@ if [[ -n "$TEAM" ]]; then
         testing)       launch_team "TESTING" "testing" ;;
         cicd)          launch_team "CICD" "cicd" ;;
         infra)         launch_team "INFRA" "infra" ;;
-        orchestrator)  echo "  cd $(pwd) && claude \"/orchestrate${PHASE:+ --phase $PHASE}\"" ;;
-        *) echo "Unknown team: $TEAM"; exit 1 ;;
+        orchestrator)
+            local orch_cmd="/orchestrate${PHASE:+ --phase $PHASE}"
+            if $DRY_RUN; then
+                echo "[DRY RUN] Would launch: claude \"${orch_cmd}\""
+            elif $BACKGROUND; then
+                mkdir -p "$LOG_DIR"
+                local log_file="$LOG_DIR/orchestrator.log"
+                echo "Launching Orchestrator (log: ${log_file})..."
+                nohup claude "${orch_cmd}" > "$log_file" 2>&1 &
+                echo "  PID: $!"
+            else
+                echo "  cd $(pwd) && claude \"${orch_cmd}\""
+            fi
+            ;;
+        *) echo "Unknown team: $TEAM" >&2; exit 1 ;;
     esac
     exit 0
 fi

@@ -32,7 +32,8 @@ You are **Team FOUNDATION** for the Cognitive Mesh project.
 1. Assess: Find all remaining stubs/TODOs in `src/FoundationLayer/`
 2. Fix: Complete each stub with real implementation
 3. Test: Add unit tests for each implementation (xUnit + Moq + FluentAssertions)
-4. Verify: `dotnet build CognitiveMesh.sln` passes clean
-5. Report: List what was completed and what remains
+4. Build: `dotnet build CognitiveMesh.sln` — must pass with zero warnings (TreatWarningsAsErrors=true)
+5. Test: `dotnet test tests/FoundationLayer/ --no-build` — all tests must pass
+6. Report: List what was completed and what remains
 
 $ARGUMENTS

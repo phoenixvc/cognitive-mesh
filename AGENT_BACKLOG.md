@@ -100,7 +100,7 @@
 - **Fix:** Implement session state persistence
 - **Team:** 3 (Metacognitive)
 
-#### META-005: LearningManager — 45 framework-enablement stubs
+#### META-005: LearningManager — 48 framework-enablement stubs
 - **File:** `src/MetacognitiveLayer/ContinuousLearning/LearningManager.cs`
 - **Lines:** 21, 27, 61, 72, 83, 94, 105, 116, 127, 138, 149, 160, 171, 182, 193, 204, 215, 226, 237, 248, 259, 270, 281, 292, 303, 314, 325, 336, 347, 358, 369, 380, 391, 402, 413, 424, 435, 446, 457, 468, 479, 490, 501, 512, 523, 534, 545, 556
 - **Pattern:** Multiple `EnableXxxAsync()` methods all returning `Task.CompletedTask`
@@ -185,6 +185,7 @@
 ### TST-001: MultiAgentOrchestrationEngine tests
 - **Gap:** No test file exists for the core multi-agent engine
 - **Team:** 4 (Agency)
+- **Note:** Tracked as P1 under AGN-006 — this entry kept for cross-reference
 
 ### TST-002: SelfEvaluator tests
 - **Gap:** No dedicated test file
@@ -235,7 +236,7 @@
 - **Team:** 4 (Agency)
 
 ### PRD-004: Cognitive Sovereignty Control (AC-03)
-- **PRD:** `docs/prds/03_Agentic-Cognitive-Systems/Human Boundary.md`
+- **PRD:** `docs/prds/03_Agentic-Cognitive-Systems/human-boundary.md`
 - **Deliverable:** User autonomy toggles, audit trail
 - **Team:** 4 (Agency)
 

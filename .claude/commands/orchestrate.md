@@ -55,9 +55,13 @@ Run a fresh codebase scan (equivalent to `/discover --quick`):
 
 1. **Build**: `dotnet build CognitiveMesh.sln --verbosity quiet`
 2. **Tests**: `dotnet test CognitiveMesh.sln --no-build --verbosity quiet`
-3. **TODOs**: Search `// TODO` across `src/**/*.cs` — count per layer
-4. **Stubs**: Search `Task.CompletedTask` across `src/**/*.cs` — count per layer
-5. **Task.Delay**: Search `Task.Delay` across `src/**/*.cs` — count per layer
+3. **TODOs**: Search `// TODO`, `// PLACEHOLDER`, `// HACK` across `src/**/*.cs` — count per layer
+4. **Stubs**: Search for stub indicators across `src/**/*.cs` — count per layer:
+   - `throw new NotImplementedException()`
+   - `// TODO: Implement`
+   - `// Placeholder`
+   - Methods containing only `return Task.CompletedTask` with a TODO comment nearby
+5. **Fake data**: Search `Task.Delay` + hardcoded sample data across `src/**/*.cs` — count per layer
 6. **Infra**: Check for `infra/`, `Dockerfile`, `k8s/`, `.github/dependabot.yml`
 7. **Git**: Current branch, uncommitted changes
 8. **Backlog**: Read `AGENT_BACKLOG.md` for known items
@@ -87,7 +91,7 @@ Compare against previous state. Flag regressions (count went up instead of down)
 
 Use **layer health grades** (not just a fixed sequence) to pick the right phase:
 
-```
+```text
 IF build is broken:
   → Phase 1 (must fix build first)
 
@@ -222,15 +226,21 @@ Write updated state to `.claude/state/orchestrator.json`:
 }
 ```
 
-Commit the state file:
+**Stage changes for review** (do NOT auto-commit without human approval):
 ```bash
 git add .claude/state/orchestrator.json AGENT_BACKLOG.md
+```
+
+Then present a summary of changes to the user and ask for confirmation before committing:
+```bash
 git commit -m "Orchestrator: Phase N complete — X items resolved, Y remaining"
 ```
 
+If the user has pre-approved auto-commits (e.g., via `--auto-commit` flag), proceed without prompting.
+
 ## Step 9: Report & Continue
 
-```
+```text
 === Orchestrator Report ===
 Session: [N of total]
 Phase completed: [1|2|3|4]
@@ -273,7 +283,7 @@ Override default behavior:
 
 ## Full Autonomous Loop
 
-```
+```text
   Session 1: /orchestrate
   ┌──────────────────────────────────────────────────────┐
   │  Load State → Discover → Healthcheck → Phase 1       │

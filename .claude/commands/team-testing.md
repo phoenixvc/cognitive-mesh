@@ -49,7 +49,7 @@ tests/TestProject/
 3. **PerformanceMonitor** — Monitoring has no tests
    - Create `tests/MetacognitiveLayer/PerformanceMonitoring/PerformanceMonitorTests.cs`
 
-4. **LearningManager** — 45 methods with no test coverage
+4. **LearningManager** — 48 methods with no test coverage
    - Create `tests/MetacognitiveLayer/ContinuousLearning/LearningManagerTests.cs`
 
 5. **CustomerIntelligenceManager** — No tests
@@ -99,6 +99,7 @@ public class ComponentUnderTestTests
     public async Task MethodName_Scenario_ExpectedResult()
     {
         // Arrange
+        var expected = new SomeResult { Property = "value" };
         _mockDep.Setup(x => x.DoSomethingAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
@@ -107,7 +108,7 @@ public class ComponentUnderTestTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Property.Should().Be(expectedValue);
+        result.Property.Should().Be(expected.Property);
     }
 }
 ```
