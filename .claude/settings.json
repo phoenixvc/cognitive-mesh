@@ -15,8 +15,15 @@
     ],
     "deny": [
       "Bash(rm -rf /)",
+      "Bash(rm -rf ~*)",
       "Bash(dotnet nuget push *)",
-      "Bash(: > *)"
+      "Bash(: > *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(git checkout -- .)",
+      "Bash(git checkout .)"
     ]
   },
 
@@ -40,6 +47,28 @@
           {
             "type": "command",
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/protect-sensitive.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/guard-destructive-bash.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/warn-uncommitted.sh",
             "timeout": 5
           }
         ]
