@@ -2,6 +2,7 @@ using CognitiveMesh.Shared.Interfaces;
 using CognitiveMesh.Shared.Models;
 using FoundationLayer.ConvenerData.Persistence;
 using FoundationLayer.Infrastructure.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 // --- Repository Implementation ---
@@ -90,7 +91,7 @@ namespace FoundationLayer.Infrastructure.Repositories
                 {
                     // Add new policy version
                     policy.CreatedAt = DateTime.UtcNow;
-                    await _context.Set<Shared.Models.PolicyConfiguration>().AddAsync(policy);
+                    await _context.Set<PolicyConfiguration>().AddAsync(policy);
                 }
 
                 await _context.SaveChangesAsync();

@@ -940,9 +940,37 @@ public class AuditSearchCriteria
     public int? Limit { get; set; }
 
     /// <summary>
+    /// The maximum number of results to return (alias for Limit).
+    /// </summary>
+    public int MaxResults
+    {
+        get => Limit ?? 100;
+        set => Limit = value;
+    }
+
+    /// <summary>
     /// The number of results to skip.
     /// </summary>
     public int? Offset { get; set; }
+
+    /// <summary>
+    /// The number of results to skip (alias for Offset).
+    /// </summary>
+    public int Skip
+    {
+        get => Offset ?? 0;
+        set => Offset = value;
+    }
+
+    /// <summary>
+    /// Free text search query.
+    /// </summary>
+    public string? SearchText { get; set; }
+
+    /// <summary>
+    /// Key-value pairs to match within event data.
+    /// </summary>
+    public Dictionary<string, object>? EventDataContains { get; set; }
 }
 
 /// <summary>
