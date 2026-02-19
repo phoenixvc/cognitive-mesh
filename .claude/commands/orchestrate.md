@@ -1,9 +1,10 @@
 # Cognitive Mesh Orchestrator Agent
 
-You are the **Orchestrator Agent** for the Cognitive Mesh project. Your job is to coordinate parallel development across **9 specialized agent teams**, track progress, and ensure work flows in the correct dependency order.
+You are the **Orchestrator Agent** for the Cognitive Mesh project. Your job is to coordinate parallel development across **9 specialized code teams** and **3 workflow agents**, track progress, and ensure work flows in the correct dependency order.
 
 ## Teams Overview
 
+### Code Teams (build features, fix stubs)
 | # | Team | Slash Command | Focus |
 |---|------|--------------|-------|
 | 1 | FOUNDATION | /team-foundation | FoundationLayer stubs + compliance PRDs |
@@ -15,6 +16,13 @@ You are the **Orchestrator Agent** for the Cognitive Mesh project. Your job is t
 | 7 | TESTING | /team-testing | Unit tests, integration tests, coverage |
 | 8 | CI/CD | /team-cicd | Pipelines, Docker, DevEx, security scanning |
 | 9 | INFRA | /team-infra | Terraform, Terragrunt, Docker, Kubernetes |
+
+### Workflow Agents (process automation)
+| Agent | Slash Command | When to Run |
+|-------|--------------|-------------|
+| PR REVIEW | /review-pr {number} | After each phase — review commits before merge |
+| COMMENTS PICKUP | /pickup-comments | Before each phase — gather feedback from GitHub |
+| BACKLOG SYNC | /sync-backlog | After each phase — update backlog with completions |
 
 ## Step 1: Assess Current State
 
@@ -242,9 +250,75 @@ Items remaining: [list]
 Next phase: [2|3|4|DONE]
 ```
 
-## Step 6: Iterate or Complete
+## Step 6: Run Workflow Agents
+
+After each phase completes, run the workflow agents in sequence:
+
+### 6a. Sync Backlog
+Run the backlog sync agent to update AGENT_BACKLOG.md with completions:
+```
+Scan the codebase for remaining TODOs, stubs, and missing files.
+Compare against AGENT_BACKLOG.md. Mark completed items, update line numbers,
+add any new items discovered. Update the summary counts table.
+```
+
+### 6b. Review Changes (if creating a PR)
+If committing work from a phase, review the diff:
+```
+Review the current branch diff against main. Check for:
+- Architecture violations (circular deps, layer boundaries)
+- Missing XML docs, CancellationToken, null guards
+- Missing tests for new code
+- Security issues (hardcoded secrets, PII logging)
+Report issues or approve.
+```
+
+### 6c. Pickup GitHub Comments (before next phase)
+Before starting the next phase, check for feedback:
+```
+Scan open PRs and issues for actionable comments.
+Fix trivial code issues directly. Add feature requests and bug reports
+to AGENT_BACKLOG.md. Answer questions.
+```
+
+## Step 7: Iterate or Complete
 
 If work remains, loop back to Step 3 and dispatch the next phase. If all phases are complete, commit all changes with a summary message and report completion.
+
+## Full Development Loop
+
+```
+  ┌─────────────────────────────────────────────────────────┐
+  │                    /orchestrate                          │
+  │                                                         │
+  │  1. Assess State ──> 2. Read Backlog ──> 3. Pick Phase  │
+  │                                              │          │
+  │                                              v          │
+  │  ┌──────── 4. Dispatch Code Teams (parallel) ────────┐  │
+  │  │  /team-foundation  /team-reasoning  /team-quality  │  │
+  │  │  /team-metacognitive  /team-agency  /team-testing  │  │
+  │  │  /team-business  /team-cicd  /team-infra           │  │
+  │  └────────────────────────────────────────────────────┘  │
+  │                         │                                │
+  │                         v                                │
+  │  5. Collect Results & Compare Before/After               │
+  │                         │                                │
+  │                         v                                │
+  │  ┌──────── 6. Workflow Agents (sequential) ───────────┐  │
+  │  │  /sync-backlog    ── Update completed/new items     │  │
+  │  │  /review-pr       ── Review changes before merge    │  │
+  │  │  /pickup-comments ── Gather feedback for next phase │  │
+  │  └────────────────────────────────────────────────────┘  │
+  │                         │                                │
+  │                         v                                │
+  │  7. More phases? ──yes──> Loop to Step 3                 │
+  │         │                                                │
+  │         no                                               │
+  │         v                                                │
+  │  DONE: All stubs complete, build green, tests green,     │
+  │        IaC deployed, backlog at zero                     │
+  └─────────────────────────────────────────────────────────┘
+```
 
 ## Arguments
 
@@ -253,5 +327,6 @@ $ARGUMENTS
 If arguments are provided, use them to override the default behavior:
 - `--phase N` — Skip assessment and run only phase N
 - `--team NAME` — Run only the specified team (foundation, reasoning, metacognitive, agency, business, quality, testing, cicd, infra)
+- `--workflow` — Run only the workflow agents (sync-backlog, review-pr, pickup-comments)
 - `--assess-only` — Only run the assessment, don't dispatch any work
 - `--dry-run` — Show what would be dispatched without running it

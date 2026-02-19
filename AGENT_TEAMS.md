@@ -329,6 +329,7 @@ The orchestrator automatically:
 2. Determines the correct phase based on project state
 3. Launches the right teams in parallel via Task sub-agents
 4. Collects results and reports before/after metrics
+5. **Runs workflow agents** after each phase (backlog sync, PR review, comment pickup)
 
 ### Option B: Team-Specific Slash Commands (Individual Sessions)
 
@@ -347,6 +348,12 @@ Run a single team in a dedicated Claude Code session:
 /team-testing          # Team 7: Unit tests, integration tests, coverage
 /team-cicd             # Team 8: Pipelines, Docker, DevEx
 /team-infra            # Team 9: Terraform, Terragrunt, Kubernetes
+
+# Workflow agents (run between phases):
+/review-pr 42          # Review PR #42 against all project conventions
+/pickup-comments       # Scan open PRs/issues for actionable comments
+/pickup-comments 42    # Scan only PR #42's comments
+/sync-backlog          # Update AGENT_BACKLOG.md with current codebase state
 ```
 
 ### Option C: CLI Launcher Script (Multiple Parallel Terminals)
@@ -364,9 +371,6 @@ Run a single team in a dedicated Claude Code session:
 
 # Background with logs:
 ./scripts/launch-agent-teams.sh --phase 1 --bg
-
-# Preview:
-./scripts/launch-agent-teams.sh --phase 2 --dry-run
 ```
 
 ### Option D: Claude Code Web (Multiple Sessions)
@@ -380,6 +384,7 @@ Run a single team in a dedicated Claude Code session:
 
 ## Slash Command Reference
 
+### Code & Support Teams
 | Command | Purpose | Scope |
 |---------|---------|-------|
 | `/orchestrate` | Master coordinator — auto-detects phase, dispatches teams | All |
@@ -392,6 +397,41 @@ Run a single team in a dedicated Claude Code session:
 | `/team-testing` | Unit tests, integration tests, coverage, benchmarks | `tests/` |
 | `/team-cicd` | Pipelines, Docker, security scanning, DevEx | `.github/`, `scripts/` |
 | `/team-infra` | Terraform, Terragrunt, Docker, Kubernetes | `infra/`, `k8s/` |
+
+### Workflow Agents
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `/review-pr {N}` | Review PR against architecture rules, conventions, security | After committing, before merging |
+| `/pickup-comments` | Scan PRs/issues for actionable feedback, fix or backlog | Before starting a new phase |
+| `/sync-backlog` | Update AGENT_BACKLOG.md with completions and new items | After each phase completes |
+
+---
+
+## Development Loop
+
+```
+ ┌──────────────────────────────────────────────────────────────┐
+ │  /orchestrate                                                │
+ │                                                              │
+ │  ┌─ /pickup-comments ── Gather feedback from GitHub ──────┐  │
+ │  │                                                        │  │
+ │  v                                                        │  │
+ │  Assess ──> Pick Phase ──> Dispatch Code Teams (parallel)  │  │
+ │                                  │                         │  │
+ │                                  v                         │  │
+ │                          Collect Results                   │  │
+ │                                  │                         │  │
+ │                                  v                         │  │
+ │  ┌─ /sync-backlog ── Update completed/new items ───────┐  │  │
+ │  │                                                     │  │  │
+ │  └─ /review-pr ── Review changes before merge ─────────┘  │  │
+ │                                  │                         │  │
+ │                                  v                         │  │
+ │                     More phases? ──yes──> Loop ────────────┘  │
+ │                          │                                    │
+ │                          no ──> DONE                          │
+ └──────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -414,7 +454,7 @@ Run a single team in a dedicated Claude Code session:
 
 ## Monitoring Progress
 
-After each agent session, verify:
+After each agent session, verify (or just run `/sync-backlog`):
 
 ```bash
 # Build passes
@@ -436,4 +476,4 @@ test -f Dockerfile && echo "Docker: YES" || echo "Docker: NO"
 
 ---
 
-*Generated: 2026-02-19 | Updated with Teams 7-9*
+*Generated: 2026-02-19 | 9 code teams + 3 workflow agents*
