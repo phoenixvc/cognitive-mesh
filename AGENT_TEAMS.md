@@ -257,25 +257,61 @@ Phase 4 (final):
 
 ## How to Launch Agent Sessions
 
-### Option A: Claude Code CLI (Parallel Sessions)
+### Option A: Orchestrator Agent (RECOMMENDED — Single Session, Auto-Coordination)
 
-Open 6 terminal windows and launch each with a focused prompt:
+The orchestrator reads the backlog, assesses project state, and dispatches parallel sub-agents:
 
 ```bash
-# Terminal 1 — Foundation
-claude "You are working on the FoundationLayer of the Cognitive Mesh .NET 9 solution. Read CLAUDE.md for conventions. ..."
+# In any Claude Code session (CLI or Web):
+/orchestrate
 
-# Terminal 2 — Reasoning
-claude "You are working on the ReasoningLayer of the Cognitive Mesh .NET 9 solution. Read CLAUDE.md for conventions. ..."
-
-# ... repeat for each team
+# Or with options:
+/orchestrate --assess-only      # Just report current state
+/orchestrate --phase 2          # Skip to Phase 2
+/orchestrate --team agency      # Run only Team Agency
+/orchestrate --dry-run          # Show plan without executing
 ```
 
-### Option B: Claude Code Web (Multiple Sessions)
+The orchestrator automatically:
+1. Checks build/test status and remaining TODOs/stubs
+2. Determines the correct phase based on project state
+3. Launches the right teams in parallel via Task sub-agents
+4. Collects results and reports before/after metrics
 
-1. Open 6 separate Claude Code web sessions on this repository
-2. Paste the team-specific prompt into each session
-3. Each session works independently on its layer
+### Option B: Team-Specific Slash Commands (Individual Sessions)
+
+Run a single team in a dedicated Claude Code session:
+
+```bash
+/team-foundation       # Team 1: FoundationLayer stubs + FI-02/03/04
+/team-reasoning        # Team 2: ReasoningLayer stubs + TR-01/02/03
+/team-metacognitive    # Team 3: MetacognitiveLayer 50+ stubs
+/team-agency           # Team 4: AgencyLayer + TODO.md items
+/team-business         # Team 5: BusinessApplications fake-data stubs
+/team-quality          # Team 6: Build fixes, test gaps, integration
+```
+
+### Option C: CLI Launcher Script (Multiple Parallel Terminals)
+
+```bash
+# Launch specific phase (opens instructions for parallel terminals):
+./scripts/launch-agent-teams.sh --phase 1
+
+# Launch single team:
+./scripts/launch-agent-teams.sh --team foundation
+
+# Background mode with log files:
+./scripts/launch-agent-teams.sh --phase 1 --bg
+
+# Dry run:
+./scripts/launch-agent-teams.sh --phase 2 --dry-run
+```
+
+### Option D: Claude Code Web (Multiple Sessions)
+
+1. Open multiple Claude Code web sessions on this repository
+2. Type the team slash command (e.g., `/team-agency`) in each session
+3. Each session works independently on its scoped layer
 4. Use dedicated branches per team to avoid merge conflicts:
    - `claude/team-foundation`
    - `claude/team-reasoning`
@@ -284,19 +320,19 @@ claude "You are working on the ReasoningLayer of the Cognitive Mesh .NET 9 solut
    - `claude/team-business`
    - `claude/team-quality`
 
-### Option C: Task-Based Parallelism (Single Session)
+---
 
-In a single Claude Code session, use the agent's Task tool to launch parallel sub-agents:
+## Slash Command Reference
 
-```
-Please work on all 6 teams in parallel:
-- Team 1: Fix Foundation stubs
-- Team 2: Complete Reasoning layer
-- Team 3: Implement Metacognitive stubs
-- Team 4: Complete Agency layer TODOs
-- Team 5: Replace Business Apps fake data
-- Team 6: Fix build and tests
-```
+| Command | Purpose | Scope |
+|---------|---------|-------|
+| `/orchestrate` | Master coordinator — auto-detects phase, dispatches teams | All layers |
+| `/team-foundation` | FoundationLayer stubs + compliance PRDs | `src/FoundationLayer/` |
+| `/team-reasoning` | ReasoningLayer stubs + temporal reasoning PRDs | `src/ReasoningLayer/` |
+| `/team-metacognitive` | 50+ MetacognitiveLayer stubs | `src/MetacognitiveLayer/` |
+| `/team-agency` | AgencyLayer stubs + TODO.md + orchestration tests | `src/AgencyLayer/` |
+| `/team-business` | 12 BusinessApplications fake-data stubs | `src/BusinessApplications/` |
+| `/team-quality` | Cross-cutting build/test/integration fixes | All layers |
 
 ---
 
