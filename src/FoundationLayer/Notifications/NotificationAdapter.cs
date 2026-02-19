@@ -1,4 +1,5 @@
 using FoundationLayer.EnterpriseConnectors;
+using Microsoft.Extensions.Logging;
 
 namespace FoundationLayer.Notifications
 {

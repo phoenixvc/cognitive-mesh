@@ -1,5 +1,8 @@
+using CognitiveMesh.Shared.Interfaces;
+using CognitiveMesh.Shared.Models;
 using FoundationLayer.ConvenerData.Persistence;
 using FoundationLayer.Infrastructure.Exceptions;
+using Microsoft.Extensions.Logging;
 
 // --- Repository Implementation ---
 namespace FoundationLayer.Infrastructure.Repositories

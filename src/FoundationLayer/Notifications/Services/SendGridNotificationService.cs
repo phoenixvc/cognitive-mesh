@@ -3,6 +3,9 @@ using System.Net;
 using System.Text;
 using System.Web;
 using FoundationLayer.EnterpriseConnectors;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SendGrid;
 
 namespace FoundationLayer.Notifications.Services
 {
