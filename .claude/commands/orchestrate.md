@@ -41,7 +41,7 @@ This orchestrator is designed to run **repeatedly across sessions**. Each invoca
 
 ## Step 1: Load Persistent State
 
-Read `.claude/state/orchestrator.json` to understand:
+Read `.claude/state/orchestrator.json` to understand (if it doesn't exist, copy from `.claude/state/orchestrator.json.template`):
 - Which phase was last completed
 - Previous metrics (to detect regressions)
 - Any recorded blockers
@@ -104,11 +104,11 @@ ELSE IF Metacognitive.grade < B OR Agency.grade < B:
 ELSE IF Business.grade < B:
   → Phase 3 (business layer needs work)
 
-ELSE IF any test failures OR missing test files:
-  → Phase 4 (testing sweep)
-
 ELSE IF infra.grade < B OR cicd.grade < B:
   → Phase 1 (infra/cicd run in Phase 1)
+
+ELSE IF any test failures OR missing test files:
+  → Phase 4 (testing sweep)
 
 ELSE:
   → COMPLETE
@@ -280,6 +280,7 @@ Override default behavior:
 - `--dry-run` — Show what would be dispatched
 - `--reset` — Clear persistent state and start fresh
 - `--status` — Just show current state from orchestrator.json
+- `--auto-commit` — Skip human approval prompts for git commit/push (default: off, always prompt)
 
 ## Full Autonomous Loop
 

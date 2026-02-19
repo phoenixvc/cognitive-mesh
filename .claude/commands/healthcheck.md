@@ -31,7 +31,7 @@ dotnet test CognitiveMesh.sln --no-build --verbosity quiet 2>&1
 
 ### 3. Layer Dependency Gate (MUST PASS)
 For each .csproj, verify ProjectReferences only point downward:
-```
+```text
 FoundationLayer  → (nothing)
 ReasoningLayer   → Foundation, Shared
 MetacognitiveLayer → Foundation, Reasoning, Shared

@@ -120,8 +120,9 @@ EOF
 )"
 ```
 
-If no issues found:
+If no issues found, present the "all checks pass" summary to the user and **await explicit confirmation** before approving:
 ```bash
+# Only after human confirms:
 gh pr review <NUMBER> --approve --body "LGTM - all checks pass"
 ```
 

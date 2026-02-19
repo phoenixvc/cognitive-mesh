@@ -73,12 +73,12 @@ if [[ -n "$TEAM" ]]; then
         cicd)          launch_team "CICD" "cicd" ;;
         infra)         launch_team "INFRA" "infra" ;;
         orchestrator)
-            local orch_cmd="/orchestrate${PHASE:+ --phase $PHASE}"
+            orch_cmd="/orchestrate${PHASE:+ --phase $PHASE}"
             if $DRY_RUN; then
                 echo "[DRY RUN] Would launch: claude \"${orch_cmd}\""
             elif $BACKGROUND; then
                 mkdir -p "$LOG_DIR"
-                local log_file="$LOG_DIR/orchestrator.log"
+                log_file="$LOG_DIR/orchestrator.log"
                 echo "Launching Orchestrator (log: ${log_file})..."
                 nohup claude "${orch_cmd}" > "$log_file" 2>&1 &
                 echo "  PID: $!"

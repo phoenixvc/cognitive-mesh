@@ -35,7 +35,7 @@ You are **Team INFRA** for the Cognitive Mesh project. Your focus is defining al
    - Used for: RAG documents, checkpoints, audit logs
    - SDK: Azure.Storage.Blobs v12.24.1
 
-3. **Redis** — Session/memory cache (src/MetacognitiveLayer/ HybridMemoryStore)
+3. **Redis** — Session/memory cache (src/MetacognitiveLayer/HybridMemoryStore)
    - Used for: HybridMemoryStore hot tier, session state
    - SDK: StackExchange.Redis v2.8.41
 

@@ -143,126 +143,6 @@
 
 ---
 
-## P2-MEDIUM: Business Application Stubs
-
-### BIZ-001: CustomerIntelligenceManager — 4 fake-data methods
-- **File:** `src/BusinessApplications/CustomerIntelligence/CustomerIntelligenceManager.cs`
-- **Line 44:** `// TODO: Implement actual customer profile retrieval` — uses Task.Delay, returns sample data
-- **Line 81:** `// TODO: Implement actual segment retrieval logic`
-- **Line 136:** `// TODO: Implement actual insight generation logic`
-- **Line 199:** `// TODO: Implement actual prediction logic`
-- **Fix:** Integrate with HybridMemoryStore for profile retrieval, reasoning engines for insights
-- **Team:** 5 (Business)
-
-### BIZ-002: DecisionSupportManager — 4 hardcoded methods
-- **File:** `src/BusinessApplications/DecisionSupport/DecisionSupportManager.cs`
-- **Line 35:** `// TODO: Implement actual decision analysis logic`
-- **Line 51:** `// TODO: Implement actual risk evaluation logic` — returns `{ riskLevel: low, riskScore: 0.1 }`
-- **Line 67:** `// TODO: Implement actual recommendation generation logic` — returns empty arrays
-- **Line 83:** `// TODO: Implement actual outcome simulation logic` — returns empty results
-- **Fix:** Integrate with ConclAIve reasoning engines for real analysis
-- **Team:** 5 (Business)
-
-### BIZ-003: ResearchAnalyst — 4 fake-data methods
-- **File:** `src/BusinessApplications/ResearchAnalysis/ResearchAnalyst.cs`
-- **Line 47:** `// TODO: Implement actual research analysis logic`
-- **Line 87:** `// TODO: Implement actual research result retrieval logic`
-- **Line 122:** `// TODO: Implement actual research search logic`
-- **Line 161:** `// TODO: Implement actual research update logic`
-- **Fix:** Integrate with SemanticSearch/RAG and knowledge graph for real research
-- **Team:** 5 (Business)
-
-### BIZ-004: ConvenerController — 2 NotImplemented features
-- **File:** `src/BusinessApplications/ConvenerServices/ConvenerController.cs`
-- **Lines 151-161:** Innovation Spread tracking + Learning Catalyst recommendations
-- **Fix:** Implement endpoints per docs/prds/03-convener/convener-backend.md
-- **Team:** 5 (Business)
-
----
-
-## P2-MEDIUM: Missing Test Coverage
-
-### TST-001: MultiAgentOrchestrationEngine tests
-- **Gap:** No test file exists for the core multi-agent engine
-- **Team:** 4 (Agency)
-- **Note:** Tracked as P1 under AGN-006 — this entry kept for cross-reference
-
-### TST-002: SelfEvaluator tests
-- **Gap:** No dedicated test file
-- **Team:** 3 (Metacognitive)
-
-### TST-003: LearningManager tests
-- **Gap:** 45 methods with no test coverage
-- **Team:** 3 (Metacognitive)
-
-### TST-004: PerformanceMonitor tests
-- **Gap:** Limited test coverage for threshold checking
-- **Team:** 3 (Metacognitive)
-
-### TST-005: CustomerIntelligenceManager tests
-- **Gap:** No dedicated test file
-- **Team:** 5 (Business)
-
-### TST-006: DecisionSupportManager tests
-- **Gap:** No dedicated test file
-- **Team:** 5 (Business)
-
-### TST-007: ResearchAnalyst tests
-- **Gap:** No dedicated test file
-- **Team:** 5 (Business)
-
-### TST-008: Cross-layer integration tests
-- **Gap:** Only 1 integration test file exists
-- **Need:** DecisionExecutor->ConclAIve->Persistence flow, MultiAgent->EthicalChecks flow
-- **Team:** 6 (Quality)
-
----
-
-## P2-MEDIUM: PRD Implementation (Not Yet Started)
-
-### PRD-001: NIST AI RMF Governance Suite (FI-03)
-- **PRDs:** `docs/prds/01-foundational/nist-ai-rmf-maturity/`
-- **Deliverable:** AI risk register, maturity scoring dashboard
-- **Team:** 1 (Foundation)
-
-### PRD-002: Adaptive Balance & Continuous Improvement (FI-04)
-- **PRDs:** `docs/prds/02-adaptive-balance/`
-- **Deliverable:** Live spectrums, P95 decision error <=1%
-- **Team:** 1 (Foundation)
-
-### PRD-003: Cognitive Sandwich Workflow (AC-02)
-- **PRD:** `docs/prds/01_Foundational-Infrastructure/mesh-orchestration-hitl.md`
-- **Deliverable:** Phase-based HITL workflow, 40% hallucination reduction
-- **Team:** 4 (Agency)
-
-### PRD-004: Cognitive Sovereignty Control (AC-03)
-- **PRD:** `docs/prds/03_Agentic-Cognitive-Systems/human-boundary.md`
-- **Deliverable:** User autonomy toggles, audit trail
-- **Team:** 4 (Agency)
-
-### PRD-005: Temporal Decision Core (TR-01)
-- **PRDs:** `docs/prds/04_Temporal-Flexible-Reasoning/`
-- **Deliverable:** Dual-circuit gate, adaptive window, <5% spurious temporal links
-- **Team:** 2 (Reasoning)
-
-### PRD-006: Memory & Flexible Strategy (TR-02)
-- **PRDs:** `docs/prds/04_Temporal-Flexible-Reasoning/`
-- **Deliverable:** Recall F1 +30%, recovery +50%
-- **Team:** 2 (Reasoning)
-
-### PRD-007: Value Generation Analytics (VI-01)
-- **PRDs:** `docs/prds/04-value-impact/value-generation/`
-- **Deliverable:** ROI dashboard, 90% telemetry coverage
-- **Team:** 5 (Business)
-
-### PRD-008: Impact-Driven AI Metrics (VI-02)
-- **PRDs:** `docs/prds/04-value-impact/impact-driven-ai/`
-- **Deliverable:** Psychological safety score >= 80/100
-- **Team:** 5 (Business)
-
-
----
-
 ## P1-HIGH: CI/CD & DevOps (Team 8)
 
 ### CICD-001: Add CodeQL Security Scanning
@@ -368,6 +248,126 @@
 - **Create:** `k8s/base/` (deployment.yaml, service.yaml, configmap.yaml)
 - **Create:** `k8s/overlays/{dev,staging,prod}/kustomization.yaml`
 - **Team:** 9 (Infra)
+
+---
+
+## P2-MEDIUM: Business Application Stubs
+
+### BIZ-001: CustomerIntelligenceManager — 4 fake-data methods
+- **File:** `src/BusinessApplications/CustomerIntelligence/CustomerIntelligenceManager.cs`
+- **Line 44:** `// TODO: Implement actual customer profile retrieval` — uses Task.Delay, returns sample data
+- **Line 81:** `// TODO: Implement actual segment retrieval logic`
+- **Line 136:** `// TODO: Implement actual insight generation logic`
+- **Line 199:** `// TODO: Implement actual prediction logic`
+- **Fix:** Integrate with HybridMemoryStore for profile retrieval, reasoning engines for insights
+- **Team:** 5 (Business)
+
+### BIZ-002: DecisionSupportManager — 4 hardcoded methods
+- **File:** `src/BusinessApplications/DecisionSupport/DecisionSupportManager.cs`
+- **Line 35:** `// TODO: Implement actual decision analysis logic`
+- **Line 51:** `// TODO: Implement actual risk evaluation logic` — returns `{ riskLevel: low, riskScore: 0.1 }`
+- **Line 67:** `// TODO: Implement actual recommendation generation logic` — returns empty arrays
+- **Line 83:** `// TODO: Implement actual outcome simulation logic` — returns empty results
+- **Fix:** Integrate with ConclAIve reasoning engines for real analysis
+- **Team:** 5 (Business)
+
+### BIZ-003: ResearchAnalyst — 4 fake-data methods
+- **File:** `src/BusinessApplications/ResearchAnalysis/ResearchAnalyst.cs`
+- **Line 47:** `// TODO: Implement actual research analysis logic`
+- **Line 87:** `// TODO: Implement actual research result retrieval logic`
+- **Line 122:** `// TODO: Implement actual research search logic`
+- **Line 161:** `// TODO: Implement actual research update logic`
+- **Fix:** Integrate with SemanticSearch/RAG and knowledge graph for real research
+- **Team:** 5 (Business)
+
+### BIZ-004: ConvenerController — 2 NotImplemented features
+- **File:** `src/BusinessApplications/ConvenerServices/ConvenerController.cs`
+- **Lines 151-161:** Innovation Spread tracking + Learning Catalyst recommendations
+- **Fix:** Implement endpoints per docs/prds/03-convener/convener-backend.md
+- **Team:** 5 (Business)
+
+---
+
+## P2-MEDIUM: Missing Test Coverage
+
+### TST-001: MultiAgentOrchestrationEngine tests
+- **Gap:** No test file exists for the core multi-agent engine
+- **Team:** 4 (Agency)
+- **Note:** Tracked as P1 under AGN-006 — this entry kept for cross-reference
+
+### TST-002: SelfEvaluator tests
+- **Gap:** No dedicated test file
+- **Team:** 3 (Metacognitive)
+
+### TST-003: LearningManager tests
+- **Gap:** 48 methods with no test coverage
+- **Team:** 3 (Metacognitive)
+
+### TST-004: PerformanceMonitor tests
+- **Gap:** Limited test coverage for threshold checking
+- **Team:** 3 (Metacognitive)
+
+### TST-005: CustomerIntelligenceManager tests
+- **Gap:** No dedicated test file
+- **Team:** 5 (Business)
+
+### TST-006: DecisionSupportManager tests
+- **Gap:** No dedicated test file
+- **Team:** 5 (Business)
+
+### TST-007: ResearchAnalyst tests
+- **Gap:** No dedicated test file
+- **Team:** 5 (Business)
+
+### TST-008: Cross-layer integration tests
+- **Gap:** Only 1 integration test file exists
+- **Need:** DecisionExecutor->ConclAIve->Persistence flow, MultiAgent->EthicalChecks flow
+- **Team:** 6 (Quality)
+
+---
+
+## P2-MEDIUM: PRD Implementation (Not Yet Started)
+
+### PRD-001: NIST AI RMF Governance Suite (FI-03)
+- **PRDs:** `docs/prds/01-foundational/nist-ai-rmf-maturity/`
+- **Deliverable:** AI risk register, maturity scoring dashboard
+- **Team:** 1 (Foundation)
+
+### PRD-002: Adaptive Balance & Continuous Improvement (FI-04)
+- **PRDs:** `docs/prds/02-adaptive-balance/`
+- **Deliverable:** Live spectrums, P95 decision error <=1%
+- **Team:** 1 (Foundation)
+
+### PRD-003: Cognitive Sandwich Workflow (AC-02)
+- **PRD:** `docs/prds/01-foundational-infrastructure/mesh-orchestration-hitl.md`
+- **Deliverable:** Phase-based HITL workflow, 40% hallucination reduction
+- **Team:** 4 (Agency)
+
+### PRD-004: Cognitive Sovereignty Control (AC-03)
+- **PRD:** `docs/prds/03-agentic-cognitive-systems/human-boundary.md`
+- **Deliverable:** User autonomy toggles, audit trail
+- **Team:** 4 (Agency)
+
+### PRD-005: Temporal Decision Core (TR-01)
+- **PRDs:** `docs/prds/04-temporal-flexible-reasoning/`
+- **Deliverable:** Dual-circuit gate, adaptive window, <5% spurious temporal links
+- **Team:** 2 (Reasoning)
+
+### PRD-006: Memory & Flexible Strategy (TR-02)
+- **PRDs:** `docs/prds/04-temporal-flexible-reasoning/`
+- **Deliverable:** Recall F1 +30%, recovery +50%
+- **Team:** 2 (Reasoning)
+
+### PRD-007: Value Generation Analytics (VI-01)
+- **PRDs:** `docs/prds/04-value-impact/value-generation/`
+- **Deliverable:** ROI dashboard, 90% telemetry coverage
+- **Team:** 5 (Business)
+
+### PRD-008: Impact-Driven AI Metrics (VI-02)
+- **PRDs:** `docs/prds/04-value-impact/impact-driven-ai/`
+- **Deliverable:** Psychological safety score >= 80/100
+- **Team:** 5 (Business)
+
 
 ---
 

@@ -6,7 +6,9 @@
 
 ## Strategy Overview
 
-The Cognitive Mesh has **5 architectural layers**, **100+ PRDs**, **~21 TODO comments**, **64+ stub implementations**, and **12 test projects**. A single agent cannot efficiently tackle all of this. Instead, partition the work into **9 specialized code teams + 5 workflow agents**, each owning a layer or cross-cutting concern.
+The Cognitive Mesh has **5 architectural layers**, **100+ PRDs**, **~22 TODO comments**, **77+ stub implementations**, and **12 test projects**. A single agent cannot efficiently tackle all of this. Instead, partition the work into **9 specialized code teams + 5 workflow agents**, each owning a layer or cross-cutting concern.
+
+> *Counts last verified: 2026-02-19. Run `/discover` for current numbers.*
 
 **Key principle:** Respect the dependency direction `Foundation <- Reasoning <- Metacognitive <- Agency <- Business`. Teams working on lower layers should complete first (or provide interfaces) before upper-layer teams integrate.
 
@@ -23,8 +25,8 @@ The Cognitive Mesh has **5 architectural layers**, **100+ PRDs**, **~21 TODO com
 - `docs/prds/01-foundational/nist-ai-rmf-maturity/backend-architecture.md` (FI-03)
 - `docs/prds/01-foundational/nist-ai-rmf-maturity/mesh-widget.md` (FI-03)
 - `docs/prds/02-adaptive-balance/backend-architecture.md` (FI-04)
-- `docs/prds/01_Foundational-Infrastructure/policy-access-control.md`
-- `docs/prds/01_Foundational-Infrastructure/connector-plugin.md`
+- `docs/prds/01-foundational-infrastructure/policy-access-control.md`
+- `docs/prds/01-foundational-infrastructure/connector-plugin.md`
 
 **Outstanding stubs to complete:**
 - `src/FoundationLayer/DocumentProcessing/DocumentIngestionFunction.cs:52` — Fabric integration placeholder
@@ -53,9 +55,9 @@ Do NOT modify files outside src/FoundationLayer/ and tests/FoundationLayer/ with
 **Scope:** `src/ReasoningLayer/` + Epics TR-01, TR-02, TR-03
 
 **PRDs to implement:**
-- `docs/prds/04_Temporal-Flexible-Reasoning/real-time-cognitive-augmentation.md` (TR-01)
-- `docs/prds/04_Temporal-Flexible-Reasoning/preparation-vs-performance-dual-architecture.md` (TR-02)
-- `docs/prds/04_Temporal-Flexible-Reasoning/time-bound-decision-classifier.md` (TR-01)
+- `docs/prds/04-temporal-flexible-reasoning/real-time-cognitive-augmentation.md` (TR-01)
+- `docs/prds/04-temporal-flexible-reasoning/preparation-vs-performance-dual-architecture.md` (TR-02)
+- `docs/prds/04-temporal-flexible-reasoning/time-bound-decision-classifier.md` (TR-01)
 - NOT_INTEGRATED variants in same folder indicate these features need codebase integration
 
 **Outstanding stubs to complete:**
@@ -71,7 +73,7 @@ Do NOT modify files outside src/FoundationLayer/ and tests/FoundationLayer/ with
 You are working on the ReasoningLayer of the Cognitive Mesh .NET 9 solution.
 Read CLAUDE.md for conventions. Your focus:
 1. Complete SystemsReasoner stub implementations
-2. Implement Temporal Decision Core (TR-01) per docs/prds/04_Temporal-Flexible-Reasoning/
+2. Implement Temporal Decision Core (TR-01) per docs/prds/04-temporal-flexible-reasoning/
 3. Add the time-bound-decision-classifier capability
 4. Expand test coverage for all reasoning engines
 5. Ensure all public types have XML doc comments (CS1591)
@@ -85,9 +87,9 @@ Do NOT create dependencies on AgencyLayer or MetacognitiveLayer (dependency flow
 **Scope:** `src/MetacognitiveLayer/` + related epics
 
 **PRDs to implement:**
-- `docs/prds/03_Agentic-Cognitive-Systems/context-engineer.md`
-- `docs/prds/03_Agentic-Cognitive-Systems/human-boundary.md`
-- `docs/prds/01_Foundational-Infrastructure/human-ai-boundary-definition-protocol-prd.md`
+- `docs/prds/03-agentic-cognitive-systems/context-engineer.md`
+- `docs/prds/03-agentic-cognitive-systems/human-boundary.md`
+- `docs/prds/01-foundational-infrastructure/human-ai-boundary-definition-protocol-prd.md`
 
 **Outstanding stubs to complete (HIGH PRIORITY — 50+ stubs):**
 - `src/MetacognitiveLayer/SelfEvaluation/SelfEvaluator.cs:30,46,62,78` — 4 TODO stubs returning hardcoded perfect scores
@@ -124,9 +126,9 @@ CRITICAL: Do NOT reference AgencyLayer from this layer (circular dependency viol
 - `docs/prds/07-agentic-systems/agentic-ai-system/agentic-ai-system.md` (AC-01, In Progress)
 - `docs/prds/07-agentic-systems/agentic-ai-system/backend-architecture.md`
 - `docs/prds/07-agentic-systems/agentic-ai-system/implementation.md`
-- `docs/prds/01_Foundational-Infrastructure/mesh-orchestration-hitl.md` (AC-02)
-- `docs/prds/03_Agentic-Cognitive-Systems/agent-comms.md`
-- `docs/prds/03_Agentic-Cognitive-Systems/mesh-agent-communication-protocols.md`
+- `docs/prds/01-foundational-infrastructure/mesh-orchestration-hitl.md` (AC-02)
+- `docs/prds/03-agentic-cognitive-systems/agent-comms.md`
+- `docs/prds/03-agentic-cognitive-systems/mesh-agent-communication-protocols.md`
 
 **Outstanding stubs to complete:**
 - `src/AgencyLayer/DecisionExecution/DecisionExecutor.cs:36,82,112` — 3 TODO stubs with Task.Delay simulation
@@ -174,7 +176,7 @@ Read CLAUDE.md and TODO.md for context. Your focus:
 - `docs/prds/04-value-impact/impact-driven-ai/impact-driven-ai.md` (VI-02)
 - `docs/prds/04-value-impact/impact-driven-ai/backend-architecture.md`
 - `docs/prds/03-convener/convener-backend.md`
-- `docs/prds/05_Value-Impact/` — multiple PRDs for opportunity detection, value tracking, friction detection
+- `docs/prds/05-value-impact/` — multiple PRDs for opportunity detection, value tracking, friction detection
 
 **Outstanding stubs to complete (ALL high priority):**
 - `src/BusinessApplications/CustomerIntelligence/CustomerIntelligenceManager.cs:44,81,136,199` — 4 TODO methods returning fake data
@@ -191,7 +193,7 @@ Read CLAUDE.md and TODO.md for context. Your focus:
 ```text
 You are working on the BusinessApplications layer of the Cognitive Mesh .NET 9 solution.
 Read CLAUDE.md for conventions. Your focus:
-1. Replace all 12 TODO stub methods with real implementations that integrate with lower-layer services
+1. Replace all 14 TODO stub methods with real implementations that integrate with lower-layer services
 2. CustomerIntelligenceManager: integrate with HybridMemoryStore + reasoning engines for real insights
 3. DecisionSupportManager: integrate with ConclAIve reasoning for actual decision analysis
 4. ResearchAnalyst: integrate with SemanticSearch/RAG for real research capabilities
@@ -225,7 +227,7 @@ This layer depends on Foundation, Reasoning, Metacognitive, and Agency layers.
 - MultiAgentOrchestrationEngine (core multi-agent coordinator)
 - SelfEvaluator (self-evaluation)
 - PerformanceMonitor (monitoring)
-- LearningManager (45 methods, zero tests)
+- LearningManager (48 methods, zero tests)
 - CustomerIntelligenceManager, DecisionSupportManager, ResearchAnalyst
 
 **Work items:**
@@ -386,24 +388,27 @@ The orchestrator is **fully autonomous across sessions**:
 ## Slash Command Reference
 
 ### Orchestrator
+
 | Command | Purpose |
 |---------|---------|
 | `/orchestrate` | **Master coordinator** — autonomous loop with state persistence |
 
 ### Code & Support Teams
+
 | Command | Purpose | Scope |
 |---------|---------|-------|
 | `/team-foundation` | FoundationLayer stubs + compliance PRDs | `src/FoundationLayer/` |
 | `/team-reasoning` | ReasoningLayer stubs + temporal reasoning PRDs | `src/ReasoningLayer/` |
 | `/team-metacognitive` | 50+ MetacognitiveLayer stubs | `src/MetacognitiveLayer/` |
 | `/team-agency` | AgencyLayer stubs + TODO.md + orchestration tests | `src/AgencyLayer/` |
-| `/team-business` | 12 BusinessApplications fake-data stubs | `src/BusinessApplications/` |
+| `/team-business` | 14 BusinessApplications fake-data stubs | `src/BusinessApplications/` |
 | `/team-quality` | Build health, XML docs, architecture validation | Cross-cutting |
 | `/team-testing` | Unit tests, integration tests, coverage, benchmarks | `tests/` |
 | `/team-cicd` | Pipelines, Docker, security scanning, DevEx | `.github/`, `scripts/` |
 | `/team-infra` | Terraform, Terragrunt, Docker, Kubernetes | `infra/`, `k8s/` |
 
 ### Workflow Agents
+
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
 | `/discover` | Fresh codebase scan — finds ALL remaining work | Start of each orchestrator loop |

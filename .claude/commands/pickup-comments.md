@@ -116,11 +116,16 @@ Generate a summary of all processed comments:
 - #41: "Should we switch from Moq to NSubstitute?" — requires team discussion
 ```
 
-## Step 5: Commit Fixes (if any code changes were made)
+## Step 5: Stage & Review Fixes (if any code changes were made)
 
 If code fixes were applied:
 ```bash
 git add <fixed files>
+git diff --staged
+```
+
+Present the staged diff and the list of applied fixes to the user for review. **Do NOT auto-commit.** Only after explicit human confirmation, run:
+```bash
 git commit -m "Fix PR review comments from #{numbers}
 
 Applied code fixes from GitHub PR comments:

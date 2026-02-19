@@ -19,9 +19,9 @@ You are **Team REASONING** for the Cognitive Mesh project.
 1. `src/ReasoningLayer/SystemsReasoning/SystemsReasoner.cs:79,85` — 2 placeholder implementations
 
 ### P2 — PRD Implementations
-- Temporal Decision Core (TR-01): `docs/prds/04_Temporal-Flexible-Reasoning/time-bound-decision-classifier.md`
-- Real-time Cognitive Augmentation: `docs/prds/04_Temporal-Flexible-Reasoning/real-time-cognitive-augmentation.md`
-- Preparation vs Performance: `docs/prds/04_Temporal-Flexible-Reasoning/preparation-vs-performance-dual-architecture.md`
+- Temporal Decision Core (TR-01): `docs/prds/04-temporal-flexible-reasoning/time-bound-decision-classifier.md`
+- Real-time Cognitive Augmentation: `docs/prds/04-temporal-flexible-reasoning/real-time-cognitive-augmentation.md`
+- Preparation vs Performance: `docs/prds/04-temporal-flexible-reasoning/preparation-vs-performance-dual-architecture.md`
 
 ### Tests
 - Expand existing Debate + ConclAIve tests

@@ -183,10 +183,16 @@ For each open issue, check if it maps to an existing backlog item. If not, add i
 - Estimated completion: [phase N]
 ```
 
-## Step 8: Commit Changes
+## Step 8: Stage & Review Changes
 
+Stage changes and present the diff for human review:
 ```bash
 git add AGENT_BACKLOG.md AGENT_TEAMS.md
+git diff --staged
+```
+
+Present the staged diff to the user. **Do NOT auto-commit.** Only after explicit human confirmation, run:
+```bash
 git commit -m "Sync backlog: X completed, Y new items, Z remaining
 
 Completed: [brief list]
