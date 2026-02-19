@@ -84,8 +84,14 @@ When something doesn't work, don't ask "why doesn't this work?" Instead:
 
 The `protect-sensitive.sh` hook blocks writes to secrets and credentials. Additionally:
 
-- `git push --force`, `git reset --hard`, `git clean`, `git checkout .` are blocked by the `guard-destructive-bash.sh` hook
-- `rm -rf` beyond the project root is blocked
+- The following destructive commands are blocked by `guard-destructive-bash.sh` (hook) and `settings.json` (deny list):
+  - `git push --force` / `git push -f` (force-push)
+  - `git reset --hard`
+  - `git clean -f` / `git clean -df` / `git clean -fd`
+  - `git checkout -- .` / `git checkout .`
+  - `git restore .`
+  - `git branch -D` (force-delete branch)
+- `rm -rf` beyond the project root is blocked by both `guard-destructive-bash.sh` and `settings.json`
 - Package publishing (`dotnet nuget push`) is denied in `settings.json`
 - If an operation cannot be undone, stop and ask for confirmation
 

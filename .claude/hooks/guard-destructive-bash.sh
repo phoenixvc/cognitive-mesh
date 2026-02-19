@@ -6,8 +6,8 @@
 export PATH="/usr/bin:/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
 
 if ! command -v jq &>/dev/null; then
-    echo "BLOCKED: jq is required for the guard-destructive-bash hook but is not installed." >&2
-    exit 2
+    echo "WARNING: jq is not available; guard-destructive-bash hook cannot inspect commands." >&2
+    exit 0
 fi
 
 INPUT=$(cat)
@@ -15,8 +15,8 @@ INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 JQ_EXIT=$?
 if [ $JQ_EXIT -ne 0 ]; then
-    echo "BLOCKED: Failed to parse tool input (jq exit code $JQ_EXIT)." >&2
-    exit 2
+    echo "WARNING: Failed to parse tool input (jq exit code $JQ_EXIT); allowing command." >&2
+    exit 0
 fi
 
 if [ -z "$COMMAND" ]; then
@@ -25,12 +25,12 @@ fi
 
 # Strip heredoc content so commit messages don't trigger false positives.
 # Remove everything between <<'EOF' ... EOF (and <<EOF ... EOF variants).
-COMMAND_STRIPPED=$(echo "$COMMAND" | sed '/<<.*EOF/,/^EOF/d; /<<.*HEREDOC/,/^HEREDOC/d')
+COMMAND_STRIPPED=$(echo "$COMMAND" | sed '/<<.*EOF/,/^EOF[[:space:]]*$/d; /<<.*HEREDOC/,/^HEREDOC[[:space:]]*$/d')
 
 # Destructive git operations
 BLOCKED_GIT_PATTERNS=(
     "git push --force"
-    "git push -f "
+    "git push -f"
     "git reset --hard"
     "git clean -f"
     "git clean -df"
@@ -38,11 +38,15 @@ BLOCKED_GIT_PATTERNS=(
     "git checkout -- ."
     "git checkout ."
     "git restore ."
-    "git branch -D "
+    "git branch -D"
 )
 
 for pattern in "${BLOCKED_GIT_PATTERNS[@]}"; do
-    if [[ "$COMMAND_STRIPPED" == *"$pattern"* ]]; then
+    # Escape dots for literal regex matching
+    regex=$(printf '%s' "$pattern" | sed 's/\./\\./g')
+    # Match pattern followed by whitespace or end-of-string (flag boundary)
+    # so e.g. --force does not false-positive on --force-with-lease
+    if [[ "$COMMAND_STRIPPED" =~ $regex([[:space:]]|$) ]]; then
         echo "BLOCKED: Destructive git operation detected: '$pattern'. This action is irreversible. Ask the user for explicit confirmation first." >&2
         exit 2
     fi

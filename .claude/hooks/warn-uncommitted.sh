@@ -13,7 +13,7 @@ fi
 CHANGED=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
 
 if [ "$CHANGED" -ge 10 ]; then
-    echo "WARNING: $CHANGED uncommitted changes. Consider committing to avoid losing work if context is shortened."
+    echo "WARNING: $CHANGED uncommitted changes. Consider committing to avoid losing work if context is shortened." >&2
 fi
 
 exit 0
