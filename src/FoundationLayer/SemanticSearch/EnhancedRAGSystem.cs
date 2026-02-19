@@ -1,7 +1,14 @@
 using System.Text;
+using FoundationLayer.SemanticSearch.Ports;
 
 namespace FoundationLayer.SemanticSearch;
 
+/// <summary>
+/// Provides an enhanced Retrieval-Augmented Generation (RAG) system that combines
+/// Azure AI Search vector indexing with OpenAI embeddings and completions.
+/// Supports optional integration with Microsoft Fabric data endpoints and
+/// Azure Data Factory pipelines through the <see cref="IDataPipelinePort"/>.
+/// </summary>
 public class EnhancedRAGSystem
 {
     private readonly SearchClient _searchClient;
@@ -10,8 +17,32 @@ public class EnhancedRAGSystem
     private readonly string _indexName;
     private readonly string _embeddingDeployment;
     private readonly string _completionDeployment;
+    private readonly IDataPipelinePort? _dataPipeline;
+    private readonly ILogger<EnhancedRAGSystem>? _logger;
 
-    public EnhancedRAGSystem(SearchClient searchClient, SearchIndexClient indexClient, OpenAIClient openAIClient, string indexName, string embeddingDeployment, string completionDeployment)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EnhancedRAGSystem"/> class.
+    /// </summary>
+    /// <param name="searchClient">The Azure AI Search client for querying the index.</param>
+    /// <param name="indexClient">The Azure AI Search index management client.</param>
+    /// <param name="openAIClient">The Azure OpenAI client for embeddings and completions.</param>
+    /// <param name="indexName">The name of the search index.</param>
+    /// <param name="embeddingDeployment">The OpenAI deployment name for generating embeddings.</param>
+    /// <param name="completionDeployment">The OpenAI deployment name for chat completions.</param>
+    /// <param name="dataPipeline">
+    /// Optional data pipeline port for Fabric and Data Factory integration.
+    /// When null, pipeline operations are skipped gracefully.
+    /// </param>
+    /// <param name="logger">Optional logger for structured diagnostics.</param>
+    public EnhancedRAGSystem(
+        SearchClient searchClient,
+        SearchIndexClient indexClient,
+        OpenAIClient openAIClient,
+        string indexName,
+        string embeddingDeployment,
+        string completionDeployment,
+        IDataPipelinePort? dataPipeline = null,
+        ILogger<EnhancedRAGSystem>? logger = null)
     {
         _searchClient = searchClient;
         _indexClient = indexClient;
@@ -19,6 +50,8 @@ public class EnhancedRAGSystem
         _indexName = indexName;
         _embeddingDeployment = embeddingDeployment;
         _completionDeployment = completionDeployment;
+        _dataPipeline = dataPipeline;
+        _logger = logger;
     }
 
     private async Task EnsureIndexExists()
@@ -202,15 +235,134 @@ public class EnhancedRAGSystem
         return response.Value.Choices[0].Message.Content;
     }
 
-    public async Task ConnectToFabricDataEndpointsAsync()
+    /// <summary>
+    /// Connects to Microsoft Fabric data endpoints for real-time data synchronization
+    /// with the RAG index. Validates endpoint availability and authentication.
+    /// </summary>
+    /// <param name="configuration">The Fabric endpoint configuration. Required when a data pipeline port is configured.</param>
+    /// <param name="cancellationToken">A token to observe for cancellation requests.</param>
+    /// <returns>
+    /// A <see cref="PipelineConnectionResult"/> indicating whether the connection was established.
+    /// Returns a disconnected result when no <see cref="IDataPipelinePort"/> is configured.
+    /// </returns>
+    public async Task<PipelineConnectionResult> ConnectToFabricDataEndpointsAsync(
+        FabricEndpointConfiguration? configuration = null,
+        CancellationToken cancellationToken = default)
     {
-        // Implement logic to connect to Fabric data endpoints
-        await Task.CompletedTask;
+        if (_dataPipeline is null)
+        {
+            _logger?.LogDebug(
+                "No data pipeline port configured. Fabric endpoint connection skipped.");
+            return new PipelineConnectionResult
+            {
+                IsConnected = false,
+                ErrorMessage = "Data pipeline integration is not configured."
+            };
+        }
+
+        if (configuration is null)
+        {
+            throw new ArgumentNullException(nameof(configuration),
+                "Fabric endpoint configuration is required when a data pipeline port is registered.");
+        }
+
+        _logger?.LogInformation(
+            "Connecting to Fabric data endpoints for workspace '{WorkspaceId}', data store '{DataStoreName}'.",
+            configuration.WorkspaceId,
+            configuration.DataStoreName);
+
+        try
+        {
+            var result = await _dataPipeline.ConnectToFabricEndpointsAsync(configuration, cancellationToken);
+
+            if (result.IsConnected)
+            {
+                _logger?.LogInformation(
+                    "Successfully connected to Fabric endpoint at '{EndpointUrl}'.",
+                    result.ResolvedEndpointUrl);
+            }
+            else
+            {
+                _logger?.LogWarning(
+                    "Failed to connect to Fabric endpoint: {Error}",
+                    result.ErrorMessage);
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Exception while connecting to Fabric data endpoints.");
+            return new PipelineConnectionResult
+            {
+                IsConnected = false,
+                ErrorMessage = $"Connection failed: {ex.Message}"
+            };
+        }
     }
 
-    public async Task OrchestrateDataFactoryPipelinesAsync()
+    /// <summary>
+    /// Triggers an Azure Data Factory pipeline to perform batch ETL operations that
+    /// feed data into the RAG search index.
+    /// </summary>
+    /// <param name="request">The pipeline execution request specifying which pipeline to trigger and its parameters.</param>
+    /// <param name="cancellationToken">A token to observe for cancellation requests.</param>
+    /// <returns>
+    /// A <see cref="PipelineRunResult"/> with the pipeline run identifier and initial status.
+    /// Returns an unknown-status result when no <see cref="IDataPipelinePort"/> is configured.
+    /// </returns>
+    public async Task<PipelineRunResult> OrchestrateDataFactoryPipelinesAsync(
+        DataFactoryPipelineRequest? request = null,
+        CancellationToken cancellationToken = default)
     {
-        // Implement logic to orchestrate Data Factory pipelines
-        await Task.CompletedTask;
+        if (_dataPipeline is null)
+        {
+            _logger?.LogDebug(
+                "No data pipeline port configured. Data Factory pipeline orchestration skipped.");
+            return new PipelineRunResult
+            {
+                RunId = string.Empty,
+                Status = PipelineRunStatus.Unknown,
+                ErrorMessage = "Data pipeline integration is not configured."
+            };
+        }
+
+        if (request is null)
+        {
+            throw new ArgumentNullException(nameof(request),
+                "Pipeline request is required when a data pipeline port is registered.");
+        }
+
+        _logger?.LogInformation(
+            "Triggering Data Factory pipeline '{PipelineName}' in factory '{FactoryName}'.",
+            request.PipelineName,
+            request.FactoryName);
+
+        try
+        {
+            var result = await _dataPipeline.TriggerDataFactoryPipelineAsync(request, cancellationToken);
+
+            _logger?.LogInformation(
+                "Data Factory pipeline '{PipelineName}' triggered. Run ID: '{RunId}', Status: {Status}.",
+                request.PipelineName,
+                result.RunId,
+                result.Status);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(
+                ex,
+                "Exception while orchestrating Data Factory pipeline '{PipelineName}'.",
+                request.PipelineName);
+
+            return new PipelineRunResult
+            {
+                RunId = string.Empty,
+                Status = PipelineRunStatus.Failed,
+                ErrorMessage = $"Pipeline orchestration failed: {ex.Message}"
+            };
+        }
     }
 }

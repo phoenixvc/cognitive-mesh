@@ -3,6 +3,10 @@ using System.Text.Json;
 
 namespace CognitiveMesh.ReasoningLayer.AnalyticalReasoning;
 
+/// <summary>
+/// Provides multi-perspective cognitive analysis by combining OpenAI completions
+/// with distributed perspective endpoints for comprehensive reasoning.
+/// </summary>
 public class MultiPerspectiveCognition
 {
     private readonly OpenAIClient _openAIClient;
@@ -10,9 +14,12 @@ public class MultiPerspectiveCognition
     private readonly Dictionary<string, string> _perspectiveEndpoints;
     private readonly HttpClient _httpClient;
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MultiPerspectiveCognition"/> class.
+    /// </summary>
     public MultiPerspectiveCognition(
-        string openAIEndpoint, 
-        string openAIApiKey, 
+        string openAIEndpoint,
+        string openAIApiKey,
         string completionDeployment,
         Dictionary<string, string> perspectiveEndpoints)
     {
@@ -22,8 +29,11 @@ public class MultiPerspectiveCognition
         _httpClient = new HttpClient();
     }
     
+    /// <summary>
+    /// Analyzes a query from multiple perspectives in parallel and synthesizes the results.
+    /// </summary>
     public async Task<MultiPerspectiveAnalysis> AnalyzeFromMultiplePerspectivesAsync(
-        string query, 
+        string query,
         List<string> perspectives)
     {
         var tasks = new List<Task<PerspectiveResult>>();
@@ -169,16 +179,28 @@ public class MultiPerspectiveCognition
     }
 }
 
+/// <summary>
+/// Represents the result of a single perspective analysis.
+/// </summary>
 public class PerspectiveResult
 {
+    /// <summary>Gets or sets the perspective name.</summary>
     public string Perspective { get; set; }
+    /// <summary>Gets or sets the analysis output for this perspective.</summary>
     public string Analysis { get; set; }
+    /// <summary>Gets or sets the confidence score (0-1) for this perspective.</summary>
     public double Confidence { get; set; }
 }
 
+/// <summary>
+/// Represents the combined result of a multi-perspective analysis.
+/// </summary>
 public class MultiPerspectiveAnalysis
 {
+    /// <summary>Gets or sets the original query that was analyzed.</summary>
     public string Query { get; set; }
+    /// <summary>Gets or sets the results from each perspective.</summary>
     public List<PerspectiveResult> PerspectiveResults { get; set; }
+    /// <summary>Gets or sets the synthesized analysis from all perspectives.</summary>
     public string Synthesis { get; set; }
 }

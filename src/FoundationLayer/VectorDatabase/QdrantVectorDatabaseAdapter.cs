@@ -67,14 +67,14 @@ namespace FoundationLayer.VectorDatabase
         }
 
         /// <inheritdoc/>
-        public async Task DisconnectAsync(CancellationToken cancellationToken = default)
+        public Task DisconnectAsync(CancellationToken cancellationToken = default)
         {
             try
             {
                 _qdrantClient?.Dispose();
                 _qdrantClient = null;
                 _logger?.LogInformation("Disconnected from Qdrant");
-                await Task.CompletedTask;
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {

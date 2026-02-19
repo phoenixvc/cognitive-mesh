@@ -3,17 +3,29 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// Manages knowledge lifecycle operations (add, retrieve, update, delete) using
+/// the active AI framework as determined by feature flags.
+/// </summary>
 public class KnowledgeManager
 {
     private readonly ILogger<KnowledgeManager> _logger;
     private readonly FeatureFlagManager _featureFlagManager;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="KnowledgeManager"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="featureFlagManager">The feature flag manager for selecting the active framework.</param>
     public KnowledgeManager(ILogger<KnowledgeManager> logger, FeatureFlagManager featureFlagManager)
     {
         _logger = logger;
         _featureFlagManager = featureFlagManager;
     }
 
+    /// <summary>
+    /// Adds knowledge content with the specified identifier.
+    /// </summary>
     public async Task<bool> AddKnowledgeAsync(string knowledgeId, string content)
     {
         try
@@ -101,6 +113,9 @@ public class KnowledgeManager
         }
     }
 
+    /// <summary>
+    /// Retrieves knowledge content by its identifier.
+    /// </summary>
     public async Task<string> RetrieveKnowledgeAsync(string knowledgeId)
     {
         try
@@ -202,6 +217,9 @@ public class KnowledgeManager
         }
     }
 
+    /// <summary>
+    /// Updates existing knowledge content with the specified identifier.
+    /// </summary>
     public async Task<bool> UpdateKnowledgeAsync(string knowledgeId, string newContent)
     {
         try
@@ -289,6 +307,9 @@ public class KnowledgeManager
         }
     }
 
+    /// <summary>
+    /// Deletes knowledge content by its identifier.
+    /// </summary>
     public async Task<bool> DeleteKnowledgeAsync(string knowledgeId)
     {
         try

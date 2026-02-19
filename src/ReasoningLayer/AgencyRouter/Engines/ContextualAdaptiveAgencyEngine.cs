@@ -3,24 +3,36 @@ using CognitiveMesh.ReasoningLayer.AgencyRouter.Ports;
 
 namespace CognitiveMesh.ReasoningLayer.AgencyRouter.Engines;
 
-// --- Placeholder Interfaces for Outbound Adapters ---
-// These define the contracts for how the pure domain engine communicates with the outside world (e.g., databases, event buses).
-// The concrete implementations of these adapters would reside in the Infrastructure layer.
+/// <summary>
+/// Defines the contract for policy persistence operations in the agency router.
+/// </summary>
 public interface IPolicyRepository
 {
+    /// <summary>Gets the policy configuration for the specified tenant.</summary>
     Task<PolicyConfiguration> GetPolicyForTenantAsync(string tenantId);
+    /// <summary>Saves the policy configuration for a tenant.</summary>
     Task<bool> SavePolicyForTenantAsync(PolicyConfiguration policy);
 }
 
+/// <summary>
+/// Defines the contract for task context persistence operations.
+/// </summary>
 public interface ITaskContextRepository
 {
+    /// <summary>Saves the task context.</summary>
     Task SaveTaskContextAsync(TaskContext context);
+    /// <summary>Retrieves the task context by task and tenant identifiers.</summary>
     Task<TaskContext> GetTaskContextAsync(string taskId, string tenantId);
+    /// <summary>Updates the autonomy level for the specified task.</summary>
     Task UpdateTaskAutonomyAsync(string taskId, string tenantId, AutonomyLevel newLevel, ProvenanceContext overrideProvenance);
 }
 
+/// <summary>
+/// Defines the contract for audit logging in the agency router.
+/// </summary>
 public interface IAuditLoggingAdapter
 {
+    /// <summary>Logs an audit event with its associated provenance context.</summary>
     Task LogAuditEventAsync(string eventType, object eventData, ProvenanceContext provenance);
 }
 

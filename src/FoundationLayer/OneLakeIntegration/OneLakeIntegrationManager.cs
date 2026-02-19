@@ -4,12 +4,22 @@ using Microsoft.Extensions.Logging;
 
 namespace FoundationLayer.OneLakeIntegration;
 
+/// <summary>
+/// Manages integration with Microsoft OneLake (Data Lake) for file storage and retrieval,
+/// with feature-flag gating for controlled rollout.
+/// </summary>
 public class OneLakeIntegrationManager
 {
     private readonly DataLakeServiceClient _dataLakeServiceClient;
     private readonly ILogger<OneLakeIntegrationManager> _logger;
     private readonly FeatureFlagManager _featureFlagManager;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OneLakeIntegrationManager"/> class.
+    /// </summary>
+    /// <param name="connectionString">The Data Lake connection string.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="featureFlagManager">The feature flag manager for controlling OneLake features.</param>
     public OneLakeIntegrationManager(string connectionString, ILogger<OneLakeIntegrationManager> logger, FeatureFlagManager featureFlagManager)
     {
         _dataLakeServiceClient = new DataLakeServiceClient(connectionString);
@@ -17,6 +27,9 @@ public class OneLakeIntegrationManager
         _featureFlagManager = featureFlagManager;
     }
 
+    /// <summary>
+    /// Uploads a file to OneLake storage if the ADK feature flag is enabled.
+    /// </summary>
     public async Task<bool> UploadFileAsync(string fileSystemName, string filePath, Stream content)
     {
         try
@@ -46,6 +59,9 @@ public class OneLakeIntegrationManager
         }
     }
 
+    /// <summary>
+    /// Downloads a file from OneLake storage.
+    /// </summary>
     public async Task<Stream> DownloadFileAsync(string fileSystemName, string filePath)
     {
         try

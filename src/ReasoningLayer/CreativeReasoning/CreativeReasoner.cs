@@ -10,6 +10,10 @@ namespace CognitiveMesh.ReasoningLayer.CreativeReasoning
         private readonly ILLMClient _llmClient;
         private bool _disposed = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreativeReasoner"/> class.
+        /// </summary>
+        /// <param name="llmClient">The LLM client for generating creative content.</param>
         public CreativeReasoner(ILLMClient llmClient)
         {
             _llmClient = llmClient ?? throw new ArgumentNullException(nameof(llmClient));

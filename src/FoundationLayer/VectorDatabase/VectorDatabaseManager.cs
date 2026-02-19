@@ -3,6 +3,10 @@
 
 namespace FoundationLayer.VectorDatabase
 {
+    /// <summary>
+    /// Manages vector database operations, delegating to an underlying adapter
+    /// and adding logging and error handling.
+    /// </summary>
     public class VectorDatabaseManager : IVectorDatabaseAdapter, IDisposable
     {
         private readonly IVectorDatabaseAdapter _adapter;

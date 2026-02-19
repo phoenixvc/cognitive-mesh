@@ -290,33 +290,68 @@ namespace AgencyLayer.ActionPlanning
         }
     }
 
+    /// <summary>
+    /// Represents an action plan with its current state and metadata.
+    /// </summary>
     public class ActionPlan
     {
+        /// <summary>Gets or sets the unique identifier of the plan.</summary>
         public string Id { get; set; } = string.Empty;
+        /// <summary>Gets or sets the name of the plan.</summary>
         public string Name { get; set; } = string.Empty;
+        /// <summary>Gets or sets the description of the plan.</summary>
         public string Description { get; set; } = string.Empty;
+        /// <summary>Gets or sets the priority of the plan.</summary>
         public int Priority { get; set; }
+        /// <summary>Gets or sets the current status of the plan.</summary>
         public ActionPlanStatus Status { get; set; }
+        /// <summary>Gets or sets when the plan was created.</summary>
         public DateTime CreatedAt { get; set; }
+        /// <summary>Gets or sets when the plan was completed.</summary>
         public DateTime? CompletedAt { get; set; }
+        /// <summary>Gets or sets the error message if the plan failed.</summary>
         public string? Error { get; set; }
+        /// <summary>Gets or sets the result of the plan execution.</summary>
         public string? Result { get; set; }
     }
 
+    /// <summary>
+    /// Represents the status of an action plan.
+    /// </summary>
     public enum ActionPlanStatus
     {
+        /// <summary>Plan is pending execution.</summary>
         Pending,
+        /// <summary>Plan is currently being executed.</summary>
         InProgress,
+        /// <summary>Plan completed successfully.</summary>
         Completed,
+        /// <summary>Plan execution failed.</summary>
         Failed,
+        /// <summary>Plan was cancelled.</summary>
         Cancelled
     }
 
+    /// <summary>
+    /// Defines the contract for action planning operations.
+    /// </summary>
     public interface IActionPlanner
     {
+        /// <summary>
+        /// Generates an action plan for the specified goal and constraints.
+        /// </summary>
         Task<IEnumerable<ActionPlan>> GeneratePlanAsync(string goal, IEnumerable<string> constraints = null, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Executes the action plan with the specified identifier.
+        /// </summary>
         Task<ActionPlan> ExecutePlanAsync(string planId, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Updates an existing action plan.
+        /// </summary>
         Task UpdatePlanAsync(ActionPlan plan, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Cancels the action plan with the specified identifier.
+        /// </summary>
         Task CancelPlanAsync(string planId, string reason = null, CancellationToken cancellationToken = default);
     }
 }

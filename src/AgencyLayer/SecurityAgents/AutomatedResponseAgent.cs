@@ -4,60 +4,116 @@ using Microsoft.Extensions.Logging;
 
 namespace AgencyLayer.SecurityAgents;
 
-// Conceptual ports the agent depends on. In a real system, these would be in their respective layers.
+/// <summary>
+/// Port for network security operations such as IP blocking.
+/// </summary>
 public interface INetworkSecurityPort
 {
+    /// <summary>
+    /// Blocks the specified IP address for the given reason.
+    /// </summary>
     Task BlockIpAddressAsync(string ipAddress, string reason);
 }
 
+/// <summary>
+/// Port for identity management operations such as account isolation.
+/// </summary>
 public interface IIdentityManagementPort
 {
+    /// <summary>
+    /// Isolates the specified account for the given reason.
+    /// </summary>
     Task IsolateAccountAsync(string subjectId, string reason);
 }
 
+/// <summary>
+/// Port for forensic data collection and evidence storage.
+/// </summary>
 public interface IForensicDataPort
 {
+    /// <summary>
+    /// Stores forensic evidence for the specified incident.
+    /// </summary>
     Task<string> StoreEvidenceAsync(string incidentId, object evidence);
 }
 
-// Re-defining for clarity within this file's context
+/// <summary>
+/// Represents a request to execute an agent task.
+/// </summary>
 public class AgentTaskRequest
 {
+    /// <summary>Gets or sets the unique identifier of the agent.</summary>
     public string AgentId { get; set; }
+    /// <summary>Gets or sets the description of the task to execute.</summary>
     public string TaskDescription { get; set; }
+    /// <summary>Gets or sets the parameters for the task.</summary>
     public Dictionary<string, object> Parameters { get; set; } = new();
+    /// <summary>Gets or sets the priority of the task.</summary>
     public int Priority { get; set; }
 }
 
+/// <summary>
+/// Represents the response from an agent task execution.
+/// </summary>
 public class AgentTaskResponse
 {
+    /// <summary>Gets or sets whether the task was successful.</summary>
     public bool IsSuccess { get; set; }
+    /// <summary>Gets or sets the result message.</summary>
     public string Message { get; set; }
+    /// <summary>Gets or sets the output data from the task.</summary>
     public Dictionary<string, object> Output { get; set; } = new();
 }
 
+/// <summary>
+/// Defines the contract for an executable agent.
+/// </summary>
 public interface IAgent
 {
+    /// <summary>Gets the unique identifier of the agent.</summary>
     string AgentId { get; }
+    /// <summary>
+    /// Executes the specified task and returns the result.
+    /// </summary>
     Task<AgentTaskResponse> ExecuteTaskAsync(AgentTaskRequest request);
 }
 
+/// <summary>
+/// Port for orchestrating agent task execution.
+/// </summary>
 public interface IAgentOrchestrationPort
 {
+    /// <summary>
+    /// Executes the specified agent task and returns the result.
+    /// </summary>
     Task<AgentTaskResponse> ExecuteTaskAsync(AgentTaskRequest request);
 }
-    
+
+/// <summary>
+/// Represents a notification to be sent through one or more channels.
+/// </summary>
 public class Notification
 {
+    /// <summary>Gets or sets the notification subject.</summary>
     public string Subject { get; set; }
+    /// <summary>Gets or sets the notification message body.</summary>
     public string Message { get; set; }
+    /// <summary>Gets or sets the delivery channels (e.g., email, SMS).</summary>
     public List<string> Channels { get; set; }
+    /// <summary>Gets or sets the notification recipients.</summary>
     public List<string> Recipients { get; set; }
+    /// <summary>Gets or sets the timestamp when the notification was created.</summary>
     public DateTimeOffset Timestamp { get; set; }
 }
 
+/// <summary>
+/// Port for sending notifications.
+/// </summary>
 public interface INotificationPort
 {
+    /// <summary>
+    /// Sends the specified notification asynchronously.
+    /// </summary>
     Task SendNotificationAsync(Notification notification);
 }
 

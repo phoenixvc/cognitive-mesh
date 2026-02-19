@@ -1,0 +1,74 @@
+###############################################################################
+# Cognitive Mesh — Staging Overlay
+###############################################################################
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: cognitive-mesh-staging
+
+namespace: cognitive-mesh-staging
+
+commonLabels:
+  app.kubernetes.io/instance: staging
+  environment: staging
+
+resources:
+  - ../../base
+
+patches:
+  # Staging replica count
+  - target:
+      kind: Deployment
+      name: cognitive-mesh-api
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 2
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 250m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 512Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "1"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 1Gi
+
+  # Staging environment config
+  - target:
+      kind: ConfigMap
+      name: cognitive-mesh-config
+    patch: |
+      - op: replace
+        path: /data/ASPNETCORE_ENVIRONMENT
+        value: Staging
+      - op: replace
+        path: /data/KEY_VAULT_URI
+        value: "https://cognitive-mesh-kv-staging.vault.azure.net/"
+      - op: replace
+        path: /data/COSMOSDB_ENDPOINT
+        value: "https://cognitive-mesh-cosmos-staging.documents.azure.com:443/"
+      - op: replace
+        path: /data/REDIS_HOSTNAME
+        value: "cognitive-mesh-redis-staging.redis.cache.windows.net"
+      - op: replace
+        path: /data/QDRANT_ENDPOINT
+        value: "http://cognitive-mesh-qdrant-staging:6333"
+      - op: replace
+        path: /data/OPENAI_ENDPOINT
+        value: "https://cognitive-mesh-openai-staging.openai.azure.com/"
+      - op: replace
+        path: /data/SEARCH_ENDPOINT
+        value: "https://cognitive-mesh-search-staging.search.windows.net"
+      - op: replace
+        path: /data/LOG_LEVEL
+        value: Information
+
+images:
+  - name: cognitive-mesh-api
+    newName: cognitivemeshacr.azurecr.io/cognitive-mesh-api
+    newTag: staging-latest

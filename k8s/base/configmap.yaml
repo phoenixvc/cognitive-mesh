@@ -1,0 +1,23 @@
+###############################################################################
+# Cognitive Mesh — Base ConfigMap
+# Non-sensitive configuration values. Secrets are stored in K8s Secrets
+# (populated from Azure Key Vault via CSI driver or external-secrets).
+###############################################################################
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cognitive-mesh-config
+  labels:
+    app: cognitive-mesh
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  COSMOSDB_DATABASE: "cognitive-mesh-db"
+  # Values below are overridden per environment via Kustomize overlays
+  KEY_VAULT_URI: "https://cognitive-mesh-kv.vault.azure.net/"
+  COSMOSDB_ENDPOINT: "https://cognitive-mesh-cosmos.documents.azure.com:443/"
+  REDIS_HOSTNAME: "cognitive-mesh-redis.redis.cache.windows.net"
+  REDIS_SSL_PORT: "6380"
+  QDRANT_ENDPOINT: "http://cognitive-mesh-qdrant:6333"
+  OPENAI_ENDPOINT: "https://cognitive-mesh-openai.openai.azure.com/"
+  SEARCH_ENDPOINT: "https://cognitive-mesh-search.search.windows.net"
+  LOG_LEVEL: "Information"

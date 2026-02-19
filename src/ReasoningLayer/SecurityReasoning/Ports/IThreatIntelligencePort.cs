@@ -5,10 +5,15 @@ namespace CognitiveMesh.ReasoningLayer.SecurityReasoning.Ports;
 /// </summary>
 public class SecurityEvent
 {
+    /// <summary>Gets or sets the unique event identifier.</summary>
     public string EventId { get; set; } = Guid.NewGuid().ToString();
+    /// <summary>Gets or sets the timestamp of the event.</summary>
     public DateTimeOffset Timestamp { get; set; }
-    public string Source { get; set; } // e.g., "Firewall", "ApplicationLog", "AuthenticationService"
-    public string EventType { get; set; } // e.g., "LoginAttempt", "DataAccessed", "PolicyViolation"
+    /// <summary>Gets or sets the source of the event (e.g., "Firewall", "ApplicationLog").</summary>
+    public string Source { get; set; }
+    /// <summary>Gets or sets the type of the event (e.g., "LoginAttempt", "PolicyViolation").</summary>
+    public string EventType { get; set; }
+    /// <summary>Gets or sets the event data payload.</summary>
     public Dictionary<string, object> Data { get; set; } = new();
 }
 
@@ -32,6 +37,7 @@ public class ThreatAnalysisRequest
 /// </summary>
 public class ThreatAnalysisResponse
 {
+    /// <summary>Gets or sets whether a threat was detected.</summary>
     public bool IsThreatDetected { get; set; }
     /// <summary>
     /// A description of the detected threat, if any.
@@ -75,7 +81,9 @@ public class IOCDetectionResponse
 /// </summary>
 public class DetectedIOC
 {
+    /// <summary>Gets or sets the type of the artifact (e.g., "ip_address", "file_hash").</summary>
     public string ArtifactType { get; set; }
+    /// <summary>Gets or sets the value of the detected artifact.</summary>
     public string ArtifactValue { get; set; }
     /// <summary>
     /// Information about the threat associated with this IOC.
@@ -120,7 +128,7 @@ public class RiskScoringResponse
     /// </summary>
     public string RiskLevel { get; set; }
     /// <summary>
-    * A list of factors that contributed to the calculated risk score.
+    /// A list of factors that contributed to the calculated risk score.
     /// </summary>
     public List<string> ContributingFactors { get; set; } = new();
 }

@@ -9,6 +9,10 @@ namespace MetacognitiveLayer.PerformanceMonitoring
         private readonly Dictionary<string, MetricAggregator> _aggregators;
         private bool _disposed = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PerformanceMonitor"/> class.
+        /// </summary>
+        /// <param name="metricsStore">The metrics store for persisting metric data.</param>
         public PerformanceMonitor(IMetricsStore metricsStore)
         {
             _metricsStore = metricsStore ?? throw new ArgumentNullException(nameof(metricsStore));
@@ -133,6 +137,7 @@ namespace MetacognitiveLayer.PerformanceMonitoring
             }
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);
@@ -145,9 +150,13 @@ namespace MetacognitiveLayer.PerformanceMonitoring
     /// </summary>
     public class Metric
     {
+        /// <summary>Gets or sets the name of the metric.</summary>
         public string Name { get; set; }
+        /// <summary>Gets or sets the recorded value.</summary>
         public double Value { get; set; }
+        /// <summary>Gets or sets the timestamp of the measurement.</summary>
         public DateTime Timestamp { get; set; }
+        /// <summary>Gets or sets the tags associated with this metric.</summary>
         public IDictionary<string, string> Tags { get; set; }
     }
 
@@ -156,13 +165,21 @@ namespace MetacognitiveLayer.PerformanceMonitoring
     /// </summary>
     public class MetricStatistics
     {
+        /// <summary>Gets or sets the metric name.</summary>
         public string Name { get; set; }
+        /// <summary>Gets or sets the minimum value in the window.</summary>
         public double Min { get; set; }
+        /// <summary>Gets or sets the maximum value in the window.</summary>
         public double Max { get; set; }
+        /// <summary>Gets or sets the average value in the window.</summary>
         public double Average { get; set; }
+        /// <summary>Gets or sets the sum of all values in the window.</summary>
         public double Sum { get; set; }
+        /// <summary>Gets or sets the count of measurements in the window.</summary>
         public int Count { get; set; }
+        /// <summary>Gets or sets the start of the aggregation window.</summary>
         public DateTime WindowStart { get; set; }
+        /// <summary>Gets or sets the end of the aggregation window.</summary>
         public DateTime WindowEnd { get; set; }
     }
 
@@ -171,10 +188,15 @@ namespace MetacognitiveLayer.PerformanceMonitoring
     /// </summary>
     public class ThresholdViolation
     {
+        /// <summary>Gets or sets the name of the violated metric.</summary>
         public string MetricName { get; set; }
+        /// <summary>Gets or sets the actual value that violated the threshold.</summary>
         public double Value { get; set; }
+        /// <summary>Gets or sets the threshold value.</summary>
         public double Threshold { get; set; }
-        public string Condition { get; set; } // e.g., "greater than", "less than"
+        /// <summary>Gets or sets the condition that was violated (e.g., "greater than", "less than").</summary>
+        public string Condition { get; set; }
+        /// <summary>Gets or sets the timestamp of the violation.</summary>
         public DateTime Timestamp { get; set; }
     }
 
