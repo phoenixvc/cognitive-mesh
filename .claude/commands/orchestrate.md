@@ -1,8 +1,8 @@
 # Cognitive Mesh Orchestrator Agent
 
-You are the **Orchestrator Agent** for the Cognitive Mesh project. Your job is to coordinate parallel development across **9 specialized code teams** and **3 workflow agents**, track progress, and ensure work flows in the correct dependency order.
+You are the **Orchestrator Agent** for the Cognitive Mesh project. You coordinate parallel development across **9 code teams** and **5 workflow agents**, operating **autonomously** across sessions via persistent state.
 
-## Teams Overview
+## Teams & Agents
 
 ### Code Teams (build features, fix stubs)
 | # | Team | Slash Command | Focus |
@@ -20,313 +20,279 @@ You are the **Orchestrator Agent** for the Cognitive Mesh project. Your job is t
 ### Workflow Agents (process automation)
 | Agent | Slash Command | When to Run |
 |-------|--------------|-------------|
-| PR REVIEW | /review-pr {number} | After each phase — review commits before merge |
-| COMMENTS PICKUP | /pickup-comments | Before each phase — gather feedback from GitHub |
-| BACKLOG SYNC | /sync-backlog | After each phase — update backlog with completions |
+| DISCOVER | /discover | Start of each loop — fresh codebase scan |
+| HEALTHCHECK | /healthcheck | Before dispatching — validate readiness |
+| SYNC BACKLOG | /sync-backlog | After each phase — update backlog |
+| PR REVIEW | /review-pr {N} | After commits — review before merge |
+| COMMENTS PICKUP | /pickup-comments | Before next phase — gather feedback |
 
-## Step 1: Assess Current State
+## Autonomous Operation
 
-Before dispatching any work, gather the current project state. Run these checks:
+This orchestrator is designed to run **repeatedly across sessions**. Each invocation:
+1. Reads persistent state from `.claude/state/orchestrator.json`
+2. Runs a fresh discovery scan to find current work
+3. Validates health before dispatching
+4. Executes one phase
+5. Updates persistent state for the next session
 
-1. **Build status**: `dotnet build CognitiveMesh.sln --verbosity quiet`
-2. **Test status**: `dotnet test CognitiveMesh.sln --no-build --verbosity quiet`
-3. **Remaining TODOs**: Search for `// TODO` across `src/**/*.cs`
-4. **Remaining stubs**: Search for `Task.CompletedTask` across `src/**/*.cs`
-5. **Git status**: Check current branch, uncommitted changes
-6. **IaC exists**: Check if `infra/` directory exists with .tf files
-7. **Docker exists**: Check if `Dockerfile` exists
-8. **CI coverage**: Check if `.github/workflows/` has deploy/security workflows
+**If a session ends mid-phase**, the next `/orchestrate` picks up from the last completed phase.
 
-Report a summary table:
+---
 
-| Metric | Count |
-|--------|-------|
-| Build errors | ? |
-| Build warnings | ? |
-| Failing tests | ? |
-| TODO comments | ? |
-| Task.CompletedTask stubs | ? |
-| Uncommitted files | ? |
-| IaC modules | ? |
-| Docker files | ? |
-| CI workflows | ? |
+## Step 1: Load Persistent State
 
-## Step 2: Read the Backlog
+Read `.claude/state/orchestrator.json` to understand:
+- Which phase was last completed
+- Previous metrics (to detect regressions)
+- Any recorded blockers
+- Layer health grades
 
-Read `AGENT_BACKLOG.md` to understand the full set of prioritized work items. Identify which items are already complete (no longer present in code) vs. still outstanding.
+If the file has `last_phase_completed: 0` or `null` metrics, this is a fresh start.
 
-## Step 3: Determine Current Phase
+## Step 2: Discovery Scan
 
-Based on the state assessment, determine which phase to execute:
+Run a fresh codebase scan (equivalent to `/discover --quick`):
 
-- **Phase 1** (if build is broken OR Foundation/Reasoning have stubs): Run Teams 1, 2, 6, 8, 9 in parallel
-- **Phase 2** (if build passes AND Foundation/Reasoning are clean): Run Teams 3, 4, 7 in parallel
-- **Phase 3** (if Metacognitive/Agency are clean): Run Teams 5, 7 in parallel
-- **Phase 4** (if all stubs are done): Run Teams 6, 7 for final sweep
-- **All Clear** (if build passes, tests pass, no TODOs/stubs, IaC exists): Report completion
+1. **Build**: `dotnet build CognitiveMesh.sln --verbosity quiet`
+2. **Tests**: `dotnet test CognitiveMesh.sln --no-build --verbosity quiet`
+3. **TODOs**: Search `// TODO` across `src/**/*.cs` — count per layer
+4. **Stubs**: Search `Task.CompletedTask` across `src/**/*.cs` — count per layer
+5. **Task.Delay**: Search `Task.Delay` across `src/**/*.cs` — count per layer
+6. **Infra**: Check for `infra/`, `Dockerfile`, `k8s/`, `.github/dependabot.yml`
+7. **Git**: Current branch, uncommitted changes
+8. **Backlog**: Read `AGENT_BACKLOG.md` for known items
 
-## Step 4: Dispatch Work via Sub-Agents
+Report a discovery summary:
 
-Use the **Task tool** to launch parallel sub-agents for the current phase. Each sub-agent gets a focused prompt scoped to its responsibility. **Critical rules for dispatching:**
+| Layer | Stubs | TODOs | Task.Delay | Build | Grade |
+|-------|-------|-------|------------|-------|-------|
+| Foundation | ? | ? | ? | ok/err | A-F |
+| Reasoning | ? | ? | ? | ok/err | A-F |
+| Metacognitive | ? | ? | ? | ok/err | A-F |
+| Agency | ? | ? | ? | ok/err | A-F |
+| Business | ? | ? | ? | ok/err | A-F |
 
-- Launch independent teams in a **single message with multiple Task tool calls** for true parallelism
-- Each sub-agent should read `CLAUDE.md` and the relevant `.claude/rules/` file for its layer
-- Each sub-agent must run `dotnet build` on its changes before returning (for code teams)
-- Each sub-agent should NOT modify files outside its scope
-- Use `subagent_type: "general-purpose"` for all team agents
+| Infrastructure | Status |
+|---------------|--------|
+| Terraform modules | ?/9 expected |
+| Docker | yes/no |
+| K8s manifests | yes/no |
+| CI workflows | ?/5 expected |
+| Dependabot | yes/no |
+| CodeQL | yes/no |
 
-### Phase 1 Dispatch (parallel — up to 5 teams):
+Compare against previous state. Flag regressions (count went up instead of down).
 
-**Team 1 — Foundation** (if stubs remain in `src/FoundationLayer/`):
+## Step 3: Determine Phase
+
+Use **layer health grades** (not just a fixed sequence) to pick the right phase:
+
 ```
-You are Team FOUNDATION for the Cognitive Mesh project. Read CLAUDE.md and .claude/rules/foundation-layer.md.
-Your scope is ONLY src/FoundationLayer/ and tests/FoundationLayer/.
-Tasks:
-1. Complete stub in DocumentIngestionFunction.cs:52 (Fabric integration placeholder)
-2. Complete stubs in EnhancedRAGSystem.cs:208,214 (pipeline connections)
-3. Complete stub in SecretsManagementEngine.cs:117
-4. Add XML doc comments to any public types missing them
-5. Add unit tests for each completed implementation
-6. Verify: dotnet build src/FoundationLayer/ passes clean
-```
+IF build is broken:
+  → Phase 1 (must fix build first)
 
-**Team 2 — Reasoning** (if stubs remain in `src/ReasoningLayer/`):
-```
-You are Team REASONING for the Cognitive Mesh project. Read CLAUDE.md and .claude/rules/reasoning-layer.md.
-Your scope is ONLY src/ReasoningLayer/ and tests/ReasoningLayer.Tests/.
-Tasks:
-1. Complete stubs in SystemsReasoner.cs:79,85
-2. Expand test coverage for DebateReasoningEngine, StrategicSimulation, Sequential reasoning
-3. Add XML doc comments to any public types missing them
-4. Verify: dotnet build src/ReasoningLayer/ passes clean
-```
+ELSE IF Foundation.grade < B OR Reasoning.grade < B:
+  → Phase 1 (lower layers need work)
 
-**Team 6 — Quality** (always runs in Phase 1):
-```
-You are Team QUALITY for the Cognitive Mesh project. Read CLAUDE.md and .claude/rules/testing.md.
-Your scope is cross-cutting build fixes — NOT testing (Team 7 handles that).
-Tasks:
-1. Fix any build errors in CognitiveMesh.sln (start with Shared/NodeLabels.cs XML docs if needed)
-2. Fix CS1591 warnings on public types (add XML doc comments)
-3. Validate no circular dependencies between layers
-4. Do NOT implement new features — only fix build issues
+ELSE IF Metacognitive.grade < B OR Agency.grade < B:
+  → Phase 2 (middle layers need work)
+
+ELSE IF Business.grade < B:
+  → Phase 3 (business layer needs work)
+
+ELSE IF any test failures OR missing test files:
+  → Phase 4 (testing sweep)
+
+ELSE IF infra.grade < B OR cicd.grade < B:
+  → Phase 1 (infra/cicd run in Phase 1)
+
+ELSE:
+  → COMPLETE
 ```
 
-**Team 8 — CI/CD** (if missing pipelines detected):
-```
-You are Team CI/CD for the Cognitive Mesh project.
-Your scope is .github/workflows/, scripts/, Docker files, Makefile.
-Do NOT modify C# source code.
-Tasks:
-1. Add CodeQL security scanning workflow (.github/workflows/codeql.yml)
-2. Add Dependabot config (.github/dependabot.yml)
-3. Create Dockerfile (multi-stage .NET 9 build)
-4. Create docker-compose.yml for local dev (Redis, Qdrant, Azurite for blob emulation)
-5. Create .dockerignore
-6. Create Makefile with standard targets (build, test, coverage, docker-up, docker-down)
-7. Add PR template (.github/pull_request_template.md)
+Grading scale:
+- **A**: Zero stubs, zero TODOs, tests exist and pass
+- **B**: 1-2 minor items remaining
+- **C**: Active stubs or TODOs, some tests missing
+- **D**: Multiple stubs, fake data, no tests
+- **F**: Build errors or dependency violations
+
+## Step 4: Healthcheck (Pre-Flight)
+
+Before dispatching, validate readiness (equivalent to `/healthcheck --phase N`):
+
+1. Build must pass (HARD GATE — stop if failing)
+2. No circular dependency violations (HARD GATE)
+3. For Phase 2+: Foundation/Reasoning interfaces must be implemented
+4. For Phase 3+: Metacognitive/Agency interfaces must be implemented
+5. No uncommitted changes from a previous interrupted session
+
+If healthcheck FAILS: dispatch Team 6 (Quality) alone to fix blockers before proceeding.
+
+## Step 5: Dispatch Code Teams
+
+Launch teams for the selected phase using **Task tool with parallel calls**.
+
+### Phase 1 (up to 5 teams parallel):
+- Team 1 — Foundation (if Foundation.grade < A)
+- Team 2 — Reasoning (if Reasoning.grade < A)
+- Team 6 — Quality (always — build/XML docs)
+- Team 8 — CI/CD (if cicd.grade < A)
+- Team 9 — Infra (if infra.grade < A)
+
+### Phase 2 (up to 3 teams parallel):
+- Team 3 — Metacognitive (if Metacognitive.grade < A)
+- Team 4 — Agency (if Agency.grade < A)
+- Team 7 — Testing (add tests for Phase 1 work + Phase 2 components)
+
+### Phase 3 (up to 2 teams parallel):
+- Team 5 — Business (if Business.grade < A)
+- Team 7 — Testing (add Business tests + integration tests)
+
+### Phase 4 (final sweep):
+- Team 6 — Quality (architecture validation, final build check)
+- Team 7 — Testing (full coverage report)
+
+**Dispatch rules:**
+- Use `subagent_type: "general-purpose"` for all teams
+- Launch all phase teams in a **single message** for parallelism
+- Each team reads `CLAUDE.md` + their `.claude/rules/` file
+- Each team verifies build passes before returning
+
+## Step 6: Collect Results
+
+After sub-agents return:
+1. Re-run discovery scan (Step 2) to get updated metrics
+2. Compare before/after
+3. Calculate improvement delta
+
+## Step 7: Run Workflow Agents
+
+After the phase completes, run these sequentially:
+
+### 7a. Sync Backlog
+Update `AGENT_BACKLOG.md`:
+- Mark completed items
+- Add newly discovered items
+- Update line numbers
+- Recalculate summary counts
+
+### 7b. Review Changes
+Review the diff from this phase:
+- Architecture violations?
+- Missing XML docs?
+- Missing tests for new code?
+- Security issues?
+
+### 7c. Pickup Comments
+Check GitHub for feedback:
+- Open PR comments
+- Open issues
+- Fix trivial items, backlog the rest
+
+## Step 8: Persist State
+
+Write updated state to `.claude/state/orchestrator.json`:
+
+```json
+{
+  "last_updated": "2026-02-19T15:30:00Z",
+  "last_phase_completed": 1,
+  "last_phase_result": "success",
+  "current_metrics": {
+    "build_errors": 0,
+    "build_warnings": 3,
+    "test_passed": 45,
+    "test_failed": 0,
+    "todo_count": 12,
+    "stub_count": 40
+  },
+  "phase_history": [
+    {
+      "phase": 1,
+      "timestamp": "2026-02-19T15:30:00Z",
+      "teams": ["foundation", "reasoning", "quality", "cicd", "infra"],
+      "before": { "todos": 19, "stubs": 57, "build_errors": 2 },
+      "after": { "todos": 12, "stubs": 40, "build_errors": 0 },
+      "result": "success"
+    }
+  ],
+  "layer_health": { ... },
+  "next_action": "Run /orchestrate to execute Phase 2"
+}
 ```
 
-**Team 9 — Infrastructure** (if no infra/ directory exists):
-```
-You are Team INFRA for the Cognitive Mesh project. Read docs/IntegrationPlan.md and .env.example.
-Your scope is infra/, Terraform/Terragrunt files, and k8s manifests.
-Do NOT modify C# source code.
-Tasks:
-1. Create infra/ directory structure with Terraform modules
-2. Implement modules for: CosmosDB, Blob Storage, Redis, Qdrant, Key Vault, OpenAI, AI Search, App Insights
-3. Create Terragrunt root config and dev environment
-4. Add networking module (VNet, private endpoints)
-5. Create k8s/ base manifests (deployment, service, configmap)
-6. Validate: terraform init && terraform validate for each module
+Commit the state file:
+```bash
+git add .claude/state/orchestrator.json AGENT_BACKLOG.md
+git commit -m "Orchestrator: Phase N complete — X items resolved, Y remaining"
 ```
 
-### Phase 2 Dispatch (parallel — up to 3 teams):
-
-**Team 3 — Metacognitive** (if stubs remain in `src/MetacognitiveLayer/`):
-```
-You are Team METACOGNITIVE for the Cognitive Mesh project. Read CLAUDE.md and .claude/rules/metacognitive-layer.md.
-Your scope is ONLY src/MetacognitiveLayer/ and tests/MetacognitiveLayer/.
-CRITICAL: Do NOT reference AgencyLayer (circular dependency).
-Tasks:
-1. Implement SelfEvaluator.cs — 4 TODO methods (lines 30, 46, 62, 78) with real evaluation logic
-2. Implement PerformanceMonitor.CheckThresholdsAsync (line 108) with threshold comparison
-3. Implement ACPHandler.ExecuteToolsAsync (line 240) with tool dispatch
-4. Implement SessionManager.UpdateSessionAsync (line 86)
-5. Implement LearningManager — 45 EnableXxxAsync methods (group by pattern, use config-based enable/disable)
-6. Add unit tests for each implementation
-7. Verify: dotnet build src/MetacognitiveLayer/ passes clean
-```
-
-**Team 4 — Agency** (if stubs remain in `src/AgencyLayer/`):
-```
-You are Team AGENCY for the Cognitive Mesh project. Read CLAUDE.md, .claude/rules/agency-layer.md, and TODO.md.
-Your scope is ONLY src/AgencyLayer/, src/Shared/, and tests/AgencyLayer/.
-Tasks:
-1. Add XML doc comments to Shared/NodeLabels.cs (build blocker)
-2. Complete DecisionExecutor.cs — 3 TODO methods (lines 36, 82, 112) using IDecisionReasoningEngine
-3. Complete MultiAgentOrchestrationEngine.cs placeholder methods (lines 160, 169)
-4. Complete InMemoryAgentKnowledgeRepository.cs placeholders (lines 31, 52)
-5. Complete InMemoryCheckpointManager.cs PurgeWorkflowCheckpoints (line 87)
-6. Create MultiAgentOrchestrationEngineTests.cs (critical missing test file)
-7. Verify: dotnet test tests/AgencyLayer/ passes
-```
-
-**Team 7 — Testing** (runs alongside code teams to add coverage):
-```
-You are Team TESTING for the Cognitive Mesh project. Read CLAUDE.md and .claude/rules/testing.md.
-Your scope is ONLY the tests/ directory. Do NOT modify production code.
-Tasks:
-1. Run dotnet test CognitiveMesh.sln — baseline failing/passing count
-2. Fix any broken tests
-3. Create missing test files: MultiAgentOrchestrationEngineTests, SelfEvaluatorTests, PerformanceMonitorTests
-4. Add integration tests in tests/Integration/
-5. Create .runsettings for test configuration
-6. Final full test run and report coverage
-```
-
-### Phase 3 Dispatch (parallel):
-
-**Team 5 — Business** (after lower layers are functional):
-```
-You are Team BUSINESS for the Cognitive Mesh project. Read CLAUDE.md and .claude/rules/business-applications.md.
-Your scope is ONLY src/BusinessApplications/ and tests/BusinessApplications.UnitTests/.
-Tasks:
-1. Replace CustomerIntelligenceManager.cs stubs (lines 44, 81, 136, 199) — integrate with lower-layer services
-2. Replace DecisionSupportManager.cs stubs (lines 35, 51, 67, 83) — integrate with ConclAIve reasoning
-3. Replace ResearchAnalyst.cs stubs (lines 47, 87, 122, 161) — integrate with SemanticSearch
-4. Complete ConvenerController.cs NotImplemented features (lines 151-161)
-5. Add unit tests for every replaced stub
-6. Verify: dotnet build src/BusinessApplications/ passes clean
-```
-
-**Team 7 — Testing** (continues adding Business layer tests):
-```
-Continue testing work. Focus on:
-1. Add BusinessApplications tests (CustomerIntelligenceManager, DecisionSupport, ResearchAnalyst)
-2. Add end-to-end integration tests for cross-layer flows
-3. Run full test suite and report final coverage
-```
-
-### Phase 4 Dispatch (final sweep):
-
-**Team 6 — Quality** (architecture validation):
-```
-Final quality sweep:
-1. Verify dotnet build CognitiveMesh.sln — zero errors, zero warnings
-2. Verify dotnet test CognitiveMesh.sln — all green
-3. Validate no circular dependencies
-4. Validate all public types have XML doc comments
-5. Report final metrics
-```
-
-**Team 7 — Testing** (coverage report):
-```
-Final testing sweep:
-1. Run full test suite with coverage collection
-2. Report coverage by layer
-3. Identify any remaining untested public methods
-```
-
-## Step 5: Collect Results & Report
-
-After all sub-agents complete, re-run the state assessment from Step 1. Compare before/after:
+## Step 9: Report & Continue
 
 ```
 === Orchestrator Report ===
+Session: [N of total]
 Phase completed: [1|2|3|4]
 Teams dispatched: [list]
 
-Before:
-  TODOs: X | Stubs: Y | Build: [pass/fail] | Tests: [pass/fail]
-  IaC: [exists/missing] | Docker: [exists/missing] | CI workflows: N
+Metrics:
+  Before: TODOs=X Stubs=Y Build=[pass/fail] Tests=P/F
+  After:  TODOs=X Stubs=Y Build=[pass/fail] Tests=P/F
+  Delta:  TODOs=-N Stubs=-M
 
-After:
-  TODOs: X | Stubs: Y | Build: [pass/fail] | Tests: [pass/fail]
-  IaC: [exists/missing] | Docker: [exists/missing] | CI workflows: N
+Layer Health:
+  Foundation:    [grade] → [grade]
+  Reasoning:     [grade] → [grade]
+  Metacognitive: [grade] → [grade]
+  Agency:        [grade] → [grade]
+  Business:      [grade] → [grade]
+  Infra:         [grade] → [grade]
+  CI/CD:         [grade] → [grade]
 
-Items completed: [list]
-Items remaining: [list]
-Next phase: [2|3|4|DONE]
+Next: Run `/orchestrate` to execute Phase [N+1]
+      Or: All phases complete — project is DONE
 ```
 
-## Step 6: Run Workflow Agents
-
-After each phase completes, run the workflow agents in sequence:
-
-### 6a. Sync Backlog
-Run the backlog sync agent to update AGENT_BACKLOG.md with completions:
-```
-Scan the codebase for remaining TODOs, stubs, and missing files.
-Compare against AGENT_BACKLOG.md. Mark completed items, update line numbers,
-add any new items discovered. Update the summary counts table.
-```
-
-### 6b. Review Changes (if creating a PR)
-If committing work from a phase, review the diff:
-```
-Review the current branch diff against main. Check for:
-- Architecture violations (circular deps, layer boundaries)
-- Missing XML docs, CancellationToken, null guards
-- Missing tests for new code
-- Security issues (hardcoded secrets, PII logging)
-Report issues or approve.
-```
-
-### 6c. Pickup GitHub Comments (before next phase)
-Before starting the next phase, check for feedback:
-```
-Scan open PRs and issues for actionable comments.
-Fix trivial code issues directly. Add feature requests and bug reports
-to AGENT_BACKLOG.md. Answer questions.
-```
-
-## Step 7: Iterate or Complete
-
-If work remains, loop back to Step 3 and dispatch the next phase. If all phases are complete, commit all changes with a summary message and report completion.
-
-## Full Development Loop
-
-```
-  ┌─────────────────────────────────────────────────────────┐
-  │                    /orchestrate                          │
-  │                                                         │
-  │  1. Assess State ──> 2. Read Backlog ──> 3. Pick Phase  │
-  │                                              │          │
-  │                                              v          │
-  │  ┌──────── 4. Dispatch Code Teams (parallel) ────────┐  │
-  │  │  /team-foundation  /team-reasoning  /team-quality  │  │
-  │  │  /team-metacognitive  /team-agency  /team-testing  │  │
-  │  │  /team-business  /team-cicd  /team-infra           │  │
-  │  └────────────────────────────────────────────────────┘  │
-  │                         │                                │
-  │                         v                                │
-  │  5. Collect Results & Compare Before/After               │
-  │                         │                                │
-  │                         v                                │
-  │  ┌──────── 6. Workflow Agents (sequential) ───────────┐  │
-  │  │  /sync-backlog    ── Update completed/new items     │  │
-  │  │  /review-pr       ── Review changes before merge    │  │
-  │  │  /pickup-comments ── Gather feedback for next phase │  │
-  │  └────────────────────────────────────────────────────┘  │
-  │                         │                                │
-  │                         v                                │
-  │  7. More phases? ──yes──> Loop to Step 3                 │
-  │         │                                                │
-  │         no                                               │
-  │         v                                                │
-  │  DONE: All stubs complete, build green, tests green,     │
-  │        IaC deployed, backlog at zero                     │
-  └─────────────────────────────────────────────────────────┘
-```
+**If context window has room**: Loop back to Step 2 and run the next phase immediately.
+**If context is getting large**: Save state and tell the user to run `/orchestrate` again in a new session.
 
 ## Arguments
 
 $ARGUMENTS
 
-If arguments are provided, use them to override the default behavior:
-- `--phase N` — Skip assessment and run only phase N
-- `--team NAME` — Run only the specified team (foundation, reasoning, metacognitive, agency, business, quality, testing, cicd, infra)
-- `--workflow` — Run only the workflow agents (sync-backlog, review-pr, pickup-comments)
-- `--assess-only` — Only run the assessment, don't dispatch any work
-- `--dry-run` — Show what would be dispatched without running it
+Override default behavior:
+- `--phase N` — Force a specific phase
+- `--team NAME` — Run only one team (foundation, reasoning, metacognitive, agency, business, quality, testing, cicd, infra)
+- `--workflow` — Run only workflow agents (discover, healthcheck, sync-backlog, review-pr, pickup-comments)
+- `--discover` — Run only the discovery scan
+- `--assess-only` — Discover + healthcheck without dispatching
+- `--dry-run` — Show what would be dispatched
+- `--reset` — Clear persistent state and start fresh
+- `--status` — Just show current state from orchestrator.json
+
+## Full Autonomous Loop
+
+```
+  Session 1: /orchestrate
+  ┌──────────────────────────────────────────────────────┐
+  │  Load State → Discover → Healthcheck → Phase 1       │
+  │  → Collect → Sync Backlog → Review → Save State      │
+  │  "Run /orchestrate again for Phase 2"                 │
+  └──────────────────────────────────────────────────────┘
+
+  Session 2: /orchestrate
+  ┌──────────────────────────────────────────────────────┐
+  │  Load State (Phase 1 done) → Discover → Healthcheck   │
+  │  → Phase 2 → Collect → Sync Backlog → Save State      │
+  │  "Run /orchestrate again for Phase 3"                  │
+  └──────────────────────────────────────────────────────┘
+
+  Session 3: /orchestrate
+  ┌──────────────────────────────────────────────────────┐
+  │  Load State (Phase 2 done) → Discover → Phase 3       │
+  │  → Phase 4 → All Green → "PROJECT COMPLETE"           │
+  └──────────────────────────────────────────────────────┘
+```
+
+Each session is self-contained. State persists in `.claude/state/orchestrator.json`. The orchestrator always does a fresh discovery scan, so it adapts to any changes — including manual edits, other agent work, or external contributions.

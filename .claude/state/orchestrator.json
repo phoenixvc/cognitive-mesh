@@ -1,0 +1,33 @@
+{
+  "_comment": "Persistent orchestrator state — survives across Claude Code sessions. Updated by /discover, /sync-backlog, /healthcheck, and /orchestrate.",
+  "last_updated": null,
+  "last_phase_completed": 0,
+  "last_phase_result": null,
+  "current_metrics": {
+    "build_errors": null,
+    "build_warnings": null,
+    "test_passed": null,
+    "test_failed": null,
+    "test_skipped": null,
+    "todo_count": null,
+    "stub_count": null,
+    "task_delay_count": null,
+    "dependency_violations": null,
+    "iac_modules": null,
+    "docker_exists": false,
+    "ci_workflows": null,
+    "test_files_missing": null
+  },
+  "phase_history": [],
+  "layer_health": {
+    "foundation": { "stubs": null, "todos": null, "build_clean": null, "grade": null },
+    "reasoning": { "stubs": null, "todos": null, "build_clean": null, "grade": null },
+    "metacognitive": { "stubs": null, "todos": null, "build_clean": null, "grade": null },
+    "agency": { "stubs": null, "todos": null, "build_clean": null, "grade": null },
+    "business": { "stubs": null, "todos": null, "build_clean": null, "grade": null },
+    "infra": { "modules": null, "docker": false, "k8s": false, "grade": null },
+    "cicd": { "workflows": null, "security_scanning": false, "dependabot": false, "grade": null }
+  },
+  "blockers": [],
+  "next_action": "Run /orchestrate or /discover to initialize state"
+}

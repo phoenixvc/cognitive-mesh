@@ -318,22 +318,44 @@ The orchestrator reads the backlog, assesses project state, and dispatches paral
 /orchestrate
 
 # Or with options:
-/orchestrate --assess-only      # Just report current state
-/orchestrate --phase 2          # Skip to Phase 2
+/orchestrate --assess-only      # Discover + healthcheck without dispatching
+/orchestrate --phase 2          # Force a specific phase
 /orchestrate --team agency      # Run only Team Agency
-/orchestrate --dry-run          # Show plan without executing
+/orchestrate --dry-run          # Show what would be dispatched
+/orchestrate --status           # Show current state from persistent storage
+/orchestrate --reset            # Clear state and start fresh
 ```
 
-The orchestrator automatically:
-1. Checks build/test/IaC/Docker status and remaining TODOs/stubs
-2. Determines the correct phase based on project state
-3. Launches the right teams in parallel via Task sub-agents
-4. Collects results and reports before/after metrics
-5. **Runs workflow agents** after each phase (backlog sync, PR review, comment pickup)
+The orchestrator is **fully autonomous across sessions**:
+1. Loads persistent state from `.claude/state/orchestrator.json`
+2. Runs fresh `/discover` scan (finds new TODOs, stubs, regressions)
+3. Runs `/healthcheck` (validates build, deps, interfaces before dispatch)
+4. Dispatches the right phase teams in parallel
+5. Runs `/sync-backlog`, `/review-pr`, `/pickup-comments` after phase
+6. Saves state — next `/orchestrate` picks up from here
 
-### Option B: Team-Specific Slash Commands (Individual Sessions)
+```
+  Session 1: /orchestrate → Phase 1 → Save State
+  Session 2: /orchestrate → Load State → Phase 2 → Save State
+  Session 3: /orchestrate → Load State → Phase 3+4 → DONE
+```
 
-Run a single team in a dedicated Claude Code session:
+### Option B: Workflow Agents (run individually between phases)
+
+```bash
+/discover                  # Full codebase scan — find ALL remaining work
+/discover --quick          # Fast scan (stubs + TODOs + build only)
+/discover --layer agency   # Scan only AgencyLayer
+
+/healthcheck               # Validate readiness for next phase
+/healthcheck --phase 2     # Check Phase 2 prerequisites specifically
+
+/sync-backlog              # Update AGENT_BACKLOG.md from current codebase
+/review-pr 42              # Review PR #42 against all conventions
+/pickup-comments           # Process GitHub PR/issue comments
+```
+
+### Option C: Team-Specific Slash Commands (Individual Sessions)
 
 ```bash
 # Code teams (layer-scoped):
@@ -348,46 +370,29 @@ Run a single team in a dedicated Claude Code session:
 /team-testing          # Team 7: Unit tests, integration tests, coverage
 /team-cicd             # Team 8: Pipelines, Docker, DevEx
 /team-infra            # Team 9: Terraform, Terragrunt, Kubernetes
-
-# Workflow agents (run between phases):
-/review-pr 42          # Review PR #42 against all project conventions
-/pickup-comments       # Scan open PRs/issues for actionable comments
-/pickup-comments 42    # Scan only PR #42's comments
-/sync-backlog          # Update AGENT_BACKLOG.md with current codebase state
 ```
 
-### Option C: CLI Launcher Script (Multiple Parallel Terminals)
+### Option D: CLI Launcher Script
 
 ```bash
-# Launch by phase:
 ./scripts/launch-agent-teams.sh --phase 1    # Foundation + Reasoning + Quality + CI/CD + Infra
 ./scripts/launch-agent-teams.sh --phase 2    # Metacognitive + Agency + Testing
-./scripts/launch-agent-teams.sh --phase 3    # Business + Testing
-./scripts/launch-agent-teams.sh --phase 4    # Quality + Testing sweep
-
-# Launch single team:
-./scripts/launch-agent-teams.sh --team infra
-./scripts/launch-agent-teams.sh --team cicd
-
-# Background with logs:
-./scripts/launch-agent-teams.sh --phase 1 --bg
+./scripts/launch-agent-teams.sh --team infra # Single team
+./scripts/launch-agent-teams.sh --phase 1 --bg  # Background with logs
 ```
-
-### Option D: Claude Code Web (Multiple Sessions)
-
-1. Open multiple Claude Code web sessions on this repository
-2. Type the team slash command (e.g., `/team-infra`) in each session
-3. Each session works independently on its scope
-4. Use dedicated branches per team to avoid merge conflicts
 
 ---
 
 ## Slash Command Reference
 
+### Orchestrator
+| Command | Purpose |
+|---------|---------|
+| `/orchestrate` | **Master coordinator** — autonomous loop with state persistence |
+
 ### Code & Support Teams
 | Command | Purpose | Scope |
 |---------|---------|-------|
-| `/orchestrate` | Master coordinator — auto-detects phase, dispatches teams | All |
 | `/team-foundation` | FoundationLayer stubs + compliance PRDs | `src/FoundationLayer/` |
 | `/team-reasoning` | ReasoningLayer stubs + temporal reasoning PRDs | `src/ReasoningLayer/` |
 | `/team-metacognitive` | 50+ MetacognitiveLayer stubs | `src/MetacognitiveLayer/` |
@@ -401,36 +406,58 @@ Run a single team in a dedicated Claude Code session:
 ### Workflow Agents
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
-| `/review-pr {N}` | Review PR against architecture rules, conventions, security | After committing, before merging |
-| `/pickup-comments` | Scan PRs/issues for actionable feedback, fix or backlog | Before starting a new phase |
-| `/sync-backlog` | Update AGENT_BACKLOG.md with completions and new items | After each phase completes |
+| `/discover` | Fresh codebase scan — finds ALL remaining work | Start of each orchestrator loop |
+| `/healthcheck` | Pre-flight validation — build, deps, interfaces | Before dispatching a phase |
+| `/sync-backlog` | Update AGENT_BACKLOG.md with completions | After each phase |
+| `/review-pr {N}` | Review PR against all project conventions | Before merging |
+| `/pickup-comments` | Process GitHub PR/issue comments | Before starting next phase |
 
 ---
 
-## Development Loop
+## Autonomous Development Loop
 
 ```
- ┌──────────────────────────────────────────────────────────────┐
- │  /orchestrate                                                │
- │                                                              │
- │  ┌─ /pickup-comments ── Gather feedback from GitHub ──────┐  │
- │  │                                                        │  │
- │  v                                                        │  │
- │  Assess ──> Pick Phase ──> Dispatch Code Teams (parallel)  │  │
- │                                  │                         │  │
- │                                  v                         │  │
- │                          Collect Results                   │  │
- │                                  │                         │  │
- │                                  v                         │  │
- │  ┌─ /sync-backlog ── Update completed/new items ───────┐  │  │
- │  │                                                     │  │  │
- │  └─ /review-pr ── Review changes before merge ─────────┘  │  │
- │                                  │                         │  │
- │                                  v                         │  │
- │                     More phases? ──yes──> Loop ────────────┘  │
- │                          │                                    │
- │                          no ──> DONE                          │
- └──────────────────────────────────────────────────────────────┘
+  ┌──────────────────────────────────────────────────────────────┐
+  │  /orchestrate                                                │
+  │                                                              │
+  │  ┌─ Load State (.claude/state/orchestrator.json) ──────────┐ │
+  │  │  Last phase: N | TODOs: X | Stubs: Y | Grade: ...       │ │
+  │  └─────────────────────────────────────────────────────────┘ │
+  │                         │                                    │
+  │                         v                                    │
+  │  ┌─ /discover ── Fresh scan (not from stale backlog) ─────┐ │
+  │  │  Find ALL: TODOs, stubs, build errors, test gaps,       │ │
+  │  │  new work from other teams, regressions, new PRDs       │ │
+  │  └─────────────────────────────────────────────────────────┘ │
+  │                         │                                    │
+  │                         v                                    │
+  │  ┌─ /healthcheck ── Validate readiness for next phase ────┐ │
+  │  │  Build gate | Dependency gate | Interface gate           │ │
+  │  │  FAIL → dispatch Team 6 (Quality) to fix blockers       │ │
+  │  └─────────────────────────────────────────────────────────┘ │
+  │                         │                                    │
+  │                         v                                    │
+  │  ┌─ Dispatch Code Teams (parallel via Task tool) ──────────┐ │
+  │  │  Phase 1: Teams 1,2,6,8,9 | Phase 2: Teams 3,4,7       │ │
+  │  │  Phase 3: Teams 5,7       | Phase 4: Teams 6,7          │ │
+  │  └─────────────────────────────────────────────────────────┘ │
+  │                         │                                    │
+  │                         v                                    │
+  │  ┌─ /sync-backlog ── Update completed/new items ───────────┐ │
+  │  ├─ /review-pr ── Review changes before merge ─────────────┤ │
+  │  ├─ /pickup-comments ── Gather feedback for next phase ────┤ │
+  │  └─────────────────────────────────────────────────────────┘ │
+  │                         │                                    │
+  │                         v                                    │
+  │  ┌─ Save State (.claude/state/orchestrator.json) ──────────┐ │
+  │  │  Update metrics, grades, phase_history, next_action      │ │
+  │  └─────────────────────────────────────────────────────────┘ │
+  │                         │                                    │
+  │                         v                                    │
+  │  Context room? ──yes──> Loop to Discover ──────────────────┘ │
+  │         │                                                    │
+  │         no ──> "Run /orchestrate in new session"             │
+  └──────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -454,26 +481,16 @@ Run a single team in a dedicated Claude Code session:
 
 ## Monitoring Progress
 
-After each agent session, verify (or just run `/sync-backlog`):
+Run `/orchestrate --status` or check `.claude/state/orchestrator.json` directly.
 
+Manual verification:
 ```bash
-# Build passes
 dotnet build CognitiveMesh.sln
-
-# All tests pass
 dotnet test CognitiveMesh.sln --no-build
-
-# MAKER benchmark
-dotnet test tests/AgencyLayer/Orchestration/Orchestration.Tests.csproj --no-build
-
-# Remaining work
-grep -r "// TODO" src/ --include="*.cs" | wc -l          # TODOs
-grep -r "Task.CompletedTask" src/ --include="*.cs" | wc -l # Stubs
-ls infra/modules/ 2>/dev/null | wc -l                      # Terraform modules
-ls .github/workflows/*.yml | wc -l                          # CI workflows
-test -f Dockerfile && echo "Docker: YES" || echo "Docker: NO"
+grep -r "// TODO" src/ --include="*.cs" | wc -l
+grep -r "Task.CompletedTask" src/ --include="*.cs" | wc -l
 ```
 
 ---
 
-*Generated: 2026-02-19 | 9 code teams + 3 workflow agents*
+*Generated: 2026-02-19 | 9 code teams + 5 workflow agents + autonomous state persistence*
