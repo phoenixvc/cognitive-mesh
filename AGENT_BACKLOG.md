@@ -259,6 +259,115 @@
 - **Deliverable:** Psychological safety score >= 80/100
 - **Team:** 5 (Business)
 
+
+---
+
+## P1-HIGH: CI/CD & DevOps (Team 8)
+
+### CICD-001: Add CodeQL Security Scanning
+- **Create:** `.github/workflows/codeql.yml`
+- **Purpose:** Automated security vulnerability scanning for C# code
+- **Trigger:** PR + weekly schedule
+- **Team:** 8 (CI/CD)
+
+### CICD-002: Add Dependabot Configuration
+- **Create:** `.github/dependabot.yml`
+- **Purpose:** Automated NuGet and GitHub Actions version updates
+- **Team:** 8 (CI/CD)
+
+### CICD-003: Create Dockerfile
+- **Create:** `Dockerfile` (multi-stage .NET 9 build)
+- **Purpose:** Containerize the application for deployment
+- **Team:** 8 (CI/CD)
+
+### CICD-004: Create docker-compose for Local Dev
+- **Create:** `docker-compose.yml`
+- **Services:** Redis, Qdrant, Azurite (Blob emulator), CosmosDB emulator
+- **Purpose:** Local development environment matching production dependencies
+- **Team:** 8 (CI/CD)
+
+### CICD-005: Create Makefile
+- **Create:** `Makefile`
+- **Targets:** build, test, coverage, format, clean, docker-up, docker-down
+- **Team:** 8 (CI/CD)
+
+### CICD-006: Add PR and Issue Templates
+- **Create:** `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/`
+- **Team:** 8 (CI/CD)
+
+### CICD-007: Add Deployment Pipeline
+- **Create:** `.github/workflows/deploy.yml`
+- **Purpose:** Build Docker image -> Push to ACR -> Deploy to staging -> Manual gate -> Production
+- **Team:** 8 (CI/CD)
+
+### CICD-008: Add Coverage Reporting
+- **Fix:** Current `build.yml` collects coverage but doesn't publish
+- **Add:** Codecov or SonarQube dashboard integration, coverage badge in README
+- **Team:** 8 (CI/CD)
+
+---
+
+## P1-HIGH: Infrastructure-as-Code (Team 9)
+
+### IaC-001: Terraform Module — CosmosDB
+- **Create:** `infra/modules/cosmosdb/` (main.tf, variables.tf, outputs.tf)
+- **Resources:** azurerm_cosmosdb_account, azurerm_cosmosdb_sql_database
+- **Referenced by:** src/FoundationLayer/AzureCosmosDB/CosmosDbAdapter.cs
+- **Team:** 9 (Infra)
+
+### IaC-002: Terraform Module — Blob Storage
+- **Create:** `infra/modules/storage/`
+- **Resources:** azurerm_storage_account, azurerm_storage_container, Data Lake
+- **Referenced by:** src/FoundationLayer/AzureBlobStorage/BlobStorageManager.cs
+- **Team:** 9 (Infra)
+
+### IaC-003: Terraform Module — Redis Cache
+- **Create:** `infra/modules/redis/`
+- **Resources:** azurerm_redis_cache
+- **Referenced by:** HybridMemoryStore (StackExchange.Redis v2.8.41)
+- **Team:** 9 (Infra)
+
+### IaC-004: Terraform Module — Qdrant Vector DB
+- **Create:** `infra/modules/qdrant/`
+- **Resources:** azurerm_container_group (Qdrant runs as container)
+- **Referenced by:** src/FoundationLayer/VectorDatabase/QdrantVectorDatabaseAdapter.cs
+- **Team:** 9 (Infra)
+
+### IaC-005: Terraform Module — Azure OpenAI
+- **Create:** `infra/modules/openai/`
+- **Resources:** azurerm_cognitive_account, azurerm_cognitive_deployment (GPT-3.5, 4o, 4.1, Embeddings)
+- **Team:** 9 (Infra)
+
+### IaC-006: Terraform Module — Key Vault
+- **Create:** `infra/modules/keyvault/`
+- **Resources:** azurerm_key_vault, azurerm_key_vault_secret (for connection strings)
+- **Team:** 9 (Infra)
+
+### IaC-007: Terraform Module — AI Search
+- **Create:** `infra/modules/ai-search/`
+- **Resources:** azurerm_search_service
+- **Team:** 9 (Infra)
+
+### IaC-008: Terraform Module — Monitoring
+- **Create:** `infra/modules/monitoring/`
+- **Resources:** azurerm_application_insights, azurerm_log_analytics_workspace
+- **Team:** 9 (Infra)
+
+### IaC-009: Terraform Module — Networking
+- **Create:** `infra/modules/networking/`
+- **Resources:** azurerm_virtual_network, azurerm_private_endpoint (for CosmosDB, Redis, Storage)
+- **Team:** 9 (Infra)
+
+### IaC-010: Terragrunt Root Config + Dev Environment
+- **Create:** `infra/terragrunt.hcl`, `infra/environments/dev/terragrunt.hcl`
+- **Purpose:** Orchestrate modules with environment-specific variables
+- **Team:** 9 (Infra)
+
+### IaC-011: Kubernetes Manifests
+- **Create:** `k8s/base/` (deployment.yaml, service.yaml, configmap.yaml)
+- **Create:** `k8s/overlays/{dev,staging,prod}/kustomization.yaml`
+- **Team:** 9 (Infra)
+
 ---
 
 ## P3-LOW: Future Enhancements (per docs/future_enhancements.md)
@@ -281,13 +390,15 @@
 | Priority | Items | Description |
 |----------|-------|-------------|
 | P0-CRITICAL | 2 | Build fixes |
-| P1-HIGH | 16 | Core stub implementations |
+| P1-HIGH (stubs) | 16 | Core stub implementations |
+| P1-HIGH (CI/CD) | 8 | Pipeline, Docker, DevEx |
+| P1-HIGH (IaC) | 11 | Terraform modules + Terragrunt + K8s |
 | P2-MEDIUM (stubs) | 4 | Business app fake data |
 | P2-MEDIUM (tests) | 8 | Missing test coverage |
 | P2-MEDIUM (PRDs) | 8 | Unstarted PRD implementations |
 | P3-LOW | 10 | Future enhancements |
-| **Total** | **48** | Actionable work items |
+| **Total** | **67** | Actionable work items |
 
 ---
 
-*Generated: 2026-02-19*
+*Generated: 2026-02-19 | Updated with CI/CD + Infrastructure items*

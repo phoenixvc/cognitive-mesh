@@ -200,57 +200,109 @@ Read CLAUDE.md for conventions. Your focus:
 This layer depends on Foundation, Reasoning, Metacognitive, and Agency layers.
 ```
 
+
 ---
 
-### Team 6: QUALITY & INTEGRATION — Build, Tests, CI/CD
+### Team 6: QUALITY — Build Health & Architecture Validation
 
-**Scope:** Cross-cutting — build health, test gaps, integration tests
+**Scope:** Cross-cutting — build errors, XML doc compliance, circular dependency checks
 
-**Responsibilities:**
-1. **Build health:** Ensure `dotnet build CognitiveMesh.sln` passes clean
-2. **Test gaps:** Identify and fill missing test coverage across all layers
-3. **Integration tests:** Expand `tests/Integration/` with cross-layer scenarios
-4. **CI/CD:** Ensure GitHub Actions workflow (`dotnet.yml`) runs green
+**Responsibilities (narrowed — testing moved to Team 7):**
+1. **Build health:** Ensure `dotnet build CognitiveMesh.sln` passes with zero warnings
+2. **CS1591 compliance:** Add XML doc comments to all public types
+3. **Architecture validation:** Verify no circular dependencies between layers
+4. **Code formatting:** `dotnet format` compliance
 
-**Priority work items:**
-- Fix CS1591 warnings (missing XML doc comments on public types)
-- Verify all 12 test projects pass: `dotnet test CognitiveMesh.sln`
-- Add integration tests for: DecisionExecutor -> ConclAIve -> Persistence flow
-- Add integration tests for: MultiAgent orchestration -> Ethical checks flow
-- Add MAKER benchmark regression tests
-- Verify no circular dependencies between layers
+**Claude Code session prompt:** `/team-quality`
 
-**Claude Code session prompt:**
-```
-You are the Quality & Integration team for the Cognitive Mesh .NET 9 solution.
-Read CLAUDE.md for conventions. Your focus:
-1. Run `dotnet build CognitiveMesh.sln` and fix ALL warnings/errors
-2. Run `dotnet test CognitiveMesh.sln` and fix ALL failing tests
-3. Add missing XML doc comments on public types (CS1591)
-4. Add integration tests in tests/Integration/ for cross-layer workflows
-5. Verify no circular references between layers (Foundation<-Reasoning<-Metacognitive<-Agency<-Business)
-6. Report build/test status and remaining gaps
-```
+---
+
+### Team 7: TESTING — Dedicated Test Coverage
+
+**Scope:** `tests/` directory — unit tests, integration tests, benchmarks, test infrastructure
+
+**Critical test gaps (no tests exist for):**
+- MultiAgentOrchestrationEngine (core multi-agent coordinator)
+- SelfEvaluator (self-evaluation)
+- PerformanceMonitor (monitoring)
+- LearningManager (45 methods, zero tests)
+- CustomerIntelligenceManager, DecisionSupportManager, ResearchAnalyst
+
+**Work items:**
+- Get all existing 12 test projects green
+- Create 7+ missing test files for core components
+- Add cross-layer integration tests in `tests/Integration/`
+- Create `.runsettings` for test configuration and coverage thresholds
+- MAKER benchmark regression tests
+
+**Claude Code session prompt:** `/team-testing`
+
+---
+
+### Team 8: CI/CD — Pipelines, DevOps & Developer Experience
+
+**Scope:** `.github/workflows/`, `scripts/`, Docker files, Makefile, PR/issue templates
+
+**Current state:**
+- Only 3 workflows exist: `build.yml`, `api-docs.yml`, `migrate.yml`
+- No deployment pipeline, no Docker, no security scanning, no dependency updates
+
+**Work items:**
+- Add CodeQL security scanning (`.github/workflows/codeql.yml`)
+- Add Dependabot config (`.github/dependabot.yml`)
+- Create `Dockerfile` (multi-stage .NET 9 build)
+- Create `docker-compose.yml` for local dev (Redis, Qdrant, Azurite blob emulator)
+- Create `Makefile` with standard targets
+- Add PR template (`.github/pull_request_template.md`)
+- Add deployment workflow for staging/production
+- Add release workflow with changelog generation
+
+**Claude Code session prompt:** `/team-cicd`
+
+---
+
+### Team 9: INFRA — Terraform, Terragrunt, Docker & Kubernetes
+
+**Scope:** `infra/`, `k8s/`, Terraform modules, Terragrunt environments
+
+**Current state:**
+- **Zero IaC exists.** All Azure resources are manually provisioned.
+- Known resources: CosmosDB, Blob Storage, Redis, Qdrant, Azure OpenAI, Key Vault, AI Search, App Insights, Event Grid
+
+**Work items:**
+- Create `infra/` directory with Terraform module structure
+- Implement modules for all 12+ Azure services referenced in code
+- Create Terragrunt orchestration for dev/staging/production environments
+- Create Kubernetes manifests (base + Kustomize overlays per environment)
+- Add networking module (VNet, Private Endpoints for production)
+- Naming convention: `{env}-{region}-{resource}-cogmesh`
+
+**Claude Code session prompt:** `/team-infra`
 
 ---
 
 ## Execution Order
 
 ```
-Phase 1 (parallel):
-  +-- Team 1: FOUNDATION  --- Fix stubs, implement FI-02
-  +-- Team 2: REASONING   --- Complete SystemsReasoner, add temporal features
-  +-- Team 6: QUALITY     --- Fix build, get all existing tests green
+Phase 1 (parallel — 5 teams):
+  +-- Team 1: FOUNDATION    --- Fix stubs, implement FI-02
+  +-- Team 2: REASONING     --- Complete SystemsReasoner, add temporal features
+  +-- Team 6: QUALITY       --- Fix build errors, XML docs, architecture check
+  +-- Team 8: CI/CD         --- Add Docker, CodeQL, Dependabot, Makefile
+  +-- Team 9: INFRA         --- Create Terraform modules, Terragrunt envs
 
-Phase 2 (parallel, after Phase 1 interfaces stabilize):
+Phase 2 (parallel — 3 teams, after Phase 1 stabilizes):
   +-- Team 3: METACOGNITIVE --- Implement 50+ stubs (SelfEvaluator, LearningManager)
   +-- Team 4: AGENCY        --- Fix TODO.md items, complete orchestration
+  +-- Team 7: TESTING       --- Add missing test files, integration tests
 
-Phase 3 (after lower layers are functional):
-  +-- Team 5: BUSINESS APPS --- Replace all 12 fake-data stubs with real integrations
+Phase 3 (parallel — 2 teams, after lower layers functional):
+  +-- Team 5: BUSINESS APPS --- Replace all 12 fake-data stubs
+  +-- Team 7: TESTING       --- Add Business layer tests
 
-Phase 4 (final):
-  +-- Team 6: QUALITY --- Full integration test pass, CI green, coverage report
+Phase 4 (final sweep):
+  +-- Team 6: QUALITY       --- Full build validation, architecture check
+  +-- Team 7: TESTING       --- Full test suite with coverage report
 ```
 
 ---
@@ -273,7 +325,7 @@ The orchestrator reads the backlog, assesses project state, and dispatches paral
 ```
 
 The orchestrator automatically:
-1. Checks build/test status and remaining TODOs/stubs
+1. Checks build/test/IaC/Docker status and remaining TODOs/stubs
 2. Determines the correct phase based on project state
 3. Launches the right teams in parallel via Task sub-agents
 4. Collects results and reports before/after metrics
@@ -283,42 +335,46 @@ The orchestrator automatically:
 Run a single team in a dedicated Claude Code session:
 
 ```bash
+# Code teams (layer-scoped):
 /team-foundation       # Team 1: FoundationLayer stubs + FI-02/03/04
 /team-reasoning        # Team 2: ReasoningLayer stubs + TR-01/02/03
 /team-metacognitive    # Team 3: MetacognitiveLayer 50+ stubs
 /team-agency           # Team 4: AgencyLayer + TODO.md items
 /team-business         # Team 5: BusinessApplications fake-data stubs
-/team-quality          # Team 6: Build fixes, test gaps, integration
+
+# Support teams (cross-cutting):
+/team-quality          # Team 6: Build health + architecture validation
+/team-testing          # Team 7: Unit tests, integration tests, coverage
+/team-cicd             # Team 8: Pipelines, Docker, DevEx
+/team-infra            # Team 9: Terraform, Terragrunt, Kubernetes
 ```
 
 ### Option C: CLI Launcher Script (Multiple Parallel Terminals)
 
 ```bash
-# Launch specific phase (opens instructions for parallel terminals):
-./scripts/launch-agent-teams.sh --phase 1
+# Launch by phase:
+./scripts/launch-agent-teams.sh --phase 1    # Foundation + Reasoning + Quality + CI/CD + Infra
+./scripts/launch-agent-teams.sh --phase 2    # Metacognitive + Agency + Testing
+./scripts/launch-agent-teams.sh --phase 3    # Business + Testing
+./scripts/launch-agent-teams.sh --phase 4    # Quality + Testing sweep
 
 # Launch single team:
-./scripts/launch-agent-teams.sh --team foundation
+./scripts/launch-agent-teams.sh --team infra
+./scripts/launch-agent-teams.sh --team cicd
 
-# Background mode with log files:
+# Background with logs:
 ./scripts/launch-agent-teams.sh --phase 1 --bg
 
-# Dry run:
+# Preview:
 ./scripts/launch-agent-teams.sh --phase 2 --dry-run
 ```
 
 ### Option D: Claude Code Web (Multiple Sessions)
 
 1. Open multiple Claude Code web sessions on this repository
-2. Type the team slash command (e.g., `/team-agency`) in each session
-3. Each session works independently on its scoped layer
-4. Use dedicated branches per team to avoid merge conflicts:
-   - `claude/team-foundation`
-   - `claude/team-reasoning`
-   - `claude/team-metacognitive`
-   - `claude/team-agency`
-   - `claude/team-business`
-   - `claude/team-quality`
+2. Type the team slash command (e.g., `/team-infra`) in each session
+3. Each session works independently on its scope
+4. Use dedicated branches per team to avoid merge conflicts
 
 ---
 
@@ -326,27 +382,33 @@ Run a single team in a dedicated Claude Code session:
 
 | Command | Purpose | Scope |
 |---------|---------|-------|
-| `/orchestrate` | Master coordinator — auto-detects phase, dispatches teams | All layers |
+| `/orchestrate` | Master coordinator — auto-detects phase, dispatches teams | All |
 | `/team-foundation` | FoundationLayer stubs + compliance PRDs | `src/FoundationLayer/` |
 | `/team-reasoning` | ReasoningLayer stubs + temporal reasoning PRDs | `src/ReasoningLayer/` |
 | `/team-metacognitive` | 50+ MetacognitiveLayer stubs | `src/MetacognitiveLayer/` |
 | `/team-agency` | AgencyLayer stubs + TODO.md + orchestration tests | `src/AgencyLayer/` |
 | `/team-business` | 12 BusinessApplications fake-data stubs | `src/BusinessApplications/` |
-| `/team-quality` | Cross-cutting build/test/integration fixes | All layers |
+| `/team-quality` | Build health, XML docs, architecture validation | Cross-cutting |
+| `/team-testing` | Unit tests, integration tests, coverage, benchmarks | `tests/` |
+| `/team-cicd` | Pipelines, Docker, security scanning, DevEx | `.github/`, `scripts/` |
+| `/team-infra` | Terraform, Terragrunt, Docker, Kubernetes | `infra/`, `k8s/` |
 
 ---
 
 ## Work Item Summary
 
-| Team | Layer | Stubs to Fix | TODOs | Tests to Add | PRDs to Implement | Priority |
-|------|-------|-------------|-------|-------------|-------------------|----------|
-| 1 | Foundation | 3 | 0 | ~10 | 6 | P0 |
-| 2 | Reasoning | 2 | 0 | ~8 | 3 | P0/P1 |
-| 3 | Metacognitive | 50+ | 5 | ~15 | 3 | P1 |
-| 4 | Agency | 8 | 5 | ~12 | 6 | P1 |
-| 5 | Business | 14 | 12 | ~20 | 6+ | P2 |
-| 6 | Quality | -- | -- | ~10 integration | -- | Cross-cutting |
-| **Total** | | **77+** | **22** | **~75** | **24+** | |
+| Team | Focus | Stubs | TODOs | New Files | Priority |
+|------|-------|-------|-------|-----------|----------|
+| 1 Foundation | Layer stubs + PRDs | 3 | 0 | ~10 tests | P0 |
+| 2 Reasoning | Layer stubs + PRDs | 2 | 0 | ~8 tests | P0/P1 |
+| 3 Metacognitive | 50+ stubs | 50+ | 5 | ~15 tests | P1 |
+| 4 Agency | Stubs + TODO.md | 8 | 5 | ~12 tests | P1 |
+| 5 Business | Fake-data stubs | 14 | 12 | ~20 tests | P2 |
+| 6 Quality | Build/XML/arch | -- | -- | -- | P0 |
+| 7 Testing | Test coverage | -- | -- | ~30 test files | P1 |
+| 8 CI/CD | Pipelines/Docker | -- | -- | ~8 configs | P1 |
+| 9 Infra | Terraform/K8s | -- | -- | ~20 .tf files | P1 |
+| **Total** | | **77+** | **22** | **~120+** | |
 
 ---
 
@@ -361,16 +423,17 @@ dotnet build CognitiveMesh.sln
 # All tests pass
 dotnet test CognitiveMesh.sln --no-build
 
-# MAKER benchmark specifically
+# MAKER benchmark
 dotnet test tests/AgencyLayer/Orchestration/Orchestration.Tests.csproj --no-build
 
-# Check for remaining TODOs
-grep -r "// TODO" src/ --include="*.cs" | wc -l
-
-# Check for remaining stubs
-grep -r "Task.CompletedTask" src/ --include="*.cs" | wc -l
+# Remaining work
+grep -r "// TODO" src/ --include="*.cs" | wc -l          # TODOs
+grep -r "Task.CompletedTask" src/ --include="*.cs" | wc -l # Stubs
+ls infra/modules/ 2>/dev/null | wc -l                      # Terraform modules
+ls .github/workflows/*.yml | wc -l                          # CI workflows
+test -f Dockerfile && echo "Docker: YES" || echo "Docker: NO"
 ```
 
 ---
 
-*Generated: 2026-02-19*
+*Generated: 2026-02-19 | Updated with Teams 7-9*

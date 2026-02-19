@@ -6,9 +6,12 @@
 #
 # Options:
 #   --phase 1|2|3|4   Run only the specified phase (default: auto-detect)
-#   --team NAME       Run only the named team (foundation|reasoning|metacognitive|agency|business|quality)
+#   --team NAME       Run only the named team (see list below)
 #   --dry-run         Print commands without executing
 #   --bg              Run sessions in background with log files
+#
+# Teams: foundation, reasoning, metacognitive, agency, business,
+#        quality, testing, cicd, infra, orchestrator
 #
 # Prerequisites:
 #   - Claude Code CLI installed (`claude` command available)
@@ -49,24 +52,8 @@ launch_team() {
         nohup claude "/team-${command_name}" > "$log_file" 2>&1 &
         echo "  PID: $!"
     else
-        echo "=== Launching Team ${team_name} ==="
-        echo "Run in a separate terminal:"
         echo "  cd $(pwd) && claude \"/team-${command_name}\""
-        echo ""
     fi
-}
-
-launch_orchestrator() {
-    local args="${1:-}"
-
-    if $DRY_RUN; then
-        echo "[DRY RUN] Would launch: claude /orchestrate ${args}"
-        return
-    fi
-
-    echo "=== Launching Orchestrator ==="
-    echo "  cd $(pwd) && claude \"/orchestrate ${args}\""
-    echo ""
 }
 
 # If a specific team is requested, launch just that one
@@ -78,7 +65,10 @@ if [[ -n "$TEAM" ]]; then
         agency)        launch_team "AGENCY" "agency" ;;
         business)      launch_team "BUSINESS" "business" ;;
         quality)       launch_team "QUALITY" "quality" ;;
-        orchestrator)  launch_orchestrator "${PHASE:+--phase $PHASE}" ;;
+        testing)       launch_team "TESTING" "testing" ;;
+        cicd)          launch_team "CICD" "cicd" ;;
+        infra)         launch_team "INFRA" "infra" ;;
+        orchestrator)  echo "  cd $(pwd) && claude \"/orchestrate${PHASE:+ --phase $PHASE}\"" ;;
         *) echo "Unknown team: $TEAM"; exit 1 ;;
     esac
     exit 0
@@ -88,23 +78,28 @@ fi
 if [[ -n "$PHASE" ]]; then
     case "$PHASE" in
         1)
-            echo "=== Phase 1: Foundation + Reasoning + Quality (parallel) ==="
+            echo "=== Phase 1: Foundation + Reasoning + Quality + CI/CD + Infra ==="
             launch_team "FOUNDATION" "foundation"
             launch_team "REASONING" "reasoning"
             launch_team "QUALITY" "quality"
+            launch_team "CICD" "cicd"
+            launch_team "INFRA" "infra"
             ;;
         2)
-            echo "=== Phase 2: Metacognitive + Agency (parallel) ==="
+            echo "=== Phase 2: Metacognitive + Agency + Testing ==="
             launch_team "METACOGNITIVE" "metacognitive"
             launch_team "AGENCY" "agency"
+            launch_team "TESTING" "testing"
             ;;
         3)
-            echo "=== Phase 3: Business Apps ==="
+            echo "=== Phase 3: Business Apps + Testing ==="
             launch_team "BUSINESS" "business"
+            launch_team "TESTING" "testing"
             ;;
         4)
-            echo "=== Phase 4: Final Quality Sweep ==="
+            echo "=== Phase 4: Final Quality + Testing Sweep ==="
             launch_team "QUALITY" "quality"
+            launch_team "TESTING" "testing"
             ;;
         *)
             echo "Unknown phase: $PHASE (expected 1-4)"; exit 1 ;;
@@ -112,25 +107,28 @@ if [[ -n "$PHASE" ]]; then
     exit 0
 fi
 
-# Default: launch orchestrator
+# Default: show usage
 echo "=== Cognitive Mesh Agent Team Launcher ==="
 echo ""
-echo "Option 1: Run the orchestrator (auto-detects phase, dispatches sub-agents):"
+echo "9 Teams Available:"
+echo "  Code Teams:   foundation, reasoning, metacognitive, agency, business"
+echo "  Support Teams: quality, testing, cicd, infra"
+echo ""
+echo "Option 1 — Orchestrator (auto-detects phase, dispatches sub-agents):"
 echo "  claude \"/orchestrate\""
 echo ""
-echo "Option 2: Run individual phases:"
-echo "  $0 --phase 1          # Foundation + Reasoning + Quality"
-echo "  $0 --phase 2          # Metacognitive + Agency"
-echo "  $0 --phase 3          # Business Apps"
-echo "  $0 --phase 4          # Final Quality Sweep"
+echo "Option 2 — Run a phase (launches multiple teams):"
+echo "  $0 --phase 1    # Foundation + Reasoning + Quality + CI/CD + Infra"
+echo "  $0 --phase 2    # Metacognitive + Agency + Testing"
+echo "  $0 --phase 3    # Business Apps + Testing"
+echo "  $0 --phase 4    # Final Quality + Testing sweep"
 echo ""
-echo "Option 3: Run a single team:"
+echo "Option 3 — Run a single team:"
 echo "  $0 --team foundation"
-echo "  $0 --team reasoning"
-echo "  $0 --team metacognitive"
-echo "  $0 --team agency"
-echo "  $0 --team business"
-echo "  $0 --team quality"
+echo "  $0 --team testing"
+echo "  $0 --team cicd"
+echo "  $0 --team infra"
+echo "  $0 --team orchestrator"
 echo ""
 echo "Options:"
 echo "  --bg       Run in background with log files"

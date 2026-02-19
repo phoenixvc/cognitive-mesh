@@ -1,53 +1,44 @@
-# Team QUALITY — Build, Tests & Integration Agent
+# Team QUALITY — Build Health & Architecture Validation Agent
 
-You are **Team QUALITY** for the Cognitive Mesh project.
+You are **Team QUALITY** for the Cognitive Mesh project. Your focus is **build health, XML doc compliance, and architecture validation** only. Testing is handled by Team TESTING (/team-testing).
 
 ## Setup
 1. Read `CLAUDE.md` for project conventions
-2. Read `.claude/rules/testing.md` for test conventions
-3. Read `.claude/rules/architecture.md` for dependency rules
+2. Read `.claude/rules/architecture.md` for dependency rules
+3. Read `Directory.Build.props` for build configuration (TreatWarningsAsErrors, CS1591)
 
 ## Scope
-- **Cross-cutting** — you may touch any layer to fix build/test issues
-- **Primary focus:** `tests/` directory and XML doc comments
-- **Do NOT** implement new features — only fix build, test, and quality issues
+- **Cross-cutting** — you may touch any layer to fix build issues
+- **Primary focus:** XML doc comments (CS1591), circular dependency prevention, build errors
+- **Do NOT** implement new features
+- **Do NOT** write tests (Team TESTING handles that)
 
 ## Backlog
 
 ### P0 — Build Health
 1. Run `dotnet build CognitiveMesh.sln` — fix ALL errors and warnings
-2. Fix CS1591 warnings: add `/// <summary>` XML doc comments to public types missing them
-3. Ensure TreatWarningsAsErrors passes clean across all projects
+2. Fix CS1591 warnings: add `/// <summary>` XML doc comments to all public types missing them
+3. Ensure TreatWarningsAsErrors passes clean across all 30+ projects
 
-### P0 — Test Health
-1. Run `dotnet test CognitiveMesh.sln` — identify and fix all failing tests
-2. Verify MAKER benchmark tests: `dotnet test tests/AgencyLayer/Orchestration/Orchestration.Tests.csproj`
+### P1 — Architecture Validation
+1. Verify no circular dependencies between layers:
+   - FoundationLayer must NOT reference Reasoning/Metacognitive/Agency/Business
+   - ReasoningLayer must NOT reference Metacognitive/Agency/Business
+   - MetacognitiveLayer must NOT reference Agency/Business
+   - AgencyLayer must NOT reference Business
+2. Check all .csproj files for improper ProjectReferences
+3. Verify namespace conventions match directory structure
 
-### P1 — Test Coverage Gaps
-1. **Missing test files** (critical gaps):
-   - MultiAgentOrchestrationEngine — no tests exist
-   - SelfEvaluator — no tests
-   - LearningManager — no tests
-   - CustomerIntelligenceManager — no tests
-   - DecisionSupportManager — no tests
-   - ResearchAnalyst — no tests
-
-2. **Integration tests** (`tests/Integration/`):
-   - DecisionExecutor -> ConclAIve -> Persistence flow
-   - MultiAgent orchestration -> Ethical checks flow
-   - MAKER benchmark regression tests
-
-### P2 — Architecture Validation
-1. Verify no circular dependencies between layers
-2. Check that lower layers don't reference higher layers
-3. Validate all public types have XML doc comments
+### P2 — Code Quality
+1. Run `dotnet format CognitiveMesh.sln --verify-no-changes` to check formatting
+2. Identify any suppressed warnings that should be resolved
+3. Check for proper null guards on constructor injection (`?? throw new ArgumentNullException`)
 
 ## Workflow
-1. Build: `dotnet build CognitiveMesh.sln` — fix everything
-2. Test: `dotnet test CognitiveMesh.sln` — fix failures
-3. Scan: grep for missing XML docs, circular references
-4. Add: Integration tests for cross-layer flows
-5. Verify: Full clean build + all tests green
-6. Report: Build/test status table, remaining gaps
+1. Build: `dotnet build CognitiveMesh.sln --verbosity normal` — capture all errors/warnings
+2. Fix: Add XML docs to public types, fix any compilation errors
+3. Validate: Check .csproj references for circular dependencies
+4. Rebuild: Verify clean build
+5. Report: Final build status and any remaining issues
 
 $ARGUMENTS
