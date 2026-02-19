@@ -23,7 +23,7 @@ public interface IAgentRuntimeAdapter
 public interface IAgentKnowledgeRepository
 {
     Task StoreAgentDefinitionAsync(AgentDefinition definition);
-    Task<AgentDefinition> GetAgentDefinitionAsync(string agentType);
+    Task<AgentDefinition?> GetAgentDefinitionAsync(string agentType);
     Task StoreLearningInsightAsync(AgentLearningInsight insight);
     Task<IEnumerable<AgentLearningInsight>> GetRelevantInsightsAsync(string taskGoal);
 }
@@ -84,15 +84,17 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     }
 
     /// <inheritdoc />
-    public async Task<AgentExecutionResponse> ExecuteTaskAsync(AgentExecutionRequest request)
+    public async Task<AgentExecutionResponse> ExecuteTaskAsync(AgentExecutionRequest request, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var task = request.Task;
         _activeTasks[task.TaskId] = task;
         _logger.LogInformation("Executing task '{TaskId}' with goal: {Goal}", task.TaskId, task.Goal);
 
         try
         {
-            var agentTeam = await AssembleAgentTeamAsync(request);
+            var agentTeam = await AssembleAgentTeamAsync(request, cancellationToken);
             if (!agentTeam.Any())
             {
                 throw new InvalidOperationException("Could not assemble a team of agents for the required types.");
@@ -102,16 +104,16 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
             switch (task.CoordinationPattern)
             {
                 case CoordinationPattern.Parallel:
-                    finalResult = await CoordinateParallelExecution(agentTeam, task);
+                    finalResult = await CoordinateParallelExecution(agentTeam, task, cancellationToken);
                     break;
                 case CoordinationPattern.Hierarchical:
-                    finalResult = await CoordinateHierarchicalExecution(agentTeam, task);
+                    finalResult = await CoordinateHierarchicalExecution(agentTeam, task, cancellationToken);
                     break;
                 case CoordinationPattern.Competitive:
-                    finalResult = await CoordinateCompetitiveExecution(agentTeam, task);
+                    finalResult = await CoordinateCompetitiveExecution(agentTeam, task, cancellationToken);
                     break;
                 case CoordinationPattern.CollaborativeSwarm:
-                    finalResult = await CoordinateCollaborativeSwarmExecution(agentTeam, task);
+                    finalResult = await CoordinateCollaborativeSwarmExecution(agentTeam, task, cancellationToken);
                     break;
                 default:
                     throw new NotSupportedException($"Coordination pattern '{task.CoordinationPattern}' is not supported.");
@@ -126,7 +128,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
                 AgentIdsInvolved = agentTeam.Select(a => a.AgentId).ToList(),
                 AuditTrailId = Guid.NewGuid().ToString() // Placeholder
             };
-                
+
             // Generate a learning insight from the successful execution
             await ShareLearningInsightAsync(new AgentLearningInsight
             {
@@ -194,8 +196,9 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
 
     // --- Private Coordination and Helper Methods ---
 
-    private async Task<List<IAgent>> AssembleAgentTeamAsync(AgentExecutionRequest request)
+    private async Task<List<IAgent>> AssembleAgentTeamAsync(AgentExecutionRequest request, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var team = new List<IAgent>();
         var relevantInsights = await _knowledgeRepository.GetRelevantInsightsAsync(request.Task.Goal);
 
@@ -215,20 +218,20 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
         return team;
     }
 
-    private async Task<object> CoordinateParallelExecution(List<IAgent> agents, AgentTask task)
+    private async Task<object> CoordinateParallelExecution(List<IAgent> agents, AgentTask task, CancellationToken cancellationToken)
     {
-        var subTasks = agents.Select(agent => ExecuteSingleAgent(agent, task, task.Goal)).ToList();
+        var subTasks = agents.Select(agent => ExecuteSingleAgent(agent, task, task.Goal, cancellationToken)).ToList();
         var results = await Task.WhenAll(subTasks);
         return results; // Returns an array of results from each agent.
     }
 
-    private async Task<object> CoordinateHierarchicalExecution(List<IAgent> agents, AgentTask task)
+    private async Task<object> CoordinateHierarchicalExecution(List<IAgent> agents, AgentTask task, CancellationToken cancellationToken)
     {
         var leadAgent = agents.First(); // Simple leader selection
         var subordinates = agents.Skip(1).ToList();
 
-        var leadResult = await ExecuteSingleAgent(leadAgent, task, task.Goal);
-            
+        var leadResult = await ExecuteSingleAgent(leadAgent, task, task.Goal, cancellationToken);
+
         if (leadResult is not Dictionary<string, object> subTaskDefinitions)
         {
             return leadResult; // Lead agent completed the task alone.
@@ -237,22 +240,23 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
         var subTaskResults = new List<object>();
         foreach (var subTaskDef in subTaskDefinitions)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var assignedAgent = subordinates.FirstOrDefault(); // Simple assignment
             if (assignedAgent != null)
             {
-                subTaskResults.Add(await ExecuteSingleAgent(assignedAgent, task, subTaskDef.Value.ToString()));
+                subTaskResults.Add(await ExecuteSingleAgent(assignedAgent, task, subTaskDef.Value.ToString(), cancellationToken));
             }
         }
         return subTaskResults;
     }
 
-    private async Task<object> CoordinateCompetitiveExecution(List<IAgent> agents, AgentTask task)
+    private async Task<object> CoordinateCompetitiveExecution(List<IAgent> agents, AgentTask task, CancellationToken cancellationToken)
     {
-        var results = await CoordinateParallelExecution(agents, task) as object[];
+        var results = await CoordinateParallelExecution(agents, task, cancellationToken) as object[];
         return ResolveConflicts(results);
     }
 
-    private async Task<object> CoordinateCollaborativeSwarmExecution(List<IAgent> agents, AgentTask task)
+    private async Task<object> CoordinateCollaborativeSwarmExecution(List<IAgent> agents, AgentTask task, CancellationToken cancellationToken)
     {
         const int maxIterations = 5;
         var sharedContext = new Dictionary<string, object>(task.Context);
@@ -260,14 +264,15 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
 
         for (int i = 0; i < maxIterations; i++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             _logger.LogInformation("Swarm iteration {Iteration}/{MaxIterations} for task '{TaskId}'.", i + 1, maxIterations, task.TaskId);
-                
+
             var iterationTask = new AgentTask { Context = new Dictionary<string, object>(sharedContext) };
             var iterationResults = new List<object>();
 
             foreach (var agent in agents)
             {
-                iterationResults.Add(await ExecuteSingleAgent(agent, iterationTask, task.Goal));
+                iterationResults.Add(await ExecuteSingleAgent(agent, iterationTask, task.Goal, cancellationToken));
             }
 
             // Update shared context with new results for the next iteration.
@@ -283,8 +288,9 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
         return finalResult ?? sharedContext;
     }
 
-    private async Task<object> ExecuteSingleAgent(IAgent agent, AgentTask parentTask, string subGoal)
+    private async Task<object> ExecuteSingleAgent(IAgent agent, AgentTask parentTask, string subGoal, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         // 1. Enforce Authority --------------------------------------------------
         if (!_authoritySettings.TryGetValue(agent.Definition.AgentType, out var authority))
         {

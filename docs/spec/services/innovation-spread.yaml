@@ -62,6 +62,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InnovationNetwork'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   /innovation/catalysts:
     get:
@@ -80,6 +82,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/InnovationCatalyst'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
 components:
   schemas:

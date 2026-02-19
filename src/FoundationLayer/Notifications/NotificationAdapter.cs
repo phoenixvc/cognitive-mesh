@@ -1,4 +1,5 @@
 using FoundationLayer.EnterpriseConnectors;
+using Microsoft.Extensions.Logging;
 
 namespace FoundationLayer.Notifications
 {
@@ -11,7 +12,7 @@ namespace FoundationLayer.Notifications
         private readonly ILogger<NotificationAdapter> _logger;
         private readonly INotificationDeliveryService _deliveryService;
         private readonly AgentCircuitBreakerPolicy _circuitBreaker;
-        private readonly Queue<NotificationMessage> _retryQueue = new Queue<NotificationMessage>();
+        private Queue<NotificationMessage> _retryQueue = new Queue<NotificationMessage>();
         private readonly SemaphoreSlim _queueLock = new SemaphoreSlim(1, 1);
         private readonly Timer _retryTimer;
         private bool _processingRetryQueue;
@@ -28,8 +29,8 @@ namespace FoundationLayer.Notifications
             _deliveryService = deliveryService ?? throw new ArgumentNullException(nameof(deliveryService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             
-            // Initialize circuit breaker with 3 retries, 250ms initial delay, 1s max delay, 50ms jitter
-            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000, 50);
+            // Initialize circuit breaker with 3 failure threshold, 1s reset timeout, 3 success threshold
+            _circuitBreaker = new AgentCircuitBreakerPolicy(failureThreshold: 3, resetTimeoutMs: 1000, successThreshold: 3);
             
             // Initialize retry timer to process queued notifications every 15 seconds
             _retryTimer = new Timer(ProcessRetryQueue, null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
@@ -541,6 +542,41 @@ namespace FoundationLayer.Notifications
         /// The number of times delivery has been retried.
         /// </summary>
         public int? RetryCount { get; set; }
+
+        /// <summary>
+        /// The email subject line.
+        /// </summary>
+        public string? Subject { get; set; }
+
+        /// <summary>
+        /// Email recipients.
+        /// </summary>
+        public List<string> Recipients { get; set; } = new List<string>();
+
+        /// <summary>
+        /// HTML body content for email notifications.
+        /// </summary>
+        public string? HtmlBody { get; set; }
+
+        /// <summary>
+        /// CC recipients for email notifications.
+        /// </summary>
+        public List<string>? CcRecipients { get; set; }
+
+        /// <summary>
+        /// BCC recipients for email notifications.
+        /// </summary>
+        public List<string>? BccRecipients { get; set; }
+
+        /// <summary>
+        /// Notification category for analytics.
+        /// </summary>
+        public string? Category { get; set; }
+
+        /// <summary>
+        /// Email action links.
+        /// </summary>
+        public List<NotificationEmailAction>? Actions { get; set; }
     }
 
     /// <summary>
@@ -660,5 +696,26 @@ namespace FoundationLayer.Notifications
         /// Neutral action (e.g., view details).
         /// </summary>
         Neutral
+    }
+
+    /// <summary>
+    /// Represents an action link for email notifications.
+    /// </summary>
+    public class NotificationEmailAction
+    {
+        /// <summary>
+        /// The action type identifier (e.g., "approve", "deny", "info").
+        /// </summary>
+        public string Type { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The display label for the action button.
+        /// </summary>
+        public string Label { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The URL to invoke when the action is taken.
+        /// </summary>
+        public string Url { get; set; } = string.Empty;
     }
 }

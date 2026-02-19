@@ -59,30 +59,3 @@ components:
           example:
             code: "INTERNAL_SERVER_ERROR"
             message: "An unexpected error occurred"
-
-    ServiceUnavailable:
-      description: Service Unavailable - The service is temporarily unavailable
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: "SERVICE_UNAVAILABLE"
-            message: "Service temporarily unavailable"
-
-    # Standard Responses
-    StandardResponses:
-      '200':
-        description: Success
-      '400':
-        $ref: '#/components/responses/BadRequest'
-      '401':
-        $ref: '#/components/responses/Unauthorized'
-      '403':
-        $ref: '#/components/responses/Forbidden'
-      '404':
-        $ref: '#/components/responses/NotFound'
-      '500':
-        $ref: '#/components/responses/InternalServerError'
-      '503':
-        $ref: '#/components/responses/ServiceUnavailable'

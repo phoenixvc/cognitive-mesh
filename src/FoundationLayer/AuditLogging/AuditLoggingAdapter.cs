@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FoundationLayer.AuditLogging.Models;
 using FoundationLayer.EnterpriseConnectors;
+using Microsoft.Extensions.Logging;
 
 namespace FoundationLayer.AuditLogging;
 // <-- new models (ethical/legal events)
@@ -31,8 +32,8 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             
-        // Initialize circuit breaker with 3 retries, 250ms initial delay, 1s max delay, 50ms jitter
-        _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000, 50);
+        // Initialize circuit breaker with 3 failure threshold, 5s reset timeout, 3 success threshold
+        _circuitBreaker = new AgentCircuitBreakerPolicy(logger: _logger);
             
         // Initialize retry timer to process queued events every 30 seconds
         _retryTimer = new Timer(ProcessRetryQueue, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
@@ -82,7 +83,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
     }
 
     /// <inheritdoc />
-    public async Task<bool> LogAgentRegisteredAsync(Guid agentId, string agentType, string registeredBy, string correlationId = null)
+    public async Task<bool> LogAgentRegisteredAsync(Guid agentId, string agentType, string registeredBy, string? correlationId = null)
     {
         var eventData = new AgentRegisteredEvent
         {
@@ -96,7 +97,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
     }
 
     /// <inheritdoc />
-    public async Task<bool> LogAgentRetiredAsync(Guid agentId, string retiredBy, string reason, string correlationId = null)
+    public async Task<bool> LogAgentRetiredAsync(Guid agentId, string retiredBy, string reason, string? correlationId = null)
     {
         var eventData = new AgentRetiredEvent
         {
@@ -116,7 +117,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string userId, 
         Dictionary<string, object> parameters, 
         bool success,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var eventData = new AgentActionExecutedEvent
         {
@@ -137,7 +138,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string overriddenBy, 
         string reason, 
         Dictionary<string, object> overrideDetails, 
-        string correlationId = null)
+        string? correlationId = null)
     {
         var eventData = new AuthorityOverriddenEvent
         {
@@ -156,7 +157,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         Guid agentId, 
         string userId, 
         string consentType, 
-        string correlationId = null)
+        string? correlationId = null)
     {
         var eventData = new ConsentRequestedEvent
         {
@@ -175,7 +176,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string userId, 
         string consentType, 
         bool granted, 
-        string correlationId = null)
+        string? correlationId = null)
     {
         var eventData = new ConsentDecisionEvent
         {
@@ -204,7 +205,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string targetType,
         double valueScore,
         string valueProfile,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new ValueDiagnosticRunEvent
         {
@@ -225,7 +226,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string organizationId,
         double blindnessRiskScore,
         int blindSpotCount,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new OrgBlindnessDetectedEvent
         {
@@ -245,7 +246,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string userId,
         double riskScore,
         string riskLevel,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new EmployabilityRiskFlaggedEvent
         {
@@ -267,7 +268,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string subjectId,
         string subjectType,
         string priority,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new ManualAdjudicationRequestedEvent
         {
@@ -297,7 +298,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         List<string> stakeholders,
         string description,
         string tenantId,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new PolicyApprovedEvent
         {
@@ -325,7 +326,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string rolledBackBy,
         string reason,
         string tenantId,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new PolicyRolledBackEvent
         {
@@ -354,7 +355,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string description,
         string tenantId,
         string detectedBy,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new GovernanceViolationEvent
         {
@@ -384,7 +385,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         List<string> violations,
         string reasoningTrace,
         string tenantId,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new EthicalAssessmentPerformedEvent
         {
@@ -414,7 +415,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         List<string> regulationSections,
         string checkedBy,
         string tenantId,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new LegalComplianceCheckedEvent
         {
@@ -444,7 +445,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string severity,
         string description,
         string tenantId,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new InformationalDignityViolationEvent
         {
@@ -474,7 +475,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         string originalContent,
         string adaptedContent,
         string tenantId,
-        string correlationId = null)
+        string? correlationId = null)
     {
         var ev = new CrossCulturalAdaptationEvent
         {
@@ -548,10 +549,10 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
     {
         var criteria = new AuditSearchCriteria
         {
-            EventDataContains = new Dictionary<string, object> { { "AgentId", agentId } },
+            AgentIds = new List<Guid> { agentId },
             StartTime = startTime,
             EndTime = endTime,
-            MaxResults = 1000
+            Limit = 1000
         };
 
         return await SearchEventsAsync(criteria);
@@ -939,9 +940,37 @@ public class AuditSearchCriteria
     public int? Limit { get; set; }
 
     /// <summary>
+    /// The maximum number of results to return (alias for Limit).
+    /// </summary>
+    public int MaxResults
+    {
+        get => Limit ?? 100;
+        set => Limit = value;
+    }
+
+    /// <summary>
     /// The number of results to skip.
     /// </summary>
     public int? Offset { get; set; }
+
+    /// <summary>
+    /// The number of results to skip (alias for Offset).
+    /// </summary>
+    public int Skip
+    {
+        get => Offset ?? 0;
+        set => Offset = value;
+    }
+
+    /// <summary>
+    /// Free text search query.
+    /// </summary>
+    public string? SearchText { get; set; }
+
+    /// <summary>
+    /// Key-value pairs to match within event data.
+    /// </summary>
+    public Dictionary<string, object>? EventDataContains { get; set; }
 }
 
 /// <summary>
@@ -988,6 +1017,11 @@ public enum AgentAuditEventType
     /// Consent was granted for an agent action.
     /// </summary>
     ConsentGranted,
+
+    /// <summary>
+    /// Consent was denied for an agent action.
+    /// </summary>
+    ConsentDenied,
 
     /// <summary>
     /// A value-generation diagnostic (the "$200 Test") was executed for a
@@ -1243,5 +1277,4 @@ public class AuditSearchException : Exception
         : base(message, innerException)
     {
     }
-}
 }

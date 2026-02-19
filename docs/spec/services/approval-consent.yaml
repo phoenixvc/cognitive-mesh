@@ -58,6 +58,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ApprovalRequestSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   /approvals/requests/{requestId}:
     get:
@@ -70,6 +72,7 @@ paths:
         - name: requestId
           in: path
           required: true
+          description: Unique identifier of the approval request
           schema:
             type: string
             format: uuid
@@ -93,6 +96,7 @@ paths:
         - name: requestId
           in: path
           required: true
+          description: Unique identifier of the approval request
           schema:
             type: string
             format: uuid
@@ -140,6 +144,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserConsent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   /approvals/consents/{consentId}:
     delete:
@@ -152,6 +158,7 @@ paths:
         - name: consentId
           in: path
           required: true
+          description: Unique identifier of the user consent
           schema:
             type: string
             format: uuid

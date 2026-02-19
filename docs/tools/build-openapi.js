@@ -227,5 +227,10 @@ async function buildOpenAPI() {
   }
 }
 
-// Run the build
-buildOpenAPI();
+// Export for testing
+module.exports = { buildOpenAPI, deepMerge, isObject };
+
+// Run the build only when executed directly
+if (require.main === module) {
+  buildOpenAPI();
+}

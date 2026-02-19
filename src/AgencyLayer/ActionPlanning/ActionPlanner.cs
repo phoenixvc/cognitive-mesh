@@ -23,12 +23,6 @@ namespace AgencyLayer.ActionPlanning
         private readonly ISemanticSearchManager _semanticSearchManager;
         private readonly IMessageBus _bus;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ActionPlanner"/> class.
-        /// </summary>
-        /// <param name="logger">The logger instance.</param>
-        /// <param name="knowledgeGraphManager">The knowledge graph manager instance.</param>
-        /// <param name="llmClient">The LLM client instance.</param>
         public ActionPlanner(
             ILogger<ActionPlanner> logger,
             IKnowledgeGraphManager knowledgeGraphManager,
@@ -45,7 +39,7 @@ namespace AgencyLayer.ActionPlanning
 
         /// <inheritdoc/>
         public async Task<IEnumerable<ActionPlan>> GeneratePlanAsync(
-            string goal, 
+            string goal,
             IEnumerable<string>? constraints = null,
             CancellationToken cancellationToken = default)
         {
@@ -67,7 +61,7 @@ namespace AgencyLayer.ActionPlanning
 
                 // Step 3: Construct the prompt
                 var constraintsList = constraints != null ? string.Join(", ", constraints) : "None";
-                
+
                 var systemPrompt = "You are an expert autonomous agent action planner. " +
                                    "Your task is to break down a high-level goal into a sequence of actionable steps (ActionPlans). " +
                                    "Output ONLY a valid JSON array of objects with fields: Name, Description, Priority (int).";
@@ -97,71 +91,6 @@ namespace AgencyLayer.ActionPlanning
                 // Step 5: Parse Response
                 var plans = ParsePlans(response);
 
-                return plans;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating action plan for goal: {Goal}", goal);
-                throw;
-            }
-        }
-
-        private IEnumerable<ActionPlan> ParsePlans(string jsonResponse)
-        {
-            try
-            {
-                // Simple attempt to find JSON array if wrapped in markdown code blocks
-                var json = jsonResponse;
-                if (json.Contains("```json"))
-                {
-                    var start = json.IndexOf("```json") + 7;
-                    var end = json.LastIndexOf("```");
-                    if (end > start)
-                    {
-                        json = json.Substring(start, end - start);
-                    }
-                }
-                else if (json.Contains("```"))
-                {
-                    var start = json.IndexOf("```") + 3;
-                    var end = json.LastIndexOf("```");
-                    if (end > start)
-                    {
-                        json = json.Substring(start, end - start);
-                    }
-                }
-
-                var dtos = JsonSerializer.Deserialize<List<ActionPlanDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                
-                if (dtos == null) return Enumerable.Empty<ActionPlan>();
-
-                return dtos.Select(dto => new ActionPlan
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = dto.Name,
-                    Description = dto.Description,
-                    Priority = dto.Priority,
-                    Status = ActionPlanStatus.Pending,
-                    CreatedAt = DateTime.UtcNow
-                });
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError(ex, "Failed to parse LLM response as JSON.");
-                // Fallback: return a single plan indicating manual intervention or failure, or just throw
-                // For now, let's return a fallback plan
-                return new[]
-                {
-                    new ChatMessage("system", systemPrompt),
-                    new ChatMessage("user", userPrompt)
-                };
-
-                // Step 4: Call LLM
-                var response = await _llmClient.GenerateChatCompletionAsync(messages, temperature: 0.3f, cancellationToken: cancellationToken);
-
-                // Step 5: Parse Response
-                var plans = ParsePlans(response);
-
                 // Step 6: Persist plans
                 foreach (var plan in plans)
                 {
@@ -169,25 +98,16 @@ namespace AgencyLayer.ActionPlanning
                     {
                         await _knowledgeGraphManager.AddNodeAsync(plan.Id, plan, NodeLabels.ActionPlan, cancellationToken);
                         await _bus.PublishAsync(new PlanGeneratedNotification(plan), cancellationToken: cancellationToken);
-                        Id = Guid.NewGuid().ToString(),
-                        Name = "Plan Generation Failed",
-                        Description = "Could not parse the AI generated plan. Raw response: " + jsonResponse.Substring(0, Math.Min(100, jsonResponse.Length)),
-                        Status = ActionPlanStatus.Failed,
-                        CreatedAt = DateTime.UtcNow,
-                        Error = "JSON Parsing Error"
                     }
                 }
 
                 return plans;
             }
-        }
-
-        // DTO for parsing JSON
-        private class ActionPlanDto
-        {
-            public string Name { get; set; } = string.Empty;
-            public string Description { get; set; } = string.Empty;
-            public int Priority { get; set; }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating action plan for goal: {Goal}", goal);
+                throw;
+            }
         }
 
         private IEnumerable<ActionPlan> ParsePlans(string jsonResponse)
@@ -248,29 +168,25 @@ namespace AgencyLayer.ActionPlanning
 
         private class ActionPlanDto
         {
-            public string Name { get; set; }
-            public string Description { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string Description { get; set; } = string.Empty;
             public int Priority { get; set; }
         }
 
         /// <inheritdoc/>
         public async Task<ActionPlan> ExecutePlanAsync(
-            string planId, 
+            string planId,
             CancellationToken cancellationToken = default)
         {
             try
             {
                 _logger.LogInformation("Executing action plan: {PlanId}", planId);
-                
-                // TODO: Implement plan execution logic
-                await Task.Delay(100, cancellationToken); // Simulate work
+
                 // 1. Retrieve the plan from the Knowledge Graph
                 var plan = await _knowledgeGraphManager.GetNodeAsync<ActionPlan>(planId, cancellationToken);
-                
+
                 if (plan == null)
-                {
                     throw new KeyNotFoundException($"Action plan with ID {planId} not found.");
-                }
 
                 if (plan.Status == ActionPlanStatus.Completed)
                 {
@@ -285,7 +201,6 @@ namespace AgencyLayer.ActionPlanning
                 // 3. Execute the plan using the LLM
                 try
                 {
-                    // Using the description as the prompt for the LLM
                     var result = await _llmClient.GenerateCompletionAsync(
                         plan.Description,
                         temperature: 0.3f,
@@ -308,6 +223,9 @@ namespace AgencyLayer.ActionPlanning
                     await _knowledgeGraphManager.UpdateNodeAsync(planId, plan, cancellationToken);
                 }
 
+                // 5. Notify subscribers
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken: cancellationToken);
+
                 return plan;
             }
             catch (Exception ex)
@@ -319,19 +237,15 @@ namespace AgencyLayer.ActionPlanning
 
         /// <inheritdoc/>
         public async Task UpdatePlanAsync(
-            ActionPlan plan, 
+            ActionPlan plan,
             CancellationToken cancellationToken = default)
         {
             if (plan == null) throw new ArgumentNullException(nameof(plan));
-            
+
             try
             {
                 _logger.LogInformation("Updating action plan: {PlanId}", plan.Id);
-                
-                // Update in Knowledge Graph
                 await _knowledgeGraphManager.UpdateNodeAsync(plan.Id, plan, cancellationToken);
-
-                // Notify subscribers
                 await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken: cancellationToken);
             }
             catch (Exception ex)
@@ -343,16 +257,30 @@ namespace AgencyLayer.ActionPlanning
 
         /// <inheritdoc/>
         public async Task CancelPlanAsync(
-            string planId, 
+            string planId,
             string? reason = null,
             CancellationToken cancellationToken = default)
         {
             try
             {
-                _logger.LogInformation("Cancelling action plan: {PlanId}", planId);
-                
-                // TODO: Implement plan cancellation logic
-                await Task.Delay(50, cancellationToken); // Simulate work
+                _logger.LogInformation("Cancelling action plan: {PlanId}, reason: {Reason}", planId, reason);
+
+                var plan = await _knowledgeGraphManager.GetNodeAsync<ActionPlan>(planId, cancellationToken);
+                if (plan == null)
+                    throw new KeyNotFoundException($"Action plan with ID {planId} not found.");
+
+                if (plan.Status is ActionPlanStatus.Completed or ActionPlanStatus.Cancelled)
+                {
+                    _logger.LogWarning("Plan {PlanId} is already {Status}, cannot cancel.", planId, plan.Status);
+                    return;
+                }
+
+                plan.Status = ActionPlanStatus.Cancelled;
+                plan.Error = reason ?? "Cancelled by user";
+                plan.CompletedAt = DateTime.UtcNow;
+
+                await _knowledgeGraphManager.UpdateNodeAsync(planId, plan, cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken: cancellationToken);
             }
             catch (Exception ex)
             {
@@ -362,27 +290,16 @@ namespace AgencyLayer.ActionPlanning
         }
     }
 
-    /// <summary>
-    /// Represents an action plan
-    /// </summary>
     public class ActionPlan
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public int Priority { get; set; }
         public ActionPlanStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
-        
-        /// <summary>
-        /// Any error that occurred during execution (if applicable)
-        /// </summary>
         public string? Error { get; set; }
-
-        /// <summary>
-        /// The result or output of the executed plan
-        /// </summary>
         public string? Result { get; set; }
     }
 

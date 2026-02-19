@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const { bundle, load } = require('@redocly/openapi-core');
+const { execSync } = require('child_process');
 
 // Helper function to load YAML file
 const loadYaml = (filePath) => {
@@ -125,7 +125,9 @@ describe('OpenAPI Specification', () => {
     if (openapiSpec.components.schemas) {
       Object.entries(openapiSpec.components.schemas).forEach(([name, schema]) => {
         expect(schema).toBeDefined();
-        expect(schema.type).toBeDefined();
+        // Schemas may use type, allOf, oneOf, or anyOf at top level
+        const hasValidStructure = schema.type || schema.allOf || schema.oneOf || schema.anyOf;
+        expect(hasValidStructure).toBeTruthy();
       });
     }
     
@@ -147,36 +149,13 @@ describe('OpenAPI Specification', () => {
     }
   });
 
-  test('should pass Redocly validation', async () => {
-    try {
-      // First, load the OpenAPI document
-      const document = await load({
-        config: {
-          styleguide: {
-            rules: {}
-          }
-        },
-        ref: path.join(__dirname, '..', 'openapi.yaml')
-      });
-      
-      // Then bundle it to resolve all $refs
-      const bundled = await bundle({
-        ref: document,
-        config: {
-          styleguide: {
-            rules: {}
-          }
-        }
-      });
-      
-      // Basic validation that we got a valid OpenAPI object
-      expect(bundled).toBeDefined();
-      expect(bundled.openapi).toMatch(/^3\.0\.\d+(-.+)?$/);
-      
-    } catch (error) {
-      console.error('Validation error:', error);
-      throw error;
-    }
+  test('should pass Redocly validation', () => {
+    const cwd = path.join(__dirname, '..');
+    const cliPath = path.join(cwd, 'node_modules', '@redocly', 'cli', 'bin', 'cli.js');
+    // Run redocly lint on the bundled spec using node directly
+    expect(() => {
+      execSync(`node ${cliPath} lint openapi.yaml`, { cwd, stdio: 'pipe' });
+    }).not.toThrow();
   });
 
   test('should have consistent operationIds', () => {

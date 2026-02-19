@@ -3,6 +3,10 @@ using System.Net;
 using System.Text;
 using System.Web;
 using FoundationLayer.EnterpriseConnectors;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace FoundationLayer.Notifications.Services
 {
@@ -50,7 +54,7 @@ namespace FoundationLayer.Notifications.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             
             // Initialize circuit breaker for SendGrid API calls
-            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000, 50);
+            _circuitBreaker = new AgentCircuitBreakerPolicy(failureThreshold: 3, resetTimeoutMs: 1000, successThreshold: 3);
             
             // Start the processing timer to process queues periodically
             _processingTimer = new Timer(ProcessQueuesCallback, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(_options.ProcessingIntervalSeconds));
@@ -811,5 +815,62 @@ namespace FoundationLayer.Notifications.Services
         /// Base URL for unsubscribe links.
         /// </summary>
         public string UnsubscribeBaseUrl { get; set; } = "https://cognitivemesh.com/unsubscribe";
+    }
+
+    /// <summary>
+    /// Represents the delivery status of a notification.
+    /// </summary>
+    public class DeliveryStatus
+    {
+        /// <summary>
+        /// The notification ID.
+        /// </summary>
+        public string NotificationId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The current delivery status.
+        /// </summary>
+        public DeliveryStatusType Status { get; set; }
+
+        /// <summary>
+        /// When the status was last updated.
+        /// </summary>
+        public DateTimeOffset LastUpdated { get; set; }
+
+        /// <summary>
+        /// Error message if delivery failed.
+        /// </summary>
+        public string? ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Additional metadata about the delivery.
+        /// </summary>
+        public Dictionary<string, string>? Metadata { get; set; }
+    }
+
+    /// <summary>
+    /// Types of delivery status.
+    /// </summary>
+    public enum DeliveryStatusType
+    {
+        /// <summary>
+        /// Unknown delivery status.
+        /// </summary>
+        Unknown,
+
+        /// <summary>
+        /// Notification is queued for delivery.
+        /// </summary>
+        Queued,
+
+        /// <summary>
+        /// Notification was successfully delivered.
+        /// </summary>
+        Delivered,
+
+        /// <summary>
+        /// Notification delivery failed.
+        /// </summary>
+        Failed
     }
 }

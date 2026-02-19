@@ -1,6 +1,10 @@
 using System.Text.Json;
 using FoundationLayer.ConvenerData.Entities;
 using FoundationLayer.ConvenerData.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.Extensions.Logging;
+using AuthorityScope = FoundationLayer.ConvenerData.ValueObjects.AuthorityScope;
 
 namespace FoundationLayer.Infrastructure.Repositories;
 // --- Placeholder EF Core DbContext ---

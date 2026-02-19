@@ -1,4 +1,7 @@
 using System.Text.Json;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace FoundationLayer.AuditLogging.Services
 {

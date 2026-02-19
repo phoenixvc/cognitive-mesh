@@ -1,3 +1,5 @@
+using FoundationLayer.ConvenerData.ValueObjects;
+
 namespace FoundationLayer.ConvenerData.Entities
 {
     /// <summary>

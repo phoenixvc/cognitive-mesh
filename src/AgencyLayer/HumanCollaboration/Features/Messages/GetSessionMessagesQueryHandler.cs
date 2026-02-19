@@ -1,3 +1,5 @@
+using CognitiveMesh.Shared.Interfaces;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace AgencyLayer.HumanCollaboration.Features.Messages

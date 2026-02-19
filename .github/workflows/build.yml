@@ -1,0 +1,130 @@
+name: Build and Analyze
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  dotnet:
+    name: .NET build and SonarQube analysis
+    runs-on: windows-latest
+
+    steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu'
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Cache SonarQube Cloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache SonarQube Cloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarQube Cloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path ${{ runner.temp }}\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path ${{ runner.temp }}\scanner
+
+      # Requires repository secret SONAR_TOKEN (generate at https://sonarcloud.io/account/security)
+      - name: Validate SonarQube Cloud configuration
+        shell: powershell
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SONAR_TOKEN)) {
+            Write-Error "SONAR_TOKEN secret is not configured. Add it in Settings > Secrets > Actions."
+            exit 1
+          }
+
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        shell: powershell
+        run: |
+          ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"JustAGhosT_cognitive-mesh" /o:"neuralliquid" /d:sonar.token="$env:SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+          dotnet build CognitiveMesh.sln
+          dotnet test CognitiveMesh.sln --no-build --collect:"XPlat Code Coverage;Format=opencover" --results-directory TestResults
+          ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="$env:SONAR_TOKEN"
+
+  typescript:
+    name: TypeScript validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Install dependencies
+        working-directory: docs
+        run: npm ci
+        env:
+          HUSKY: '0'
+
+      - name: Validate OpenAPI specs
+        working-directory: docs
+        run: npm run validate
+
+      - name: Run tests
+        working-directory: docs
+        run: npm run test:unit
+
+  # Uncomment when Rust sources are added to the repository
+  # rust:
+  #   name: Rust build and test
+  #   runs-on: ubuntu-latest
+  #
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #
+  #     - name: Install Rust toolchain
+  #       uses: dtolnay/rust-toolchain@stable
+  #
+  #     - name: Cache cargo registry and build
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           ~/.cargo/registry
+  #           ~/.cargo/git
+  #           target
+  #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+  #         restore-keys: ${{ runner.os }}-cargo-
+  #
+  #     - name: Build
+  #       run: cargo build --workspace
+  #
+  #     - name: Test
+  #       run: cargo test --workspace
+  #
+  #     - name: Clippy
+  #       run: cargo clippy --workspace -- -D warnings

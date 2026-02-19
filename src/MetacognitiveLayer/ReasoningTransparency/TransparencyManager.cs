@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
-using MetacognitiveLayer.ReasoningTransparency.Strategies;
+using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Strategies;
 using CognitiveMesh.Shared.Interfaces;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.Shared.Interfaces;
-using System.Linq;
-using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency.Strategies;
 
 namespace CognitiveMesh.MetacognitiveLayer.ReasoningTransparency
 {
