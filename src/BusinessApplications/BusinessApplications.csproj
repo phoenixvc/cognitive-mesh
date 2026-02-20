@@ -26,6 +26,7 @@
     <ProjectReference Include=".\ProcessAutomation\BusinessProcessAutomation.csproj" />
     <!-- ResearchAnalysis is included directly in the solution, not as a sub-project -->
     <ProjectReference Include=".\ValueGeneration\ValueGeneration.csproj" />
+    <ProjectReference Include=".\ImpactMetrics\ImpactMetrics.csproj" />
   </ItemGroup>
 
 </Project>
