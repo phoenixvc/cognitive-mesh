@@ -21,6 +21,8 @@
     <ProjectReference Include=".\VectorDatabase\VectorDatabase.csproj" />
     <ProjectReference Include=".\OneLakeIntegration\OneLakeIntegration.csproj" />
     <ProjectReference Include=".\Security\Security.csproj" />
+    <ProjectReference Include=".\NISTEvidence\NISTEvidence.csproj" />
+    <ProjectReference Include=".\EvidenceArtifacts\EvidenceArtifacts.csproj" />
   </ItemGroup>
 
 </Project>
