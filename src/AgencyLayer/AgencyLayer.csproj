@@ -25,6 +25,7 @@
     <ProjectReference Include=".\ProcessAutomation\ProcessAutomation.csproj" />
     <ProjectReference Include=".\SecurityAgents\SecurityAgents.csproj" />
     <ProjectReference Include=".\ToolIntegration\ToolIntegration.csproj" />
+    <ProjectReference Include=".\CognitiveSandwich\CognitiveSandwich.csproj" />
   </ItemGroup>
 
 </Project>
