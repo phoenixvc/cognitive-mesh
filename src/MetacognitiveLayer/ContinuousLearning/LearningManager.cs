@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Azure.AI.OpenAI;
+using FoundationLayer.EnterpriseConnectors;
 using Microsoft.Extensions.Logging;
 
 namespace MetacognitiveLayer.ContinuousLearning;
