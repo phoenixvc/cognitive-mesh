@@ -1,5 +1,7 @@
 using Azure.AI.OpenAI;
-using MetacognitiveLayer.SelfEvaluation;
+using FoundationLayer.EnterpriseConnectors;
+using MetacognitiveLayer.ContinuousLearning.Models;
+using Microsoft.Azure.Cosmos;
 
 namespace MetacognitiveLayer.ContinuousLearning;
 
@@ -955,11 +957,3 @@ public class InteractionRecord
     public DateTimeOffset Timestamp { get; set; }
 }
 
-public class LearningInsight
-{
-    public string Id { get; set; }
-    public string Type { get; set; } // "PerformanceTrend", "FeedbackInsight", "ImprovementOpportunity"
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public string Severity { get; set; } // "High", "Medium", "Low"
-}
