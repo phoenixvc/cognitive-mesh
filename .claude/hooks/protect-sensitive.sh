@@ -3,7 +3,7 @@
 # Exit 2 = block the operation. Exit 0 = allow.
 # Fail-closed: if jq is missing or parsing fails, the hook blocks the operation.
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="/usr/local/bin:/usr/bin:/bin:${HOME}/.local/bin:${PATH}"
 
 if ! command -v jq &>/dev/null; then
     echo "BLOCKED: jq is required for the protect-sensitive hook but is not installed." >&2
