@@ -315,20 +315,262 @@
 
 ---
 
+## P0-CRITICAL: Frontend API Integration (Team 10 — FRONTEND)
+
+> All UI data is currently mocked. 13 backend controllers exist with no frontend wiring. This is the #1 gap.
+
+### FE-001: Generate TypeScript API Client from OpenAPI
+- **File:** `docs/openapi.yaml` → `src/UILayer/web/src/lib/api/generated/`
+- **Action:** Use `openapi-typescript-codegen` or `orval` to auto-generate typed API client from OpenAPI spec. Configure as npm script (`npm run generate-api`).
+- **Team:** 10 (Frontend)
+
+### FE-002: Replace Mocked API Service with Real Backend Integration
+- **File:** `src/UILayer/web/src/services/api.ts`
+- **Action:** Replace hardcoded `DashboardAPI` singleton with real HTTP calls to all 13 backend controllers. Wire generated client from FE-001. Remove all `Math.random()` and simulated delays.
+- **Depends on:** FE-001
+- **Team:** 10 (Frontend)
+
+### FE-003: Add SignalR Client for Real-Time Updates
+- **File:** `src/UILayer/web/src/lib/realtime/` (new)
+- **Action:** Install `@microsoft/signalr`, connect to `CognitiveMeshHub`. Replace 5-second polling interval with real-time subscriptions (JoinDashboardGroup, SubscribeToAgent). Add reconnection logic with exponential backoff.
+- **Team:** 10 (Frontend)
+
+### FE-004: Add Authentication Flow
+- **Files:** `src/UILayer/web/src/app/login/`, `src/UILayer/web/src/contexts/AuthContext.tsx`
+- **Action:** Login page, JWT token management (access + refresh), protected route wrapper, auth context provider, logout, token refresh interceptor. Backend already has Bearer JWT + OAuth2.
+- **Team:** 10 (Frontend)
+
+---
+
+## P1-HIGH: Frontend State & Infrastructure (Team 10 — FRONTEND)
+
+### FE-005: Add Global State Management
+- **File:** `src/UILayer/web/src/stores/` (new)
+- **Action:** Add Zustand stores for: auth state, agent registry, dashboard data, notifications, user preferences. Replace scattered useState with centralized stores. Persist preferences to localStorage.
+- **Depends on:** FE-004
+- **Team:** 10 (Frontend)
+
+### FE-006: Add Error Handling Infrastructure
+- **Files:** `src/UILayer/web/src/components/ErrorBoundary/`, `src/UILayer/web/src/lib/api/interceptors.ts`
+- **Action:** Global error boundary wrapping app, toast notifications (sonner library), API error interceptor (401 → redirect to login, 403 → forbidden page, 500 → error toast), retry logic for transient failures.
+- **Team:** 10 (Frontend)
+
+### FE-007: Add Loading States & Skeleton Screens
+- **Files:** `src/UILayer/web/src/components/skeletons/`
+- **Action:** Skeleton screens for dashboard panels, agent lists, metrics cards, settings forms. Optimistic updates for mutations. Suspense boundaries for route-level loading.
+- **Team:** 10 (Frontend)
+
+### FE-008: Settings Page — Theme, Language & Accessibility
+- **Files:** `src/UILayer/web/src/app/settings/`
+- **Action:** Settings page with sections: Theme (light/dark/system), Language (en-US/fr-FR/de-DE using existing i18n), Accessibility (reduced motion, high contrast, font size), Data & Privacy (consent toggles). Persist to backend user preferences API + localStorage fallback.
+- **Team:** 10 (Frontend)
+
+### FE-009: Notification Preferences UI
+- **Files:** `src/UILayer/web/src/app/settings/notifications/`
+- **Action:** Notification preferences panel: channel toggles (email, push, SMS, in-app), category filters (approvals, security, system), quiet hours with timezone. Wire to backend Notification Preferences API from OpenAPI spec.
+- **Team:** 10 (Frontend)
+
+### FE-010: User Profile Page
+- **Files:** `src/UILayer/web/src/app/profile/`
+- **Action:** User profile view: account info, role display, consent management (GDPR), data export request, session history. Wire to ComplianceController for consent records and data subject requests.
+- **Team:** 10 (Frontend)
+
+---
+
+## P1-HIGH: Widget PRD Implementations (Team 10 — FRONTEND)
+
+> 17 widget PRDs exist in docs/prds/. Only generic components are built — no PRD-specific widgets.
+
+### FE-011: NIST Compliance Dashboard Widget
+- **PRD:** `docs/prds/01-foundational/nist-ai-rmf-maturity/mesh-widget.md`
+- **Backend:** `NISTComplianceController` — score, checklist, evidence, gap analysis, roadmap
+- **Action:** Maturity score gauge, pillar breakdown, evidence upload form, gap analysis table, roadmap timeline. Wire to 7 REST endpoints.
+- **Team:** 10 (Frontend)
+
+### FE-012: Adaptive Balance Widget
+- **PRD:** `docs/prds/02-adaptive-balance/mesh-widget.md`
+- **Backend:** `AdaptiveBalanceController` — spectrum, history, override, learning, reflexion, recommendations
+- **Action:** Interactive spectrum sliders (5 dimensions), override controls with approval flow, audit trail, recommendation cards. Real-time updates via SignalR.
+- **Team:** 10 (Frontend)
+
+### FE-013: Value Generation Widget (upgrade existing)
+- **PRD:** `docs/prds/04-value-impact/value-generation/mesh-widget.md`
+- **Backend:** `ValueGenerationController` — value-diagnostic, org-blindness, employability
+- **Action:** Upgrade existing TwoHundredDollarTestWidget + ValueDiagnosticDashboard. Add consent flow, full scoring visualization, strengths/opportunities radar chart, org blindness heatmap. Wire to real API (replace mocked adapter).
+- **Team:** 10 (Frontend)
+
+### FE-014: Impact Metrics Widget
+- **PRD:** `docs/prds/04-value-impact/impact-driven-ai/mesh-widget.md`
+- **Backend:** `ImpactMetricsController` — safety, alignment, adoption, assessment
+- **Action:** Psychological safety gauge (6 dimensions), mission alignment radar, adoption telemetry timeline, resistance indicator cards. 8 REST endpoints to wire.
+- **Team:** 10 (Frontend)
+
+### FE-015: Cognitive Sandwich Widget
+- **PRD:** `docs/prds/01-foundational-infrastructure/mesh-orchestration-hitl.md`
+- **Backend:** `CognitiveSandwichController` — create, get, advance, step-back, audit, debt
+- **Action:** Phase stepper UI (Human→AI→Human), HITL approval modal, cognitive debt tracker, audit log viewer. Real-time phase updates via SignalR.
+- **Team:** 10 (Frontend)
+
+---
+
+## P2-MEDIUM: Additional Widget PRDs (Team 10 — FRONTEND)
+
+### FE-016: Context Engineering Widget
+- **PRD:** `docs/prds/03-agentic-cognitive-systems/context-engineering-widget.md`
+- **Action:** AI context frame management UI — context window visualizer, token budget, frame composition.
+- **Team:** 10 (Frontend)
+
+### FE-017: Agentic System Control Widget (upgrade existing)
+- **PRD:** `docs/prds/07-agentic-systems/agentic-ai-system/mesh-widget.md`
+- **Backend:** `AgentController` — registry CRUD, orchestrate, authority
+- **Action:** Upgrade existing AgentControlCenter. Add agent lifecycle management (register, update, retire), authority configuration form, orchestration trigger with results viewer. Wire to real agent API.
+- **Team:** 10 (Frontend)
+
+### FE-018: Convener Widget
+- **PRD:** `docs/prds/03-convener/convener-widget.md`
+- **Backend:** `ConvenerController` — innovation spread, learning catalyst
+- **Action:** Innovation spread visualization (Rogers diffusion curve), learning recommendation cards, champion discovery with skill matching.
+- **Team:** 10 (Frontend)
+
+### FE-019: Widget Marketplace UI
+- **Backend:** C# `WidgetRegistry`, `PluginOrchestrator`, `MarketplaceEntry` models
+- **Action:** Widget marketplace page: browse available widgets, install/uninstall, version management, security sandbox info. Wire to WidgetRegistry C# service.
+- **Team:** 10 (Frontend)
+
+### FE-020: Organizational Mesh Widget
+- **PRD:** `docs/prds/08-organizational-transformation/org-mesh-widget.md`
+- **Action:** Organization-level cognitive mesh visualization — department network graph, capability heatmap, transformation progress tracker.
+- **Team:** 10 (Frontend)
+
+---
+
+## P2-MEDIUM: App Structure & Navigation (Team 10 — FRONTEND)
+
+### FE-021: Multi-Page Routing
+- **Files:** `src/UILayer/web/src/app/` — new route directories
+- **Action:** Create pages: `/dashboard`, `/settings`, `/agents`, `/compliance`, `/analytics`, `/marketplace`. Add route-level layouts with shared sidebar. Use Next.js App Router with loading.tsx and error.tsx per route.
+- **Team:** 10 (Frontend)
+
+### FE-022: Navigation Component
+- **Files:** `src/UILayer/web/src/components/Navigation/`
+- **Action:** Sidebar navigation with collapsible sections, breadcrumbs, mobile hamburger menu, responsive drawer. Active route highlighting. User avatar + quick settings in header.
+- **Team:** 10 (Frontend)
+
+### FE-023: Role-Based UI Gating
+- **Files:** `src/UILayer/web/src/lib/auth/permissions.ts`
+- **Action:** Role-based component visibility (Admin, Analyst, Viewer). Admin-only routes (agent registry CRUD, settings). Permission-gated buttons and forms. Roles from JWT claims.
+- **Depends on:** FE-004
+- **Team:** 10 (Frontend)
+
+---
+
+## P2-MEDIUM: Frontend CI/CD & Deployment (Teams 8, 9, 10)
+
+### FECICD-001: Add Frontend Build/Test/Lint to CI Pipeline
+- **File:** `.github/workflows/build.yml` (update existing)
+- **Action:** Add frontend job: `npm ci`, `npm run lint`, `npm run build`, `npm test -- --ci --coverage`. Fail pipeline on lint errors or test failures. Upload coverage to Codecov.
+- **Team:** 8 (CI/CD)
+
+### FECICD-002: Frontend Docker Container
+- **File:** `src/UILayer/web/Dockerfile` (new)
+- **Action:** Multi-stage Docker build: Node 20 build stage → Nginx alpine runtime. Add `nginx.conf` for SPA routing (try_files fallback). Health check endpoint. Environment variable injection at runtime.
+- **Team:** 8 (CI/CD) + 9 (Infra)
+
+### FECICD-003: Add Frontend to docker-compose.yml
+- **File:** `docker-compose.yml` (update)
+- **Action:** Add `web` service: build from `src/UILayer/web/Dockerfile`, port 3000, depends_on backend API, environment variables for API URL, health check.
+- **Team:** 8 (CI/CD)
+
+### FECICD-004: Frontend Deployment Pipeline
+- **File:** `.github/workflows/deploy.yml` (update)
+- **Action:** Add frontend deployment step: build Docker image, push to ACR, deploy to Azure Static Web Apps or AKS alongside backend. Environment-specific API URL injection.
+- **Team:** 8 (CI/CD)
+
+### FECICD-005: Kubernetes Frontend Manifests
+- **Files:** `k8s/base/frontend-deployment.yaml`, `k8s/base/frontend-service.yaml`
+- **Action:** K8s deployment for frontend container: Nginx serving Next.js static export, Ingress with TLS, ConfigMap for API URL, HPA for auto-scaling. Kustomize overlays for dev/staging/prod.
+- **Team:** 9 (Infra)
+
+### FECICD-006: Terraform Frontend Infrastructure
+- **File:** `infra/modules/frontend/` (new)
+- **Action:** Terraform module for Azure Static Web Apps or Azure CDN for frontend hosting. Custom domain, TLS certificate, CDN caching rules, WAF protection.
+- **Team:** 9 (Infra)
+
+---
+
+## P2-MEDIUM: Frontend Testing (Teams 7, 10)
+
+### FETEST-001: Component Unit Test Coverage (Target 80%)
+- **Files:** `src/UILayer/web/src/components/**/*.test.tsx`
+- **Action:** Add unit tests for all 43+ components. Currently only 1 test file exists (CognitiveMeshButton). Test rendering, user interactions, accessibility, error states. Use Jest + Testing Library.
+- **Team:** 7 (Testing) + 10 (Frontend)
+
+### FETEST-002: API Integration Tests
+- **Files:** `src/UILayer/web/src/lib/api/__tests__/`
+- **Action:** Test generated API client against mock server (MSW — Mock Service Worker). Verify all 13 controller integrations. Test error handling, retry logic, auth token injection.
+- **Team:** 7 (Testing) + 10 (Frontend)
+
+### FETEST-003: E2E Tests with Real API
+- **Files:** `cypress/e2e/`
+- **Action:** Update existing Cypress tests to use real API (not mocked data). Add E2E flows: login → dashboard → agent management → settings → logout. Add API intercepts for deterministic testing.
+- **Team:** 7 (Testing)
+
+### FETEST-004: Visual Regression Testing
+- **Files:** `.storybook/`, `chromatic.config.js`
+- **Action:** Add Chromatic or Percy for visual regression on Storybook stories. Run on PR to catch unintended visual changes. Baseline all existing 3+ stories + add stories for new components.
+- **Team:** 7 (Testing)
+
+### FETEST-005: Lighthouse CI Performance Monitoring
+- **File:** `.github/workflows/lighthouse.yml` (new)
+- **Action:** Run Lighthouse CI on every PR. Set thresholds: Performance >= 80, Accessibility >= 95, Best Practices >= 90, SEO >= 80. Track bundle size with `@next/bundle-analyzer`. Fail on regression.
+- **Team:** 8 (CI/CD)
+
+---
+
+## P3-LOW: Frontend Advanced Features (Team 10 — FRONTEND)
+
+### FE-024: Dashboard Export (PDF/PNG)
+- **Action:** Export current dashboard view as PDF or PNG. Use html2canvas + jsPDF. Include timestamp and user watermark.
+- **Team:** 10 (Frontend)
+
+### FE-025: Command Palette (Cmd+K)
+- **Action:** Global keyboard shortcut (Cmd+K / Ctrl+K) to open command palette. Search across pages, agents, widgets, settings. Quick actions: toggle theme, switch language, navigate.
+- **Team:** 10 (Frontend)
+
+### FE-026: Real-Time Collaboration Presence
+- **Action:** Show active users on dashboard via SignalR presence tracking. Live cursor indicators. Collaborative widget editing.
+- **Depends on:** FE-003
+- **Team:** 10 (Frontend)
+
+### FE-027: Additional Locale Support
+- **Action:** Add es-ES (Spanish), ja-JP (Japanese), zh-CN (Chinese Simplified) to existing i18n framework. Translation files for all 170+ keys.
+- **Team:** 10 (Frontend)
+
+### FE-028: PWA Enhancements
+- **Action:** Add web app manifest, install prompt, push notifications via service worker, offline dashboard with cached data.
+- **Team:** 10 (Frontend)
+
+---
+
 ## Summary Counts
 
 | Priority | Total | Done | Remaining | Description |
 |----------|-------|------|-----------|-------------|
-| P0-CRITICAL | 3 | 3 | 0 | Build fixes + arch violations — ALL RESOLVED |
+| P0-CRITICAL (backend) | 3 | 3 | 0 | Build fixes + arch violations — ALL RESOLVED |
+| P0-CRITICAL (frontend) | 4 | 0 | 4 | API client gen, mock replacement, SignalR, auth flow |
 | P1-HIGH (stubs) | 16 | 16 | 0 | All core stub implementations complete |
 | P1-HIGH (CI/CD) | 8 | 8 | 0 | Pipeline, Docker, DevEx — ALL COMPLETE |
 | P1-HIGH (IaC) | 11 | 11 | 0 | Terraform modules + Terragrunt + K8s |
-| P2-MEDIUM (stubs) | 5 | 5 | 0 | BIZ-004 (ConvenerController) DONE — all stubs resolved |
-| P2-MEDIUM (tests) | 9 | 9 | 0 | 309 unit tests + 25 new integration tests = 334 total new tests |
-| P2-MEDIUM (PRDs) | 8 | 8 | 0 | ALL PRDs DONE — PRD-001 + PRD-002 completed in Phase 10 (+213 tests) |
-| P3-LOW | 10 | 10 | 0 | ALL DONE — Phase 11 (backend) + Phase 12 (frontend) |
-| **Total** | **70** | **70** | **0** | ALL 70 BACKLOG ITEMS COMPLETE. 100% done. |
+| P1-HIGH (frontend) | 11 | 0 | 11 | State mgmt, error handling, settings, widget PRDs |
+| P2-MEDIUM (stubs) | 5 | 5 | 0 | BIZ-004 (ConvenerController) DONE |
+| P2-MEDIUM (tests) | 9 | 9 | 0 | 334 total new backend tests |
+| P2-MEDIUM (PRDs) | 8 | 8 | 0 | ALL 8 backend PRDs DONE |
+| P2-MEDIUM (frontend) | 14 | 0 | 14 | Widget PRDs, routing, nav, CI/CD, deployment |
+| P2-MEDIUM (frontend testing) | 5 | 0 | 5 | Component tests, E2E, visual regression, Lighthouse |
+| P3-LOW (backend) | 10 | 10 | 0 | ALL DONE — Phase 11 + Phase 12 |
+| P3-LOW (frontend) | 5 | 0 | 5 | Export, Cmd+K, collaboration, locales, PWA |
+| **Total** | **109** | **70** | **39** | Backend 100% done. Frontend integration round: 39 new items. |
 
 ---
 
-*Generated: 2026-02-20 | Updated after Phase 12 — ALL 70 BACKLOG ITEMS COMPLETE (100%). 12 phases, ~1,000 new tests, ~20,000 lines of new code across all 5 layers + infrastructure.*
+*Updated: 2026-02-20 | Phase 12 closed original 70 items (100%). Phase 13+ begins frontend integration round: 39 new items across API integration, widget PRDs, settings, testing, CI/CD, deployment, and infrastructure.*
