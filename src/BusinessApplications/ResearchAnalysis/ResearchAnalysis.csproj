@@ -9,9 +9,11 @@
 
   <ItemGroup>
     <Compile Include="ResearchAnalyst.cs" />
+    <Compile Include="IResearchDataPort.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,4 +21,3 @@
   </ItemGroup>
 
 </Project>
-

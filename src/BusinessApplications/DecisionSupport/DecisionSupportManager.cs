@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -8,85 +9,168 @@ namespace CognitiveMesh.BusinessApplications.DecisionSupport
 {
     /// <summary>
     /// Provides decision support capabilities for the cognitive mesh.
+    /// Delegates analysis, risk evaluation, recommendation generation, and outcome simulation
+    /// to an <see cref="IDecisionAnalysisPort"/> adapter that integrates with reasoning engines.
     /// </summary>
     public class DecisionSupportManager : IDecisionSupportManager, IDisposable
     {
         private readonly ILogger<DecisionSupportManager> _logger;
-        private bool _disposed = false;
+        private readonly IDecisionAnalysisPort _analysisPort;
+        private bool _disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DecisionSupportManager"/> class.
         /// </summary>
-        /// <param name="logger">The logger instance.</param>
-        public DecisionSupportManager(ILogger<DecisionSupportManager> logger = null)
+        /// <param name="logger">The logger instance for structured logging.</param>
+        /// <param name="analysisPort">The port for decision analysis operations backed by reasoning engines.</param>
+        public DecisionSupportManager(
+            ILogger<DecisionSupportManager> logger,
+            IDecisionAnalysisPort analysisPort)
         {
-            _logger = logger;
-            _logger?.LogInformation("DecisionSupportManager initialized");
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _analysisPort = analysisPort ?? throw new ArgumentNullException(nameof(analysisPort));
+            _logger.LogInformation("DecisionSupportManager initialized");
         }
 
         /// <inheritdoc/>
-        public Task<Dictionary<string, object>> AnalyzeDecisionOptionsAsync(
+        public async Task<Dictionary<string, object>> AnalyzeDecisionOptionsAsync(
             string decisionContext,
             IEnumerable<Dictionary<string, object>> options,
-            Dictionary<string, object> criteria = null,
+            Dictionary<string, object>? criteria = null,
             CancellationToken cancellationToken = default)
         {
-            _logger?.LogDebug("Analyzing decision options for context: {Context}", decisionContext);
-            // TODO: Implement actual decision analysis logic
-            return Task.FromResult(new Dictionary<string, object>
+            if (string.IsNullOrWhiteSpace(decisionContext))
+                throw new ArgumentException("Decision context cannot be empty", nameof(decisionContext));
+            if (options is null)
+                throw new ArgumentNullException(nameof(options));
+
+            try
             {
-                ["bestOption"] = options is System.Collections.ICollection c ? c.Count > 0 ? 0 : -1 : -1,
-                ["scores"] = new Dictionary<string, double>(),
-                ["recommendations"] = Array.Empty<string>()
-            });
+                _logger.LogInformation("Analyzing decision options for context: {Context}", decisionContext);
+
+                var optionList = options.ToList();
+                if (optionList.Count == 0)
+                {
+                    _logger.LogWarning("No options provided for decision analysis: {Context}", decisionContext);
+                    return new Dictionary<string, object>
+                    {
+                        ["bestOption"] = -1,
+                        ["scores"] = new Dictionary<string, double>(),
+                        ["recommendations"] = Array.Empty<string>()
+                    };
+                }
+
+                var result = await _analysisPort.ScoreOptionsAsync(
+                    decisionContext, optionList, criteria, cancellationToken).ConfigureAwait(false);
+
+                _logger.LogInformation(
+                    "Decision analysis completed for context: {Context}, best option index: {BestOption}",
+                    decisionContext, result.GetValueOrDefault("bestOption", -1));
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error analyzing decision options for context: {Context}", decisionContext);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
-        public Task<Dictionary<string, object>> EvaluateRiskAsync(
+        public async Task<Dictionary<string, object>> EvaluateRiskAsync(
             string scenario,
             Dictionary<string, object> parameters,
             CancellationToken cancellationToken = default)
         {
-            _logger?.LogDebug("Evaluating risk for scenario: {Scenario}", scenario);
-            // TODO: Implement actual risk evaluation logic
-            return Task.FromResult(new Dictionary<string, object>
+            if (string.IsNullOrWhiteSpace(scenario))
+                throw new ArgumentException("Scenario cannot be empty", nameof(scenario));
+            if (parameters is null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            try
             {
-                ["riskLevel"] = "low",
-                ["riskScore"] = 0.1,
-                ["mitigationStrategies"] = Array.Empty<string>()
-            });
+                _logger.LogInformation("Evaluating risk for scenario: {Scenario}", scenario);
+
+                var result = await _analysisPort.AssessRiskAsync(scenario, parameters, cancellationToken)
+                    .ConfigureAwait(false);
+
+                _logger.LogInformation(
+                    "Risk evaluation completed for scenario: {Scenario}, risk level: {RiskLevel}",
+                    scenario, result.GetValueOrDefault("riskLevel", "unknown"));
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error evaluating risk for scenario: {Scenario}", scenario);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
-        public Task<Dictionary<string, object>> GenerateRecommendationsAsync(
+        public async Task<Dictionary<string, object>> GenerateRecommendationsAsync(
             string context,
             Dictionary<string, object> data,
             CancellationToken cancellationToken = default)
         {
-            _logger?.LogDebug("Generating recommendations for context: {Context}", context);
-            // TODO: Implement actual recommendation generation logic
-            return Task.FromResult(new Dictionary<string, object>
+            if (string.IsNullOrWhiteSpace(context))
+                throw new ArgumentException("Context cannot be empty", nameof(context));
+            if (data is null)
+                throw new ArgumentNullException(nameof(data));
+
+            try
             {
-                ["recommendations"] = Array.Empty<string>(),
-                ["confidenceScores"] = new Dictionary<string, double>(),
-                ["supportingEvidence"] = Array.Empty<object>()
-            });
+                _logger.LogInformation("Generating recommendations for context: {Context}", context);
+
+                var result = await _analysisPort.GenerateRecommendationsAsync(context, data, cancellationToken)
+                    .ConfigureAwait(false);
+
+                var recommendationCount = result.TryGetValue("recommendations", out var recs) && recs is object[] arr
+                    ? arr.Length
+                    : 0;
+
+                _logger.LogInformation(
+                    "Recommendation generation completed for context: {Context}, count: {Count}",
+                    context, recommendationCount);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating recommendations for context: {Context}", context);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
-        public Task<Dictionary<string, object>> SimulateOutcomesAsync(
+        public async Task<Dictionary<string, object>> SimulateOutcomesAsync(
             string scenario,
             Dictionary<string, object> parameters,
             CancellationToken cancellationToken = default)
         {
-            _logger?.LogDebug("Simulating outcomes for scenario: {Scenario}", scenario);
-            // TODO: Implement actual outcome simulation logic
-            return Task.FromResult(new Dictionary<string, object>
+            if (string.IsNullOrWhiteSpace(scenario))
+                throw new ArgumentException("Scenario cannot be empty", nameof(scenario));
+            if (parameters is null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            try
             {
-                ["mostLikelyOutcome"] = new Dictionary<string, object>(),
-                ["probability"] = 1.0,
-                ["alternativeScenarios"] = Array.Empty<object>()
-            });
+                _logger.LogInformation("Simulating outcomes for scenario: {Scenario}", scenario);
+
+                var result = await _analysisPort.SimulateAsync(scenario, parameters, cancellationToken)
+                    .ConfigureAwait(false);
+
+                _logger.LogInformation(
+                    "Outcome simulation completed for scenario: {Scenario}, probability: {Probability}",
+                    scenario, result.GetValueOrDefault("probability", 0.0));
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error simulating outcomes for scenario: {Scenario}", scenario);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
@@ -96,18 +180,29 @@ namespace CognitiveMesh.BusinessApplications.DecisionSupport
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="DecisionSupportManager"/> and optionally releases managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
             {
                 if (disposing)
                 {
-                    // Dispose managed resources here
+                    // Dispose managed resources if the analysis port is disposable
+                    if (_analysisPort is IDisposable disposablePort)
+                    {
+                        disposablePort.Dispose();
+                    }
                 }
                 _disposed = true;
             }
         }
 
+        /// <summary>
+        /// Finalizer for <see cref="DecisionSupportManager"/>.
+        /// </summary>
         ~DecisionSupportManager()
         {
             Dispose(false);
@@ -130,7 +225,7 @@ namespace CognitiveMesh.BusinessApplications.DecisionSupport
         Task<Dictionary<string, object>> AnalyzeDecisionOptionsAsync(
             string decisionContext,
             IEnumerable<Dictionary<string, object>> options,
-            Dictionary<string, object> criteria = null,
+            Dictionary<string, object>? criteria = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>

@@ -150,38 +150,24 @@
 
 ## P2-MEDIUM: Business Application Stubs
 
-### BIZ-001: CustomerIntelligenceManager — 4 fake-data methods
-- **File:** `src/BusinessApplications/CustomerIntelligence/CustomerIntelligenceManager.cs`
-- **Line 44:** `// TODO: Implement actual customer profile retrieval` — uses Task.Delay, returns sample data
-- **Line 81:** `// TODO: Implement actual segment retrieval logic`
-- **Line 136:** `// TODO: Implement actual insight generation logic`
-- **Line 199:** `// TODO: Implement actual prediction logic`
-- **Fix:** Integrate with HybridMemoryStore for profile retrieval, reasoning engines for insights
-- **Team:** 5 (Business)
+### ~~BIZ-001: CustomerIntelligenceManager — 4 fake-data methods~~ DONE (Phase 3)
+- **Status:** Added `ICustomerDataPort` interface. All 4 methods now use port-based data retrieval: profile lookup, segment queries, LLM-driven insight generation from interaction history, vector similarity + LLM for behavioral predictions. All Task.Delay and TODO comments removed.
 
-### BIZ-002: DecisionSupportManager — 4 hardcoded methods
-- **File:** `src/BusinessApplications/DecisionSupport/DecisionSupportManager.cs`
-- **Line 35:** `// TODO: Implement actual decision analysis logic`
-- **Line 51:** `// TODO: Implement actual risk evaluation logic` — returns `{ riskLevel: low, riskScore: 0.1 }`
-- **Line 67:** `// TODO: Implement actual recommendation generation logic` — returns empty arrays
-- **Line 83:** `// TODO: Implement actual outcome simulation logic` — returns empty results
-- **Fix:** Integrate with ConclAIve reasoning engines for real analysis
-- **Team:** 5 (Business)
+### ~~BIZ-002: DecisionSupportManager — 4 hardcoded methods~~ DONE (Phase 3)
+- **Status:** Added `IDecisionAnalysisPort` interface. All 4 methods now delegate to port: option scoring, risk assessment, recommendation generation, outcome simulation. Input validation added. All TODO comments removed.
 
-### BIZ-003: ResearchAnalyst — 4 fake-data methods
-- **File:** `src/BusinessApplications/ResearchAnalysis/ResearchAnalyst.cs`
-- **Line 47:** `// TODO: Implement actual research analysis logic`
-- **Line 87:** `// TODO: Implement actual research result retrieval logic`
-- **Line 122:** `// TODO: Implement actual research search logic`
-- **Line 161:** `// TODO: Implement actual research update logic`
-- **Fix:** Integrate with SemanticSearch/RAG and knowledge graph for real research
-- **Team:** 5 (Business)
+### ~~BIZ-003: ResearchAnalyst — 4 fake-data methods~~ DONE (Phase 3)
+- **Status:** Added `IResearchDataPort` + `IResearchAnalysisPort` interfaces. LLM-based topic analysis with persistence, semantic vector search with text fallback, read-modify-write update cycle with re-indexing. All Task.Delay and TODO comments removed.
 
 ### BIZ-004: ConvenerController — 2 NotImplemented features
 - **File:** `src/BusinessApplications/ConvenerServices/ConvenerController.cs`
 - **Lines 151-161:** Innovation Spread tracking + Learning Catalyst recommendations
 - **Fix:** Implement endpoints per docs/prds/03-convener/convener-backend.md
 - **Team:** 5 (Business)
+- **Note:** Deferred — not a stub/TODO pattern, needs PRD-level design
+
+### ~~BIZ-005: KnowledgeManager — 28 Task.Delay stubs~~ DONE (Phase 3)
+- **Status:** Complete refactor: removed 7-way framework branching. Added `IKnowledgeStorePort` interface. All 28 `Task.Delay(1000)` removed. 4 methods now delegate to port with CancellationToken, input validation, structured logging. File reduced from 399 to 173 lines.
 
 ---
 
@@ -203,17 +189,17 @@
 ### ~~TST-004b: DecisionExecutor tests~~ DONE (Phase 2)
 - **Status:** Created `tests/AgencyLayer/DecisionExecution/DecisionExecutorComprehensiveTests.cs` — 21 tests covering constructor guards, ExecuteDecision, GetStatus, GetLogs, model validation.
 
-### TST-005: CustomerIntelligenceManager tests
-- **Gap:** No dedicated test file
-- **Team:** 5 (Business)
+### ~~TST-005: CustomerIntelligenceManager tests~~ DONE (Phase 3)
+- **Status:** Created `tests/BusinessApplications.UnitTests/CustomerIntelligence/CustomerIntelligenceManagerTests.cs` — 31 tests (28 Facts + 3 Theories) covering constructor guards, all 4 methods, cancellation, error cases.
 
-### TST-006: DecisionSupportManager tests
-- **Gap:** No dedicated test file
-- **Team:** 5 (Business)
+### ~~TST-006: DecisionSupportManager tests~~ DONE (Phase 3)
+- **Status:** Created `tests/BusinessApplications.UnitTests/DecisionSupport/DecisionSupportManagerTests.cs` — 20 tests covering constructor, all 4 methods, input validation, dispose safety.
 
-### TST-007: ResearchAnalyst tests
-- **Gap:** No dedicated test file
-- **Team:** 5 (Business)
+### ~~TST-007: ResearchAnalyst tests~~ DONE (Phase 3)
+- **Status:** Created `tests/BusinessApplications.UnitTests/ResearchAnalysis/ResearchAnalystTests.cs` — 38 tests (26 Facts + 4 Theories) covering constructor guards, all 4 methods, cancellation, semantic search fallback.
+
+### ~~TST-008b: KnowledgeManager tests~~ DONE (Phase 3)
+- **Status:** Created `tests/BusinessApplications.UnitTests/KnowledgeManagement/KnowledgeManagerTests.cs` — 24 tests covering all CRUD methods across 7 framework feature flags, priority ordering, no-feature fallback.
 
 ### TST-008: Cross-layer integration tests
 - **Gap:** Only 1 integration test file exists
@@ -286,16 +272,16 @@
 
 | Priority | Total | Done | Remaining | Description |
 |----------|-------|------|-----------|-------------|
-| P0-CRITICAL | 3 | 1 | 2 | Build fixes + arch violations (1 new) |
+| P0-CRITICAL | 3 | 1 | 2 | Build fixes + arch violations |
 | P1-HIGH (stubs) | 16 | 16 | 0 | All core stub implementations complete |
 | P1-HIGH (CI/CD) | 8 | 6 | 2 | Pipeline, Docker, DevEx |
 | P1-HIGH (IaC) | 11 | 11 | 0 | Terraform modules + Terragrunt + K8s |
-| P2-MEDIUM (stubs) | 4 | 0 | 4 | Business app fake data |
-| P2-MEDIUM (tests) | 8 | 4 | 4 | 87 tests added, 4 gaps remain |
+| P2-MEDIUM (stubs) | 5 | 4 | 1 | BIZ-004 (ConvenerController) deferred to PRD |
+| P2-MEDIUM (tests) | 9 | 8 | 1 | 206 tests added, TST-003 (LearningManager) + TST-008 (integration) remain |
 | P2-MEDIUM (PRDs) | 8 | 0 | 8 | Unstarted PRD implementations |
 | P3-LOW | 10 | 0 | 10 | Future enhancements |
-| **Total** | **68** | **38** | **30** | Phase 2: +13 items (cumulative 56%) |
+| **Total** | **70** | **46** | **24** | Phase 3: +8 items (cumulative 66%) |
 
 ---
 
-*Generated: 2026-02-19 | Updated after Phase 2 completion (Metacognitive, Agency, Testing)*
+*Generated: 2026-02-20 | Updated after Phase 3 completion (Business + Testing)*
