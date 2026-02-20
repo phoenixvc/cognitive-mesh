@@ -38,6 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FoundationLayer\NISTEvidence\NISTEvidence.csproj" />
     <ProjectReference Include="..\..\src\FoundationLayer\EvidenceArtifacts\EvidenceArtifacts.csproj" />
+    <ProjectReference Include="..\..\src\FoundationLayer\Notifications\Notifications.csproj" />
   </ItemGroup>
 
 </Project>
