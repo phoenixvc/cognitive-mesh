@@ -7,9 +7,9 @@ namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 /// </summary>
 public class OrgBlindnessDetectionRequest
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string OrganizationId { get; set; }
-    public string[] DepartmentFilters { get; set; }
+    public ProvenanceContext Provenance { get; set; } = default!;
+    public string OrganizationId { get; set; } = string.Empty;
+    public string[] DepartmentFilters { get; set; } = [];
 }
 
 /// <summary>
@@ -17,11 +17,11 @@ public class OrgBlindnessDetectionRequest
 /// </summary>
 public class OrgBlindnessDetectionResponse
 {
-    public string OrganizationId { get; set; }
+    public string OrganizationId { get; set; } = string.Empty;
     public double BlindnessRiskScore { get; set; } // Score from 0.0 (no risk) to 1.0 (high risk)
     public List<string> IdentifiedBlindSpots { get; set; } = new(); // e.g., "Undervaluing maintenance work", "Overlooking quiet contributors"
-    public string ModelVersion { get; set; }
-    public string CorrelationId { get; set; }
+    public string ModelVersion { get; set; } = string.Empty;
+    public string CorrelationId { get; set; } = string.Empty;
 }
 
 // --- Port Interface ---

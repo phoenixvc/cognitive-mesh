@@ -23,9 +23,9 @@ public enum AutonomyLevel
 /// </summary>
 public class ProvenanceContext
 {
-    public string TenantId { get; set; }
-    public string ActorId { get; set; }
-    public string ConsentId { get; set; } // ID of the consent record for this action
+    public string TenantId { get; set; } = string.Empty;
+    public string ActorId { get; set; } = string.Empty;
+    public string ConsentId { get; set; } = string.Empty; // ID of the consent record for this action
     public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
 }
 
@@ -35,10 +35,10 @@ public class ProvenanceContext
 /// </summary>
 public class TaskContext
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string TaskId { get; set; }
-    public string TaskType { get; set; } // e.g., "CreativeWriting", "DataAnalysis", "CodeGeneration"
-    public string TaskDescription { get; set; }
+    public ProvenanceContext Provenance { get; set; } = default!;
+    public string TaskId { get; set; } = string.Empty;
+    public string TaskType { get; set; } = string.Empty; // e.g., "CreativeWriting", "DataAnalysis", "CodeGeneration"
+    public string TaskDescription { get; set; } = string.Empty;
 
     /// <summary>
     /// Cognitive Impact Assessment (CIA) score. Measures the potential impact of the task on user cognition.
@@ -55,7 +55,7 @@ public class TaskContext
     /// <summary>
     /// The initial data or payload the task will operate on.
     /// </summary>
-    public object InitialPayload { get; set; }
+    public object InitialPayload { get; set; } = default!;
 }
 
 /// <summary>
@@ -65,12 +65,12 @@ public class TaskContext
 public class AgencyModeDecision
 {
     public string DecisionId { get; set; } = Guid.NewGuid().ToString();
-    public string CorrelationId { get; set; }
+    public string CorrelationId { get; set; } = string.Empty;
     public AutonomyLevel ChosenAutonomyLevel { get; set; }
-    public object AppliedAuthorityScope { get; set; } // Could be a specific AuthorityScope object
-    public string RecommendedEngine { get; set; } // e.g., "FullyAutonomousAgent", "HumanInTheLoopWorkflow"
-    public string Justification { get; set; }
-    public string PolicyVersionApplied { get; set; }
+    public object AppliedAuthorityScope { get; set; } = default!; // Could be a specific AuthorityScope object
+    public string RecommendedEngine { get; set; } = string.Empty; // e.g., "FullyAutonomousAgent", "HumanInTheLoopWorkflow"
+    public string Justification { get; set; } = string.Empty;
+    public string PolicyVersionApplied { get; set; } = string.Empty;
     public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
 }
 
@@ -79,10 +79,10 @@ public class AgencyModeDecision
 /// </summary>
 public class OverrideRequest
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string TaskId { get; set; }
+    public ProvenanceContext Provenance { get; set; } = default!;
+    public string TaskId { get; set; } = string.Empty;
     public AutonomyLevel ForcedAutonomyLevel { get; set; }
-    public string ReasonForOverride { get; set; }
+    public string ReasonForOverride { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -90,7 +90,7 @@ public class OverrideRequest
 /// </summary>
 public class RoutingRule
 {
-    public string Condition { get; set; } // e.g., "CIA > 0.8", "TaskType == 'CreativeWriting' && CSI < 0.5"
+    public string Condition { get; set; } = string.Empty; // e.g., "CIA > 0.8", "TaskType == 'CreativeWriting' && CSI < 0.5"
     public AutonomyLevel Action { get; set; } // The autonomy level to enforce if the condition is met.
 }
 
@@ -99,9 +99,9 @@ public class RoutingRule
 /// </summary>
 public class PolicyConfiguration
 {
-    public string PolicyId { get; set; }
-    public string TenantId { get; set; }
-    public string PolicyVersion { get; set; }
+    public string PolicyId { get; set; } = string.Empty;
+    public string TenantId { get; set; } = string.Empty;
+    public string PolicyVersion { get; set; } = string.Empty;
     public List<RoutingRule> Rules { get; set; } = new List<RoutingRule>();
 }
 

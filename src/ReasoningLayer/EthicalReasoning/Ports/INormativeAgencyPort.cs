@@ -8,15 +8,15 @@ public class ReasoningStep
     /// <summary>
     /// A description of the reasoning step or premise.
     /// </summary>
-    public string Premise { get; set; }
+    public string Premise { get; set; } = string.Empty;
     /// <summary>
     /// The conclusion drawn from this step.
     /// </summary>
-    public string Conclusion { get; set; }
+    public string Conclusion { get; set; } = string.Empty;
     /// <summary>
     /// The type of inference used (e.g., "Deductive", "Inductive", "Abductive").
     /// </summary>
-    public string InferenceType { get; set; }
+    public string InferenceType { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -28,11 +28,11 @@ public class NormativeActionValidationRequest
     /// <summary>
     /// A unique identifier for the agent proposing the action.
     /// </summary>
-    public string AgentId { get; set; }
+    public string AgentId { get; set; } = string.Empty;
     /// <summary>
     /// A description of the action the agent intends to perform.
     /// </summary>
-    public string ProposedAction { get; set; }
+    public string ProposedAction { get; set; } = string.Empty;
     /// <summary>
     /// The explicit reasons or justifications provided by the agent for the proposed action.
     /// </summary>
@@ -93,7 +93,7 @@ public class ConsentIntegrityAssessmentRequest
     /// <summary>
     /// The text of the prompt presented to the user.
     /// </summary>
-    public string PromptText { get; set; }
+    public string PromptText { get; set; } = string.Empty;
     /// <summary>
     /// The options that were presented to the user.
     /// </summary>
@@ -101,7 +101,7 @@ public class ConsentIntegrityAssessmentRequest
     /// <summary>
     /// The user's selected option.
     /// </summary>
-    public string UserSelection { get; set; }
+    public string UserSelection { get; set; } = string.Empty;
     /// <summary>
     /// The cultural context (e.g., Hofstede dimensions) of the user, which influences the interpretation of consent.
     /// </summary>

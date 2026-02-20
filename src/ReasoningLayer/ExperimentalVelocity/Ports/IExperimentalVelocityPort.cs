@@ -8,9 +8,9 @@ namespace CognitiveMesh.ReasoningLayer.ExperimentalVelocity.Ports;
 /// </summary>
 public class ProvenanceContext
 {
-    public string TenantId { get; set; }
-    public string ActorId { get; set; }
-    public string ConsentId { get; set; } // ID of the consent record for this action
+    public string TenantId { get; set; } = string.Empty;
+    public string ActorId { get; set; } = string.Empty;
+    public string ConsentId { get; set; } = string.Empty; // ID of the consent record for this action
     public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
 }
 
@@ -21,9 +21,9 @@ public class ProvenanceContext
 /// </summary>
 public class VelocityRecalibrationRequest
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string ProjectId { get; set; }
-    public string ProjectDescription { get; set; }
+    public ProvenanceContext Provenance { get; set; } = default!;
+    public string ProjectId { get; set; } = string.Empty;
+    public string ProjectDescription { get; set; } = string.Empty;
     public double OriginalEffortHours { get; set; }
     public double OriginalCost { get; set; }
 }
@@ -33,14 +33,14 @@ public class VelocityRecalibrationRequest
 /// </summary>
 public class VelocityRecalibrationResponse
 {
-    public string ProjectId { get; set; }
+    public string ProjectId { get; set; } = string.Empty;
     public double OriginalEffortHours { get; set; }
     public double RecalibratedEffortHours { get; set; }
     public double OriginalCost { get; set; }
     public double RecalibratedCost { get; set; }
-    public string Explanation { get; set; }
-    public string ModelVersion { get; set; }
-    public string CorrelationId { get; set; }
+    public string Explanation { get; set; } = string.Empty;
+    public string ModelVersion { get; set; } = string.Empty;
+    public string CorrelationId { get; set; } = string.Empty;
 }
 
 // --- Innovation Theater DTOs ---
@@ -50,9 +50,9 @@ public class VelocityRecalibrationResponse
 /// </summary>
 public class TheaterDetectionRequest
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string ProjectId { get; set; }
-    public Dictionary<string, object> ProjectMetadata { get; set; } // e.g., meeting_count, decision_velocity, stakeholder_alignment_score
+    public ProvenanceContext Provenance { get; set; } = default!;
+    public string ProjectId { get; set; } = string.Empty;
+    public Dictionary<string, object> ProjectMetadata { get; set; } = new(); // e.g., meeting_count, decision_velocity, stakeholder_alignment_score
 }
 
 /// <summary>
@@ -60,12 +60,12 @@ public class TheaterDetectionRequest
 /// </summary>
 public class TheaterDetectionResponse
 {
-    public string ProjectId { get; set; }
+    public string ProjectId { get; set; } = string.Empty;
     public double TheaterRiskScore { get; set; } // A score from 0.0 (no risk) to 1.0 (high risk)
-    public string RiskLevel { get; set; } // "Low", "Medium", "High"
+    public string RiskLevel { get; set; } = string.Empty; // "Low", "Medium", "High"
     public List<string> ContributingFactors { get; set; } = new List<string>();
-    public string ModelVersion { get; set; }
-    public string CorrelationId { get; set; }
+    public string ModelVersion { get; set; } = string.Empty;
+    public string CorrelationId { get; set; } = string.Empty;
 }
 
 // --- Competitive Reality Check DTOs ---
@@ -75,10 +75,10 @@ public class TheaterDetectionResponse
 /// </summary>
 public class CompetitiveRealityCheckRequest
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string ProjectId { get; set; }
-    public string IndustrySector { get; set; }
-    public Dictionary<string, double> CurrentProjectMetrics { get; set; } // e.g., time_to_market, feature_velocity
+    public ProvenanceContext Provenance { get; set; } = default!;
+    public string ProjectId { get; set; } = string.Empty;
+    public string IndustrySector { get; set; } = string.Empty;
+    public Dictionary<string, double> CurrentProjectMetrics { get; set; } = new(); // e.g., time_to_market, feature_velocity
 }
 
 /// <summary>
@@ -86,12 +86,12 @@ public class CompetitiveRealityCheckRequest
 /// </summary>
 public class CompetitiveRealityCheckResponse
 {
-    public string ProjectId { get; set; }
+    public string ProjectId { get; set; } = string.Empty;
     public bool IsAtCompetitiveRisk { get; set; }
-    public string RiskSummary { get; set; }
+    public string RiskSummary { get; set; } = string.Empty;
     public Dictionary<string, double> GapAnalysis { get; set; } = new Dictionary<string, double>(); // Key: metric, Value: gap percentage
-    public string ModelVersion { get; set; }
-    public string CorrelationId { get; set; }
+    public string ModelVersion { get; set; } = string.Empty;
+    public string CorrelationId { get; set; } = string.Empty;
 }
 
 

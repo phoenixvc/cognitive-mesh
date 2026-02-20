@@ -84,7 +84,7 @@ public class ContextualAdaptiveAgencyEngine : IAgencyRouterPort
             decision.PolicyVersionApplied = policy?.PolicyVersion ?? "N/A";
 
             // Evaluate policy rules to determine the autonomy level.
-            var chosenLevel = EvaluatePolicy(context, policy);
+            var chosenLevel = EvaluatePolicy(context, policy!);
             decision.ChosenAutonomyLevel = chosenLevel;
             decision.Justification = $"Autonomy level set to '{chosenLevel}' based on policy '{decision.PolicyVersionApplied}'.";
 
@@ -145,7 +145,7 @@ public class ContextualAdaptiveAgencyEngine : IAgencyRouterPort
             _policyCache[tenantId] = policy;
         }
 
-        return policy;
+        return policy ?? new PolicyConfiguration { TenantId = tenantId, PolicyVersion = "default" };
     }
 
     /// <inheritdoc />

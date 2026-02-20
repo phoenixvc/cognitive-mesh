@@ -12,7 +12,7 @@ namespace CognitiveMesh.ReasoningLayer.ChampionDiscovery;
 /// </summary>
 public class ChampionDataSnapshot
 {
-    public string UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
     public int InteractionCount { get; set; }
     public int EndorsementCount { get; set; }
     public DateTimeOffset LastActivityDate { get; set; }

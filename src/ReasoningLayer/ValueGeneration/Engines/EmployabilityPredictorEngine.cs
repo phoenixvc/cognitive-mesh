@@ -6,12 +6,12 @@ namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Engines;
 // Data required for Employability check
 public class EmployabilityData
 {
-    public List<string> UserSkills { get; set; }
-    public List<string> MarketTrendingSkills { get; set; }
+    public List<string> UserSkills { get; set; } = new();
+    public List<string> MarketTrendingSkills { get; set; } = new();
     public double UserCreativeOutputScore { get; set; }
     public int ProjectsCompleted { get; set; }
     public double CollaborationScore { get; set; }
-    public Dictionary<string, double> SkillRelevanceScores { get; set; }
+    public Dictionary<string, double> SkillRelevanceScores { get; set; } = new();
 }
 
 public interface IEmployabilityDataRepository

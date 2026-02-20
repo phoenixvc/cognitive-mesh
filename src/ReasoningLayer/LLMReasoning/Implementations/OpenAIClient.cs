@@ -74,11 +74,11 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             try
             {
                 _logger?.LogInformation("Initializing Azure OpenAI client for model {ModelName}", _modelName);
-                
+
                 var credential = new AzureKeyCredential(_apiKey);
                 var options = new OpenAIClientOptions();
                 _client = new AzureOpenAIClient(new Uri(_endpoint), credential, options);
-                
+
                 _logger?.LogInformation("Successfully initialized Azure OpenAI client");
             }
             catch (Exception ex)
@@ -86,6 +86,8 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
                 _logger?.LogError(ex, "Failed to initialize Azure OpenAI client");
                 throw new InvalidOperationException("Failed to initialize Azure OpenAI client", ex);
             }
+
+            await Task.CompletedTask;
         }
 
         /// <inheritdoc/>
@@ -128,9 +130,9 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
                 }
 
                 var response = await _client!.GetCompletionsAsync(options, cancellationToken);
-                var completion = response.Value.Choices[0].Text.Trim();
+                var completion = response.Value.Choices[0].Text?.Trim() ?? string.Empty;
 
-                _logger?.LogDebug("Successfully generated completion with {Length} characters", completion?.Length ?? 0);
+                _logger?.LogDebug("Successfully generated completion with {Length} characters", completion.Length);
                 return completion;
             }
             catch (RequestFailedException ex)
@@ -165,20 +167,19 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             {
                 _logger?.LogDebug("Generating chat completion with {Count} messages", messages.Count());
                 
-                var chatMessages = messages.Select(m => new ChatRequestMessage(
-                    m.Role.ToLower() switch
-                    {
-                        "system" => ChatRole.System,
-                        "assistant" => ChatRole.Assistant,
-                        _ => ChatRole.User
-                    },
-                    m.Content
-                )).ToList();
-
-                var options = new ChatCompletionsOptions
+                var chatMessages = messages.Select(m =>
                 {
-                    DeploymentName = _deploymentName,
-                    Messages = { chatMessages },
+                    ChatRequestMessage msg = m.Role.ToLower() switch
+                    {
+                        "system" => new ChatRequestSystemMessage(m.Content),
+                        "assistant" => new ChatRequestAssistantMessage(m.Content),
+                        _ => new ChatRequestUserMessage(m.Content)
+                    };
+                    return msg;
+                }).ToList();
+
+                var options = new ChatCompletionsOptions(_deploymentName, chatMessages)
+                {
                     MaxTokens = maxTokens,
                     Temperature = temperature,
                     NucleusSamplingFactor = 0.95f,
@@ -186,10 +187,10 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
                     PresencePenalty = 0,
                 };
 
-                var response = await _client.GetChatCompletionsAsync(options, cancellationToken);
-                var completion = response.Value.Choices[0].Message.Content.Trim();
-                
-                _logger?.LogDebug("Successfully generated chat completion with {Length} characters", completion?.Length ?? 0);
+                var response = await _client!.GetChatCompletionsAsync(options, cancellationToken);
+                var completion = response.Value.Choices[0].Message?.Content?.Trim() ?? string.Empty;
+
+                _logger?.LogDebug("Successfully generated chat completion with {Length} characters", completion.Length);
                 return completion;
             }
             catch (RequestFailedException ex)
@@ -213,7 +214,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
                 throw new ArgumentException("Text cannot be null or whitespace.", nameof(text));
 
             var results = await GetBatchEmbeddingsAsync(new[] { text }, cancellationToken);
-            return results.FirstOrDefault();
+            return results.FirstOrDefault() ?? [];
         }
 
         /// <inheritdoc/>
@@ -233,11 +234,12 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
                 _logger?.LogDebug("Getting embeddings for {Count} texts", texts.Count());
                 
                 var options = new EmbeddingsOptions(_deploymentName, texts);
-                var response = await _client.GetEmbeddingsAsync(options, cancellationToken);
-                
-                var embeddings = response.Value.Data
-                    .Select(d => d.Embedding.ToArray())
-                    .ToArray();
+                var response = await _client!.GetEmbeddingsAsync(options, cancellationToken);
+
+                var data = response.Value?.Data;
+                var embeddings = data != null
+                    ? data.Select(d => d.Embedding.ToArray()).ToArray()
+                    : [];
                 
                 _logger?.LogDebug("Successfully retrieved {Count} embeddings", embeddings.Length);
                 return embeddings;
@@ -306,7 +308,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             {
                 if (disposing)
                 {
-                    _client?.Dispose();
+                    if (_client is IDisposable disposable) disposable.Dispose();
                 }
                 _disposed = true;
             }

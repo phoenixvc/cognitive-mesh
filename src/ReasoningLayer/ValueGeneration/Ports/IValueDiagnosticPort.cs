@@ -8,9 +8,9 @@ namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 /// </summary>
 public class ProvenanceContext
 {
-    public string TenantId { get; set; }
-    public string ActorId { get; set; }
-    public string ConsentId { get; set; } // ID of the consent record for this action
+    public string TenantId { get; set; } = string.Empty;
+    public string ActorId { get; set; } = string.Empty;
+    public string ConsentId { get; set; } = string.Empty; // ID of the consent record for this action
     public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
 }
 
@@ -19,9 +19,9 @@ public class ProvenanceContext
 /// </summary>
 public class ValueDiagnosticRequest
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string TargetId { get; set; } // Can be a UserId or TeamId
-    public string TargetType { get; set; } // "User" or "Team"
+    public ProvenanceContext Provenance { get; set; } = default!;
+    public string TargetId { get; set; } = string.Empty; // Can be a UserId or TeamId
+    public string TargetType { get; set; } = string.Empty; // "User" or "Team"
 }
 
 /// <summary>
@@ -29,13 +29,13 @@ public class ValueDiagnosticRequest
 /// </summary>
 public class ValueDiagnosticResponse
 {
-    public string TargetId { get; set; }
+    public string TargetId { get; set; } = string.Empty;
     public double ValueScore { get; set; } // e.g., the "$200 Test" score
-    public string ValueProfile { get; set; } // e.g., "Innovator", "Stabilizer", "Connector"
+    public string ValueProfile { get; set; } = string.Empty; // e.g., "Innovator", "Stabilizer", "Connector"
     public List<string> Strengths { get; set; } = new();
     public List<string> DevelopmentOpportunities { get; set; } = new();
-    public string ModelVersion { get; set; }
-    public string CorrelationId { get; set; }
+    public string ModelVersion { get; set; } = string.Empty;
+    public string CorrelationId { get; set; } = string.Empty;
 }
 
 // --- Port Interface ---

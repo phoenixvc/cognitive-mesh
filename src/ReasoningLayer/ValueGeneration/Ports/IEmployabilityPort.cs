@@ -8,8 +8,8 @@ namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 /// </summary>
 public class EmployabilityCheckRequest
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string UserId { get; set; }
+    public ProvenanceContext Provenance { get; set; } = default!;
+    public string UserId { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -17,13 +17,13 @@ public class EmployabilityCheckRequest
 /// </summary>
 public class EmployabilityCheckResponse
 {
-    public string UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
     public double EmployabilityRiskScore { get; set; } // Score from 0.0 (low risk) to 1.0 (high risk)
-    public string RiskLevel { get; set; } // "Low", "Medium", "High"
+    public string RiskLevel { get; set; } = string.Empty; // "Low", "Medium", "High"
     public List<string> RiskFactors { get; set; } = new(); // e.g., "Skills mismatch with market trends", "Low creative output"
     public List<string> RecommendedActions { get; set; } = new(); // e.g., "Explore training for 'AI Prompt Engineering'", "Engage in more cross-functional projects"
-    public string ModelVersion { get; set; }
-    public string CorrelationId { get; set; }
+    public string ModelVersion { get; set; } = string.Empty;
+    public string CorrelationId { get; set; } = string.Empty;
 }
 
 // --- Port Interface ---

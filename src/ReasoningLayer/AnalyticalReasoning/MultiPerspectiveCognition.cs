@@ -77,8 +77,8 @@ public class MultiPerspectiveCognition
             
             var content = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<PerspectiveResult>(content);
-            
-            return result;
+
+            return result ?? new PerspectiveResult { Perspective = perspective, Analysis = string.Empty, Confidence = 0.0 };
         }
         else
         {
@@ -185,9 +185,9 @@ public class MultiPerspectiveCognition
 public class PerspectiveResult
 {
     /// <summary>Gets or sets the perspective name.</summary>
-    public string Perspective { get; set; }
+    public string Perspective { get; set; } = string.Empty;
     /// <summary>Gets or sets the analysis output for this perspective.</summary>
-    public string Analysis { get; set; }
+    public string Analysis { get; set; } = string.Empty;
     /// <summary>Gets or sets the confidence score (0-1) for this perspective.</summary>
     public double Confidence { get; set; }
 }
@@ -198,9 +198,9 @@ public class PerspectiveResult
 public class MultiPerspectiveAnalysis
 {
     /// <summary>Gets or sets the original query that was analyzed.</summary>
-    public string Query { get; set; }
+    public string Query { get; set; } = string.Empty;
     /// <summary>Gets or sets the results from each perspective.</summary>
-    public List<PerspectiveResult> PerspectiveResults { get; set; }
+    public List<PerspectiveResult> PerspectiveResults { get; set; } = new();
     /// <summary>Gets or sets the synthesized analysis from all perspectives.</summary>
-    public string Synthesis { get; set; }
+    public string Synthesis { get; set; } = string.Empty;
 }

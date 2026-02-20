@@ -6,10 +6,10 @@ namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Engines;
 // Data required for Org Blindness detection
 public class OrgDataSnapshot
 {
-    public Dictionary<string, double> PerceivedValueScores { get; set; } // e.g., from surveys
-    public Dictionary<string, double> ActualImpactScores { get; set; } // e.g., from project outcomes
-    public Dictionary<string, double> ResourceAllocation { get; set; } // e.g., budget, headcount
-    public Dictionary<string, double> RecognitionMetrics { get; set; } // e.g., awards, promotions
+    public Dictionary<string, double> PerceivedValueScores { get; set; } = new(); // e.g., from surveys
+    public Dictionary<string, double> ActualImpactScores { get; set; } = new(); // e.g., from project outcomes
+    public Dictionary<string, double> ResourceAllocation { get; set; } = new(); // e.g., budget, headcount
+    public Dictionary<string, double> RecognitionMetrics { get; set; } = new(); // e.g., awards, promotions
 }
 
 public interface IOrganizationalDataRepository
