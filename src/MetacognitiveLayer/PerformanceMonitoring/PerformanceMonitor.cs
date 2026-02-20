@@ -7,6 +7,7 @@ namespace MetacognitiveLayer.PerformanceMonitoring
     {
         private readonly IMetricsStore _metricsStore;
         private readonly Dictionary<string, MetricAggregator> _aggregators;
+        private readonly Dictionary<string, MetricThreshold> _thresholds;
         private bool _disposed = false;
 
         /// <summary>
@@ -17,6 +18,36 @@ namespace MetacognitiveLayer.PerformanceMonitoring
         {
             _metricsStore = metricsStore ?? throw new ArgumentNullException(nameof(metricsStore));
             _aggregators = new Dictionary<string, MetricAggregator>();
+            _thresholds = new Dictionary<string, MetricThreshold>();
+        }
+
+        /// <summary>
+        /// Registers a threshold for a metric. When the metric violates this threshold,
+        /// <see cref="CheckThresholdsAsync"/> will report a violation.
+        /// </summary>
+        /// <param name="metricName">The name of the metric to monitor.</param>
+        /// <param name="threshold">The threshold configuration.</param>
+        public void RegisterThreshold(string metricName, MetricThreshold threshold)
+        {
+            if (string.IsNullOrWhiteSpace(metricName))
+                throw new ArgumentException("Metric name cannot be null or whitespace.", nameof(metricName));
+            if (threshold == null)
+                throw new ArgumentNullException(nameof(threshold));
+
+            _thresholds[metricName] = threshold;
+        }
+
+        /// <summary>
+        /// Removes a previously registered threshold.
+        /// </summary>
+        /// <param name="metricName">The name of the metric whose threshold should be removed.</param>
+        /// <returns>True if the threshold was removed; false if it was not found.</returns>
+        public bool RemoveThreshold(string metricName)
+        {
+            if (string.IsNullOrWhiteSpace(metricName))
+                return false;
+
+            return _thresholds.Remove(metricName);
         }
 
         /// <summary>
@@ -105,14 +136,69 @@ namespace MetacognitiveLayer.PerformanceMonitoring
 
         /// <summary>
         /// Checks if any metrics have exceeded their defined thresholds.
+        /// Compares each registered threshold against the current aggregated metric values
+        /// and returns any violations found.
         /// </summary>
         /// <returns>A collection of threshold violations, if any.</returns>
-        public async Task<IEnumerable<ThresholdViolation>> CheckThresholdsAsync()
+        public Task<IEnumerable<ThresholdViolation>> CheckThresholdsAsync()
         {
-            // TODO: Implement threshold checking logic
-            // This would check configured thresholds against current metric values
-            // and return any violations
-            return Array.Empty<ThresholdViolation>();
+            if (_thresholds.Count == 0)
+            {
+                return Task.FromResult<IEnumerable<ThresholdViolation>>(Array.Empty<ThresholdViolation>());
+            }
+
+            var violations = new List<ThresholdViolation>();
+            var now = DateTime.UtcNow;
+
+            foreach (var (metricName, threshold) in _thresholds)
+            {
+                if (!_aggregators.TryGetValue(metricName, out var aggregator))
+                {
+                    continue;
+                }
+
+                var window = threshold.EvaluationWindow ?? TimeSpan.FromMinutes(5);
+                var stats = aggregator.GetStats(window);
+                if (stats == null || stats.Count == 0)
+                {
+                    continue;
+                }
+
+                // Determine which aggregated value to evaluate based on the threshold's aggregation mode
+                double currentValue = threshold.AggregationMode switch
+                {
+                    ThresholdAggregation.Average => stats.Average,
+                    ThresholdAggregation.Min => stats.Min,
+                    ThresholdAggregation.Max => stats.Max,
+                    ThresholdAggregation.Sum => stats.Sum,
+                    _ => stats.Average
+                };
+
+                bool violated = threshold.Condition switch
+                {
+                    ThresholdCondition.GreaterThan => currentValue > threshold.Value,
+                    ThresholdCondition.GreaterThanOrEqual => currentValue >= threshold.Value,
+                    ThresholdCondition.LessThan => currentValue < threshold.Value,
+                    ThresholdCondition.LessThanOrEqual => currentValue <= threshold.Value,
+                    ThresholdCondition.Equal => Math.Abs(currentValue - threshold.Value) < 1e-9,
+                    ThresholdCondition.NotEqual => Math.Abs(currentValue - threshold.Value) >= 1e-9,
+                    _ => false
+                };
+
+                if (violated)
+                {
+                    violations.Add(new ThresholdViolation
+                    {
+                        MetricName = metricName,
+                        Value = currentValue,
+                        Threshold = threshold.Value,
+                        Condition = threshold.Condition.ToString(),
+                        Timestamp = now
+                    });
+                }
+            }
+
+            return Task.FromResult<IEnumerable<ThresholdViolation>>(violations);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -198,6 +284,85 @@ namespace MetacognitiveLayer.PerformanceMonitoring
         public string Condition { get; set; }
         /// <summary>Gets or sets the timestamp of the violation.</summary>
         public DateTime Timestamp { get; set; }
+    }
+
+    /// <summary>
+    /// Defines a threshold configuration for a metric that determines
+    /// when a <see cref="ThresholdViolation"/> should be raised.
+    /// </summary>
+    public class MetricThreshold
+    {
+        /// <summary>Gets or sets the threshold value to compare against.</summary>
+        public double Value { get; set; }
+
+        /// <summary>Gets or sets the comparison condition for this threshold.</summary>
+        public ThresholdCondition Condition { get; set; } = ThresholdCondition.GreaterThan;
+
+        /// <summary>Gets or sets the aggregation mode used to derive the current value from the metric window.</summary>
+        public ThresholdAggregation AggregationMode { get; set; } = ThresholdAggregation.Average;
+
+        /// <summary>Gets or sets the time window over which to evaluate the metric. Defaults to 5 minutes if null.</summary>
+        public TimeSpan? EvaluationWindow { get; set; }
+    }
+
+    /// <summary>
+    /// Specifies the comparison condition for a metric threshold check.
+    /// </summary>
+    public enum ThresholdCondition
+    {
+        /// <summary>Metric value exceeds the threshold.</summary>
+        GreaterThan,
+        /// <summary>Metric value is at or above the threshold.</summary>
+        GreaterThanOrEqual,
+        /// <summary>Metric value is below the threshold.</summary>
+        LessThan,
+        /// <summary>Metric value is at or below the threshold.</summary>
+        LessThanOrEqual,
+        /// <summary>Metric value equals the threshold.</summary>
+        Equal,
+        /// <summary>Metric value does not equal the threshold.</summary>
+        NotEqual
+    }
+
+    /// <summary>
+    /// Specifies how metric values are aggregated before comparison against a threshold.
+    /// </summary>
+    public enum ThresholdAggregation
+    {
+        /// <summary>Use the average of metric values in the window.</summary>
+        Average,
+        /// <summary>Use the minimum value in the window.</summary>
+        Min,
+        /// <summary>Use the maximum value in the window.</summary>
+        Max,
+        /// <summary>Use the sum of values in the window.</summary>
+        Sum
+    }
+
+    /// <summary>
+    /// Defines the contract for a persistent metric storage backend.
+    /// </summary>
+    public interface IMetricsStore
+    {
+        /// <summary>
+        /// Stores a single metric data point.
+        /// </summary>
+        /// <param name="metric">The metric to store.</param>
+        void StoreMetric(Metric metric);
+
+        /// <summary>
+        /// Queries metrics matching the specified criteria.
+        /// </summary>
+        /// <param name="name">The metric name to query.</param>
+        /// <param name="since">The start of the query window.</param>
+        /// <param name="until">The end of the query window. If null, uses current time.</param>
+        /// <param name="tags">Optional tags to filter by.</param>
+        /// <returns>A collection of matching metrics.</returns>
+        Task<IEnumerable<Metric>> QueryMetricsAsync(
+            string name,
+            DateTime since,
+            DateTime? until = null,
+            IDictionary<string, string>? tags = null);
     }
 
     /// <summary>

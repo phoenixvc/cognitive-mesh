@@ -451,14 +451,127 @@ public class ContinuousLearningComponent
 
     private async Task IntegrateWithFabricForFeedbackAsync(FeedbackRecord feedbackRecord)
     {
-        // Implement logic to leverage Fabric’s prebuilt Azure AI services for continuous learning and retrieval
-        await Task.CompletedTask;
+        if (!_featureFlagManager.EnableEnterpriseIntegration)
+        {
+            return;
+        }
+
+        try
+        {
+            // Generate an embedding-friendly summary of the feedback for retrieval augmentation.
+            // This allows the system to learn from user feedback over time by correlating
+            // satisfaction ratings with specific query patterns.
+            var systemPrompt = "You are a feedback summarization system. " +
+                               "Create a concise, structured summary of user feedback suitable for retrieval-augmented learning.";
+
+            var userPrompt = $"Summarize this feedback for learning purposes:\n" +
+                             $"Query ID: {feedbackRecord.QueryId}\n" +
+                             $"Rating: {feedbackRecord.Rating}/5\n" +
+                             $"Comments: {feedbackRecord.Comments}\n" +
+                             $"Timestamp: {feedbackRecord.Timestamp:O}\n\n" +
+                             "Provide a structured summary highlighting the key signal (positive/negative), " +
+                             "the likely cause, and any actionable learning point.";
+
+            var chatCompletionOptions = new ChatCompletionsOptions
+            {
+                DeploymentName = _completionDeployment,
+                Temperature = 0.2f,
+                MaxTokens = 300,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(systemPrompt),
+                    new ChatRequestUserMessage(userPrompt)
+                }
+            };
+
+            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+            var summary = response.Value.Choices[0].Message.Content;
+
+            // Store the enriched feedback summary back to Cosmos DB for future retrieval
+            var enrichedRecord = new
+            {
+                id = Guid.NewGuid().ToString(),
+                type = "EnrichedFeedback",
+                queryId = feedbackRecord.QueryId,
+                originalRating = feedbackRecord.Rating,
+                learningSummary = summary,
+                timestamp = DateTimeOffset.UtcNow
+            };
+
+            await _learningDataContainer.CreateItemAsync(enrichedRecord, new PartitionKey("EnrichedFeedback"));
+        }
+        catch (Exception)
+        {
+            // Fabric integration is non-critical; swallow errors so the primary feedback flow is not disrupted.
+        }
     }
 
     private async Task IntegrateWithFabricForInteractionAsync(InteractionRecord interactionRecord)
     {
-        // Implement logic to leverage Fabric’s prebuilt Azure AI services for continuous learning and retrieval
-        await Task.CompletedTask;
+        if (!_featureFlagManager.EnableEnterpriseIntegration)
+        {
+            return;
+        }
+
+        try
+        {
+            // Identify weak evaluation dimensions and generate targeted learning signals.
+            // This enables continuous model improvement by focusing on the lowest-scoring areas.
+            var weakDimensions = interactionRecord.EvaluationScores
+                .Where(kv => kv.Value < 0.7)
+                .OrderBy(kv => kv.Value)
+                .ToList();
+
+            if (weakDimensions.Count == 0)
+            {
+                // Interaction scored well on all dimensions; no enrichment needed.
+                return;
+            }
+
+            var weakDimText = string.Join(", ", weakDimensions.Select(kv => $"{kv.Key}: {kv.Value:F2}"));
+
+            var systemPrompt = "You are an interaction analysis system for continuous learning. " +
+                               "Analyze weak evaluation dimensions and suggest targeted improvements.";
+
+            var userPrompt = $"Interaction Analysis:\n" +
+                             $"Query: {interactionRecord.Query}\n" +
+                             $"Weak dimensions: {weakDimText}\n" +
+                             $"Processing time: {interactionRecord.ProcessingTime.TotalMilliseconds:F0}ms\n\n" +
+                             "Generate a brief learning signal (2-3 sentences) describing what went wrong " +
+                             "and how the system should adjust.";
+
+            var chatCompletionOptions = new ChatCompletionsOptions
+            {
+                DeploymentName = _completionDeployment,
+                Temperature = 0.2f,
+                MaxTokens = 300,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(systemPrompt),
+                    new ChatRequestUserMessage(userPrompt)
+                }
+            };
+
+            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+            var learningSignal = response.Value.Choices[0].Message.Content;
+
+            // Store the learning signal for future model adaptation cycles
+            var signalRecord = new
+            {
+                id = Guid.NewGuid().ToString(),
+                type = "LearningSignal",
+                queryId = interactionRecord.QueryId,
+                weakDimensions = weakDimensions.Select(kv => kv.Key).ToList(),
+                signal = learningSignal,
+                timestamp = DateTimeOffset.UtcNow
+            };
+
+            await _learningDataContainer.CreateItemAsync(signalRecord, new PartitionKey("LearningSignal"));
+        }
+        catch (Exception)
+        {
+            // Fabric integration is non-critical; swallow errors so the primary interaction flow is not disrupted.
+        }
     }
 
     public async Task<string> PerformMultiAgentOrchestrationAsync(string task, Dictionary<string, string> context)

@@ -71,7 +71,9 @@ namespace MetacognitiveLayer.Protocols.Common
         }
 
         /// <summary>
-        /// Updates a session with new context information.
+        /// Updates a session with new context information. If the session exists in the store,
+        /// it is replaced with the provided instance. If the session does not exist or has expired,
+        /// it is re-added to the store.
         /// </summary>
         public Task UpdateSessionAsync(SessionContext session)
         {
@@ -79,10 +81,25 @@ namespace MetacognitiveLayer.Protocols.Common
             {
                 throw new ArgumentNullException(nameof(session));
             }
-            
+
+            if (string.IsNullOrEmpty(session.SessionId))
+            {
+                throw new InvalidOperationException("Cannot update a session without a valid SessionId.");
+            }
+
             _logger.LogDebug("Updating session: {SessionId}", session.SessionId);
             session.UpdateLastAccessTime();
-            
+
+            // Persist the (potentially modified) session back into the concurrent store.
+            // AddOrUpdate ensures atomicity: if the session already exists it is replaced,
+            // and if it was removed (e.g., by cleanup) it is re-added.
+            _sessions.AddOrUpdate(
+                session.SessionId,
+                session,
+                (_, _) => session);
+
+            _logger.LogInformation("Session updated successfully: {SessionId}", session.SessionId);
+
             return Task.CompletedTask;
         }
 

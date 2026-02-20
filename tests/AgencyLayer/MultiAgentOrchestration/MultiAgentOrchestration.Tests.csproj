@@ -18,9 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\AgencyLayer\DecisionExecution\DecisionExecution.csproj" />
-    <ProjectReference Include="..\..\..\src\ReasoningLayer\ReasoningLayer.csproj" />
-    <ProjectReference Include="..\..\..\src\Shared\CognitiveMesh.Shared.csproj" />
+    <ProjectReference Include="..\..\..\src\AgencyLayer\MultiAgentOrchestration\MultiAgentOrchestration.csproj" />
   </ItemGroup>
 
 </Project>

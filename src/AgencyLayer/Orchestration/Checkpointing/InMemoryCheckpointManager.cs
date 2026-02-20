@@ -82,8 +82,28 @@ public class InMemoryCheckpointManager : ICheckpointManager
 
     public Task PurgeWorkflowCheckpointsAsync(string workflowId, CancellationToken cancellationToken = default)
     {
-        _checkpoints.TryRemove(workflowId, out _);
-        _logger.LogInformation("Purged all checkpoints for workflow {WorkflowId}", workflowId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(workflowId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (_checkpoints.TryRemove(workflowId, out var removed))
+        {
+            int count;
+            lock (removed)
+            {
+                count = removed.Count;
+                removed.Clear();
+            }
+
+            _logger.LogInformation(
+                "Purged {CheckpointCount} checkpoints for workflow {WorkflowId}",
+                count, workflowId);
+        }
+        else
+        {
+            _logger.LogDebug(
+                "No checkpoints found to purge for workflow {WorkflowId}", workflowId);
+        }
+
         return Task.CompletedTask;
     }
 

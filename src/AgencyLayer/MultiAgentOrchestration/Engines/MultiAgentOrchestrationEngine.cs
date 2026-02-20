@@ -152,21 +152,56 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     }
 
     /// <inheritdoc />
-    public Task SetAgentAutonomyAsync(string agentIdOrType, AutonomyLevel level, string tenantId)
+    public async Task SetAgentAutonomyAsync(string agentIdOrType, AutonomyLevel level, string tenantId)
     {
-        // In a real system, this would also persist to the knowledge repository.
+        ArgumentException.ThrowIfNullOrWhiteSpace(agentIdOrType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
+
+        var previousLevel = _autonomySettings.TryGetValue(agentIdOrType, out var existing) ? existing : (AutonomyLevel?)null;
         _autonomySettings[agentIdOrType] = level;
-        _logger.LogInformation("Set autonomy for '{AgentIdOrType}' to {Level} for Tenant '{TenantId}'.", agentIdOrType, level, tenantId);
-        return Task.CompletedTask;
+
+        // Persist the autonomy change as a learning insight for audit and replay
+        await _knowledgeRepository.StoreLearningInsightAsync(new AgentLearningInsight
+        {
+            GeneratingAgentType = "Orchestrator",
+            InsightType = "AutonomyChange",
+            InsightData = new { AgentIdOrType = agentIdOrType, PreviousLevel = previousLevel?.ToString(), NewLevel = level.ToString(), TenantId = tenantId },
+            ConfidenceScore = 1.0
+        });
+
+        _logger.LogInformation(
+            "Set autonomy for '{AgentIdOrType}' from {PreviousLevel} to {Level} for Tenant '{TenantId}'.",
+            agentIdOrType, previousLevel?.ToString() ?? "unset", level, tenantId);
     }
 
     /// <inheritdoc />
-    public Task ConfigureAgentAuthorityAsync(string agentIdOrType, AuthorityScope scope, string tenantId)
+    public async Task ConfigureAgentAuthorityAsync(string agentIdOrType, AuthorityScope scope, string tenantId)
     {
-        // In a real system, this would also persist to the knowledge repository.
+        ArgumentException.ThrowIfNullOrWhiteSpace(agentIdOrType);
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
+
         _authoritySettings[agentIdOrType] = scope;
-        _logger.LogInformation("Configured authority for '{AgentIdOrType}' for Tenant '{TenantId}'.", agentIdOrType, tenantId);
-        return Task.CompletedTask;
+
+        // Persist the authority configuration change for audit and replay
+        await _knowledgeRepository.StoreLearningInsightAsync(new AgentLearningInsight
+        {
+            GeneratingAgentType = "Orchestrator",
+            InsightType = "AuthorityChange",
+            InsightData = new
+            {
+                AgentIdOrType = agentIdOrType,
+                AllowedEndpoints = scope.AllowedApiEndpoints,
+                MaxBudget = scope.MaxBudget,
+                MaxResource = scope.MaxResourceConsumption,
+                TenantId = tenantId
+            },
+            ConfidenceScore = 1.0
+        });
+
+        _logger.LogInformation(
+            "Configured authority for '{AgentIdOrType}' with {EndpointCount} allowed endpoints for Tenant '{TenantId}'.",
+            agentIdOrType, scope.AllowedApiEndpoints.Count, tenantId);
     }
 
     /// <inheritdoc />
@@ -191,6 +226,59 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     {
         _activeTasks.TryGetValue(taskId, out var task);
         return Task.FromResult(task); // Returns null if not found
+    }
+
+    /// <inheritdoc />
+    public Task<AgentDefinition> GetAgentByIdAsync(Guid agentId)
+    {
+        var definition = _agentDefinitions.Values.FirstOrDefault(d => d.AgentId == agentId);
+        if (definition == null)
+        {
+            _logger.LogWarning("Agent definition not found for ID: {AgentId}", agentId);
+        }
+        return Task.FromResult(definition)!;
+    }
+
+    /// <inheritdoc />
+    public Task<IEnumerable<AgentDefinition>> ListAgentsAsync(bool includeRetired = false)
+    {
+        IEnumerable<AgentDefinition> agents = includeRetired
+            ? _agentDefinitions.Values
+            : _agentDefinitions.Values.Where(d => d.Status != AgentStatus.Retired);
+
+        _logger.LogDebug("Listing agents (includeRetired={IncludeRetired}): {Count} found", includeRetired, agents.Count());
+        return Task.FromResult(agents);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateAgentAsync(AgentDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition.AgentType);
+
+        if (!_agentDefinitions.TryGetValue(definition.AgentType, out var existing))
+        {
+            throw new InvalidOperationException($"Agent type '{definition.AgentType}' is not registered. Use RegisterAgentAsync to add new agents.");
+        }
+
+        _agentDefinitions[definition.AgentType] = definition;
+        await _knowledgeRepository.StoreAgentDefinitionAsync(definition);
+        _logger.LogInformation("Updated agent definition for type: {AgentType}", definition.AgentType);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> RetireAgentAsync(Guid agentId)
+    {
+        var entry = _agentDefinitions.FirstOrDefault(kvp => kvp.Value.AgentId == agentId);
+        if (entry.Value == null)
+        {
+            _logger.LogWarning("Cannot retire agent: no definition found for ID {AgentId}", agentId);
+            return Task.FromResult(false);
+        }
+
+        entry.Value.Status = AgentStatus.Retired;
+        _logger.LogInformation("Retired agent type '{AgentType}' (ID: {AgentId})", entry.Value.AgentType, agentId);
+        return Task.FromResult(true);
     }
 
 

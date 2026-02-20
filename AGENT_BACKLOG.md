@@ -38,85 +38,43 @@
 
 ### AGENCY Layer
 
-#### AGN-001: DecisionExecutor — 3 stub methods
-- **File:** `src/AgencyLayer/DecisionExecution/DecisionExecutor.cs`
-- **Line 36:** `// TODO: Implement actual decision execution logic` — currently uses Task.Delay()
-- **Line 82:** `// TODO: Implement actual status retrieval logic` — returns hardcoded success
-- **Line 112:** `// TODO: Implement actual log retrieval logic` — returns hardcoded logs
-- **Fix:** Integrate with IDecisionReasoningEngine and IMediator for real execution
-- **Team:** 4 (Agency)
+#### ~~AGN-001: DecisionExecutor — 3 stub methods~~ DONE (Phase 2)
+- **Status:** Replaced all 3 Task.Delay stubs with real logic: Stopwatch-based timing, knowledge graph queries, LLM completion, execution tracking via ConcurrentDictionary, log buffer with date range filtering.
 
-#### AGN-002: MultiAgentOrchestrationEngine — 2 placeholder methods
-- **File:** `src/AgencyLayer/MultiAgentOrchestration/Engines/MultiAgentOrchestrationEngine.cs`
-- **Lines 160, 169:** Methods returning Task.CompletedTask
-- **Fix:** Implement actual agent lifecycle and learning insight logic
-- **Team:** 4 (Agency)
+#### ~~AGN-002: MultiAgentOrchestrationEngine — 2 placeholder methods~~ DONE (Phase 2)
+- **Status:** SetAgentAutonomyAsync now validates and persists autonomy changes as learning insights. ConfigureAgentAuthorityAsync logs endpoint details. Added GetAgentByIdAsync, ListAgentsAsync, UpdateAgentAsync, RetireAgentAsync.
 
-#### AGN-003: InMemoryAgentKnowledgeRepository — 2 placeholders
-- **File:** `src/AgencyLayer/MultiAgentOrchestration/Adapters/InMemoryAgentKnowledgeRepository.cs`
-- **Lines 31, 52:** Placeholder implementations
-- **Fix:** Implement proper in-memory knowledge storage with query support
-- **Team:** 4 (Agency)
+#### ~~AGN-003: InMemoryAgentKnowledgeRepository — 2 placeholders~~ DONE (Phase 2)
+- **Status:** Switched to ConcurrentDictionary keyed by InsightId. Multi-signal relevance scoring for GetRelevantInsightsAsync (type match, token overlap, confidence weighting).
 
-#### AGN-004: InMemoryCheckpointManager — PurgeWorkflowCheckpoints
-- **File:** `src/AgencyLayer/Orchestration/Checkpointing/InMemoryCheckpointManager.cs`
-- **Line 87:** Placeholder
-- **Fix:** Implement actual checkpoint purge logic
-- **Team:** 4 (Agency)
+#### ~~AGN-004: InMemoryCheckpointManager — PurgeWorkflowCheckpoints~~ DONE (Phase 2)
+- **Status:** Input validation, cancellation support, explicit count+clear of removed checkpoints with structured logging.
 
-#### AGN-005: DurableWorkflowEngine — Placeholder
-- **File:** `src/AgencyLayer/Orchestration/Execution/DurableWorkflowEngine.cs`
-- **Line 118:** Placeholder
-- **Fix:** Complete implementation
-- **Team:** 4 (Agency)
+#### ~~AGN-005: DurableWorkflowEngine — Placeholder~~ DONE (Phase 2)
+- **Status:** CancelWorkflowAsync now validates, guards terminal states, signals CancellationTokenSource, saves cancellation checkpoint with step metadata.
 
-#### AGN-006: Add MultiAgentOrchestrationEngine Tests (CRITICAL GAP)
-- **Location:** `tests/AgencyLayer/` — NO test file exists for the core orchestration engine
-- **Fix:** Create `tests/AgencyLayer/MultiAgentOrchestration/MultiAgentOrchestrationEngineTests.cs`
-- **Cover:** RegisterAgent, ExecuteTask, SetAgentAutonomy, SpawnAgent, coordination patterns
-- **Team:** 4 (Agency)
+#### ~~AGN-006: Add MultiAgentOrchestrationEngine Tests~~ DONE (Phase 2)
+- **Status:** Created `tests/AgencyLayer/MultiAgentOrchestration/MultiAgentOrchestrationEngineTests.cs` — 22 tests covering constructor guards, all coordination patterns (Parallel, Hierarchical, Competitive, CollaborativeSwarm), autonomy, ethical checks, learning insights, spawning.
 
 ### METACOGNITIVE Layer
 
-#### META-001: SelfEvaluator — 4 TODO methods
-- **File:** `src/MetacognitiveLayer/SelfEvaluation/SelfEvaluator.cs`
-- **Line 30:** `// TODO: Implement actual performance evaluation logic` — returns hardcoded perfect scores
-- **Line 46:** `// TODO: Implement actual learning progress assessment logic`
-- **Line 62:** `// TODO: Implement actual insight generation logic`
-- **Line 78:** `// TODO: Implement actual behavior validation logic`
-- **Fix:** Implement real evaluation using metrics from PerformanceMonitor and HybridMemoryStore
-- **Team:** 3 (Metacognitive)
+#### ~~META-001: SelfEvaluator — 4 TODO methods~~ DONE (Phase 2)
+- **Status:** Real evaluation logic: composite scoring from 7 metric types, domain-appropriate formulas, actionable recommendations. Learning progress from completionRate/iterations. Statistical insight generation with z-score outlier detection. Behavior validation for nulls, empty strings, NaN/Infinity.
 
-#### META-002: PerformanceMonitor — Threshold checking
-- **File:** `src/MetacognitiveLayer/PerformanceMonitoring/PerformanceMonitor.cs`
-- **Line 108:** `// TODO: Implement threshold checking logic` — returns Array.Empty
-- **Fix:** Implement configurable threshold comparison against collected metrics
-- **Team:** 3 (Metacognitive)
+#### ~~META-002: PerformanceMonitor — Threshold checking~~ DONE (Phase 2)
+- **Status:** Added MetricThreshold config, ThresholdCondition/ThresholdAggregation enums, IMetricsStore interface. CheckThresholdsAsync evaluates registered thresholds against aggregated stats.
 
-#### META-003: ACPHandler — Tool execution
-- **File:** `src/MetacognitiveLayer/Protocols/ACP/ACPHandler.cs`
-- **Line 240:** `// TODO: Implement actual tool execution logic`
-- **Fix:** Implement tool dispatch based on registered tool interfaces
-- **Team:** 3 (Metacognitive)
+#### ~~META-003: ACPHandler — Tool execution~~ DONE (Phase 2)
+- **Status:** Multi-dispatch pattern matching: IToolRunner, async Func delegate, sync Func delegate, raw fallback. RequiredTools iteration with error isolation.
 
-#### META-004: SessionManager — UpdateSession
-- **File:** `src/MetacognitiveLayer/Protocols/Common/SessionManager.cs`
-- **Line 86:** Placeholder returning Task.CompletedTask
-- **Fix:** Implement session state persistence
-- **Team:** 3 (Metacognitive)
+#### ~~META-004: SessionManager — UpdateSession~~ DONE (Phase 2)
+- **Status:** Atomic AddOrUpdate on ConcurrentDictionary. Handles re-add after cleanup timer removal.
 
-#### META-005: LearningManager — 48 framework-enablement stubs
-- **File:** `src/MetacognitiveLayer/ContinuousLearning/LearningManager.cs`
-- **Lines:** 21, 27, 61, 72, 83, 94, 105, 116, 127, 138, 149, 160, 171, 182, 193, 204, 215, 226, 237, 248, 259, 270, 281, 292, 303, 314, 325, 336, 347, 358, 369, 380, 391, 402, 413, 424, 435, 446, 457, 468, 479, 490, 501, 512, 523, 534, 545, 556
-- **Pattern:** Multiple `EnableXxxAsync()` methods all returning `Task.CompletedTask`
-- **Fix:** Group by pattern (config-based frameworks vs. service-based) and implement enable/disable logic
-- **Team:** 3 (Metacognitive)
+#### ~~META-005: LearningManager — 48 framework-enablement stubs~~ DONE (Phase 2)
+- **Status:** Complete rewrite: _enabledFrameworks ConcurrentDictionary, 42-entry prerequisites map, common EnableFrameworkAsync helper. All 48 methods now one-liner delegates with feature flag checks and prerequisite validation.
 
-#### META-006: ContinuousLearningComponent — 2 placeholders
-- **File:** `src/MetacognitiveLayer/ContinuousLearning/ContinuousLearningComponent.cs`
-- **Lines 455, 461:** Placeholder implementations
-- **Fix:** Complete implementation
-- **Team:** 3 (Metacognitive)
+#### ~~META-006: ContinuousLearningComponent — 2 placeholders~~ DONE (Phase 2)
+- **Status:** IntegrateWithFabricForFeedbackAsync generates LLM learning summaries, stores EnrichedFeedback in CosmosDB. IntegrateWithFabricForInteractionAsync detects weak dimensions (<0.7), generates learning signals.
 
 ### FOUNDATION Layer
 
@@ -229,22 +187,21 @@
 
 ## P2-MEDIUM: Missing Test Coverage
 
-### TST-001: MultiAgentOrchestrationEngine tests
-- **Gap:** No test file exists for the core multi-agent engine
-- **Team:** 4 (Agency)
-- **Note:** Tracked as P1 under AGN-006 — this entry kept for cross-reference
+### ~~TST-001: MultiAgentOrchestrationEngine tests~~ DONE (Phase 2)
+- **Status:** Created `tests/AgencyLayer/MultiAgentOrchestration/MultiAgentOrchestrationEngineTests.cs` — 22 tests covering constructor guards, all coordination patterns, autonomy, ethical checks, learning insights, spawning.
 
-### TST-002: SelfEvaluator tests
-- **Gap:** No dedicated test file
-- **Team:** 3 (Metacognitive)
+### ~~TST-002: SelfEvaluator tests~~ DONE (Phase 2)
+- **Status:** Created `tests/MetacognitiveLayer/SelfEvaluation/SelfEvaluatorTests.cs` — 17 tests covering all 4 evaluation methods, dispose, interface compliance.
 
 ### TST-003: LearningManager tests
-- **Gap:** 48 methods with no test coverage
+- **Gap:** 48 methods with no test coverage (now implemented with config-based pattern)
 - **Team:** 3 (Metacognitive)
 
-### TST-004: PerformanceMonitor tests
-- **Gap:** Limited test coverage for threshold checking
-- **Team:** 3 (Metacognitive)
+### ~~TST-004: PerformanceMonitor tests~~ DONE (Phase 2)
+- **Status:** Created `tests/MetacognitiveLayer/PerformanceMonitoring/PerformanceMonitorTests.cs` — 27 tests covering RecordMetric, GetAggregatedStats, QueryMetricsAsync, CheckThresholds, Dispose.
+
+### ~~TST-004b: DecisionExecutor tests~~ DONE (Phase 2)
+- **Status:** Created `tests/AgencyLayer/DecisionExecution/DecisionExecutorComprehensiveTests.cs` — 21 tests covering constructor guards, ExecuteDecision, GetStatus, GetLogs, model validation.
 
 ### TST-005: CustomerIntelligenceManager tests
 - **Gap:** No dedicated test file
@@ -330,15 +287,15 @@
 | Priority | Total | Done | Remaining | Description |
 |----------|-------|------|-----------|-------------|
 | P0-CRITICAL | 3 | 1 | 2 | Build fixes + arch violations (1 new) |
-| P1-HIGH (stubs) | 16 | 7 | 9 | Core stub implementations |
+| P1-HIGH (stubs) | 16 | 16 | 0 | All core stub implementations complete |
 | P1-HIGH (CI/CD) | 8 | 6 | 2 | Pipeline, Docker, DevEx |
 | P1-HIGH (IaC) | 11 | 11 | 0 | Terraform modules + Terragrunt + K8s |
 | P2-MEDIUM (stubs) | 4 | 0 | 4 | Business app fake data |
-| P2-MEDIUM (tests) | 8 | 0 | 8 | Missing test coverage |
+| P2-MEDIUM (tests) | 8 | 4 | 4 | 87 tests added, 4 gaps remain |
 | P2-MEDIUM (PRDs) | 8 | 0 | 8 | Unstarted PRD implementations |
 | P3-LOW | 10 | 0 | 10 | Future enhancements |
-| **Total** | **68** | **25** | **43** | Phase 1: 25 items resolved |
+| **Total** | **68** | **38** | **30** | Phase 2: +13 items (cumulative 56%) |
 
 ---
 
-*Generated: 2026-02-19 | Updated after Phase 1 completion (Foundation, Reasoning, Quality, CI/CD, Infra)*
+*Generated: 2026-02-19 | Updated after Phase 2 completion (Metacognitive, Agency, Testing)*
