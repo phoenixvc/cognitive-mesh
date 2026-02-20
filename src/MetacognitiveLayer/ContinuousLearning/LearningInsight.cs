@@ -2,6 +2,7 @@ namespace MetacognitiveLayer.ContinuousLearning;
 
 /// <summary>
 /// Represents an insight generated from continuous learning analysis.
+/// This is a pure serializable DTO; no constructor injection or <see cref="Microsoft.Extensions.Logging.ILogger{T}"/> is required.
 /// </summary>
 public class LearningInsight
 {

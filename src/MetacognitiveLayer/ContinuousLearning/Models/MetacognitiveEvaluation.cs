@@ -2,6 +2,7 @@ namespace MetacognitiveLayer.ContinuousLearning.Models;
 
 /// <summary>
 /// Represents the result of a metacognitive evaluation across multiple dimensions.
+/// This is a pure serializable DTO; no constructor injection or <see cref="Microsoft.Extensions.Logging.ILogger{T}"/> is required.
 /// </summary>
 public class MetacognitiveEvaluation
 {
@@ -29,6 +30,7 @@ public class MetacognitiveEvaluation
 
 /// <summary>
 /// Represents a single dimension of evaluation with a score and explanation.
+/// This is a pure serializable DTO; no constructor injection or <see cref="Microsoft.Extensions.Logging.ILogger{T}"/> is required.
 /// </summary>
 public class EvaluationDimension
 {

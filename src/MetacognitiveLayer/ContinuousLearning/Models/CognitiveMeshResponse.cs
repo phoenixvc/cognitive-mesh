@@ -2,6 +2,7 @@ namespace MetacognitiveLayer.ContinuousLearning.Models;
 
 /// <summary>
 /// Represents a response from the cognitive mesh pipeline.
+/// This is a pure serializable DTO; no constructor injection or <see cref="Microsoft.Extensions.Logging.ILogger{T}"/> is required.
 /// </summary>
 public class CognitiveMeshResponse
 {
