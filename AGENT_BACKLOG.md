@@ -122,15 +122,11 @@
 ### ~~CICD-006: Add PR and Issue Templates~~ DONE (Phase 1)
 - **Status:** Created PR template + bug report + feature request YAML forms.
 
-### CICD-007: Add Deployment Pipeline
-- **Create:** `.github/workflows/deploy.yml`
-- **Purpose:** Build Docker image -> Push to ACR -> Deploy to staging -> Manual gate -> Production
-- **Team:** 8 (CI/CD)
+### ~~CICD-007: Add Deployment Pipeline~~ DONE (Phase 5)
+- **Status:** Created `.github/workflows/deploy.yml` — Build Docker image, push to ACR, deploy to staging (Kustomize + AKS), manual gate via GitHub Environments, deploy to production, health checks + smoke tests, Slack failure notifications. Triggered by successful build.yml or manual dispatch. Supports skip-staging and image-tag overrides.
 
-### CICD-008: Add Coverage Reporting
-- **Fix:** Current `build.yml` collects coverage but doesn't publish
-- **Add:** Codecov or SonarQube dashboard integration, coverage badge in README
-- **Team:** 8 (CI/CD)
+### ~~CICD-008: Add Coverage Reporting~~ DONE (Phase 5)
+- **Status:** Created `.github/workflows/coverage.yml` — Runs on PRs + pushes to main, collects opencover coverage, generates HTML/Cobertura/Markdown reports via ReportGenerator, uploads to Codecov, posts sticky PR comment with coverage summary, writes GitHub job summary. Added `codecov.yml` config with per-layer components, 80% patch target. Added coverage + deploy badges to README.
 
 ---
 
@@ -273,14 +269,14 @@
 |----------|-------|------|-----------|-------------|
 | P0-CRITICAL | 3 | 3 | 0 | Build fixes + arch violations — ALL RESOLVED |
 | P1-HIGH (stubs) | 16 | 16 | 0 | All core stub implementations complete |
-| P1-HIGH (CI/CD) | 8 | 6 | 2 | Pipeline, Docker, DevEx (CICD-007 deploy, CICD-008 coverage) |
+| P1-HIGH (CI/CD) | 8 | 8 | 0 | Pipeline, Docker, DevEx — ALL COMPLETE |
 | P1-HIGH (IaC) | 11 | 11 | 0 | Terraform modules + Terragrunt + K8s |
 | P2-MEDIUM (stubs) | 5 | 4 | 1 | BIZ-004 (ConvenerController) deferred to PRD |
 | P2-MEDIUM (tests) | 9 | 9 | 0 | 309 tests added — TST-003 (LearningManager 103 cases) done, TST-008 (integration) deferred |
 | P2-MEDIUM (PRDs) | 8 | 0 | 8 | Unstarted PRD implementations |
 | P3-LOW | 10 | 0 | 10 | Future enhancements |
-| **Total** | **70** | **49** | **21** | Phase 4: +3 items (cumulative 70%) |
+| **Total** | **70** | **51** | **19** | Phase 5 (CI/CD): +2 items (cumulative 73%) |
 
 ---
 
-*Generated: 2026-02-20 | Updated after Phase 4 completion (Quality + Testing)*
+*Generated: 2026-02-20 | Updated after Phase 5 CI/CD completion (deploy pipeline + coverage reporting)*
