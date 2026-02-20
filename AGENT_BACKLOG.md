@@ -210,15 +210,24 @@
 
 ## P2-MEDIUM: PRD Implementation (Not Yet Started)
 
-### PRD-001: NIST AI RMF Governance Suite (FI-03)
+### ~~PRD-001: NIST AI RMF Governance Suite (FI-03)~~ DONE (Phase 10)
 - **PRDs:** `docs/prds/01-foundational/nist-ai-rmf-maturity/`
 - **Deliverable:** AI risk register, maturity scoring dashboard
-- **Team:** 1 (Foundation)
+- **Status:** Phase 10 built complete NIST governance suite across 3 layers:
+  - **Foundation:** `NISTEvidence` module — `INISTEvidenceRepositoryPort` (6 methods), `InMemoryNISTEvidenceAdapter`, 5 model classes (NISTEvidenceRecord, EvidenceQueryFilter, EvidenceReviewStatus, EvidenceAuditEntry, EvidenceStatistics). `EvidenceArtifacts` module — `IEvidenceArtifactRepositoryPort`, `InMemoryEvidenceArtifactAdapter`, 3 models (EvidenceArtifact, ArtifactSearchCriteria, RetentionPolicy).
+  - **Reasoning:** `NISTMaturity` module — `INISTMaturityAssessmentPort` (5 methods), `INISTEvidenceStorePort`, `NISTMaturityAssessmentEngine` (pillar scoring, gap analysis, evidence management, roadmap generation), 9 model classes.
+  - **Business:** `NISTCompliance` module — `INISTComplianceServicePort` (7 methods), `NISTComplianceService`, `NISTComplianceController` (7 REST endpoints: score, checklist, evidence submit, evidence review, gap analysis, roadmap, audit), `ServiceCollectionExtensions`, 12 DTO models.
+  - **Tests:** 23 Foundation (NISTEvidence adapter) + 15 Foundation (EvidenceArtifact adapter) + 35 Reasoning (NISTMaturity engine) + 24 Business (controller) + 22 Business (service) = **119 tests**
+- **Team:** 1 (Foundation) + 2 (Reasoning) + 5 (Business)
 
-### PRD-002: Adaptive Balance & Continuous Improvement (FI-04)
+### ~~PRD-002: Adaptive Balance & Continuous Improvement (FI-04)~~ DONE (Phase 10)
 - **PRDs:** `docs/prds/02-adaptive-balance/`
 - **Deliverable:** Live spectrums, P95 decision error <=1%
-- **Team:** 1 (Foundation)
+- **Status:** Phase 10 built complete Adaptive Balance suite across 2 layers:
+  - **Reasoning:** `AdaptiveBalance` module — `IAdaptiveBalancePort` (6 methods), `ILearningFrameworkPort`, `IMilestoneWorkflowPort`, `IReflexionPort`, `AdaptiveBalanceEngine` (spectrum positioning with 10 dimensions, milestone workflows, override management, recommendations), `LearningFrameworkEngine` (event recording, pattern analysis, mistake prevention), `ReflexionEngine` (hallucination detection, contradiction analysis, confidence scoring), 12 model classes.
+  - **Business:** `AdaptiveBalance` module — `IAdaptiveBalanceServicePort` (6 methods), `AdaptiveBalanceService`, `AdaptiveBalanceController` (6 REST endpoints: spectrum, history, override, learning evidence, reflexion status, recommendations), `ServiceCollectionExtensions`, 11 DTO models.
+  - **Tests:** 32 Reasoning (AdaptiveBalance engine) + 12 Reasoning (LearningFramework) + 14 Reasoning (Reflexion) + 15 Business (controller) + 21 Business (service) = **94 tests**
+- **Team:** 2 (Reasoning) + 5 (Business)
 
 ### ~~PRD-003: Cognitive Sandwich Workflow (AC-02)~~ DONE (Phase 9)
 - **PRD:** `docs/prds/01-foundational-infrastructure/mesh-orchestration-hitl.md`
@@ -316,10 +325,10 @@
 | P1-HIGH (IaC) | 11 | 11 | 0 | Terraform modules + Terragrunt + K8s |
 | P2-MEDIUM (stubs) | 5 | 5 | 0 | BIZ-004 (ConvenerController) DONE — all stubs resolved |
 | P2-MEDIUM (tests) | 9 | 9 | 0 | 309 unit tests + 25 new integration tests = 334 total new tests |
-| P2-MEDIUM (PRDs) | 8 | 7 | 1 | PRD-003–008 DONE; PRD-001 + PRD-002 remaining |
+| P2-MEDIUM (PRDs) | 8 | 8 | 0 | ALL PRDs DONE — PRD-001 + PRD-002 completed in Phase 10 (+213 tests) |
 | P3-LOW | 10 | 0 | 10 | Future enhancements |
-| **Total** | **70** | **62** | **8** | Phase 9 (Agency+Reasoning+Business): +5 PRDs (cumulative 89%) |
+| **Total** | **70** | **60** | **10** | Phase 10: PRD-001+002 complete. All P0-P2 work DONE (86%). P3-LOW remaining. |
 
 ---
 
-*Generated: 2026-02-20 | Updated after Phase 9 — PRD-003, PRD-004, PRD-005, PRD-006, PRD-008 complete*
+*Generated: 2026-02-20 | Updated after Phase 10 — ALL 8 PRDs complete (PRD-001 through PRD-008). 806 total new tests. All P0-P2 work done.*
