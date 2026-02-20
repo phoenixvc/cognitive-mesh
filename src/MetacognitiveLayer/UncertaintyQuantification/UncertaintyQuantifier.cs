@@ -449,7 +449,7 @@ Confidence Score:";
             return Task.Run(async () =>
             {
                 var result = await QuantifyUncertaintyAsync(data, null, cancellationToken);
-                if (result.TryGetValue("confidence", out object confObj) && confObj is double conf)
+                if (result.TryGetValue("confidence", out object? confObj) && confObj is double conf)
                 {
                     // If threshold represents "minimum acceptable confidence"
                     return conf >= threshold;

@@ -81,7 +81,7 @@ public class OneLakeIntegrationManager
             else
             {
                 _logger.LogInformation("Feature not enabled.");
-                return null;
+                return null!;
             }
         }
         catch (Exception ex)

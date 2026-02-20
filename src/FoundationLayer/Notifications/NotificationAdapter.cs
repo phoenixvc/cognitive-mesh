@@ -286,7 +286,7 @@ namespace FoundationLayer.Notifications
         /// <summary>
         /// Processes the retry queue.
         /// </summary>
-        private async void ProcessRetryQueue(object state)
+        private async void ProcessRetryQueue(object? state)
         {
             if (_processingRetryQueue)
             {
@@ -486,12 +486,12 @@ namespace FoundationLayer.Notifications
         /// <summary>
         /// The unique identifier of the notification.
         /// </summary>
-        public string NotificationId { get; set; }
+        public string NotificationId { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of notification.
         /// </summary>
-        public string NotificationType { get; set; }
+        public string NotificationType { get; set; } = string.Empty;
 
         /// <summary>
         /// The priority of the notification.
@@ -501,12 +501,12 @@ namespace FoundationLayer.Notifications
         /// <summary>
         /// The title of the notification.
         /// </summary>
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         /// <summary>
         /// The body of the notification.
         /// </summary>
-        public string Body { get; set; }
+        public string Body { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional data associated with the notification.
@@ -587,12 +587,12 @@ namespace FoundationLayer.Notifications
         /// <summary>
         /// The unique identifier of the action.
         /// </summary>
-        public string ActionId { get; set; }
+        public string ActionId { get; set; } = string.Empty;
 
         /// <summary>
         /// The label for the action button.
         /// </summary>
-        public string Label { get; set; }
+        public string Label { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of action.
@@ -602,7 +602,7 @@ namespace FoundationLayer.Notifications
         /// <summary>
         /// The URL to navigate to when the action is taken.
         /// </summary>
-        public string NavigateUrl { get; set; }
+        public string NavigateUrl { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional data associated with the action.
