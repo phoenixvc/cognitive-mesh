@@ -1,3 +1,6 @@
+using System.Text;
+using System.Text.RegularExpressions;
+using Azure;
 using Azure.AI.OpenAI;
 using FoundationLayer.EnterpriseConnectors;
 using MetacognitiveLayer.ContinuousLearning.Models;
@@ -929,31 +932,25 @@ public class ContinuousLearningComponent
     }
 }
 
-public class UserFeedback
-{
-    public int Rating { get; set; } // 1-5 scale
-    public string Comments { get; set; }
-}
-
 public class FeedbackRecord
 {
-    public string Id { get; set; }
-    public string QueryId { get; set; }
-    public string Type { get; set; } // "Feedback"
+    public string Id { get; set; } = string.Empty;
+    public string QueryId { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
     public int Rating { get; set; }
-    public string Comments { get; set; }
+    public string Comments { get; set; } = string.Empty;
     public DateTimeOffset Timestamp { get; set; }
 }
 
 public class InteractionRecord
 {
-    public string Id { get; set; }
-    public string QueryId { get; set; }
-    public string Type { get; set; } // "Interaction"
-    public string Query { get; set; }
-    public string Response { get; set; }
+    public string Id { get; set; } = string.Empty;
+    public string QueryId { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public string Query { get; set; } = string.Empty;
+    public string Response { get; set; } = string.Empty;
     public TimeSpan ProcessingTime { get; set; }
-    public Dictionary<string, double> EvaluationScores { get; set; }
+    public Dictionary<string, double> EvaluationScores { get; set; } = new();
     public DateTimeOffset Timestamp { get; set; }
 }
 

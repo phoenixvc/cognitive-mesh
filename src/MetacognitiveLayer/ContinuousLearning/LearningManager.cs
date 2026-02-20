@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Azure;
 using Azure.AI.OpenAI;
 using FoundationLayer.EnterpriseConnectors;
 using Microsoft.Extensions.Logging;
