@@ -51,13 +51,25 @@ fi
 if ! command -v dotnet &>/dev/null; then
     echo "Installing .NET 9 SDK..."
     if command -v curl &>/dev/null && command -v bash &>/dev/null; then
-        if curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh 2>/dev/null; then
-            bash /tmp/dotnet-install.sh --channel 9.0 --install-dir "${HOME}/.dotnet" 2>&1 | tail -5
-            rm -f /tmp/dotnet-install.sh
-            # Re-export in case the installer changed something
+        # Try multiple sources for the install script:
+        # 1. GitHub raw (works behind proxies that block dot.net redirects)
+        # 2. Official dot.net URL (redirects to builds.dotnet.microsoft.com)
+        INSTALL_SCRIPT=""
+        for script_url in \
+            "https://raw.githubusercontent.com/dotnet/install-scripts/main/src/dotnet-install.sh" \
+            "https://dot.net/v1/dotnet-install.sh"; do
+            if curl -fsSL --connect-timeout 10 --max-time 30 "$script_url" -o /tmp/dotnet-install.sh 2>/dev/null; then
+                INSTALL_SCRIPT="/tmp/dotnet-install.sh"
+                break
+            fi
+        done
+
+        if [ -n "$INSTALL_SCRIPT" ]; then
+            bash "$INSTALL_SCRIPT" --channel 9.0 --install-dir "${HOME}/.dotnet" 2>&1 | tail -5
+            rm -f "$INSTALL_SCRIPT"
             export PATH="${HOME}/.dotnet:${PATH}"
         else
-            echo "WARNING: Failed to download .NET install script."
+            echo "WARNING: Failed to download .NET install script from any source."
         fi
     else
         echo "WARNING: curl or bash not available — cannot install .NET SDK."
