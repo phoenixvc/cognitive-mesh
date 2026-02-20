@@ -91,8 +91,9 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
         /// <inheritdoc/>
         public async Task<string> GenerateCompletionAsync(
             string prompt,
-            float temperature = 0.7f,
             int maxTokens = 1000,
+            float temperature = 0.7f,
+            IEnumerable<string>? stopSequences = null,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(prompt))
@@ -107,7 +108,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             try
             {
                 _logger?.LogDebug("Generating completion with {Length} characters", prompt?.Length ?? 0);
-                
+
                 var options = new CompletionsOptions
                 {
                     DeploymentName = _deploymentName,
@@ -120,9 +121,15 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
                     GenerationSampleCount = 1
                 };
 
-                var response = await _client.GetCompletionsAsync(options, cancellationToken);
+                if (stopSequences != null)
+                {
+                    foreach (var seq in stopSequences)
+                        options.StopSequences.Add(seq);
+                }
+
+                var response = await _client!.GetCompletionsAsync(options, cancellationToken);
                 var completion = response.Value.Choices[0].Text.Trim();
-                
+
                 _logger?.LogDebug("Successfully generated completion with {Length} characters", completion?.Length ?? 0);
                 return completion;
             }
@@ -247,6 +254,44 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<float[]> GenerateEmbeddingAsync(string text, CancellationToken cancellationToken = default)
+        {
+            return await GetEmbeddingsAsync(text, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<string>> GenerateMultipleCompletionsAsync(
+            string prompt,
+            int numCompletions = 3,
+            int maxTokens = 500,
+            float temperature = 0.8f,
+            CancellationToken cancellationToken = default)
+        {
+            var results = new List<string>(numCompletions);
+            for (int i = 0; i < numCompletions; i++)
+            {
+                var completion = await GenerateCompletionAsync(prompt, maxTokens, temperature, cancellationToken: cancellationToken);
+                results.Add(completion);
+            }
+            return results;
+        }
+
+        /// <inheritdoc/>
+        public int GetTokenCount(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return 0;
+            // Approximate token count: ~4 characters per token for English text
+            return (int)Math.Ceiling(text.Length / 4.0);
+        }
+
+        /// <inheritdoc/>
+        public IChatSession StartChat(string? systemMessage = null)
+        {
+            return new AzureChatSession(this, systemMessage);
+        }
+
         private async Task EnsureInitializedAsync(CancellationToken cancellationToken)
         {
             if (_client == null)
@@ -267,10 +312,39 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             }
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private sealed class AzureChatSession : IChatSession
+        {
+            private readonly OpenAIClient _owner;
+            private readonly List<ChatMessage> _history = new();
+
+            public AzureChatSession(OpenAIClient owner, string? systemMessage)
+            {
+                _owner = owner;
+                if (systemMessage != null)
+                    _history.Add(new ChatMessage("system", systemMessage));
+            }
+
+            public IReadOnlyList<ChatMessage> History => _history.AsReadOnly();
+
+            public async Task<string> SendMessageAsync(string message, CancellationToken cancellationToken = default)
+            {
+                _history.Add(new ChatMessage("user", message));
+                var response = await _owner.GenerateChatCompletionAsync(_history, cancellationToken: cancellationToken);
+                _history.Add(new ChatMessage("assistant", response));
+                return response;
+            }
+
+            public void Dispose()
+            {
+                // No unmanaged resources to release
+            }
         }
     }
 }
