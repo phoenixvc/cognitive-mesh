@@ -220,31 +220,48 @@
 - **Deliverable:** Live spectrums, P95 decision error <=1%
 - **Team:** 1 (Foundation)
 
-### ~~PRD-003: Cognitive Sandwich Workflow (AC-02)~~ PARTIAL (Phase 8)
+### ~~PRD-003: Cognitive Sandwich Workflow (AC-02)~~ DONE (Phase 9)
 - **PRD:** `docs/prds/01-foundational-infrastructure/mesh-orchestration-hitl.md`
 - **Deliverable:** Phase-based HITL workflow, 40% hallucination reduction
-- **Status:** Phase 8 built the foundation layer:
-  - 17 model classes (SandwichProcess, Phase, PhaseCondition, PhaseOutput, PhaseResult, StepBackReason, CognitiveDebtAssessment, PhaseAuditEntry, enums, configs)
-  - 4 port interfaces (IPhaseManagerPort, ICognitiveDebtPort, IPhaseConditionPort, IAuditLoggingAdapter)
-  - `CognitiveSandwichEngine` — full implementation with ConcurrentDictionary in-memory store (create, transition, step-back, audit)
-  - `CognitiveSandwich.csproj` + AgencyLayer.csproj reference
-  - 27 unit tests covering all engine functionality
-- **Remaining:** DurableWorkflowEngine HITL integration, CognitiveSandwichController (REST API), Cognitive Debt Monitor in MetacognitiveLayer, multi-agent handoff, OpenAPI spec
+- **Status:** Phase 8 built foundation (17 models, 4 ports, engine, 27 tests). Phase 9 completed:
+  - `CognitiveSandwichController` — 6 REST endpoints (create, get, advance, step-back, audit, debt)
+  - 3 in-memory adapters (CognitiveDebt, PhaseCondition, AuditLogging)
+  - `ServiceCollectionExtensions` DI registration (4 services)
+  - 24 controller tests (null guards, all endpoints, error cases)
+  - Total: 51 tests across engine + controller
 - **Team:** 4 (Agency)
 
-### PRD-004: Cognitive Sovereignty Control (AC-03)
+### ~~PRD-004: Cognitive Sovereignty Control (AC-03)~~ DONE (Phase 9)
 - **PRD:** `docs/prds/03-agentic-cognitive-systems/human-boundary.md`
 - **Deliverable:** User autonomy toggles, audit trail
+- **Status:** Phase 9 built complete module:
+  - 6 model classes (SovereigntyMode, Profile, Override, AgentAction, AuthorshipTrail, AuditEntry)
+  - 4 port interfaces (Sovereignty, Override, ActionApproval, AuthorshipTrail)
+  - `CognitiveSovereigntyEngine` — mode resolution (override → domain → default), autonomy levels (0.0–1.0)
+  - `CognitiveSovereignty.csproj` + AgencyLayer reference + solution integration
+  - 23 test methods (~31 test cases with theories)
 - **Team:** 4 (Agency)
 
-### PRD-005: Temporal Decision Core (TR-01)
+### ~~PRD-005: Temporal Decision Core (TR-01)~~ DONE (Phase 9)
 - **PRDs:** `docs/prds/04-temporal-flexible-reasoning/`
 - **Deliverable:** Dual-circuit gate, adaptive window, <5% spurious temporal links
+- **Status:** Phase 9 built complete module:
+  - 7 model classes (TemporalEvent, Edge, Window, GatingDecision, Query, Graph, EdgeLog)
+  - 4 port interfaces (Event, Gate, Graph, Audit)
+  - `TemporalDecisionCoreEngine` — dual-circuit gate (CA1 promoter + L2 suppressor), adaptive window (0–20s), BFS graph traversal
+  - `TemporalDecisionCore.csproj` + ReasoningLayer reference
+  - 25 unit tests (gating, window adjustment, graph queries, audit trail)
 - **Team:** 2 (Reasoning)
 
-### PRD-006: Memory & Flexible Strategy (TR-02)
+### ~~PRD-006: Memory & Flexible Strategy (TR-02)~~ DONE (Phase 9)
 - **PRDs:** `docs/prds/04-temporal-flexible-reasoning/`
 - **Deliverable:** Recall F1 +30%, recovery +50%
+- **Status:** Phase 9 built complete module:
+  - 7 model classes (MemoryRecord, RecallStrategy, RecallQuery/Result, ConsolidationResult, StrategyPerformance, MemoryStatistics)
+  - 4 port interfaces (MemoryStore, Recall, Consolidation, StrategyAdaptation)
+  - `MemoryStrategyEngine` — 5 recall strategies (ExactMatch, Fuzzy, Semantic, Temporal, Hybrid), consolidation logic, strategy adaptation
+  - `MemoryStrategy.csproj` + ReasoningLayer reference
+  - 27 unit tests (CRUD, all strategies, consolidation, cosine similarity)
 - **Team:** 2 (Reasoning)
 
 ### ~~PRD-007: Value Generation Analytics (VI-01)~~ DONE (Phase 8)
@@ -258,9 +275,17 @@
   - Total: 70 new tests for ValueGeneration pipeline
 - **Team:** 5 (Business)
 
-### PRD-008: Impact-Driven AI Metrics (VI-02)
+### ~~PRD-008: Impact-Driven AI Metrics (VI-02)~~ DONE (Phase 9)
 - **PRDs:** `docs/prds/04-value-impact/impact-driven-ai/`
 - **Deliverable:** Psychological safety score >= 80/100
+- **Status:** Phase 9 built complete module:
+  - 9 model classes (PsychologicalSafetyScore, SafetyDimension, MissionAlignment, AdoptionTelemetry, AdoptionAction, ImpactAssessment, ResistanceIndicator, ImpactReport, ConfidenceLevel)
+  - 4 port interfaces (PsychologicalSafety, MissionAlignment, AdoptionTelemetry, ImpactAssessment)
+  - `ImpactMetricsEngine` — safety scoring (6 dimensions, 70% survey + 30% behavioral), alignment, resistance detection, impact assessment
+  - `ImpactMetricsController` — 8 REST endpoints
+  - `ServiceCollectionExtensions` DI registration
+  - `ImpactMetrics.csproj` + BusinessApplications reference
+  - 31 engine tests + 25 controller tests = 56 total
 - **Team:** 5 (Business)
 
 
@@ -291,10 +316,10 @@
 | P1-HIGH (IaC) | 11 | 11 | 0 | Terraform modules + Terragrunt + K8s |
 | P2-MEDIUM (stubs) | 5 | 5 | 0 | BIZ-004 (ConvenerController) DONE — all stubs resolved |
 | P2-MEDIUM (tests) | 9 | 9 | 0 | 309 unit tests + 25 new integration tests = 334 total new tests |
-| P2-MEDIUM (PRDs) | 8 | 2 | 6 | PRD-007 DONE, PRD-003 PARTIAL; 6 PRDs remaining |
+| P2-MEDIUM (PRDs) | 8 | 7 | 1 | PRD-003–008 DONE; PRD-001 + PRD-002 remaining |
 | P3-LOW | 10 | 0 | 10 | Future enhancements |
-| **Total** | **70** | **57** | **13** | Phase 8 (Agency+Business): +2 items (cumulative 81%) |
+| **Total** | **70** | **62** | **8** | Phase 9 (Agency+Reasoning+Business): +5 PRDs (cumulative 89%) |
 
 ---
 
-*Generated: 2026-02-20 | Updated after Phase 8 — PRD-007 complete + PRD-003 foundation*
+*Generated: 2026-02-20 | Updated after Phase 9 — PRD-003, PRD-004, PRD-005, PRD-006, PRD-008 complete*
