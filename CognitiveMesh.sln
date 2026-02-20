@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UncertaintyQuantification.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContinuousLearning.Tests", "tests\MetacognitiveLayer\ContinuousLearning\ContinuousLearning.Tests.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF0123456789}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration.Tests", "tests\Integration\Integration.Tests.csproj", "{B2C3D4E5-F678-9012-ABCD-EF1234567890}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,18 @@ Global
 		{A1B2C3D4-E5F6-7890-ABCD-EF0123456789}.Release|x64.Build.0 = Release|Any CPU
 		{A1B2C3D4-E5F6-7890-ABCD-EF0123456789}.Release|x86.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-E5F6-7890-ABCD-EF0123456789}.Release|x86.Build.0 = Release|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Debug|x64.Build.0 = Debug|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Debug|x86.Build.0 = Debug|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Release|x64.ActiveCfg = Release|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Release|x64.Build.0 = Release|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Release|x86.ActiveCfg = Release|Any CPU
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -130,5 +144,6 @@ Global
 		{D54F1422-0CB8-7E5F-F9CC-49C88523FCD1} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{FAF348F7-99E7-4C20-A86D-3AC4D18DBCD6} = {D54F1422-0CB8-7E5F-F9CC-49C88523FCD1}
 		{A1B2C3D4-E5F6-7890-ABCD-EF0123456789} = {D54F1422-0CB8-7E5F-F9CC-49C88523FCD1}
+		{B2C3D4E5-F678-9012-ABCD-EF1234567890} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

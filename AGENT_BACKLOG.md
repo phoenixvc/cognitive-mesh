@@ -196,10 +196,13 @@
 ### ~~TST-008b: KnowledgeManager tests~~ DONE (Phase 3)
 - **Status:** Created `tests/BusinessApplications.UnitTests/KnowledgeManagement/KnowledgeManagerTests.cs` — 24 tests covering all CRUD methods across 7 framework feature flags, priority ordering, no-feature fallback.
 
-### TST-008: Cross-layer integration tests
-- **Gap:** Only 1 integration test file exists
-- **Need:** DecisionExecutor->ConclAIve->Persistence flow, MultiAgent->EthicalChecks flow
-- **Team:** 6 (Quality)
+### ~~TST-008: Cross-layer integration tests~~ DONE (Phase 6)
+- **Status:** Created `tests/Integration/Integration.Tests.csproj` (added to solution) — rescued orphaned `EthicalComplianceFrameworkIntegrationTests.cs` (8 existing tests now compile). Added 3 new integration test files:
+  - `DurableWorkflowCrashRecoveryTests.cs` — 9 tests: checkpoint persistence, crash recovery resume, context flow, retry success, retry exhaustion, cancellation checkpoint, purge cleanup, concurrent isolation.
+  - `DecisionExecutorIntegrationTests.cs` — 8 tests: end-to-end KG+LLM+persist flow, empty context, LLM failure, cancellation, status retrieval, log filtering, concurrent decisions. Includes `InMemoryKnowledgeGraphManager`.
+  - `ConclAIvePipelineIntegrationTests.cs` — 8 tests: debate/sequential/strategic recipes with real engines, auto-selection, independent sessions, multi-perspective trace, SLA performance. Uses `ConclAIveTestFixture` with deterministic mock LLM.
+  - Total: **25 new integration tests** + 8 existing = 33 integration tests.
+- **Team:** 7 (Testing)
 
 ---
 
@@ -272,11 +275,11 @@
 | P1-HIGH (CI/CD) | 8 | 8 | 0 | Pipeline, Docker, DevEx — ALL COMPLETE |
 | P1-HIGH (IaC) | 11 | 11 | 0 | Terraform modules + Terragrunt + K8s |
 | P2-MEDIUM (stubs) | 5 | 4 | 1 | BIZ-004 (ConvenerController) deferred to PRD |
-| P2-MEDIUM (tests) | 9 | 9 | 0 | 309 tests added — TST-003 (LearningManager 103 cases) done, TST-008 (integration) deferred |
+| P2-MEDIUM (tests) | 9 | 9 | 0 | 309 unit tests + 25 new integration tests = 334 total new tests |
 | P2-MEDIUM (PRDs) | 8 | 0 | 8 | Unstarted PRD implementations |
 | P3-LOW | 10 | 0 | 10 | Future enhancements |
-| **Total** | **70** | **51** | **19** | Phase 5 (CI/CD): +2 items (cumulative 73%) |
+| **Total** | **70** | **52** | **18** | Phase 6 (Testing): +1 item (cumulative 74%) |
 
 ---
 
-*Generated: 2026-02-20 | Updated after Phase 5 CI/CD completion (deploy pipeline + coverage reporting)*
+*Generated: 2026-02-20 | Updated after Phase 6 Testing completion (cross-layer integration tests)*
