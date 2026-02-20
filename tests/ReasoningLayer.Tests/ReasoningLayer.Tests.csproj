@@ -16,10 +16,13 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Moq" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="coverlet.collector" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReasoningLayer\ReasoningLayer.csproj" />
+    <ProjectReference Include="..\..\src\ReasoningLayer\ValueGeneration\ValueGeneration.csproj" />
   </ItemGroup>
 
 </Project>
