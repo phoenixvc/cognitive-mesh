@@ -27,6 +27,8 @@
     <!-- ResearchAnalysis is included directly in the solution, not as a sub-project -->
     <ProjectReference Include=".\ValueGeneration\ValueGeneration.csproj" />
     <ProjectReference Include=".\ImpactMetrics\ImpactMetrics.csproj" />
+    <ProjectReference Include=".\NISTCompliance\NISTCompliance.csproj" />
+    <ProjectReference Include=".\AdaptiveBalance\AdaptiveBalance.csproj" />
   </ItemGroup>
 
 </Project>

@@ -30,6 +30,8 @@
     <ProjectReference Include="..\..\src\BusinessApplications\KnowledgeManagement\KnowledgeManagement.csproj" />
     <ProjectReference Include="..\..\src\BusinessApplications\ValueGeneration\ValueGeneration.csproj" />
     <ProjectReference Include="..\..\src\BusinessApplications\ImpactMetrics\ImpactMetrics.csproj" />
+    <ProjectReference Include="..\..\src\BusinessApplications\NISTCompliance\NISTCompliance.csproj" />
+    <ProjectReference Include="..\..\src\BusinessApplications\AdaptiveBalance\AdaptiveBalance.csproj" />
   </ItemGroup>
 
 </Project>
