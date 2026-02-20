@@ -29,6 +29,7 @@
     <ProjectReference Include="..\..\src\BusinessApplications\ResearchAnalysis\ResearchAnalysis.csproj" />
     <ProjectReference Include="..\..\src\BusinessApplications\KnowledgeManagement\KnowledgeManagement.csproj" />
     <ProjectReference Include="..\..\src\BusinessApplications\ValueGeneration\ValueGeneration.csproj" />
+    <ProjectReference Include="..\..\src\BusinessApplications\ImpactMetrics\ImpactMetrics.csproj" />
   </ItemGroup>
 
 </Project>

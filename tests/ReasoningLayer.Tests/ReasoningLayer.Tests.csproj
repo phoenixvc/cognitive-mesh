@@ -23,6 +23,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReasoningLayer\ReasoningLayer.csproj" />
     <ProjectReference Include="..\..\src\ReasoningLayer\ValueGeneration\ValueGeneration.csproj" />
+    <ProjectReference Include="..\..\src\ReasoningLayer\TemporalDecisionCore\TemporalDecisionCore.csproj" />
+    <ProjectReference Include="..\..\src\ReasoningLayer\MemoryStrategy\MemoryStrategy.csproj" />
   </ItemGroup>
 
 </Project>
