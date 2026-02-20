@@ -154,12 +154,14 @@
 ### ~~BIZ-003: ResearchAnalyst — 4 fake-data methods~~ DONE (Phase 3)
 - **Status:** Added `IResearchDataPort` + `IResearchAnalysisPort` interfaces. LLM-based topic analysis with persistence, semantic vector search with text fallback, read-modify-write update cycle with re-indexing. All Task.Delay and TODO comments removed.
 
-### BIZ-004: ConvenerController — 2 NotImplemented features
-- **File:** `src/BusinessApplications/ConvenerServices/ConvenerController.cs`
-- **Lines 151-161:** Innovation Spread tracking + Learning Catalyst recommendations
-- **Fix:** Implement endpoints per docs/prds/03-convener/convener-backend.md
+### ~~BIZ-004: ConvenerController — 2 NotImplemented features~~ DONE (Phase 7)
+- **Status:** Both placeholder endpoints replaced with full async implementations:
+  - `GetInnovationSpread`: New `IInnovationSpreadPort` interface with `InnovationSpreadResult`, `AdoptionEvent`, `SpreadPhase` (Rogers diffusion model). Controller: tenant scoping, null check, audit logging, error handling.
+  - `GetLearningRecommendations`: New `ILearningCatalystPort` interface with `LearningCatalystRequest/Response`, `LearningRecommendation`, `SkillGap`, `LearningActivityType`. Controller: user ID from claims, tenant scoping, error handling.
+  - Created `DiscoverChampionsUseCase` + `IChampionDiscoveryPort` + DTOs (resolves broken imports).
+  - Fixed ConvenerController: null guard constructors, correct namespace imports, `GetTenantIdFromClaims` returns nullable.
+  - Updated `ConvenerServices.csproj`: added MetacognitiveLayer + ASP.NET MVC references.
 - **Team:** 5 (Business)
-- **Note:** Deferred — not a stub/TODO pattern, needs PRD-level design
 
 ### ~~BIZ-005: KnowledgeManager — 28 Task.Delay stubs~~ DONE (Phase 3)
 - **Status:** Complete refactor: removed 7-way framework branching. Added `IKnowledgeStorePort` interface. All 28 `Task.Delay(1000)` removed. 4 methods now delegate to port with CancellationToken, input validation, structured logging. File reduced from 399 to 173 lines.
@@ -238,9 +240,9 @@
 - **Deliverable:** Recall F1 +30%, recovery +50%
 - **Team:** 2 (Reasoning)
 
-### PRD-007: Value Generation Analytics (VI-01)
-- **PRDs:** `docs/prds/04-value-impact/value-generation/`
-- **Deliverable:** ROI dashboard, 90% telemetry coverage
+### ~~PRD-007: Value Generation Analytics (VI-01)~~ PARTIAL (Phase 7)
+- **Status:** Fixed `ValueGeneration.csproj` — added missing ProjectReferences (FoundationLayer, ReasoningLayer, Shared, Common, ConvenerServices). Fixed `ValueGenerationController.cs` — corrected `using` import (removed non-existent `.Models` sub-namespace), added `System.Text.Json`, replaced `Forbid()` with `StatusCode(403,...)`. Added `LogEventAsync(AuditEvent)` to `IAuditLoggingAdapter` interface + implementation. Added `ErrorEnvelope.Create/InvalidPayload/ConsentMissing` factory methods. Engines + Controller + Ports were already implemented — this phase wired them together.
+- **Remaining:** DI registration, dedicated test coverage for controller + engines.
 - **Team:** 5 (Business)
 
 ### PRD-008: Impact-Driven AI Metrics (VI-02)
@@ -274,12 +276,12 @@
 | P1-HIGH (stubs) | 16 | 16 | 0 | All core stub implementations complete |
 | P1-HIGH (CI/CD) | 8 | 8 | 0 | Pipeline, Docker, DevEx — ALL COMPLETE |
 | P1-HIGH (IaC) | 11 | 11 | 0 | Terraform modules + Terragrunt + K8s |
-| P2-MEDIUM (stubs) | 5 | 4 | 1 | BIZ-004 (ConvenerController) deferred to PRD |
+| P2-MEDIUM (stubs) | 5 | 5 | 0 | BIZ-004 (ConvenerController) DONE — all stubs resolved |
 | P2-MEDIUM (tests) | 9 | 9 | 0 | 309 unit tests + 25 new integration tests = 334 total new tests |
-| P2-MEDIUM (PRDs) | 8 | 0 | 8 | Unstarted PRD implementations |
+| P2-MEDIUM (PRDs) | 8 | 1 | 7 | PRD-007 (Value Generation) wired up; 7 PRDs remaining |
 | P3-LOW | 10 | 0 | 10 | Future enhancements |
-| **Total** | **70** | **52** | **18** | Phase 6 (Testing): +1 item (cumulative 74%) |
+| **Total** | **70** | **55** | **15** | Phase 7 (Business): +3 items (cumulative 79%) |
 
 ---
 
-*Generated: 2026-02-20 | Updated after Phase 6 Testing completion (cross-layer integration tests)*
+*Generated: 2026-02-20 | Updated after Phase 7 Business completion (BIZ-004 + PRD-007 fixes)*

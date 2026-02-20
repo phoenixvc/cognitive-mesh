@@ -661,6 +661,27 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         }
     }
 
+    /// <inheritdoc />
+    public async Task<bool> LogEventAsync(AuditEvent auditEvent)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(auditEvent.EventId))
+                auditEvent.EventId = Guid.NewGuid().ToString();
+            if (auditEvent.Timestamp == default)
+                auditEvent.Timestamp = DateTimeOffset.UtcNow;
+
+            await _repository.SaveEventAsync(auditEvent);
+            _logger.LogInformation("Audit event logged: {EventType} with ID {EventId}", auditEvent.EventType, auditEvent.EventId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to log audit event: {EventType}", auditEvent.EventType);
+            return false;
+        }
+    }
+
     /// <summary>
     /// Disposes the adapter.
     /// </summary>
@@ -798,6 +819,13 @@ public interface IAuditLoggingAdapter : IDisposable
     /// <param name="endTime">Optional end time for filtering</param>
     /// <returns>A collection of audit events for the specified agent</returns>
     Task<IEnumerable<AuditEvent>> GetAgentEventsAsync(Guid agentId, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null);
+
+    /// <summary>
+    /// Logs a generic audit event. Use this for event types that do not have a dedicated typed method.
+    /// </summary>
+    /// <param name="auditEvent">The audit event to log.</param>
+    /// <returns>True if the event was successfully logged; otherwise, false.</returns>
+    Task<bool> LogEventAsync(AuditEvent auditEvent);
 }
 
 /// <summary>
