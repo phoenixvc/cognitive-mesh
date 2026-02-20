@@ -2,44 +2,6 @@ using CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 
 namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Engines;
 
-// --- Placeholder Interfaces for Outbound Adapters ---
-// These define the contracts for how the pure domain engine communicates with the outside world.
-// The concrete implementations of these adapters would reside in the Infrastructure layer.
-// Data required for the Value Diagnostic ($200 Test)
-public class ValueDiagnosticData
-{
-    public double AverageImpactScore { get; set; }
-    public int HighValueContributions { get; set; }
-    public int CreativityEvents { get; set; }
-}
-
-// Data required for Org Blindness detection
-public class OrgDataSnapshot
-{
-    public Dictionary<string, double> PerceivedValueScores { get; set; } // e.g., from surveys
-    public Dictionary<string, double> ActualImpactScores { get; set; } // e.g., from project outcomes
-}
-
-// Data required for Employability check
-public class EmployabilityData
-{
-    public List<string> UserSkills { get; set; }
-    public List<string> MarketTrendingSkills { get; set; }
-    public double UserCreativeOutputScore { get; set; }
-}
-
-public interface IValueDiagnosticDataRepository
-{
-    Task<ValueDiagnosticData> GetValueDiagnosticDataAsync(string targetId, string tenantId);
-    Task<OrgDataSnapshot> GetOrgDataSnapshotAsync(string organizationId, string[] departmentFilters, string tenantId);
-}
-
-public interface IEmployabilityDataRepository
-{
-    Task<EmployabilityData> GetEmployabilityDataAsync(string userId, string tenantId);
-}
-
-
 // --- Domain Engine Implementation ---
 /// <summary>
 /// A pure domain engine that implements the core business logic for the Value Generation Port.

@@ -11,7 +11,7 @@ using CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions;
 namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
 {
     /// <summary>
-    /// Engine for Debate & Vote reasoning.
+    /// Engine for Debate &amp; Vote reasoning.
     /// Implements an ideology collider brainstorming system that uses opposing
     /// ideological perspectives to generate and synthesize ideas.
     /// </summary>

@@ -36,4 +36,12 @@
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
+  <!-- Global using directives for namespaces expected by sub-directory source files -->
+  <ItemGroup>
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Azure" />
+    <Using Include="Azure.AI.OpenAI" />
+    <Using Include="Azure.AI.TextAnalytics" />
+  </ItemGroup>
+
 </Project>

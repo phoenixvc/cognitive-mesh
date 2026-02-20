@@ -1,3 +1,5 @@
+using AzureOpenAIClient = Azure.AI.OpenAI.OpenAIClient;
+using CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions;
 using System.Text.Json;
 
 namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations

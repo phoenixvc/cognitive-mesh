@@ -1,3 +1,5 @@
+using CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions;
+
 namespace CognitiveMesh.ReasoningLayer.LLMReasoning
 {
     /// <summary>

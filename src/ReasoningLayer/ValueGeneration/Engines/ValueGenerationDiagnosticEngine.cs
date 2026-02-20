@@ -13,7 +13,10 @@ public class ValueDiagnosticData
 
 public interface IValueDiagnosticDataRepository
 {
+    /// <summary>Retrieves diagnostic data for the specified target.</summary>
     Task<ValueDiagnosticData> GetValueDiagnosticDataAsync(string targetId, string tenantId);
+    /// <summary>Retrieves an organizational data snapshot for blindness detection.</summary>
+    Task<OrgDataSnapshot> GetOrgDataSnapshotAsync(string organizationId, string[] departmentFilters, string tenantId);
 }
 
 // --- Domain Engine Implementation ---

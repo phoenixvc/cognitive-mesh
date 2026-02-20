@@ -1,3 +1,5 @@
+using FoundationLayer.EnterpriseConnectors;
+
 namespace CognitiveMesh.ReasoningLayer.SystemsReasoning;
 
 /// <summary>
