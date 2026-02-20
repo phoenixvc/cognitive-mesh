@@ -209,7 +209,7 @@ namespace FoundationLayer.Notifications.Services
                         ["text"] = new Dictionary<string, object>
                         {
                             ["type"] = "plain_text",
-                            ["text"] = action.Label ?? action.ActionId
+                            ["text"] = (object)(action.Label ?? action.ActionId ?? string.Empty)
                         },
                         ["action_id"] = action.ActionId ?? Guid.NewGuid().ToString()
                     };

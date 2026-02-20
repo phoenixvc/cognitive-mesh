@@ -115,7 +115,7 @@ namespace FoundationLayer.AuditLogging.Services
                     .WithParameter("@eventId", eventId);
 
                 var results = await ExecuteQueryAsync(query);
-                return results.FirstOrDefault();
+                return results.FirstOrDefault()!;
             }
             catch (Exception ex)
             {
@@ -331,16 +331,16 @@ namespace FoundationLayer.AuditLogging.Services
         /// <summary>
         /// The Cosmos DB connection string.
         /// </summary>
-        public string ConnectionString { get; set; }
+        public string ConnectionString { get; set; } = string.Empty;
 
         /// <summary>
         /// The name of the Cosmos DB database.
         /// </summary>
-        public string DatabaseName { get; set; }
+        public string DatabaseName { get; set; } = string.Empty;
 
         /// <summary>
         /// The name of the container for audit events.
         /// </summary>
-        public string AuditContainerName { get; set; }
+        public string AuditContainerName { get; set; } = string.Empty;
     }
 }

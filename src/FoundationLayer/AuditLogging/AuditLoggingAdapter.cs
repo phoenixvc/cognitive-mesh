@@ -580,7 +580,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
     /// <summary>
     /// Processes the retry queue.
     /// </summary>
-    private async void ProcessRetryQueue(object state)
+    private async void ProcessRetryQueue(object? state)
     {
         if (_processingRetryQueue)
         {
@@ -657,7 +657,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to serialize event data. Using ToString() instead.");
-            return eventData.ToString();
+            return eventData.ToString() ?? string.Empty;
         }
     }
 
