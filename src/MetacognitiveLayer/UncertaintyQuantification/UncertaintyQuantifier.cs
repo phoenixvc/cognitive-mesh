@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AgencyLayer.HumanCollaboration;
 using CognitiveMesh.MetacognitiveLayer.ReasoningTransparency;
 using CognitiveMesh.Shared.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -18,7 +17,7 @@ namespace MetacognitiveLayer.UncertaintyQuantification
     {
         private readonly ILogger<UncertaintyQuantifier>? _logger;
         private readonly ILLMClient? _llmClient;
-        private readonly ICollaborationManager? _collaborationManager;
+        private readonly ICollaborationPort? _collaborationPort;
         private readonly ITransparencyManager? _transparencyManager;
         private bool _disposed = false;
 
@@ -46,17 +45,17 @@ namespace MetacognitiveLayer.UncertaintyQuantification
         /// </summary>
         /// <param name="logger">The logger instance.</param>
         /// <param name="llmClient">The LLM client for cognitive assessment.</param>
-        /// <param name="collaborationManager">The collaboration manager for human interaction.</param>
+        /// <param name="collaborationPort">The collaboration port for human interaction.</param>
         /// <param name="transparencyManager">The transparency manager for logging reasoning.</param>
         public UncertaintyQuantifier(
             ILogger<UncertaintyQuantifier>? logger = null,
             ILLMClient? llmClient = null,
-            ICollaborationManager? collaborationManager = null,
+            ICollaborationPort? collaborationPort = null,
             ITransparencyManager? transparencyManager = null)
         {
             _logger = logger;
             _llmClient = llmClient;
-            _collaborationManager = collaborationManager;
+            _collaborationPort = collaborationPort;
             _transparencyManager = transparencyManager;
             _logger?.LogInformation("UncertaintyQuantifier initialized");
         }
@@ -382,9 +381,9 @@ Confidence Score:";
 
         private async Task ApplyHumanInterventionStrategyAsync(Dictionary<string, object> parameters, CancellationToken cancellationToken)
         {
-            if (_collaborationManager == null)
+            if (_collaborationPort == null)
             {
-                _logger?.LogWarning("Cannot apply RequestHumanIntervention: CollaborationManager is not available.");
+                _logger?.LogWarning("Cannot apply RequestHumanIntervention: CollaborationPort is not available.");
                 return;
             }
 
@@ -402,7 +401,7 @@ Confidence Score:";
             }
 
             _logger?.LogInformation("Initiating human intervention session: {SessionName}", sessionName);
-            await _collaborationManager.CreateSessionAsync(sessionName, description, participants, cancellationToken);
+            await _collaborationPort.CreateCollaborationSessionAsync(sessionName, description, participants, cancellationToken);
         }
 
         private void ApplyFallbackStrategy(Dictionary<string, object> parameters)

@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AgencyLayer\ToolIntegration\ToolIntegration.csproj" />
     <ProjectReference Include="..\..\FoundationLayer\FoundationLayer.csproj" />
     <ProjectReference Include="..\..\src\FoundationLayer\Security\Security.csproj" />
   </ItemGroup>
