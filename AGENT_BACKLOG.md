@@ -220,9 +220,16 @@
 - **Deliverable:** Live spectrums, P95 decision error <=1%
 - **Team:** 1 (Foundation)
 
-### PRD-003: Cognitive Sandwich Workflow (AC-02)
+### ~~PRD-003: Cognitive Sandwich Workflow (AC-02)~~ PARTIAL (Phase 8)
 - **PRD:** `docs/prds/01-foundational-infrastructure/mesh-orchestration-hitl.md`
 - **Deliverable:** Phase-based HITL workflow, 40% hallucination reduction
+- **Status:** Phase 8 built the foundation layer:
+  - 17 model classes (SandwichProcess, Phase, PhaseCondition, PhaseOutput, PhaseResult, StepBackReason, CognitiveDebtAssessment, PhaseAuditEntry, enums, configs)
+  - 4 port interfaces (IPhaseManagerPort, ICognitiveDebtPort, IPhaseConditionPort, IAuditLoggingAdapter)
+  - `CognitiveSandwichEngine` — full implementation with ConcurrentDictionary in-memory store (create, transition, step-back, audit)
+  - `CognitiveSandwich.csproj` + AgencyLayer.csproj reference
+  - 27 unit tests covering all engine functionality
+- **Remaining:** DurableWorkflowEngine HITL integration, CognitiveSandwichController (REST API), Cognitive Debt Monitor in MetacognitiveLayer, multi-agent handoff, OpenAPI spec
 - **Team:** 4 (Agency)
 
 ### PRD-004: Cognitive Sovereignty Control (AC-03)
@@ -240,9 +247,15 @@
 - **Deliverable:** Recall F1 +30%, recovery +50%
 - **Team:** 2 (Reasoning)
 
-### ~~PRD-007: Value Generation Analytics (VI-01)~~ PARTIAL (Phase 7)
-- **Status:** Fixed `ValueGeneration.csproj` — added missing ProjectReferences (FoundationLayer, ReasoningLayer, Shared, Common, ConvenerServices). Fixed `ValueGenerationController.cs` — corrected `using` import (removed non-existent `.Models` sub-namespace), added `System.Text.Json`, replaced `Forbid()` with `StatusCode(403,...)`. Added `LogEventAsync(AuditEvent)` to `IAuditLoggingAdapter` interface + implementation. Added `ErrorEnvelope.Create/InvalidPayload/ConsentMissing` factory methods. Engines + Controller + Ports were already implemented — this phase wired them together.
-- **Remaining:** DI registration, dedicated test coverage for controller + engines.
+### ~~PRD-007: Value Generation Analytics (VI-01)~~ DONE (Phase 8)
+- **Status:** Phase 7 wired csproj references + fixed controller imports. Phase 8 completed:
+  - `ServiceCollectionExtensions.AddValueGenerationServices()` — 8 DI registrations (3 engine ports + 5 repository adapters)
+  - 5 in-memory adapters: `InMemoryValueDiagnosticDataRepository`, `InMemoryOrganizationalDataRepository`, `InMemoryEmployabilityDataRepository`, `InMemoryConsentVerifier`, `InMemoryManualReviewRequester`
+  - `ValueGenerationControllerTests` — 30 tests (null guards, all endpoints, consent flows, audit logging)
+  - `ValueGenerationDiagnosticEngineTests` — 12 tests (profiles, strengths, opportunities)
+  - `OrganizationalValueBlindnessEngineTests` — 11 tests (blind spots, risk scoring)
+  - `EmployabilityPredictorEngineTests` — 17 tests (consent, risk classification, manual review)
+  - Total: 70 new tests for ValueGeneration pipeline
 - **Team:** 5 (Business)
 
 ### PRD-008: Impact-Driven AI Metrics (VI-02)
@@ -278,10 +291,10 @@
 | P1-HIGH (IaC) | 11 | 11 | 0 | Terraform modules + Terragrunt + K8s |
 | P2-MEDIUM (stubs) | 5 | 5 | 0 | BIZ-004 (ConvenerController) DONE — all stubs resolved |
 | P2-MEDIUM (tests) | 9 | 9 | 0 | 309 unit tests + 25 new integration tests = 334 total new tests |
-| P2-MEDIUM (PRDs) | 8 | 1 | 7 | PRD-007 (Value Generation) wired up; 7 PRDs remaining |
+| P2-MEDIUM (PRDs) | 8 | 2 | 6 | PRD-007 DONE, PRD-003 PARTIAL; 6 PRDs remaining |
 | P3-LOW | 10 | 0 | 10 | Future enhancements |
-| **Total** | **70** | **55** | **15** | Phase 7 (Business): +3 items (cumulative 79%) |
+| **Total** | **70** | **57** | **13** | Phase 8 (Agency+Business): +2 items (cumulative 81%) |
 
 ---
 
-*Generated: 2026-02-20 | Updated after Phase 7 Business completion (BIZ-004 + PRD-007 fixes)*
+*Generated: 2026-02-20 | Updated after Phase 8 — PRD-007 complete + PRD-003 foundation*
