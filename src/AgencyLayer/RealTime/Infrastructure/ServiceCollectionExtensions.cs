@@ -1,6 +1,7 @@
 using CognitiveMesh.AgencyLayer.RealTime.Adapters;
 using CognitiveMesh.AgencyLayer.RealTime.Hubs;
 using CognitiveMesh.AgencyLayer.RealTime.Ports;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +39,7 @@ public static class ServiceCollectionExtensions
     /// <param name="endpoints">The endpoint route builder to map the hub to.</param>
     /// <returns>The hub endpoint convention builder for further configuration.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="endpoints"/> is null.</exception>
-    public static HubEndpointConventionBuilder MapCognitiveMeshHubs(this IEndpointRouteBuilder endpoints)
+    public static IEndpointConventionBuilder MapCognitiveMeshHubs(this IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
 

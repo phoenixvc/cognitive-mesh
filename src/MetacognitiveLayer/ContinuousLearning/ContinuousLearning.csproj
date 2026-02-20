@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="LearningManager.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" />
     <PackageReference Include="Azure.Messaging.EventGrid" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />

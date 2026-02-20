@@ -17,7 +17,7 @@ public sealed class TelemetryEngineTests : IDisposable
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TelemetryEngineTests"/> class.
-    /// Registers an <see cref="ActivityListener"/> so that <see cref="ActivitySource.StartActivity"/>
+    /// Registers an <see cref="ActivityListener"/> so that <see cref="ActivitySource.StartActivity(string, ActivityKind)"/>
     /// returns non-null activities during tests.
     /// </summary>
     public TelemetryEngineTests()
