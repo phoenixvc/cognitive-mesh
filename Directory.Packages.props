@@ -48,14 +48,14 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[9.0.6]" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="[9.0.6]" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Memory" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
     <!-- OpenTelemetry -->
-    <PackageVersion Include="OpenTelemetry" Version="[1.10.0]" />
-    <PackageVersion Include="OpenTelemetry.Api" Version="[1.10.0]" />
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="[1.10.0]" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="[1.10.0]" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="[1.10.1]" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="[1.10.1]" />
+    <PackageVersion Include="OpenTelemetry" Version="[1.11.2]" />
+    <PackageVersion Include="OpenTelemetry.Api" Version="[1.11.2]" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="[1.11.2]" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="[1.11.2]" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="[1.11.1]" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="[1.11.1]" />
     <!-- Application Insights -->
     <PackageVersion Include="Microsoft.ApplicationInsights" Version="[2.22.0]" />
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="[3.52.0]" />

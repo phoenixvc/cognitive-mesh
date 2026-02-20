@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\FoundationLayer\FoundationLayer.csproj" />
-    <ProjectReference Include="..\..\src\FoundationLayer\Security\Security.csproj" />
+    <ProjectReference Include="..\..\FoundationLayer\Security\Security.csproj" />
   </ItemGroup>
 
   <ItemGroup>
