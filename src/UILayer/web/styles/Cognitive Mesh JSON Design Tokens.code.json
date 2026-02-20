@@ -1,0 +1,206 @@
+{
+  "cognitive-mesh": {
+    "color": {
+      "neural": {
+        "primary": {
+          "value": "#58A6FF",
+          "type": "color",
+          "description": "Main brand color for neural lines and primary actions"
+        },
+        "secondary": {
+          "value": "#8B45FF",
+          "type": "color",
+          "description": "Secondary brand color for outlines and accents"
+        },
+        "accent": {
+          "value": "#00BFFF",
+          "type": "color",
+          "description": "Highlight color for active nodes and focus states"
+        },
+        "matrix": {
+          "value": "#7EE787",
+          "type": "color",
+          "description": "Success and valid AI states"
+        }
+      },
+      "semantic": {
+        "primary": {
+          "light": { "value": "#CDE7FF", "type": "color" },
+          "base": { "value": "#58A6FF", "type": "color" },
+          "dark": { "value": "#1B2940", "type": "color" }
+        },
+        "secondary": {
+          "light": { "value": "#E2CCFF", "type": "color" },
+          "base": { "value": "#8B45FF", "type": "color" },
+          "dark": { "value": "#2E1A47", "type": "color" }
+        },
+        "matrix": {
+          "light": { "value": "#CFF5D7", "type": "color" },
+          "base": { "value": "#7EE787", "type": "color" },
+          "dark": { "value": "#183E29", "type": "color" }
+        },
+        "danger": {
+          "light": { "value": "#FFD6D6", "type": "color" },
+          "base": { "value": "#FF5F56", "type": "color" },
+          "dark": { "value": "#4D1A1A", "type": "color" }
+        },
+        "warning": {
+          "light": { "value": "#FFF2CC", "type": "color" },
+          "base": { "value": "#FFBD2E", "type": "color" },
+          "dark": { "value": "#4D3A0F", "type": "color" }
+        }
+      },
+      "background": {
+        "primary": {
+          "value": "#0D1117",
+          "type": "color",
+          "description": "Base canvas background"
+        },
+        "secondary": {
+          "value": "#161B22",
+          "type": "color",
+          "description": "Panel interior background"
+        },
+        "tertiary": {
+          "value": "#1E2139",
+          "type": "color",
+          "description": "Elevated surfaces"
+        },
+        "surface": {
+          "value": "#1A1F3A",
+          "type": "color",
+          "description": "Interactive surfaces"
+        }
+      }
+    },
+    "typography": {
+      "font": {
+        "mono": {
+          "value": "JetBrains Mono",
+          "type": "fontFamily",
+          "description": "Monospace font for code and terminal text"
+        },
+        "sans": {
+          "value": "Inter",
+          "type": "fontFamily",
+          "description": "Sans-serif font for UI text"
+        }
+      },
+      "size": {
+        "hero": { "value": "64px", "type": "fontSize" },
+        "title": { "value": "30px", "type": "fontSize" },
+        "label": { "value": "16px", "type": "fontSize" },
+        "body": { "value": "16px", "type": "fontSize" },
+        "code": { "value": "14px", "type": "fontSize" },
+        "caption": { "value": "12px", "type": "fontSize" }
+      },
+      "weight": {
+        "light": { "value": "300", "type": "fontWeight" },
+        "normal": { "value": "400", "type": "fontWeight" },
+        "medium": { "value": "500", "type": "fontWeight" },
+        "semibold": { "value": "600", "type": "fontWeight" },
+        "bold": { "value": "700", "type": "fontWeight" }
+      },
+      "lineHeight": {
+        "tight": { "value": "1.2", "type": "lineHeight" },
+        "normal": { "value": "1.4", "type": "lineHeight" },
+        "relaxed": { "value": "1.6", "type": "lineHeight" }
+      }
+    },
+    "spacing": {
+      "xs": { "value": "4px", "type": "spacing" },
+      "sm": { "value": "8px", "type": "spacing" },
+      "md": { "value": "16px", "type": "spacing" },
+      "lg": { "value": "32px", "type": "spacing" },
+      "xl": { "value": "48px", "type": "spacing" },
+      "2xl": { "value": "64px", "type": "spacing" }
+    },
+    "borderRadius": {
+      "sm": { "value": "4px", "type": "borderRadius" },
+      "md": { "value": "8px", "type": "borderRadius" },
+      "lg": { "value": "16px", "type": "borderRadius" },
+      "xl": { "value": "20px", "type": "borderRadius" },
+      "2xl": { "value": "24px", "type": "borderRadius" },
+      "full": { "value": "9999px", "type": "borderRadius" }
+    },
+    "effect": {
+      "glow": {
+        "primary": {
+          "value": "0 0 20px #58A6FF",
+          "type": "boxShadow",
+          "description": "Primary neural glow effect"
+        },
+        "soft": {
+          "value": "0 0 40px rgba(88, 166, 255, 0.3)",
+          "type": "boxShadow",
+          "description": "Soft ambient glow"
+        },
+        "intense": {
+          "value": "0 0 60px rgba(88, 166, 255, 1.5)",
+          "type": "boxShadow",
+          "description": "Intense focus glow"
+        },
+        "multi": {
+          "value": "0 0 20px #58A6FF, 0 0 40px #8B45FF, 0 0 60px #00BFFF, 0 15px 40px rgba(0,0,0,0.5)",
+          "type": "boxShadow",
+          "description": "Multi-layered neural glow"
+        }
+      },
+      "elevation": {
+        "1": { "value": "0 1px 2px rgba(0, 0, 0, 0.05)", "type": "boxShadow" },
+        "2": { "value": "0 2px 6px rgba(0, 0, 0, 0.08)", "type": "boxShadow" },
+        "3": { "value": "0 4px 12px rgba(0, 0, 0, 0.12)", "type": "boxShadow" },
+        "4": { "value": "0 6px 18px rgba(0, 0, 0, 0.16)", "type": "boxShadow" },
+        "5": { "value": "0 8px 20px rgba(0, 0, 0, 0.2)", "type": "boxShadow" }
+      }
+    },
+    "animation": {
+      "duration": {
+        "fast": { "value": "150ms", "type": "duration" },
+        "normal": { "value": "300ms", "type": "duration" },
+        "neural": { "value": "600ms", "type": "duration" },
+        "ambient": { "value": "10s", "type": "duration" }
+      },
+      "easing": {
+        "neural": { "value": "cubic-bezier(0.4, 0, 0.2, 1)", "type": "cubicBezier" },
+        "snap": { "value": "cubic-bezier(0.25, 1, 0.5, 1)", "type": "cubicBezier" }
+      }
+    },
+    "zIndex": {
+      "background": { "value": "0", "type": "zIndex" },
+      "content": { "value": "1", "type": "zIndex" },
+      "elevated": { "value": "10", "type": "zIndex" },
+      "navigation": { "value": "50", "type": "zIndex" },
+      "tooltips": { "value": "100", "type": "zIndex" },
+      "overlays": { "value": "200", "type": "zIndex" },
+      "critical": { "value": "999", "type": "zIndex" }
+    },
+    "aiStates": {
+      "thinking": {
+        "color": { "value": "#58A6FF", "type": "color" },
+        "animation": { "value": "thinkingPulse 2s infinite", "type": "animation" },
+        "description": "AI is processing or thinking"
+      },
+      "hallucinating": {
+        "color": { "value": "#8B45FF", "type": "color" },
+        "animation": { "value": "glitchShimmer 3s infinite", "type": "animation" },
+        "description": "AI may be generating uncertain content"
+      },
+      "verified": {
+        "color": { "value": "#7EE787", "type": "color" },
+        "effect": { "value": "0 0 20px #7EE787", "type": "boxShadow" },
+        "description": "AI content has been verified"
+      },
+      "processing": {
+        "color": { "value": "#00BFFF", "type": "color" },
+        "animation": { "value": "dataFlow 1.5s linear infinite", "type": "animation" },
+        "description": "AI is actively processing data"
+      },
+      "error": {
+        "color": { "value": "#FF5F56", "type": "color" },
+        "animation": { "value": "errorPulse 1s infinite", "type": "animation" },
+        "description": "AI has encountered an error"
+      }
+    }
+  }
+}

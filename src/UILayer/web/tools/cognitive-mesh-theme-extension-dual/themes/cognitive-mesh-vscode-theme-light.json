@@ -1,0 +1,100 @@
+{
+  "name": "Cognitive Mesh - Light Variant",
+  "type": "light",
+  "colors": {
+    "editor.background": "#F9FBFD",
+    "editor.foreground": "#1E2139",
+    "editorLineNumber.foreground": "#A5B3C1",
+    "editorLineNumber.activeForeground": "#8B45FF",
+    "editorCursor.foreground": "#8B45FF",
+    "editor.selectionBackground": "#D1D5E0",
+    "editor.inactiveSelectionBackground": "#E6EDF3",
+    "editorIndentGuide.background": "#CBD5E1",
+    "editorIndentGuide.activeBackground": "#8B45FF",
+    "editorWhitespace.foreground": "#CBD5E1",
+    "editorBracketMatch.border": "#8B45FF",
+    "editorBracketHighlight.foreground1": "#58A6FF",
+    "editorBracketHighlight.foreground2": "#8B45FF",
+    "editorBracketHighlight.foreground3": "#00BFFF",
+    "editorBracketHighlight.foreground4": "#7EE787",
+    "sideBar.background": "#F3F4F6",
+    "sideBar.foreground": "#32383F",
+    "activityBar.background": "#E2E8F0",
+    "activityBar.foreground": "#8B45FF",
+    "statusBar.background": "#CBD5E1",
+    "statusBar.foreground": "#1E2139",
+    "tab.activeBackground": "#E2E8F0",
+    "tab.inactiveBackground": "#F3F4F6",
+    "tab.activeForeground": "#8B45FF",
+    "tab.inactiveForeground": "#656C76",
+    "titleBar.activeBackground": "#F9FBFD",
+    "titleBar.activeForeground": "#8B45FF"
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "punctuation.definition.comment"
+      ],
+      "settings": {
+        "foreground": "#7D8590",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "scope": [
+        "keyword",
+        "storage"
+      ],
+      "settings": {
+        "foreground": "#8B45FF"
+      }
+    },
+    {
+      "scope": [
+        "variable",
+        "identifier"
+      ],
+      "settings": {
+        "foreground": "#58A6FF"
+      }
+    },
+    {
+      "scope": [
+        "string",
+        "constant.other.symbol"
+      ],
+      "settings": {
+        "foreground": "#7EE787"
+      }
+    },
+    {
+      "scope": [
+        "constant.numeric",
+        "constant.language"
+      ],
+      "settings": {
+        "foreground": "#FFBD2E"
+      }
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "settings": {
+        "foreground": "#00BFFF"
+      }
+    },
+    {
+      "scope": [
+        "invalid",
+        "invalid.deprecated"
+      ],
+      "settings": {
+        "foreground": "#FF5F56",
+        "fontStyle": "underline"
+      }
+    }
+  ]
+}

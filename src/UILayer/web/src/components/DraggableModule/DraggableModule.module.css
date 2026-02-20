@@ -1,0 +1,73 @@
+.draggableModule {
+  background: rgba(0, 20, 40, 0.9);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
+  min-width: 280px;
+  max-width: 400px;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.draggableModule:hover {
+  border-color: rgba(0, 255, 255, 0.6);
+  box-shadow: 0 12px 48px rgba(0, 255, 255, 0.2);
+}
+
+.dragging {
+  z-index: 1000;
+  transform-origin: center;
+  scale: 1.05;
+}
+
+.docked {
+  position: relative !important;
+  transform: none !important;
+  margin: 8px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+  cursor: move;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 100, 200, 0.1));
+}
+
+.docked .header {
+  cursor: default;
+}
+
+.title {
+  color: #00ffff;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.dockButton {
+  background: rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  border-radius: 6px;
+  color: #00ffff;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.dockButton:hover {
+  background: rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+}
+
+.content {
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  line-height: 1.5;
+}

@@ -1,0 +1,154 @@
+/* Design tokens are imported globally in globals.css */
+
+.cognitive-mesh-card {
+  /* Base styles using design tokens */
+  font-family: var(--typography-font-family-primary);
+  border-radius: 12px;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Size variants */
+.cognitive-mesh-card--sm {
+  padding: var(--spacing-sm);
+  min-width: 200px;
+}
+
+.cognitive-mesh-card--md {
+  padding: var(--spacing-md);
+  min-width: 300px;
+}
+
+.cognitive-mesh-card--lg {
+  padding: var(--spacing-lg);
+  min-width: 400px;
+}
+
+/* Default variant */
+.cognitive-mesh-card--default {
+  background: var(--color-cognitive-neutral-matter);
+  border: 1px solid var(--color-cognitive-neutral-fluid);
+  color: white;
+}
+
+.cognitive-mesh-card--default:hover {
+  border-color: var(--color-cognitive-primary-neural);
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+}
+
+/* Elevated variant */
+.cognitive-mesh-card--elevated {
+  background: var(--color-cognitive-neutral-cortex);
+  border: none;
+  color: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.cognitive-mesh-card--elevated:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Outlined variant */
+.cognitive-mesh-card--outlined {
+  background: transparent;
+  border: 2px solid var(--color-cognitive-primary-neural);
+  color: var(--color-cognitive-primary-neural);
+}
+
+.cognitive-mesh-card--outlined:hover {
+  background: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+}
+
+/* Gradient variant */
+.cognitive-mesh-card--gradient {
+  background: var(--color-cognitive-gradient-neural);
+  border: none;
+  color: white;
+  position: relative;
+}
+
+.cognitive-mesh-card--gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.8) 0%, rgba(0, 102, 204, 0.8) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cognitive-mesh-card--gradient:hover::before {
+  opacity: 1;
+}
+
+.cognitive-mesh-card--gradient > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Clickable state */
+.cognitive-mesh-card--clickable {
+  cursor: pointer;
+}
+
+.cognitive-mesh-card--clickable:focus-visible {
+  outline: 2px solid var(--color-cognitive-primary-neural);
+  outline-offset: 2px;
+}
+
+/* Header styles */
+.cognitive-mesh-card__header {
+  margin-bottom: var(--spacing-sm);
+}
+
+.cognitive-mesh-card__title {
+  font-size: var(--typography-font-size-lg);
+  font-weight: var(--typography-font-weight-semibold);
+  margin: 0 0 var(--spacing-xs) 0;
+  line-height: var(--typography-line-height-tight);
+}
+
+.cognitive-mesh-card__subtitle {
+  font-size: var(--typography-font-size-sm);
+  font-weight: var(--typography-font-weight-normal);
+  margin: 0;
+  opacity: 0.8;
+  line-height: var(--typography-line-height-normal);
+}
+
+/* Content styles */
+.cognitive-mesh-card__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Glow effect for gradient cards */
+.cognitive-mesh-card--gradient::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    var(--color-cognitive-primary-neural), 
+    var(--color-cognitive-secondary-dendritic), 
+    var(--color-cognitive-primary-neural)
+  );
+  border-radius: 14px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cognitive-mesh-card--gradient:hover::after {
+  opacity: 0.6;
+} 
