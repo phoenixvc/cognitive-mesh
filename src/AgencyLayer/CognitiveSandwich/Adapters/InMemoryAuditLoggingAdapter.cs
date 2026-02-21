@@ -34,7 +34,7 @@ public class InMemoryAuditLoggingAdapter : IAuditLoggingAdapter
 
         _logger.LogDebug(
             "Logged audit entry {EntryId} for process {ProcessId}: {EventType}",
-            Sanitize(entry.EntryId), Sanitize(entry.ProcessId), Sanitize(entry.EventType));
+            Sanitize(entry.EntryId), Sanitize(entry.ProcessId), entry.EventType);
 
         return Task.CompletedTask;
     }
