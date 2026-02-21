@@ -150,6 +150,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             RegisterLiteDbStore(services);
             RegisterPostgresStore(services);
             RegisterCosmosDbStore(services);
+            RegisterInMemoryStore(services);
             RegisterRedisStore(services);
             RegisterVectorSearchProvider(services);
 
@@ -213,6 +214,15 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                     options.CosmosDbDatabaseId,
                     options.CosmosDbContainerId,
                     logger);
+            });
+        }
+
+        private static void RegisterInMemoryStore(IServiceCollection services)
+        {
+            services.AddSingleton<InMemoryMemoryStore>(provider =>
+            {
+                var logger = provider.GetRequiredService<ILogger<InMemoryMemoryStore>>();
+                return new InMemoryMemoryStore(logger);
             });
         }
 
@@ -280,6 +290,9 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
 
                 case "cosmosdb":
                     return provider.GetRequiredService<CosmosDbMemoryStore>();
+
+                case "inmemory":
+                    return provider.GetRequiredService<InMemoryMemoryStore>();
 
                 case "duckdb":
                     return provider.GetRequiredService<DuckDbMemoryStore>();

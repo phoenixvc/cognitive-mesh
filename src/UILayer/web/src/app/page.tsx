@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react"
 import { BackgroundEffects, BridgeHeader, DashboardLayout, LoadingSpinner, Nexus } from "@/components"
 import DraggableComponent from "@/components/DraggableComponent"
 import VoiceFeedback from "@/components/VoiceFeedback"
+import SetupWizard from "@/components/setup/SetupWizard"
+import GuidedTour from "@/components/GuidedTour/GuidedTour"
 import { DragDropProvider, useDragDrop } from "@/contexts/DragDropContext"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import {
@@ -476,6 +478,12 @@ function DashboardContent() {
         particleEffectsEnabled={particleEffectsEnabled}
         effectSpeed={effectSpeed}
       />
+
+      {/* Setup Wizard — shown on first visit */}
+      <SetupWizard />
+
+      {/* Guided Tour — shown after setup wizard completes */}
+      <GuidedTour />
     </div>
   )
 }
