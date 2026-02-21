@@ -13,6 +13,11 @@ namespace MetacognitiveLayer.Protocols.Common
         private readonly Timer _cleanupTimer;
         private readonly TimeSpan _sessionTimeout;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SessionManager"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="sessionTimeout">Optional session timeout duration. Defaults to one hour if not specified.</param>
         public SessionManager(ILogger<SessionManager> logger, TimeSpan? sessionTimeout = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

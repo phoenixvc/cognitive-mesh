@@ -11,6 +11,10 @@ namespace MetacognitiveLayer.Protocols.MCP
         private readonly ILogger<MCPValidator> _logger;
         private JsonDocument? _mcpSchema;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MCPValidator"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public MCPValidator(ILogger<MCPValidator> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

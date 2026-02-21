@@ -4,6 +4,10 @@ using StackExchange.Redis;
 
 namespace MetacognitiveLayer.Protocols.Common.Memory
 {
+    /// <summary>
+    /// Redis-based implementation of <see cref="IVectorSearchProvider"/> that uses
+    /// RediSearch for vector similarity queries and JSON document storage.
+    /// </summary>
     public class RedisVectorSearchProvider : IVectorSearchProvider
     {
         private readonly string _connectionString;
@@ -14,12 +18,18 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         private IDatabase? _db;
         private bool _initialized;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisVectorSearchProvider"/> class.
+        /// </summary>
+        /// <param name="connectionString">The Redis connection string.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public RedisVectorSearchProvider(string connectionString, ILogger<RedisVectorSearchProvider> logger)
         {
             _connectionString = connectionString;
             _logger = logger;
         }
 
+        /// <inheritdoc />
         public async Task InitializeAsync()
         {
             if (_initialized) return;
@@ -61,18 +71,21 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             await _db!.ExecuteAsync("FT.CREATE", args.ToArray());
         }
 
+        /// <inheritdoc />
         public async Task SaveDocumentAsync(string key, Dictionary<string, object> document)
         {
             string json = JsonSerializer.Serialize(document);
             await _db!.ExecuteAsync("JSON.SET", key, "$", json);
         }
 
+        /// <inheritdoc />
         public async Task<string> GetDocumentValueAsync(string key, string jsonPath)
         {
             var result = await _db!.ExecuteAsync("JSON.GET", key, jsonPath);
             return result.IsNull ? null! : result.ToString()!;
         }
 
+        /// <inheritdoc />
         public async Task<IEnumerable<string>> QuerySimilarAsync(float[] embedding, float threshold)
         {
             var vectorBytes = new byte[embedding.Length * sizeof(float)];

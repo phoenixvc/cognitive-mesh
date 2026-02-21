@@ -16,6 +16,11 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         private bool _initialized = false;
         private string _connectionString;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DuckDbMemoryStore"/> class.
+        /// </summary>
+        /// <param name="dbFilePath">The file path for the DuckDB database.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public DuckDbMemoryStore(string dbFilePath, ILogger<DuckDbMemoryStore> logger)
         {
             _dbFilePath = dbFilePath ?? throw new ArgumentNullException(nameof(dbFilePath));

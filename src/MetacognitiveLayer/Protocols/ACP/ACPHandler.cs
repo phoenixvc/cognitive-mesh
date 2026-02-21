@@ -17,6 +17,11 @@ namespace MetacognitiveLayer.Protocols.ACP
         private readonly Dictionary<string, string> _templateLibrary;
         private readonly ILogger<ACPHandler> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ACPHandler"/> class.
+        /// </summary>
+        /// <param name="validator">The ACP validator used to validate XML templates.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public ACPHandler(ACPValidator validator, ILogger<ACPHandler> logger)
         {
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));

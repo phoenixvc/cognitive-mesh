@@ -43,6 +43,11 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
         private readonly Dictionary<string, string> _toolCache = new Dictionary<string, string>();
         private bool _initialized = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NodeToolRunner"/> class.
+        /// </summary>
+        /// <param name="options">Configuration options for the Node tool runner.</param>
+        /// <param name="logger">Logger instance for diagnostic output.</param>
         public NodeToolRunner(NodeToolRunnerOptions options, ILogger<NodeToolRunner> logger)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));

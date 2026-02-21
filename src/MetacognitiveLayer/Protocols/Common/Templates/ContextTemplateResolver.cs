@@ -15,6 +15,11 @@ namespace MetacognitiveLayer.Protocols.Common.Templates
         private readonly string _templatesDirectory;
         private readonly Dictionary<string, ACPTemplate> _templateCache = new Dictionary<string, ACPTemplate>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ContextTemplateResolver"/> class.
+        /// </summary>
+        /// <param name="templatesDirectory">The directory path containing XML template files.</param>
+        /// <param name="logger">The logger instance.</param>
         public ContextTemplateResolver(string templatesDirectory, ILogger<ContextTemplateResolver> logger)
         {
             _templatesDirectory = templatesDirectory ?? throw new ArgumentNullException(nameof(templatesDirectory));
@@ -321,22 +326,40 @@ namespace MetacognitiveLayer.Protocols.Common.Templates
     [XmlRoot("ACPTemplate")]
     public class ACPTemplate
     {
+        /// <summary>
+        /// Gets or sets the system-level instructions for the agent.
+        /// </summary>
         [XmlElement("SystemInstructions")]
         public string SystemInstructions { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the role definition describing the agent's persona.
+        /// </summary>
         [XmlElement("RoleDefinition")]
         public string RoleDefinition { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the contextual information provided to the agent.
+        /// </summary>
         [XmlElement("Context")]
         public string Context { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the list of example interactions for few-shot prompting.
+        /// </summary>
         [XmlArray("Examples")]
         [XmlArrayItem("Example")]
         public List<string> Examples { get; set; } = new();
 
+        /// <summary>
+        /// Gets or sets the task description for the agent to execute.
+        /// </summary>
         [XmlElement("Task")]
         public string Task { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the list of constraints the agent must follow.
+        /// </summary>
         [XmlArray("Constraints")]
         [XmlArrayItem("Constraint")]
         public List<string> Constraints { get; set; } = new();

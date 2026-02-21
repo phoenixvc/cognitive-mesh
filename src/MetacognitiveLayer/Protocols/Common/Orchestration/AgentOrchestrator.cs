@@ -18,6 +18,14 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
         private readonly ILogger<AgentOrchestrator> _logger;
         private readonly Dictionary<string, AgentRegistration> _agents = new Dictionary<string, AgentRegistration>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AgentOrchestrator"/> class.
+        /// </summary>
+        /// <param name="templateResolver">The context template resolver for resolving agent prompts.</param>
+        /// <param name="memoryStore">The memory store for persisting agent state.</param>
+        /// <param name="llmProvider">The LLM provider for generating agent responses.</param>
+        /// <param name="toolRunner">The tool runner for executing agent tools.</param>
+        /// <param name="logger">The logger instance.</param>
         public AgentOrchestrator(
             IContextTemplateResolver templateResolver,
             IMeshMemoryStore memoryStore,

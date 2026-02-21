@@ -13,6 +13,10 @@ namespace MetacognitiveLayer.Protocols.ACP
         private XmlSchemaSet _schemaSet = null!;
         private bool _hasValidationErrors;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ACPValidator"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public ACPValidator(ILogger<ACPValidator> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

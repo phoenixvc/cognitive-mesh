@@ -13,6 +13,11 @@ namespace MetacognitiveLayer.Protocols.MCP
         private readonly MCPValidator _validator;
         private readonly ILogger<MCPHandler> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MCPHandler"/> class.
+        /// </summary>
+        /// <param name="validator">The MCP validator used to validate incoming requests.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public MCPHandler(MCPValidator validator, ILogger<MCPHandler> logger)
         {
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));

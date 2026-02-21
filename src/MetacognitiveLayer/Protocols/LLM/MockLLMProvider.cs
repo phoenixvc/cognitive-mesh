@@ -12,6 +12,10 @@ namespace MetacognitiveLayer.Protocols.LLM
         private readonly ILogger<MockLLMProvider> _logger;
         private readonly Random _random = new Random();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MockLLMProvider"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public MockLLMProvider(ILogger<MockLLMProvider> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
