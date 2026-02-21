@@ -10,6 +10,7 @@ namespace AgencyLayer.ToolIntegration
     /// </summary>
     public static class ToolDefinitions
     {
+        /// <summary>Gets the classification tool definition.</summary>
         public static ToolDefinition Classification => new()
         {
             Name = "Classification Tool",
@@ -19,6 +20,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Classification results for: {0}"
         };
 
+        /// <summary>Gets the clustering tool definition.</summary>
         public static ToolDefinition Clustering => new()
         {
             Name = "Clustering Tool",
@@ -28,6 +30,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Clustering results for: {0}"
         };
 
+        /// <summary>Gets the data analysis tool definition.</summary>
         public static ToolDefinition DataAnalysis => new()
         {
             Name = "Data Analysis Tool",
@@ -37,6 +40,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Data analysis results for: {0}"
         };
 
+        /// <summary>Gets the data cleaning tool definition.</summary>
         public static ToolDefinition DataCleaning => new()
         {
             Name = "Data Cleaning Tool",
@@ -46,6 +50,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Data cleaning results for: {0}"
         };
 
+        /// <summary>Gets the data visualization tool definition.</summary>
         public static ToolDefinition DataVisualization => new()
         {
             Name = "Data Visualization Tool",
@@ -55,6 +60,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Data visualization for: {0}"
         };
 
+        /// <summary>Gets the named entity recognition tool definition.</summary>
         public static ToolDefinition NamedEntityRecognition => new()
         {
             Name = "Named Entity Recognition Tool",
@@ -64,6 +70,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Named entity recognition results for: {0}"
         };
 
+        /// <summary>Gets the pattern recognition tool definition.</summary>
         public static ToolDefinition PatternRecognition => new()
         {
             Name = "Pattern Recognition Tool",
@@ -73,6 +80,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Pattern recognition results for: {0}"
         };
 
+        /// <summary>Gets the predictive analytics tool definition.</summary>
         public static ToolDefinition PredictiveAnalytics => new()
         {
             Name = "Predictive Analytics Tool",
@@ -82,6 +90,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Predictive analytics results for: {0}"
         };
 
+        /// <summary>Gets the recommendation system tool definition.</summary>
         public static ToolDefinition RecommendationSystem => new()
         {
             Name = "Recommendation System Tool",
@@ -91,6 +100,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Recommendations for: {0}"
         };
 
+        /// <summary>Gets the sentiment analysis tool definition.</summary>
         public static ToolDefinition SentimentAnalysis => new()
         {
             Name = "Sentiment Analysis Tool",
@@ -100,6 +110,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Sentiment analysis results for: {0}"
         };
 
+        /// <summary>Gets the text generation tool definition.</summary>
         public static ToolDefinition TextGeneration => new()
         {
             Name = "Text Generation Tool",
@@ -109,6 +120,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Generated text for prompt: {0}"
         };
 
+        /// <summary>Gets the web scraping tool definition.</summary>
         public static ToolDefinition WebScraping => new()
         {
             Name = "Web Scraping Tool",
@@ -118,6 +130,7 @@ namespace AgencyLayer.ToolIntegration
             ResultTemplate = "Scraped content from: {0}"
         };
 
+        /// <summary>Gets the web search tool definition.</summary>
         public static ToolDefinition WebSearch => new()
         {
             Name = "Web Search Tool",

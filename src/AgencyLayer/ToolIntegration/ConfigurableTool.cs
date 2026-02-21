@@ -11,7 +11,9 @@ namespace AgencyLayer.ToolIntegration
     {
         private readonly ToolDefinition _definition;
 
+        /// <inheritdoc />
         public override string Name => _definition.Name;
+        /// <inheritdoc />
         public override string Description => _definition.Description;
 
         /// <summary>

@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using CognitiveMesh.Shared.Interfaces;
+using AgencyLayer.ActionPlanning;
 
 namespace CognitiveMesh.AgencyLayer.ActionPlanning
 {

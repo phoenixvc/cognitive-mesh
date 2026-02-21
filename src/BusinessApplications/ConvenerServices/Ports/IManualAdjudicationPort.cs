@@ -49,27 +49,27 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The tenant context for this review request.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The user or system submitting the review request.
         /// </summary>
-        public string RequestedBy { get; set; }
+        public string RequestedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of review being requested (e.g., "EmployabilityHighRisk", "OrgBlindnessAlert").
         /// </summary>
-        public string ReviewType { get; set; }
+        public string ReviewType { get; set; } = string.Empty;
 
         /// <summary>
         /// The subject of the review (e.g., a user ID, organization ID, or other entity).
         /// </summary>
-        public string SubjectId { get; set; }
+        public string SubjectId { get; set; } = string.Empty;
 
         /// <summary>
         /// The subject type (e.g., "User", "Organization", "Team").
         /// </summary>
-        public string SubjectType { get; set; }
+        public string SubjectType { get; set; } = string.Empty;
 
         /// <summary>
         /// The priority of the review request.
@@ -79,12 +79,12 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// A summary of the case for quick reference.
         /// </summary>
-        public string Summary { get; set; }
+        public string Summary { get; set; } = string.Empty;
 
         /// <summary>
         /// Detailed information about the case.
         /// </summary>
-        public string Details { get; set; }
+        public string Details { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional context data relevant to the review.
@@ -110,7 +110,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The unique identifier for the review case.
         /// </summary>
-        public string ReviewId { get; set; }
+        public string ReviewId { get; set; } = string.Empty;
 
         /// <summary>
         /// The current status of the review.
@@ -130,7 +130,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The correlation ID from the original request.
         /// </summary>
-        public string CorrelationId { get; set; }
+        public string CorrelationId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -141,12 +141,12 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The unique identifier of the review case.
         /// </summary>
-        public string ReviewId { get; set; }
+        public string ReviewId { get; set; } = string.Empty;
 
         /// <summary>
         /// The user making the decision.
         /// </summary>
-        public string ReviewedBy { get; set; }
+        public string ReviewedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The decision (Approved or Rejected).
@@ -156,12 +156,12 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The rationale for the decision.
         /// </summary>
-        public string Rationale { get; set; }
+        public string Rationale { get; set; } = string.Empty;
 
         /// <summary>
         /// Any additional notes or instructions.
         /// </summary>
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
 
         /// <summary>
         /// When the decision was made.
@@ -177,47 +177,47 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The unique identifier for the review case.
         /// </summary>
-        public string ReviewId { get; set; }
+        public string ReviewId { get; set; } = string.Empty;
 
         /// <summary>
         /// The tenant context for this review.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The user or system that submitted the review request.
         /// </summary>
-        public string RequestedBy { get; set; }
+        public string RequestedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of review.
         /// </summary>
-        public string ReviewType { get; set; }
+        public string ReviewType { get; set; } = string.Empty;
 
         /// <summary>
         /// The subject of the review.
         /// </summary>
-        public string SubjectId { get; set; }
+        public string SubjectId { get; set; } = string.Empty;
 
         /// <summary>
         /// The subject type.
         /// </summary>
-        public string SubjectType { get; set; }
+        public string SubjectType { get; set; } = string.Empty;
 
         /// <summary>
         /// The priority of the review.
         /// </summary>
-        public string Priority { get; set; }
+        public string Priority { get; set; } = string.Empty;
 
         /// <summary>
         /// A summary of the case.
         /// </summary>
-        public string Summary { get; set; }
+        public string Summary { get; set; } = string.Empty;
 
         /// <summary>
         /// Detailed information about the case.
         /// </summary>
-        public string Details { get; set; }
+        public string Details { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional context data.
@@ -237,7 +237,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The user assigned to review the case, if applicable.
         /// </summary>
-        public string AssignedTo { get; set; }
+        public string AssignedTo { get; set; } = string.Empty;
 
         /// <summary>
         /// The current status of the review.
@@ -252,17 +252,17 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The user who completed the review, if applicable.
         /// </summary>
-        public string ReviewedBy { get; set; }
+        public string ReviewedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The rationale for the decision, if applicable.
         /// </summary>
-        public string Rationale { get; set; }
+        public string Rationale { get; set; } = string.Empty;
 
         /// <summary>
         /// Any additional notes or instructions.
         /// </summary>
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
 
         /// <summary>
         /// The history of status changes and comments for this review.
@@ -272,7 +272,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The correlation ID for tracking this review across system boundaries.
         /// </summary>
-        public string CorrelationId { get; set; }
+        public string CorrelationId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -288,12 +288,12 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The user who performed the action.
         /// </summary>
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         /// <summary>
         /// The action that was performed.
         /// </summary>
-        public string Action { get; set; }
+        public string Action { get; set; } = string.Empty;
 
         /// <summary>
         /// The status of the review after this action.
@@ -303,7 +303,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// Any comments associated with this action.
         /// </summary>
-        public string Comments { get; set; }
+        public string Comments { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -387,7 +387,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports
         /// A task that represents the asynchronous operation. The task result contains an
         /// enumerable collection of pending <see cref="ReviewRecord"/>s.
         /// </returns>
-        Task<IEnumerable<ReviewRecord>> GetPendingReviewsAsync(string tenantId, string reviewType = null);
+        Task<IEnumerable<ReviewRecord>> GetPendingReviewsAsync(string tenantId, string? reviewType = null);
 
         /// <summary>
         /// Retrieves all review cases for a specific subject (e.g., user, organization).

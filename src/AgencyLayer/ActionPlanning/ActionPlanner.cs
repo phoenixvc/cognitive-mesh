@@ -86,7 +86,7 @@ namespace AgencyLayer.ActionPlanning
                 };
 
                 // Step 4: Call LLM
-                var response = await _llmClient.GenerateChatCompletionAsync(messages, temperature: 0.3f, cancellationToken: cancellationToken);
+                var response = await _llmClient.GenerateChatCompletionAsync(messages, temperature: 0.3f);
 
                 // Step 5: Parse Response
                 var plans = ParsePlans(response);
@@ -97,7 +97,7 @@ namespace AgencyLayer.ActionPlanning
                     if (plan.Status != ActionPlanStatus.Failed)
                     {
                         await _knowledgeGraphManager.AddNodeAsync(plan.Id, plan, NodeLabels.ActionPlan, cancellationToken);
-                        await _bus.PublishAsync(new PlanGeneratedNotification(plan), cancellationToken: cancellationToken);
+                        await _bus.PublishAsync(new PlanGeneratedNotification(plan));
                     }
                 }
 
@@ -224,7 +224,7 @@ namespace AgencyLayer.ActionPlanning
                 }
 
                 // 5. Notify subscribers
-                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken: cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan));
 
                 return plan;
             }
@@ -246,7 +246,7 @@ namespace AgencyLayer.ActionPlanning
             {
                 _logger.LogInformation("Updating action plan: {PlanId}", plan.Id);
                 await _knowledgeGraphManager.UpdateNodeAsync(plan.Id, plan, cancellationToken);
-                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken: cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan));
             }
             catch (Exception ex)
             {
@@ -280,7 +280,7 @@ namespace AgencyLayer.ActionPlanning
                 plan.CompletedAt = DateTime.UtcNow;
 
                 await _knowledgeGraphManager.UpdateNodeAsync(planId, plan, cancellationToken);
-                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken: cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan));
             }
             catch (Exception ex)
             {
