@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Database,
   Server,
@@ -18,13 +18,26 @@ import {
   ArrowRight,
   Check,
   X,
+  Brain,
+  Key,
+  Eye,
+  EyeOff,
+  Shield,
 } from "lucide-react";
 import { useSetupWizard } from "@/hooks/useSetupWizard";
 import {
   MEMORY_STORE_PROVIDERS,
   VECTOR_SEARCH_PROVIDERS,
 } from "@/services/preferences";
+import {
+  LLM_MODELS,
+  LLM_PROVIDERS,
+  LLM_USE_CASE_META,
+  type LLMUseCase,
+  type LLMProfile,
+} from "@/services/llmPreferences";
 import StorageProviderCard from "./StorageProviderCard";
+import LLMModelCard from "./LLMModelCard";
 
 const SetupWizard: React.FC = () => {
   const {
@@ -33,24 +46,44 @@ const SetupWizard: React.FC = () => {
     totalSteps,
     progress,
     preferences,
+    llmPreferences,
+    llmProfile,
     useCase,
     isVisible,
     goNext,
     goBack,
     applyUseCaseDefaults,
     updatePreference,
+    applyLlmProfile,
+    updateModelAssignment,
+    updateProviderApiKey,
     completeSetup,
     dismiss,
   } = useSetupWizard();
 
+  const [expandedLlmUseCase, setExpandedLlmUseCase] = useState<string | null>(null);
+  const [visibleApiKeys, setVisibleApiKeys] = useState<Set<string>>(new Set());
+
   if (!isVisible) return null;
+
+  const toggleApiKeyVisibility = (provider: string) => {
+    setVisibleApiKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(provider)) next.delete(provider);
+      else next.add(provider);
+      return next;
+    });
+  };
 
   const stepIndicators = [
     { id: "welcome", label: "Welcome", icon: Sparkles },
     { id: "use-case", label: "Use Case", icon: Rocket },
     { id: "primary-store", label: "Primary DB", icon: Database },
-    { id: "vector-provider", label: "Vector Search", icon: Search },
-    { id: "cache-layer", label: "Cache Layer", icon: Layers },
+    { id: "vector-provider", label: "Vector", icon: Search },
+    { id: "cache-layer", label: "Cache", icon: Layers },
+    { id: "llm-profile", label: "LLM Profile", icon: Brain },
+    { id: "llm-models", label: "Models", icon: Brain },
+    { id: "llm-api-keys", label: "API Keys", icon: Key },
     { id: "review", label: "Review", icon: Check },
     { id: "complete", label: "Done", icon: Sparkles },
   ];
@@ -453,114 +486,259 @@ const SetupWizard: React.FC = () => {
             </div>
           )}
 
-          {/* Step: Review */}
-          {currentStep === "review" && (
-            <div className="space-y-6 max-w-lg mx-auto">
+          {/* Step: LLM Profile */}
+          {currentStep === "llm-profile" && (
+            <div className="space-y-6">
               <div className="text-center">
-                <h2 className="text-xl font-bold text-white">
-                  Review Your Configuration
+                <h2 className="text-xl font-bold text-white flex items-center justify-center gap-2">
+                  <Brain className="w-5 h-5 text-violet-400" />
+                  Choose LLM Configuration Profile
                 </h2>
                 <p className="text-sm text-slate-400 mt-1">
-                  Here&apos;s your polyglot persistence setup. You can change
-                  these anytime in Settings.
+                  Select a preset that assigns optimal models per use case. You can
+                  customize individual assignments in the next step.
                 </p>
               </div>
-
-              <div className="space-y-3">
-                {[
-                  {
-                    label: "Primary Store",
-                    value: preferences.primaryStore,
-                    icon: Database,
-                    color: "text-emerald-400",
-                    providers: MEMORY_STORE_PROVIDERS,
-                  },
-                  {
-                    label: "Vector Search",
-                    value: preferences.vectorSearchProvider,
-                    icon: Search,
-                    color: "text-violet-400",
-                    providers: VECTOR_SEARCH_PROVIDERS,
-                  },
-                ].map((item) => {
-                  const Icon = item.icon;
-                  const provider = item.providers.find(
-                    (p) => p.key === item.value
-                  );
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                {([
+                  { id: "balanced" as LLMProfile, title: "Balanced", desc: "Claude Sonnet for general, Opus for reasoning, MiniMax M2.5 for code, Gemini for docs. Best mix of quality & cost.", color: "cyan" },
+                  { id: "performance" as LLMProfile, title: "Performance", desc: "Claude Opus 4 across all reasoning tasks. Maximum quality, premium pricing.", color: "emerald" },
+                  { id: "cost-optimized" as LLMProfile, title: "Cost-Optimized", desc: "DeepSeek V3, MiniMax M2.5, GPT-4o Mini, Haiku. Budget-friendly without sacrificing too much quality.", color: "amber" },
+                  { id: "open-source" as LLMProfile, title: "Open Source", desc: "Llama 4 Maverick + DeepSeek R1. Self-hostable with no API costs. Requires GPU infrastructure.", color: "violet" },
+                ]).map((p) => {
+                  const isSelected = llmProfile === p.id;
                   return (
                     <div
-                      key={item.label}
-                      className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/40"
+                      key={p.id}
+                      onClick={() => applyLlmProfile(p.id)}
+                      className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 ${
+                        isSelected
+                          ? `bg-${p.color}-500/15 border-${p.color}-500/60 ring-1 ring-${p.color}-500/30 shadow-lg`
+                          : "bg-slate-800/40 border-slate-700/50 hover:bg-slate-700/40"
+                      }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <Icon className={`w-5 h-5 ${item.color}`} />
-                        <div>
-                          <div className="text-xs text-slate-500 uppercase tracking-wider">
-                            {item.label}
+                      <h3 className="font-semibold text-white">{p.title}</h3>
+                      <p className="text-xs text-slate-400 mt-1">{p.desc}</p>
+                      {isSelected && (
+                        <div className="mt-3 flex items-center gap-1 text-xs text-cyan-400">
+                          <Check className="w-3.5 h-3.5" /> Selected
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Step: LLM Models per use case */}
+          {currentStep === "llm-models" && (() => {
+            const useCases = Object.keys(LLM_USE_CASE_META) as LLMUseCase[];
+            return (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold text-white flex items-center justify-center gap-2">
+                    <Brain className="w-5 h-5 text-violet-400" />
+                    Model Per Use Case
+                  </h2>
+                  <p className="text-sm text-slate-400 mt-1">
+                    Fine-tune which model handles each task type. Click to expand and change.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {useCases.map((uc) => {
+                    const meta = LLM_USE_CASE_META[uc];
+                    const assignedKey = llmPreferences.modelAssignments[uc];
+                    const assignedModel = LLM_MODELS.find((m) => m.key === assignedKey);
+                    const isExpanded = expandedLlmUseCase === uc;
+                    const recommended = LLM_MODELS.filter((m) =>
+                      m.recommendedUseCases.includes(uc)
+                    ).sort((a, b) => b.decisionScore - a.decisionScore);
+
+                    return (
+                      <div key={uc} className="border border-slate-700/40 rounded-xl overflow-hidden">
+                        <button
+                          onClick={() => setExpandedLlmUseCase(isExpanded ? null : uc)}
+                          className="w-full flex items-center justify-between p-3 bg-slate-800/30 hover:bg-slate-800/50 transition-colors"
+                        >
+                          <div className="text-left">
+                            <h3 className="text-sm font-semibold text-white">{meta.label}</h3>
+                            <p className="text-[11px] text-slate-400">{meta.description}</p>
                           </div>
-                          <div className="text-sm font-semibold text-white">
-                            {provider?.displayName ?? item.value}
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-700/60 text-slate-300 shrink-0 ml-2">
+                            {assignedModel?.displayName ?? assignedKey}
+                          </span>
+                        </button>
+                        {isExpanded && (
+                          <div className="p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                            {recommended.map((model) => (
+                              <LLMModelCard
+                                key={model.key}
+                                model={model}
+                                isSelected={assignedKey === model.key}
+                                onSelect={(key) => updateModelAssignment(uc, key)}
+                                compact
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Step: API Keys */}
+          {currentStep === "llm-api-keys" && (() => {
+            const activeProviders = new Set(
+              Object.values(llmPreferences.modelAssignments)
+                .map((mk) => LLM_MODELS.find((m) => m.key === mk)?.provider)
+                .filter(Boolean) as string[]
+            );
+            return (
+              <div className="space-y-5 max-w-lg mx-auto">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold text-white flex items-center justify-center gap-2">
+                    <Key className="w-5 h-5 text-amber-400" />
+                    Provider API Keys
+                  </h2>
+                  <p className="text-sm text-slate-400 mt-1">
+                    Enter API keys for the {activeProviders.size} provider{activeProviders.size !== 1 ? "s" : ""} you selected. You can add these later in Settings.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-amber-400/80 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2.5">
+                  <Shield className="w-4 h-4 shrink-0" />
+                  <span>Keys are stored in localStorage only. Use environment variables for production.</span>
+                </div>
+
+                <div className="space-y-3">
+                  {Array.from(activeProviders).sort().map((providerKey) => {
+                    const pInfo = LLM_PROVIDERS[providerKey];
+                    const model = LLM_MODELS.find((m) => m.provider === providerKey);
+                    const currentKey = llmPreferences.providerApiKeys[providerKey] ?? "";
+                    const isVisible = visibleApiKeys.has(providerKey);
+
+                    if (!model?.requiresApiKey) return null;
+
+                    return (
+                      <div key={providerKey} className="p-3 rounded-lg bg-slate-800/30 border border-slate-700/30 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-white">
+                            {pInfo?.displayName ?? providerKey}
+                          </span>
+                          {currentKey && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                              Configured
+                            </span>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <input
+                            type={isVisible ? "text" : "password"}
+                            value={currentKey}
+                            onChange={(e) => updateProviderApiKey(providerKey, e.target.value)}
+                            placeholder={`${pInfo?.displayName ?? providerKey} API key...`}
+                            className="w-full px-3 py-2 pr-10 rounded-lg bg-slate-900/60 border border-slate-700/50 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 font-mono"
+                          />
+                          <button
+                            onClick={() => toggleApiKeyVisibility(providerKey)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                          >
+                            {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Step: Review */}
+          {currentStep === "review" && (() => {
+            const topAssignments = Object.entries(llmPreferences.modelAssignments).slice(0, 5);
+            return (
+              <div className="space-y-6 max-w-2xl mx-auto">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold text-white">
+                    Review Your Configuration
+                  </h2>
+                  <p className="text-sm text-slate-400 mt-1">
+                    Storage + LLM setup. Change anytime in Settings.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Storage summary */}
+                  <div className="space-y-2">
+                    <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Storage Layer</div>
+                    <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/40">
+                      <div className="flex items-center gap-2">
+                        <Database className="w-4 h-4 text-emerald-400" />
+                        <div>
+                          <div className="text-[10px] text-slate-500">Primary Store</div>
+                          <div className="text-xs font-semibold text-white">
+                            {MEMORY_STORE_PROVIDERS.find((p) => p.key === preferences.primaryStore)?.displayName ?? preferences.primaryStore}
                           </div>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/40">
-                  <div className="flex items-center gap-3">
-                    <Layers className="w-5 h-5 text-amber-400" />
-                    <div>
-                      <div className="text-xs text-slate-500 uppercase tracking-wider">
-                        Hybrid Mode
+                    <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/40">
+                      <div className="flex items-center gap-2">
+                        <Search className="w-4 h-4 text-violet-400" />
+                        <div>
+                          <div className="text-[10px] text-slate-500">Vector Search</div>
+                          <div className="text-xs font-semibold text-white">
+                            {VECTOR_SEARCH_PROVIDERS.find((p) => p.key === preferences.vectorSearchProvider)?.displayName ?? preferences.vectorSearchProvider}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm font-semibold text-white">
-                        {preferences.enableHybridMode
-                          ? `Enabled (cache: ${preferences.cacheStore ?? "none"})`
-                          : "Disabled"}
+                    </div>
+                    <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/40">
+                      <div className="flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-amber-400" />
+                        <div>
+                          <div className="text-[10px] text-slate-500">Hybrid Mode</div>
+                          <div className="text-xs font-semibold text-white">
+                            {preferences.enableHybridMode ? `Enabled (${preferences.cacheStore ?? "none"})` : "Disabled"}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Architecture diagram */}
-              <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
-                <div className="text-xs text-slate-500 uppercase tracking-wider mb-3 text-center">
-                  Data Flow
-                </div>
-                <div className="flex items-center justify-center gap-2 text-xs">
-                  <span className="px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    Application
-                  </span>
-                  <ArrowRight className="w-4 h-4 text-slate-500" />
-                  {preferences.enableHybridMode && preferences.cacheStore && (
-                    <>
-                      <span className="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                        {preferences.cacheStore}
-                      </span>
-                      <ArrowRight className="w-4 h-4 text-slate-500" />
-                    </>
-                  )}
-                  <span className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    {
-                      MEMORY_STORE_PROVIDERS.find(
-                        (p) => p.key === preferences.primaryStore
-                      )?.displayName
-                    }
-                  </span>
-                  <ArrowRight className="w-4 h-4 text-slate-500" />
-                  <span className="px-3 py-1.5 rounded-lg bg-violet-500/20 text-violet-300 border border-violet-500/30">
-                    {
-                      VECTOR_SEARCH_PROVIDERS.find(
-                        (p) => p.key === preferences.vectorSearchProvider
-                      )?.displayName
-                    }
-                  </span>
+                  {/* LLM summary */}
+                  <div className="space-y-2">
+                    <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">LLM Models</div>
+                    {topAssignments.map(([uc, modelKey]) => {
+                      const meta = LLM_USE_CASE_META[uc as LLMUseCase];
+                      const model = LLM_MODELS.find((m) => m.key === modelKey);
+                      return (
+                        <div key={uc} className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/40">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-[10px] text-slate-500">{meta?.label ?? uc}</div>
+                              <div className="text-xs font-semibold text-white">{model?.displayName ?? modelKey}</div>
+                            </div>
+                            <span className="text-[10px] text-slate-400">{model?.provider}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {Object.keys(llmPreferences.modelAssignments).length > 5 && (
+                      <div className="text-[10px] text-slate-500 text-center">
+                        +{Object.keys(llmPreferences.modelAssignments).length - 5} more use cases configured
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Step: Complete */}
           {currentStep === "complete" && (

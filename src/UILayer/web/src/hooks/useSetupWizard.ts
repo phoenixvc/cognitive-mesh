@@ -3,6 +3,12 @@ import {
   type UserStoragePreferences,
   PreferencesService,
 } from "@/services/preferences";
+import {
+  type UserLLMPreferences,
+  type LLMProfile,
+  LLM_DEFAULT_ASSIGNMENTS,
+  LLMPreferencesService,
+} from "@/services/llmPreferences";
 
 export type WizardStep =
   | "welcome"
@@ -10,6 +16,9 @@ export type WizardStep =
   | "primary-store"
   | "vector-provider"
   | "cache-layer"
+  | "llm-profile"
+  | "llm-models"
+  | "llm-api-keys"
   | "review"
   | "complete";
 
@@ -19,6 +28,9 @@ const STEP_ORDER: WizardStep[] = [
   "primary-store",
   "vector-provider",
   "cache-layer",
+  "llm-profile",
+  "llm-models",
+  "llm-api-keys",
   "review",
   "complete",
 ];
@@ -28,9 +40,13 @@ export function useSetupWizard() {
   const [preferences, setPreferences] = useState<UserStoragePreferences>(
     PreferencesService.getInstance().getPreferences()
   );
+  const [llmPreferences, setLlmPreferences] = useState<UserLLMPreferences>(
+    LLMPreferencesService.getInstance().getPreferences()
+  );
   const [useCase, setUseCase] = useState<
     "development" | "production" | "cloud" | "testing" | null
   >(null);
+  const [llmProfile, setLlmProfile] = useState<LLMProfile>("balanced");
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -61,9 +77,23 @@ export function useSetupWizard() {
   const applyUseCaseDefaults = useCallback(
     (uc: "development" | "production" | "cloud" | "testing") => {
       setUseCase(uc);
-      const defaults =
+      const storageDefaults =
         PreferencesService.getInstance().getRecommendedConfig(uc);
-      setPreferences((prev) => ({ ...prev, ...defaults }));
+      setPreferences((prev) => ({ ...prev, ...storageDefaults }));
+
+      // Map use case to LLM profile
+      const profileMap: Record<string, LLMProfile> = {
+        development: "balanced",
+        production: "performance",
+        cloud: "performance",
+        testing: "cost-optimized",
+      };
+      const profile = profileMap[uc] ?? "balanced";
+      setLlmProfile(profile);
+      setLlmPreferences((prev) => ({
+        ...prev,
+        modelAssignments: { ...LLM_DEFAULT_ASSIGNMENTS[profile] },
+      }));
     },
     []
   );
@@ -78,13 +108,59 @@ export function useSetupWizard() {
     []
   );
 
+  const updateLlmPreference = useCallback(
+    <K extends keyof UserLLMPreferences>(
+      key: K,
+      value: UserLLMPreferences[K]
+    ) => {
+      setLlmPreferences((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
+
+  const applyLlmProfile = useCallback((profile: LLMProfile) => {
+    setLlmProfile(profile);
+    setLlmPreferences((prev) => ({
+      ...prev,
+      modelAssignments: { ...LLM_DEFAULT_ASSIGNMENTS[profile] },
+    }));
+  }, []);
+
+  const updateModelAssignment = useCallback(
+    (useCase: string, modelKey: string) => {
+      setLlmPreferences((prev) => ({
+        ...prev,
+        modelAssignments: { ...prev.modelAssignments, [useCase]: modelKey },
+      }));
+    },
+    []
+  );
+
+  const updateProviderApiKey = useCallback(
+    (provider: string, apiKey: string) => {
+      setLlmPreferences((prev) => ({
+        ...prev,
+        providerApiKeys: { ...prev.providerApiKeys, [provider]: apiKey },
+      }));
+    },
+    []
+  );
+
   const completeSetup = useCallback(() => {
-    const service = PreferencesService.getInstance();
-    const finalPrefs = { ...preferences, setupCompleted: true };
-    service.savePreferences(finalPrefs);
-    setPreferences(finalPrefs);
+    // Save storage preferences
+    const storageService = PreferencesService.getInstance();
+    const finalStoragePrefs = { ...preferences, setupCompleted: true };
+    storageService.savePreferences(finalStoragePrefs);
+    setPreferences(finalStoragePrefs);
+
+    // Save LLM preferences
+    const llmService = LLMPreferencesService.getInstance();
+    const finalLlmPrefs = { ...llmPreferences, llmSetupCompleted: true };
+    llmService.savePreferences(finalLlmPrefs);
+    setLlmPreferences(finalLlmPrefs);
+
     setCurrentStep("complete");
-  }, [preferences]);
+  }, [preferences, llmPreferences]);
 
   const dismiss = useCallback(() => {
     setIsVisible(false);
@@ -101,12 +177,18 @@ export function useSetupWizard() {
     totalSteps,
     progress,
     preferences,
+    llmPreferences,
+    llmProfile,
     useCase,
     isVisible,
     goNext,
     goBack,
     applyUseCaseDefaults,
     updatePreference,
+    updateLlmPreference,
+    applyLlmProfile,
+    updateModelAssignment,
+    updateProviderApiKey,
     completeSetup,
     dismiss,
     reopen,

@@ -17,6 +17,8 @@ export { default as VoiceFeedback } from "./VoiceFeedback"
 export { default as SetupWizard } from "./setup/SetupWizard"
 export { default as DatabaseSettings } from "./setup/DatabaseSettings"
 export { default as StorageProviderCard } from "./setup/StorageProviderCard"
+export { default as LLMModelCard } from "./setup/LLMModelCard"
+export { default as LLMSettings } from "./setup/LLMSettings"
 export { default as GuidedTour } from "./GuidedTour/GuidedTour"
 
 // Type exports
