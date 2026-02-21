@@ -44,12 +44,12 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     /// </summary>
     public class RiskClassificationRequest
     {
-        public string SystemName { get; set; }
-        public string SystemVersion { get; set; }
-        public string IntendedPurpose { get; set; }
+        public string SystemName { get; set; } = string.Empty;
+        public string SystemVersion { get; set; } = string.Empty;
+        public string IntendedPurpose { get; set; } = string.Empty;
         public List<string> DataSources { get; set; } = new List<string>();
         public List<string> UserDemographics { get; set; } = new List<string>();
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
     }
 
@@ -58,13 +58,13 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     /// </summary>
     public class RiskClassificationResponse
     {
-        public string SystemName { get; set; }
-        public string SystemVersion { get; set; }
+        public string SystemName { get; set; } = string.Empty;
+        public string SystemVersion { get; set; } = string.Empty;
         public AIRiskLevel RiskLevel { get; set; }
-        public string Justification { get; set; }
+        public string Justification { get; set; } = string.Empty;
         public List<string> ApplicableArticles { get; set; } = new List<string>();
         public DateTimeOffset AssessedAt { get; set; }
-        public string CorrelationId { get; set; }
+        public string CorrelationId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -73,10 +73,10 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class ConformityAssessmentRequest
     {
         public Guid AgentId { get; set; }
-        public string SystemVersion { get; set; }
+        public string SystemVersion { get; set; } = string.Empty;
         public string FrameworkVersion { get; set; } = "EU_AI_ACT_V1";
-        public string RequestedBy { get; set; }
-        public string TenantId { get; set; }
+        public string RequestedBy { get; set; } = string.Empty;
+        public string TenantId { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
     }
 
@@ -85,12 +85,12 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     /// </summary>
     public class ConformityAssessment
     {
-        public string AssessmentId { get; set; }
+        public string AssessmentId { get; set; } = string.Empty;
         public Guid AgentId { get; set; }
-        public string Status { get; set; } // e.g., "InProgress", "Completed", "Failed"
-        public string Outcome { get; set; } // e.g., "Compliant", "NonCompliant"
+        public string Status { get; set; } = string.Empty; // e.g., "InProgress", "Completed", "Failed"
+        public string Outcome { get; set; } = string.Empty; // e.g., "Compliant", "NonCompliant"
         public List<string> Findings { get; set; } = new List<string>();
-        public string EvidenceLocation { get; set; }
+        public string EvidenceLocation { get; set; } = string.Empty;
         public DateTimeOffset AssessedAt { get; set; }
         public DateTimeOffset? ExpiresAt { get; set; }
     }
@@ -101,9 +101,9 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class TransparencyCheckRequest
     {
         public Guid AgentId { get; set; }
-        public string SystemType { get; set; } // e.g., "Chatbot", "DeepfakeGenerator", "EmotionRecognition"
-        public string DisclosureContent { get; set; }
-        public string TenantId { get; set; }
+        public string SystemType { get; set; } = string.Empty; // e.g., "Chatbot", "DeepfakeGenerator", "EmotionRecognition"
+        public string DisclosureContent { get; set; } = string.Empty;
+        public string TenantId { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
     }
 
@@ -114,7 +114,7 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     {
         public bool IsCompliant { get; set; }
         public List<string> Violations { get; set; } = new List<string>();
-        public string ApplicableArticle { get; set; }
+        public string ApplicableArticle { get; set; } = string.Empty;
         public DateTimeOffset CheckedAt { get; set; }
     }
 
@@ -124,11 +124,11 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class EUDatabaseRegistrationRequest
     {
         public Guid AgentId { get; set; }
-        public string SystemName { get; set; }
-        public string ProviderInfo { get; set; }
-        public string ConformityAssessmentId { get; set; }
-        public string InstructionsForUseUrl { get; set; }
-        public string TenantId { get; set; }
+        public string SystemName { get; set; } = string.Empty;
+        public string ProviderInfo { get; set; } = string.Empty;
+        public string ConformityAssessmentId { get; set; } = string.Empty;
+        public string InstructionsForUseUrl { get; set; } = string.Empty;
+        public string TenantId { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
     }
 
@@ -138,10 +138,10 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class EUDatabaseRegistrationResponse
     {
         public bool IsSuccess { get; set; }
-        public string RegistrationId { get; set; }
-        public string Status { get; set; } // e.g., "Submitted", "Registered", "Failed"
+        public string RegistrationId { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty; // e.g., "Submitted", "Registered", "Failed"
         public DateTimeOffset RegisteredAt { get; set; }
-        public ErrorEnvelope Error { get; set; }
+        public ErrorEnvelope? Error { get; set; }
     }
 
     #endregion
@@ -164,7 +164,7 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports
         /// <param name="request">The request containing details of the AI system to classify.</param>
         /// <returns>The risk classification and justification for the decision.</returns>
         /// <remarks>
-        /// This method implements the logic defined in EU AI Act Title III and Annexes II & III.
+        /// This method implements the logic defined in EU AI Act Title III and Annexes II &amp; III.
         /// It determines if a system is Unacceptable, High-Risk, Limited-Risk, or Minimal-Risk.
         /// </remarks>
         Task<RiskClassificationResponse> ClassifySystemRiskAsync(RiskClassificationRequest request);

@@ -17,7 +17,7 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Adapters
     /// Adapter that implements the EU AI Act Compliance Port.
     /// This adapter is responsible for classifying AI systems by risk, managing conformity assessments for high-risk systems,
     /// ensuring transparency obligations are met, and handling the registration of systems in the EU database.
-    /// It serves as a core component of the Ethical & Legal Compliance Framework.
+    /// It serves as a core component of the Ethical &amp; Legal Compliance Framework.
     /// </summary>
     public class EUAIActComplianceAdapter : IEUAIActCompliancePort
     {
@@ -158,7 +158,7 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Adapters
                 return Task.FromResult(assessment);
             }
             _logger.LogWarning("Conformity assessment with ID {AssessmentId} not found for tenant {TenantId}.", assessmentId, tenantId);
-            return Task.FromResult<ConformityAssessment>(null);
+            return Task.FromResult<ConformityAssessment>(null!);
         }
 
         /// <inheritdoc />

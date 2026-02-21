@@ -137,7 +137,7 @@ namespace CognitiveMesh.MeshSimRuntime
                     : JsonSerializer.Deserialize<Dictionary<string, object>>(config);
                 
                 // Register
-                var success = await orchestrator.RegisterAgentAsync(id, type, configuration);
+                var success = await orchestrator.RegisterAgentAsync(id, type, configuration ?? new Dictionary<string, object>());
                 
                 if (success)
                 {

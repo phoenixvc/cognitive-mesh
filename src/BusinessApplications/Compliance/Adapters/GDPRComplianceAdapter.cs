@@ -1478,7 +1478,7 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Adapters
         /// <summary>
         /// The area being assessed (e.g., "Legal Basis", "Data Minimization").
         /// </summary>
-        public string Area { get; set; }
+        public string Area { get; set; } = string.Empty;
 
         /// <summary>
         /// Indicates whether the area is compliant with GDPR requirements.

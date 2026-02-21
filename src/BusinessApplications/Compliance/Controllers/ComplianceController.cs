@@ -17,15 +17,15 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Controllers.Models
     public class GDPRConsentRecord
     {
         /// <summary>Gets or sets the subject identifier.</summary>
-        public string SubjectId { get; set; }
+        public string SubjectId { get; set; } = string.Empty;
         /// <summary>Gets or sets the consent type (e.g., "DataProcessing", "Marketing").</summary>
-        public string ConsentType { get; set; }
+        public string ConsentType { get; set; } = string.Empty;
         /// <summary>Gets or sets whether consent is given.</summary>
         public bool IsGiven { get; set; }
         /// <summary>Gets or sets the timestamp of the consent.</summary>
         public DateTimeOffset Timestamp { get; set; }
         /// <summary>Gets or sets the evidence identifier.</summary>
-        public string EvidenceId { get; set; }
+        public string EvidenceId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -36,11 +36,11 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Controllers.Models
         /// <summary>Gets or sets the request identifier.</summary>
         public string RequestId { get; set; } = Guid.NewGuid().ToString();
         /// <summary>Gets or sets the subject identifier.</summary>
-        public string SubjectId { get; set; }
+        public string SubjectId { get; set; } = string.Empty;
         /// <summary>Gets or sets the request type ("Access", "Rectify", "Erasure").</summary>
-        public string RequestType { get; set; }
+        public string RequestType { get; set; } = string.Empty;
         /// <summary>Gets or sets the data for rectification.</summary>
-        public string Data { get; set; }
+        public string Data { get; set; } = string.Empty;
         /// <summary>Gets or sets the status of the request.</summary>
         public string Status { get; set; } = "Pending";
     }
@@ -53,13 +53,13 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Controllers.Models
     public class AIRiskAssessment
     {
         /// <summary>Gets or sets the system identifier.</summary>
-        public string SystemId { get; set; }
+        public string SystemId { get; set; } = string.Empty;
         /// <summary>Gets or sets the risk level ("High", "Medium", "Low").</summary>
-        public string RiskLevel { get; set; }
+        public string RiskLevel { get; set; } = string.Empty;
         /// <summary>Gets or sets the assessment details.</summary>
-        public string AssessmentDetails { get; set; }
+        public string AssessmentDetails { get; set; } = string.Empty;
         /// <summary>Gets or sets the mitigation measures.</summary>
-        public string MitigationMeasures { get; set; }
+        public string MitigationMeasures { get; set; } = string.Empty;
         /// <summary>Gets or sets the assessment date.</summary>
         public DateTimeOffset AssessmentDate { get; set; }
     }
@@ -72,15 +72,15 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Controllers.Models
     public class PolicyRecord
     {
         /// <summary>Gets or sets the policy identifier.</summary>
-        public string PolicyId { get; set; }
+        public string PolicyId { get; set; } = string.Empty;
         /// <summary>Gets or sets the policy name.</summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         /// <summary>Gets or sets the policy content.</summary>
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
         /// <summary>Gets or sets the policy version.</summary>
         public int Version { get; set; }
         /// <summary>Gets or sets the policy status ("Draft", "Active", "Deprecated").</summary>
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
         /// <summary>Gets or sets the last updated timestamp.</summary>
         public DateTimeOffset LastUpdatedAt { get; set; }
     }
