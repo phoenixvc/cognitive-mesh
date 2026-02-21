@@ -28,6 +28,12 @@
     
     <!-- JSON -->
     <PackageReference Include="System.Text.Json" />
+
+    <!-- Redis -->
+    <PackageReference Include="StackExchange.Redis" />
+
+    <!-- DI Abstractions -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
 
 </Project>

@@ -8,7 +8,7 @@ namespace MetacognitiveLayer.SelfEvaluation
     /// </summary>
     public class SelfEvaluator : ISelfEvaluator, IDisposable
     {
-        private readonly ILogger<SelfEvaluator> _logger;
+        private readonly ILogger<SelfEvaluator>? _logger;
         private bool _disposed = false;
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace MetacognitiveLayer.SelfEvaluation
         /// Initializes a new instance of the <see cref="SelfEvaluator"/> class.
         /// </summary>
         /// <param name="logger">The logger instance.</param>
-        public SelfEvaluator(ILogger<SelfEvaluator> logger = null)
+        public SelfEvaluator(ILogger<SelfEvaluator>? logger = null)
         {
             _logger = logger;
             _logger?.LogInformation("SelfEvaluator initialized");

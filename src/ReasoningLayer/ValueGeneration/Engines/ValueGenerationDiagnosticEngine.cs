@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 
 namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Engines;

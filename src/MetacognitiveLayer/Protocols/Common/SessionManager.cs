@@ -26,7 +26,7 @@ namespace MetacognitiveLayer.Protocols.Common
         /// <summary>
         /// Gets an existing session or creates a new one if it doesn't exist.
         /// </summary>
-        public Task<SessionContext> GetOrCreateSessionAsync(string sessionId, string userId = null, string conversationId = null)
+        public Task<SessionContext> GetOrCreateSessionAsync(string sessionId, string? userId = null, string? conversationId = null)
         {
             try
             {

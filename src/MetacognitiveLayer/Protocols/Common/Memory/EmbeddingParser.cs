@@ -8,7 +8,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
     /// </summary>
     public static class EmbeddingParser
     {
-        public static float[] TryParse(string json, ILogger logger = null, string key = null)
+        public static float[] TryParse(string json, ILogger? logger = null, string? key = null)
         {
             try
             {

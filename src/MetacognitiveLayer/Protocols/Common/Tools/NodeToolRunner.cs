@@ -401,7 +401,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
         /// <summary>
         /// Registers tool runner services with the dependency injection container.
         /// </summary>
-        public static IServiceCollection AddNodeToolRunner(this IServiceCollection services, Action<NodeToolRunnerOptions> configureOptions = null)
+        public static IServiceCollection AddNodeToolRunner(this IServiceCollection services, Action<NodeToolRunnerOptions>? configureOptions = null)
         {
             // Register options
             if (configureOptions != null)

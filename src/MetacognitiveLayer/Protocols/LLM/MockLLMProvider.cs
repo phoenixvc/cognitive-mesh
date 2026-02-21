@@ -20,7 +20,7 @@ namespace MetacognitiveLayer.Protocols.LLM
         /// <summary>
         /// Completes a prompt with mock data.
         /// </summary>
-        public async Task<string> CompletePromptAsync(string prompt, LLMOptions options = null)
+        public async Task<string> CompletePromptAsync(string prompt, LLMOptions? options = null)
         {
             _logger.LogInformation("Mock LLM completing prompt with {Length} characters", prompt.Length);
             

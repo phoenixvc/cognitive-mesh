@@ -398,7 +398,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
             var approved = await _approvalAdapter.RequestApprovalAsync(
                 parentTask.Context.GetValueOrDefault("RequestingUserId")?.ToString() ?? "system",
                 $"Agent {agent.AgentId} wants to perform action for goal: {subGoal}",
-                null);
+                null!);
 
             if (!approved)
             {

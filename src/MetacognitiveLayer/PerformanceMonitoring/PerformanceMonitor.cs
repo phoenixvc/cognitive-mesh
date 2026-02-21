@@ -56,7 +56,7 @@ namespace MetacognitiveLayer.PerformanceMonitoring
         /// <param name="name">The name of the metric.</param>
         /// <param name="value">The value to record.</param>
         /// <param name="tags">Optional tags to associate with the metric.</param>
-        public void RecordMetric(string name, double value, IDictionary<string, string> tags = null)
+        public void RecordMetric(string name, double value, IDictionary<string, string>? tags = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Metric name cannot be null or whitespace.", nameof(name));
@@ -94,7 +94,7 @@ namespace MetacognitiveLayer.PerformanceMonitoring
             string name, 
             DateTime since, 
             DateTime? until = null,
-            IDictionary<string, string> tags = null)
+            IDictionary<string, string>? tags = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Metric name cannot be null or whitespace.", nameof(name));
@@ -130,8 +130,8 @@ namespace MetacognitiveLayer.PerformanceMonitoring
             {
                 return aggregator.GetStats(window);
             }
-            
-            return null;
+
+            return null!;
         }
 
         /// <summary>
@@ -237,13 +237,13 @@ namespace MetacognitiveLayer.PerformanceMonitoring
     public class Metric
     {
         /// <summary>Gets or sets the name of the metric.</summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         /// <summary>Gets or sets the recorded value.</summary>
         public double Value { get; set; }
         /// <summary>Gets or sets the timestamp of the measurement.</summary>
         public DateTime Timestamp { get; set; }
         /// <summary>Gets or sets the tags associated with this metric.</summary>
-        public IDictionary<string, string> Tags { get; set; }
+        public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
     }
 
     /// <summary>
@@ -252,7 +252,7 @@ namespace MetacognitiveLayer.PerformanceMonitoring
     public class MetricStatistics
     {
         /// <summary>Gets or sets the metric name.</summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         /// <summary>Gets or sets the minimum value in the window.</summary>
         public double Min { get; set; }
         /// <summary>Gets or sets the maximum value in the window.</summary>
@@ -275,13 +275,13 @@ namespace MetacognitiveLayer.PerformanceMonitoring
     public class ThresholdViolation
     {
         /// <summary>Gets or sets the name of the violated metric.</summary>
-        public string MetricName { get; set; }
+        public string MetricName { get; set; } = string.Empty;
         /// <summary>Gets or sets the actual value that violated the threshold.</summary>
         public double Value { get; set; }
         /// <summary>Gets or sets the threshold value.</summary>
         public double Threshold { get; set; }
         /// <summary>Gets or sets the condition that was violated (e.g., "greater than", "less than").</summary>
-        public string Condition { get; set; }
+        public string Condition { get; set; } = string.Empty;
         /// <summary>Gets or sets the timestamp of the violation.</summary>
         public DateTime Timestamp { get; set; }
     }
@@ -415,7 +415,7 @@ namespace MetacognitiveLayer.PerformanceMonitoring
             
             // Ensure we have data in the window
             if (_values.Count == 0 || _values.Peek().Timestamp > now)
-                return null;
+                return null!;
                 
             return new MetricStatistics
             {

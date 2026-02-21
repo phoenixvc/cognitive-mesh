@@ -260,9 +260,9 @@ public class AIGovernanceMonitor : IAIGovernanceMonitorPort
                 await _auditLoggingPort.LogEventAsync(new AuditEvent
                 {
                     EventType = "GovernanceViolationDetected",
-                    SubjectId = request.ActorId,
+                    UserId = request.ActorId,
                     Timestamp = DateTimeOffset.UtcNow,
-                    Details = $"Policy '{violation.PolicyName}' (v{violation.PolicyVersion}) violated. Reason: {violation.ViolationMessage}",
+                    EventData = $"Policy '{violation.PolicyName}' (v{violation.PolicyVersion}) violated. Reason: {violation.ViolationMessage}",
                     CorrelationId = request.CorrelationId
                 });
 
@@ -329,6 +329,6 @@ public class AIGovernanceMonitor : IAIGovernanceMonitorPort
         }
 
         // No violation found for this policy.
-        return null;
+        return null!;
     }
 }

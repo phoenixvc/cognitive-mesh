@@ -44,7 +44,7 @@ namespace MetacognitiveLayer.Protocols.Common
         /// <summary>
         /// Creates a new session context
         /// </summary>
-        public SessionContext(string sessionId, string userId = null, string conversationId = null)
+        public SessionContext(string sessionId, string? userId = null, string? conversationId = null)
         {
             SessionId = sessionId ?? throw new ArgumentNullException(nameof(sessionId));
             UserId = userId;

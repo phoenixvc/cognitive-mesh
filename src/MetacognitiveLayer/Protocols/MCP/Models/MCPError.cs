@@ -28,13 +28,15 @@ namespace MetacognitiveLayer.Protocols.MCP.Models
         /// <summary>
         /// Error code for categorization
         /// </summary>
-        [JsonPropertyName("code", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("code")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Code { get; set; }
         
         /// <summary>
         /// Recommended action to resolve the error
         /// </summary>
-        [JsonPropertyName("recommendation", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("recommendation")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Recommendation { get; set; }
     }
 }

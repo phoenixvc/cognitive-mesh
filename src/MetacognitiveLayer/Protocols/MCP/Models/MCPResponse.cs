@@ -40,25 +40,29 @@ namespace MetacognitiveLayer.Protocols.MCP.Models
         /// <summary>
         /// Result object (only present if status is "success")
         /// </summary>
-        [JsonPropertyName("result", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("result")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public object Result { get; set; }
         
         /// <summary>
         /// Error information (only present if status is "error")
         /// </summary>
-        [JsonPropertyName("error", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("error")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public MCPError Error { get; set; }
         
         /// <summary>
         /// Memory updates resulting from this operation
         /// </summary>
-        [JsonPropertyName("memoryUpdates", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("memoryUpdates")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Dictionary<string, string> MemoryUpdates { get; set; }
         
         /// <summary>
         /// Metrics about the operation execution
         /// </summary>
-        [JsonPropertyName("metrics", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("metrics")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Dictionary<string, object> Metrics { get; set; }
         
         /// <summary>
