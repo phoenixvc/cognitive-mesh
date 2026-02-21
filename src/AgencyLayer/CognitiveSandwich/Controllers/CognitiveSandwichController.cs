@@ -3,6 +3,7 @@ using AgencyLayer.CognitiveSandwich.Ports;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace AgencyLayer.CognitiveSandwich.Controllers;
 
@@ -102,7 +103,7 @@ public class CognitiveSandwichController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
-            _logger.LogWarning("Process {ProcessId} not found", processId);
+            _logger.LogWarning("Process {ProcessId} not found", Sanitize(processId));
             return NotFound(new { error = $"Process '{processId}' not found." });
         }
         catch (ArgumentException ex)
@@ -112,7 +113,7 @@ public class CognitiveSandwichController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error retrieving process {ProcessId}", processId);
+            _logger.LogError(ex, "Unexpected error retrieving process {ProcessId}", Sanitize(processId));
             return StatusCode(
                 StatusCodes.Status500InternalServerError,
                 new { error = "An unexpected error occurred while retrieving the process." });
@@ -147,23 +148,23 @@ public class CognitiveSandwichController : ControllerBase
 
             _logger.LogInformation(
                 "Phase advance for process {ProcessId}: success={Success}",
-                processId, result.Success);
+                Sanitize(processId), result.Success);
 
             return Ok(result);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
-            _logger.LogWarning("Process {ProcessId} not found during advance", processId);
+            _logger.LogWarning("Process {ProcessId} not found during advance", Sanitize(processId));
             return NotFound(new { error = $"Process '{processId}' not found." });
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, "Invalid arguments for phase advance on process {ProcessId}", processId);
+            _logger.LogWarning(ex, "Invalid arguments for phase advance on process {ProcessId}", Sanitize(processId));
             return BadRequest(new { error = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error advancing phase for process {ProcessId}", processId);
+            _logger.LogError(ex, "Unexpected error advancing phase for process {ProcessId}", Sanitize(processId));
             return StatusCode(
                 StatusCodes.Status500InternalServerError,
                 new { error = "An unexpected error occurred while advancing the phase." });
@@ -209,28 +210,28 @@ public class CognitiveSandwichController : ControllerBase
 
             _logger.LogInformation(
                 "Step-back for process {ProcessId} to phase {TargetPhaseId}: success={Success}",
-                processId, request.TargetPhaseId, result.Success);
+                Sanitize(processId), Sanitize(request.TargetPhaseId), result.Success);
 
             return Ok(result);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
-            _logger.LogWarning("Process or phase not found during step-back for process {ProcessId}", processId);
+            _logger.LogWarning("Process or phase not found during step-back for process {ProcessId}", Sanitize(processId));
             return NotFound(new { error = ex.Message });
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("must be before"))
         {
-            _logger.LogWarning(ex, "Invalid step-back target for process {ProcessId}", processId);
+            _logger.LogWarning(ex, "Invalid step-back target for process {ProcessId}", Sanitize(processId));
             return BadRequest(new { error = ex.Message });
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning(ex, "Invalid arguments for step-back on process {ProcessId}", processId);
+            _logger.LogWarning(ex, "Invalid arguments for step-back on process {ProcessId}", Sanitize(processId));
             return BadRequest(new { error = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error during step-back for process {ProcessId}", processId);
+            _logger.LogError(ex, "Unexpected error during step-back for process {ProcessId}", Sanitize(processId));
             return StatusCode(
                 StatusCodes.Status500InternalServerError,
                 new { error = "An unexpected error occurred during the step-back operation." });
@@ -258,7 +259,7 @@ public class CognitiveSandwichController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
-            _logger.LogWarning("Process {ProcessId} not found when retrieving audit trail", processId);
+            _logger.LogWarning("Process {ProcessId} not found when retrieving audit trail", Sanitize(processId));
             return NotFound(new { error = $"Process '{processId}' not found." });
         }
         catch (ArgumentException ex)
@@ -268,7 +269,7 @@ public class CognitiveSandwichController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error retrieving audit trail for process {ProcessId}", processId);
+            _logger.LogError(ex, "Unexpected error retrieving audit trail for process {ProcessId}", Sanitize(processId));
             return StatusCode(
                 StatusCodes.Status500InternalServerError,
                 new { error = "An unexpected error occurred while retrieving the audit trail." });
@@ -300,7 +301,7 @@ public class CognitiveSandwichController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
-            _logger.LogWarning("Process {ProcessId} not found when retrieving cognitive debt", processId);
+            _logger.LogWarning("Process {ProcessId} not found when retrieving cognitive debt", Sanitize(processId));
             return NotFound(new { error = $"Process '{processId}' not found." });
         }
         catch (ArgumentException ex)
@@ -310,7 +311,7 @@ public class CognitiveSandwichController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error retrieving cognitive debt for process {ProcessId}", processId);
+            _logger.LogError(ex, "Unexpected error retrieving cognitive debt for process {ProcessId}", Sanitize(processId));
             return StatusCode(
                 StatusCodes.Status500InternalServerError,
                 new { error = "An unexpected error occurred while assessing cognitive debt." });

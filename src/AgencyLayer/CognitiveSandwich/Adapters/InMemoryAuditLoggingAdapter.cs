@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using AgencyLayer.CognitiveSandwich.Models;
 using AgencyLayer.CognitiveSandwich.Ports;
 using Microsoft.Extensions.Logging;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace AgencyLayer.CognitiveSandwich.Adapters;
 
@@ -33,7 +34,7 @@ public class InMemoryAuditLoggingAdapter : IAuditLoggingAdapter
 
         _logger.LogDebug(
             "Logged audit entry {EntryId} for process {ProcessId}: {EventType}",
-            entry.EntryId, entry.ProcessId, entry.EventType);
+            Sanitize(entry.EntryId), Sanitize(entry.ProcessId), Sanitize(entry.EventType));
 
         return Task.CompletedTask;
     }
@@ -50,7 +51,7 @@ public class InMemoryAuditLoggingAdapter : IAuditLoggingAdapter
 
         _logger.LogDebug(
             "Retrieved {Count} audit entries for process {ProcessId}",
-            entries.Count, processId);
+            entries.Count, Sanitize(processId));
 
         return Task.FromResult<IReadOnlyList<PhaseAuditEntry>>(entries);
     }

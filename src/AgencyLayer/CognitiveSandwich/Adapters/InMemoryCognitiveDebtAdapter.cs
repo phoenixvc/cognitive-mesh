@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using AgencyLayer.CognitiveSandwich.Models;
 using AgencyLayer.CognitiveSandwich.Ports;
 using Microsoft.Extensions.Logging;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace AgencyLayer.CognitiveSandwich.Adapters;
 
@@ -44,7 +45,7 @@ public class InMemoryCognitiveDebtAdapter : ICognitiveDebtPort
 
         _logger.LogDebug(
             "Assessed cognitive debt for process {ProcessId}, phase {PhaseId}: score={DebtScore}",
-            processId, phaseId, assessment.DebtScore);
+            Sanitize(processId), Sanitize(phaseId), assessment.DebtScore);
 
         return Task.FromResult(assessment);
     }
@@ -61,7 +62,7 @@ public class InMemoryCognitiveDebtAdapter : ICognitiveDebtPort
 
         _logger.LogDebug(
             "Threshold breach check for process {ProcessId}: breached={Breached}",
-            processId, breached);
+            Sanitize(processId), breached);
 
         return Task.FromResult(breached);
     }

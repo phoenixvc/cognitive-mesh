@@ -201,7 +201,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             }
 
             var denominator = MathF.Sqrt(normA) * MathF.Sqrt(normB);
-            return denominator == 0f ? 0f : dotProduct / denominator;
+            return denominator <= 0f ? 0f : dotProduct / denominator;
         }
 
         /// <summary>

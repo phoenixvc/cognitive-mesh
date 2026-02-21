@@ -84,7 +84,7 @@ namespace FoundationLayer.Notifications.Services
             var payload = BuildMessageCardPayload(notification, themeColor);
 
             var json = JsonSerializer.Serialize(payload, JsonSerializerOptions);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             _logger.LogDebug(
                 "Sending Teams notification {NotificationId} with priority {Priority}",

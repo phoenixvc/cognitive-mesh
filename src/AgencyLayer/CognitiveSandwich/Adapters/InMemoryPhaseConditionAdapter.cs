@@ -1,6 +1,7 @@
 using AgencyLayer.CognitiveSandwich.Models;
 using AgencyLayer.CognitiveSandwich.Ports;
 using Microsoft.Extensions.Logging;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace AgencyLayer.CognitiveSandwich.Adapters;
 
@@ -30,7 +31,7 @@ public class InMemoryPhaseConditionAdapter : IPhaseConditionPort
 
         _logger.LogDebug(
             "Checking preconditions for process {ProcessId}, phase {PhaseId} — returning all met (in-memory default)",
-            processId, phaseId);
+            Sanitize(processId), Sanitize(phaseId));
 
         var result = new ConditionCheckResult
         {
@@ -50,7 +51,7 @@ public class InMemoryPhaseConditionAdapter : IPhaseConditionPort
 
         _logger.LogDebug(
             "Checking postconditions for process {ProcessId}, phase {PhaseId} — returning all met (in-memory default)",
-            processId, phaseId);
+            Sanitize(processId), Sanitize(phaseId));
 
         var result = new ConditionCheckResult
         {
