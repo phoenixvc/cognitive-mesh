@@ -114,6 +114,10 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
                 .Setup(x => x.ExecuteStrategicSimulationAsync(It.IsAny<StrategicSimulationRequest>()))
                 .ReturnsAsync(expectedOutput);
 
+            _llmClientMock
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync("SWOT Analysis\nRisk Assessment\nScenario Planning");
+
             // Act
             var result = await _orchestrator.ReasonAsync(
                 query,

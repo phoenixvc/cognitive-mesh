@@ -168,7 +168,7 @@ public sealed class ReflexionEngine : IReflexionPort
         var outputLower = agentOutput.ToLowerInvariant();
         var matchCount = HallucinationPatterns.Count(pattern => outputLower.Contains(pattern));
 
-        return Math.Min(1.0, matchCount * 0.25);
+        return Math.Min(1.0, matchCount * 0.4);
     }
 
     /// <summary>
@@ -198,9 +198,9 @@ public sealed class ReflexionEngine : IReflexionPort
         var contradictionScore = Math.Min(1.0, contradictionCount * 0.2);
 
         var weightedScore =
-            (contradictionScore * 0.4) +
-            (hallucinationScore * 0.4) +
-            (lengthRatioScore * 0.2);
+            (contradictionScore * 0.2) +
+            (hallucinationScore * 0.65) +
+            (lengthRatioScore * 0.15);
 
         return Math.Min(1.0, weightedScore);
     }

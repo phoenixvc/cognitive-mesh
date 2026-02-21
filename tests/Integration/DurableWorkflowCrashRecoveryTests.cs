@@ -66,7 +66,7 @@ public class DurableWorkflowCrashRecoveryTests
         var workflow = CreateWorkflow("wf-resume-from-2", 4, (ctx, ct) =>
         {
             callCount++;
-            if (ctx.StepNumber == 2 && callCount <= 5) // Fail on first run through step 2 (including retries)
+            if (ctx.StepNumber == 2 && callCount <= 6) // Fail on first run through step 2 (all 4 attempts with MaxRetryPerStep=3)
             {
                 return Task.FromResult(new WorkflowStepResult
                 {
