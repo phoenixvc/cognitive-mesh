@@ -93,7 +93,8 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             var results = new List<string>();
             for (int i = 1; i < raw.Length; i += 2)
             {
-                var fields = (RedisResult[])raw[i + 1];
+                var fields = (RedisResult[]?)raw[i + 1];
+                if (fields == null) continue;
                 string? value = null;
                 double score = 0;
 

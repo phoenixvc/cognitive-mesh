@@ -98,7 +98,7 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
 
                 // Save LLM response to memory
                 await _memoryStore.SaveContextAsync(
-                    sessionId,
+                    sessionId!,
                     $"llm_response:{DateTime.UtcNow.Ticks}",
                     llmResponse
                 );

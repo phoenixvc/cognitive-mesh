@@ -206,7 +206,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
 
                 var point = await _client.RetrieveAsync(
                     _collectionName,
-                    new PointId { Num = pointId },
+                    pointId,
                     withPayload: true,
                     withVectors: false);
 
