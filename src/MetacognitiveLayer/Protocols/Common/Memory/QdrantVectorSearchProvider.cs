@@ -204,12 +204,12 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             {
                 var pointId = (ulong)key.GetHashCode(StringComparison.Ordinal) & 0x7FFFFFFFFFFFFFFF;
 
-                var points = await _client.GetAsync(
+                var point = await _client.RetrieveAsync(
                     _collectionName,
-                    new List<PointId> { new() { Num = pointId } },
-                    withPayload: true);
+                    new PointId { Num = pointId },
+                    withPayload: true,
+                    withVectors: false);
 
-                var point = points.FirstOrDefault();
                 if (point == null) return string.Empty;
 
                 // Extract field name from jsonPath (e.g., "$.value" -> "value")

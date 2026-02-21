@@ -42,7 +42,7 @@ namespace MetacognitiveLayer.Protocols.MCP
                 // Extract MCP context
                 var mcpContext = JsonSerializer.Deserialize<MCPContext>(request);
                 
-                _logger.LogDebug("Successfully parsed MCP request for session {SessionId}", mcpContext.SessionId);
+                _logger.LogDebug("Successfully parsed MCP request for session {SessionId}", mcpContext?.SessionId);
                 return mcpContext;
             }
             catch (JsonException ex)

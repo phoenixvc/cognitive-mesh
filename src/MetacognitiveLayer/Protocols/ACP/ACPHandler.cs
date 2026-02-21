@@ -50,7 +50,7 @@ namespace MetacognitiveLayer.Protocols.ACP
                 }
 
                 _logger.LogDebug("Successfully parsed ACP template for task: {TaskName}", task?.Name);
-                return task;
+                return task!;
             }
             catch (XmlException ex)
             {

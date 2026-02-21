@@ -87,12 +87,13 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                 "DIALECT", "2"
             };
 
-            var raw = (RedisResult[])await _db!.ExecuteAsync("FT.SEARCH", args.ToArray());
+            var raw = (RedisResult[]?)await _db!.ExecuteAsync("FT.SEARCH", args.ToArray());
+            if (raw == null) return Enumerable.Empty<string>();
 
             var results = new List<string>();
             for (int i = 1; i < raw.Length; i += 2)
             {
-                var fields = (RedisResult[])raw[i + 1]!;
+                var fields = (RedisResult[])raw[i + 1];
                 string? value = null;
                 double score = 0;
 

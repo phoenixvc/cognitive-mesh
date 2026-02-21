@@ -217,7 +217,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                     command.Parameters.AddWithValue("@key", key);
 
                     var result = await command.ExecuteScalarAsync();
-                    return result?.ToString();
+                    return result?.ToString() ?? string.Empty;
                 }
             }
         }
@@ -447,7 +447,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         public override int Size { get; set; }
         public override string SourceColumn { get; set; } = string.Empty;
         public override bool SourceColumnNullMapping { get; set; }
-        public override object? Value { get; set; }
+        public override object Value { get; set; }
         public override void ResetDbType() { }
     }
 
@@ -460,9 +460,9 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         public override CommandType CommandType { get; set; }
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
-        protected override DbConnection? DbConnection { get; set; }
+        protected override DbConnection DbConnection { get; set; }
         protected override DbParameterCollection DbParameterCollection => _parameters;
-        protected override DbTransaction? DbTransaction { get; set; }
+        protected override DbTransaction DbTransaction { get; set; }
 
         /// <summary>
         /// Gets the parameter collection for this command.
@@ -471,7 +471,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
 
         public override void Cancel() { }
         public override int ExecuteNonQuery() => 0;
-        public override object? ExecuteScalar() => null;
+        public override object ExecuteScalar() => null;
         public override void Prepare() { }
 
         protected override DbParameter CreateDbParameter() => new DuckDBParameter();
@@ -493,9 +493,9 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
 
         public override bool GetBoolean(int ordinal) => false;
         public override byte GetByte(int ordinal) => 0;
-        public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) => 0;
+        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) => 0;
         public override char GetChar(int ordinal) => '\0';
-        public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) => 0;
+        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) => 0;
         public override string GetDataTypeName(int ordinal) => string.Empty;
         public override DateTime GetDateTime(int ordinal) => DateTime.MinValue;
         public override decimal GetDecimal(int ordinal) => 0m;

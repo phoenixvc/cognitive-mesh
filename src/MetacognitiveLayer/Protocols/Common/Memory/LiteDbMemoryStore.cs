@@ -95,7 +95,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             {
                 try
                 {
-                    var embedding = JsonSerializer.Deserialize<float[]>(value);
+                    var embedding = System.Text.Json.JsonSerializer.Deserialize<float[]>(value);
                     if (embedding != null)
                     {
                         _embeddingCollection.Insert(new EmbeddingDocument
@@ -143,7 +143,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             float[]? queryEmbedding;
             try
             {
-                queryEmbedding = JsonSerializer.Deserialize<float[]>(embedding);
+                queryEmbedding = System.Text.Json.JsonSerializer.Deserialize<float[]>(embedding);
                 if (queryEmbedding == null) return Task.FromResult(Enumerable.Empty<string>());
             }
             catch (JsonException)

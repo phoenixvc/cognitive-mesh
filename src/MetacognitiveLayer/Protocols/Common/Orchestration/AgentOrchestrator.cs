@@ -74,7 +74,7 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
 
                 // Save prompt to memory
                 await _memoryStore.SaveContextAsync(
-                    sessionId,
+                    sessionId!,
                     $"prompt:{DateTime.UtcNow.Ticks}",
                     prompt
                 );

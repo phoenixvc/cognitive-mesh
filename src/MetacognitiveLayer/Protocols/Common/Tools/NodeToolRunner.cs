@@ -208,7 +208,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                     {
                         // Parse the output as JSON
                         var result = JsonSerializer.Deserialize<object>(output);
-                        return result;
+                        return result!;
                     }
                     catch (JsonException)
                     {
