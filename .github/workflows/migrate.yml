@@ -19,7 +19,7 @@ jobs:
           fi
       - uses: actions/setup-python@v5
         if: steps.check_migration.outputs.exists == 'true'
-        with: { python-version: "3.12.12" }
+        with: { python-version: "3.14.3" }
       - run: pip install poetry
         if: steps.check_migration.outputs.exists == 'true'
       - run: poetry install
