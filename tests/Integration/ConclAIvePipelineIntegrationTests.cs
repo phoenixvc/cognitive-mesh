@@ -134,7 +134,7 @@ public class ConclAIvePipelineIntegrationTests : IClassFixture<ConclAIveTestFixt
             ReasoningRecipeType.DebateAndVote);
 
         // Assert — debate should have multiple perspective steps in the trace
-        result.ReasoningTrace.Should().HaveCountGreaterOrEqualTo(2,
+        result.ReasoningTrace.Should().HaveCountGreaterThanOrEqualTo(2,
             "Debate reasoning should generate arguments from multiple perspectives");
     }
 
