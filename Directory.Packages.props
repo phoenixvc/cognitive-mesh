@@ -47,6 +47,7 @@
     <PackageVersion Include="NetTopologySuite" Version="[2.6.0]" />
     <!-- Command Line -->
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
     <!-- Email -->
     <PackageVersion Include="SendGrid" Version="[9.28.1]" />
     <!-- Messaging -->

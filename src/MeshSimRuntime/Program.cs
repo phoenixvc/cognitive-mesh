@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
 using System.Text.Json;
 using MetacognitiveLayer.Protocols.Common.Memory;
 using MetacognitiveLayer.Protocols.Common.Orchestration;
@@ -8,10 +9,10 @@ using MetacognitiveLayer.Protocols.Integration;
 using MetacognitiveLayer.Protocols.LLM;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using IAgentOrchestrator = MetacognitiveLayer.Protocols.Integration.IAgentOrchestrator;
-using IContextTemplateResolver = MetacognitiveLayer.Protocols.Integration.IContextTemplateResolver;
-using IMeshMemoryStore = MetacognitiveLayer.Protocols.Integration.IMeshMemoryStore;
-using IToolRunner = MetacognitiveLayer.Protocols.Integration.IToolRunner;
+using IAgentOrchestrator = MetacognitiveLayer.Protocols.Common.Orchestration.IAgentOrchestrator;
+using IContextTemplateResolver = MetacognitiveLayer.Protocols.Common.Templates.IContextTemplateResolver;
+using IMeshMemoryStore = MetacognitiveLayer.Protocols.Common.Memory.IMeshMemoryStore;
+using IToolRunner = MetacognitiveLayer.Protocols.Common.Tools.IToolRunner;
 
 namespace CognitiveMesh.MeshSimRuntime
 {
@@ -70,7 +71,7 @@ namespace CognitiveMesh.MeshSimRuntime
                 {
                     AgentId = agent,
                     TaskName = task,
-                    Parameters = parameters
+                    Parameters = parameters ?? new Dictionary<string, object>()
                 };
                 
                 // Execute

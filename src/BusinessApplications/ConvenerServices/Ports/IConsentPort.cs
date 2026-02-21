@@ -71,14 +71,23 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
     /// </summary>
     public class ConsentRecord
     {
+        /// <summary>Gets or sets the unique consent record identifier.</summary>
         public string ConsentId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the user identifier.</summary>
         public string UserId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the tenant identifier.</summary>
         public string TenantId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the type of consent.</summary>
         public string ConsentType { get; set; } = string.Empty;
+        /// <summary>Gets or sets the scope of the consent.</summary>
         public string Scope { get; set; } = string.Empty;
+        /// <summary>Gets or sets whether consent was granted.</summary>
         public bool IsGranted { get; set; }
+        /// <summary>Gets or sets the timestamp of the consent decision.</summary>
         public DateTimeOffset Timestamp { get; set; }
+        /// <summary>Gets or sets the source of the consent action.</summary>
         public string Source { get; set; } = string.Empty;
+        /// <summary>Gets or sets the consent evidence reference.</summary>
         public string Evidence { get; set; } = string.Empty;
 
         /// <summary>
@@ -107,10 +116,14 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
     /// </summary>
     public class ValidateConsentRequest
     {
+        /// <summary>Gets or sets the user identifier to validate.</summary>
         public string UserId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the tenant identifier.</summary>
         public string TenantId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the required consent type to check.</summary>
         public string RequiredConsentType { get; set; } = string.Empty;
-        public string Scope { get; set; } = string.Empty; // Optional scope to check
+        /// <summary>Gets or sets the optional scope to validate.</summary>
+        public string Scope { get; set; } = string.Empty;
 
         /// <summary>
         /// (Optional) Specifies the minimum consent level that must have been granted.
@@ -168,14 +181,21 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         // ------------------------------------------------------------------
         // GDPR-specific consent types
         // ------------------------------------------------------------------
+
+        /// <summary>Consent for GDPR data processing.</summary>
         public const string GDPRDataProcessing           = "GDPRDataProcessing";
+        /// <summary>Consent for GDPR data transfer outside the EU.</summary>
         public const string GDPRDataTransferOutsideEU    = "GDPRDataTransferOutsideEU";
+        /// <summary>Consent for GDPR automated decision-making.</summary>
         public const string GDPRAutomatedDecisionMaking  = "GDPRAutomatedDecisionMaking";
 
         // ------------------------------------------------------------------
         // EU AI Act-specific consent types
         // ------------------------------------------------------------------
+
+        /// <summary>Consent for EU AI Act high-risk system usage.</summary>
         public const string EUAIActHighRiskSystem        = "EUAIActHighRiskSystem";
+        /// <summary>Consent for EU AI Act biometric identification.</summary>
         public const string EUAIActBiometricIdentification = "EUAIActBiometricIdentification";
     }
 }

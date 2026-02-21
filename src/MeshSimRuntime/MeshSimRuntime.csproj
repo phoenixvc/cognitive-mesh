@@ -22,6 +22,7 @@
     
     <!-- Command Line -->
     <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="System.CommandLine.NamingConventionBinder" />
     
     <!-- JSON -->
     <PackageReference Include="System.Text.Json" />

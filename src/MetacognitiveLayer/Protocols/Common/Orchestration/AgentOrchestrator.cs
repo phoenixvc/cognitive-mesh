@@ -3,6 +3,10 @@ using System.Text.Json;
 using MetacognitiveLayer.Protocols.Integration;
 using MetacognitiveLayer.Protocols.LLM;
 using Microsoft.Extensions.Logging;
+using IContextTemplateResolver = MetacognitiveLayer.Protocols.Common.Templates.IContextTemplateResolver;
+using IMeshMemoryStore = MetacognitiveLayer.Protocols.Common.Memory.IMeshMemoryStore;
+using IToolRunner = MetacognitiveLayer.Protocols.Common.Tools.IToolRunner;
+using ToolContext = MetacognitiveLayer.Protocols.Common.Tools.ToolContext;
 
 namespace MetacognitiveLayer.Protocols.Common.Orchestration
 {
