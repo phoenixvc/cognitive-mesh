@@ -104,7 +104,7 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
                 );
 
                 // Process tool invocations if any
-                var processedResponse = await ProcessToolInvocations(llmResponse, sessionId, request.Parameters);
+                var processedResponse = await ProcessToolInvocations(llmResponse, sessionId!, request.Parameters);
 
                 // Set result
                 result.Success = true;

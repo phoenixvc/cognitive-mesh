@@ -210,12 +210,12 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                     withPayload: true,
                     withVectors: false);
 
-                if (point == null) return string.Empty;
+                if (point == null || point.Count == 0) return string.Empty;
 
                 // Extract field name from jsonPath (e.g., "$.value" -> "value")
                 var fieldName = jsonPath.TrimStart('$', '.');
 
-                if (point.Payload.TryGetValue(fieldName, out var value))
+                if (point[0].Payload.TryGetValue(fieldName, out var value))
                 {
                     return value.StringValue;
                 }
