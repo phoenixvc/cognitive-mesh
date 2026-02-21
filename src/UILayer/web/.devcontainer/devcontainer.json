@@ -1,0 +1,105 @@
+{
+  "name": "CognitiveMeshUI Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      // Set *default* container specific settings.json values on container create
+      "settings": {
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit",
+          "source.organizeImports": "explicit"
+        },
+        "css.validate": false,
+        "less.validate": false,
+        "scss.validate": false,
+        "tailwindCSS.experimental.classRegex": [
+          [
+            "cva\\(([^)]*)\\)",
+            "[\"'`]([^\"'`]*).*?[\"'`]"
+          ],
+          [
+            "cn\\(([^)]*)\\)",
+            "[\"'`]([^\"'`]*).*?[\"'`]"
+          ]
+        ],
+        "emmet.includeLanguages": {
+          "typescript": "html",
+          "typescriptreact": "html"
+        },
+        "files.associations": {
+          "*.css": "tailwindcss"
+        }
+      },
+      // Add the IDs of extensions you want installed when the container is created
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "ms-vscode.vscode-json",
+        "ms-vscode.hexeditor",
+        "usernamehw.errorlens",
+        "gruntfuggly.todo-tree",
+        "ms-vscode.live-server",
+        "ritwickdey.liveserver",
+        "ms-playwright.playwright",
+        "github.copilot",
+        "github.copilot-chat",
+        "ms-vscode-remote.remote-containers",
+        "ms-vscode.remote-explorer",
+        "bierner.markdown-preview-github-styles",
+        "yzhang.markdown-all-in-one",
+        "shd101wyy.markdown-preview-enhanced"
+      ]
+    }
+  },
+  // Use 'forwardPorts' to make a list of ports inside the container available locally
+  "forwardPorts": [
+    3000,
+    3001,
+    5173,
+    8080
+  ],
+  // Configure port attributes
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js Dev Server",
+      "onAutoForward": "notify"
+    },
+    "3001": {
+      "label": "Storybook",
+      "onAutoForward": "silent"
+    },
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "silent"
+    }
+  },
+  // Use 'postCreateCommand' to run commands after the container is created
+  "postCreateCommand": "npm install",
+  // Use 'postStartCommand' to run commands after the container starts
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root
+  "remoteUser": "node",
+  // Mount the host's Docker socket
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  // Environment variables
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "NEXT_TELEMETRY_DISABLED": "1"
+  }
+}

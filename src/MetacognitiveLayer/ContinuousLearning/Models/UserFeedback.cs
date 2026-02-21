@@ -13,6 +13,6 @@ namespace MetacognitiveLayer.ContinuousLearning.Models
         /// <summary>
         /// Optional textual comments from the user providing more context.
         /// </summary>
-        public string Comments { get; set; }
+        public string Comments { get; set; } = string.Empty;
     }
 }

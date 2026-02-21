@@ -24,7 +24,6 @@
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <CopyLocal>true</CopyLocal>
     </ProjectReference>
-    <ProjectReference Include="..\..\BusinessApplications\Common\Common.csproj" />
   </ItemGroup>
 
 </Project>

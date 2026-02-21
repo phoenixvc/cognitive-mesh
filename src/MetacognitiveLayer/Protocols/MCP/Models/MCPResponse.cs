@@ -11,19 +11,19 @@ namespace MetacognitiveLayer.Protocols.MCP.Models
         /// Unique identifier for the session
         /// </summary>
         [JsonPropertyName("sessionId")]
-        public string SessionId { get; set; }
-        
+        public string SessionId { get; set; } = string.Empty;
+
         /// <summary>
         /// Identifier for the conversation
         /// </summary>
         [JsonPropertyName("conversationId")]
-        public string ConversationId { get; set; }
-        
+        public string ConversationId { get; set; } = string.Empty;
+
         /// <summary>
         /// User identifier
         /// </summary>
         [JsonPropertyName("userId")]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         
         /// <summary>
         /// ISO8601 timestamp of the response
@@ -35,31 +35,35 @@ namespace MetacognitiveLayer.Protocols.MCP.Models
         /// Status of the response: "success" or "error"
         /// </summary>
         [JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
         
         /// <summary>
         /// Result object (only present if status is "success")
         /// </summary>
-        [JsonPropertyName("result", NullValueHandling = NullValueHandling.Ignore)]
-        public object Result { get; set; }
+        [JsonPropertyName("result")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public object Result { get; set; } = string.Empty;
         
         /// <summary>
         /// Error information (only present if status is "error")
         /// </summary>
-        [JsonPropertyName("error", NullValueHandling = NullValueHandling.Ignore)]
-        public MCPError Error { get; set; }
+        [JsonPropertyName("error")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public MCPError Error { get; set; } = null!;
         
         /// <summary>
         /// Memory updates resulting from this operation
         /// </summary>
-        [JsonPropertyName("memoryUpdates", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, string> MemoryUpdates { get; set; }
+        [JsonPropertyName("memoryUpdates")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Dictionary<string, string> MemoryUpdates { get; set; } = new();
         
         /// <summary>
         /// Metrics about the operation execution
         /// </summary>
-        [JsonPropertyName("metrics", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, object> Metrics { get; set; }
+        [JsonPropertyName("metrics")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Dictionary<string, object> Metrics { get; set; } = new();
         
         /// <summary>
         /// Version of the MCP protocol being used

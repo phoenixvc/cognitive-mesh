@@ -1,0 +1,42 @@
+{
+  "color": {
+    "base": {
+      "gray": {
+        "light": { "value": "#CCCCCC" },
+        "medium": { "value": "#999999" },
+        "dark": { "value": "#111111" }
+      },
+      "red": { "value": "#FF0000" },
+      "green": { "value": "#00FF00" }
+    },
+    "cognitive": {
+      "primary": {
+        "neural": { "value": "#00D4FF" },
+        "synaptic": { "value": "#0066CC" },
+        "axonal": { "value": "#003366" }
+      },
+      "secondary": {
+        "dendritic": { "value": "#FF6B35" },
+        "myelin": { "value": "#FFD93D" },
+        "synapse": { "value": "#6BCF7F" }
+      },
+      "neutral": {
+        "cortex": { "value": "#1A1A2E" },
+        "matter": { "value": "#16213E" },
+        "fluid": { "value": "#0F3460" },
+        "void": { "value": "#533483" }
+      },
+      "semantic": {
+        "success": { "value": "#00FF88" },
+        "warning": { "value": "#FFB800" },
+        "error": { "value": "#FF4757" },
+        "info": { "value": "#3742FA" }
+      },
+      "gradient": {
+        "neural": { "value": "linear-gradient(135deg, #00D4FF 0%, #0066CC 100%)" },
+        "synaptic": { "value": "linear-gradient(135deg, #FF6B35 0%, #FFD93D 100%)" },
+        "cortical": { "value": "linear-gradient(135deg, #1A1A2E 0%, #533483 100%)" }
+      }
+    }
+  }
+}

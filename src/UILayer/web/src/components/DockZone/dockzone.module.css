@@ -1,0 +1,34 @@
+/* Custom Scrollbar for DockZone */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #3b82f6 #181c24;
+}
+
+/* Webkit Browsers */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background: #181c24;
+}
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #06b6d4 30%, #3b82f6 70%);
+  border-radius: 8px;
+  border: 2px solid #181c24;
+}
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #3b82f6 30%, #8b5cf6 70%);
+}
+.scrollbar-custom::-webkit-scrollbar-corner {
+  background: #181c24;
+}
+.grip-bar {
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.grip-bar:hover, .grip-bar:active {
+  background: #22d3ee;
+  box-shadow: 0 0 12px 2px #22d3ee, 0 0 2px #0ea5e9;
+}
+@keyframes grip-glow {
+  0%, 100% { box-shadow: 0 0 8px 1px #0ea5e9; }
+  50% { box-shadow: 0 0 16px 4px #22d3ee; }
+}

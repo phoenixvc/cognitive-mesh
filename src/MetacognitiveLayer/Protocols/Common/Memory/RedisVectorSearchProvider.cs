@@ -1,34 +1,45 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace MetacognitiveLayer.Protocols.Common.Memory
 {
+    /// <summary>
+    /// Redis-based implementation of <see cref="IVectorSearchProvider"/> that uses
+    /// RediSearch for vector similarity queries and JSON document storage.
+    /// </summary>
     public class RedisVectorSearchProvider : IVectorSearchProvider
     {
         private readonly string _connectionString;
         private readonly ILogger<RedisVectorSearchProvider> _logger;
         private readonly string _indexName = "mesh_embeddings";
         private readonly int _vectorDim = 768;
-        private ConnectionMultiplexer _redis;
-        private IDatabase _db;
+        private ConnectionMultiplexer? _redis;
+        private IDatabase? _db;
         private bool _initialized;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisVectorSearchProvider"/> class.
+        /// </summary>
+        /// <param name="connectionString">The Redis connection string.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public RedisVectorSearchProvider(string connectionString, ILogger<RedisVectorSearchProvider> logger)
         {
             _connectionString = connectionString;
             _logger = logger;
         }
 
+        /// <inheritdoc />
         public async Task InitializeAsync()
         {
             if (_initialized) return;
 
             _redis = await ConnectionMultiplexer.ConnectAsync(_connectionString);
-            _db = _redis.GetDatabase();
+            _db = _redis!.GetDatabase();
 
             try
             {
-                await _db.ExecuteAsync("FT.INFO", _indexName);
+                await _db!.ExecuteAsync("FT.INFO", _indexName);
                 _logger.LogInformation("Redis index {IndexName} already exists", _indexName);
             }
             catch (RedisServerException ex) when (ex.Message.Contains("Unknown Index name"))
@@ -57,21 +68,24 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                 "DISTANCE_METRIC", "COSINE"
             };
 
-            await _db.ExecuteAsync("FT.CREATE", args.ToArray());
+            await _db!.ExecuteAsync("FT.CREATE", args.ToArray());
         }
 
+        /// <inheritdoc />
         public async Task SaveDocumentAsync(string key, Dictionary<string, object> document)
         {
             string json = JsonSerializer.Serialize(document);
-            await _db.ExecuteAsync("JSON.SET", key, "$", json);
+            await _db!.ExecuteAsync("JSON.SET", key, "$", json);
         }
 
+        /// <inheritdoc />
         public async Task<string> GetDocumentValueAsync(string key, string jsonPath)
         {
-            var result = await _db.ExecuteAsync("JSON.GET", key, jsonPath);
-            return result.IsNull ? null : result.ToString();
+            var result = await _db!.ExecuteAsync("JSON.GET", key, jsonPath);
+            return result.IsNull ? null! : result.ToString()!;
         }
 
+        /// <inheritdoc />
         public async Task<IEnumerable<string>> QuerySimilarAsync(float[] embedding, float threshold)
         {
             var vectorBytes = new byte[embedding.Length * sizeof(float)];
@@ -86,20 +100,22 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                 "DIALECT", "2"
             };
 
-            var raw = (RedisResult[])await _db.ExecuteAsync("FT.SEARCH", args.ToArray());
+            var raw = (RedisResult[]?)await _db!.ExecuteAsync("FT.SEARCH", args.ToArray());
+            if (raw == null) return Enumerable.Empty<string>();
 
             var results = new List<string>();
             for (int i = 1; i < raw.Length; i += 2)
             {
-                var fields = (RedisResult[])raw[i + 1];
-                string value = null;
+                var fields = (RedisResult[]?)raw[i + 1];
+                if (fields == null) continue;
+                string? value = null;
                 double score = 0;
 
                 for (int j = 0; j < fields.Length; j += 2)
                 {
-                    if (fields[j].ToString() == "value")
-                        value = fields[j + 1].ToString();
-                    if (fields[j].ToString() == "score" && double.TryParse(fields[j + 1].ToString(), out var s))
+                    if (fields[j]?.ToString() == "value")
+                        value = fields[j + 1]?.ToString();
+                    if (fields[j]?.ToString() == "score" && double.TryParse(fields[j + 1]?.ToString(), out var s))
                         score = s;
                 }
 

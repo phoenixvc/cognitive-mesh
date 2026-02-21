@@ -1,3 +1,6 @@
+using System.Data;
+using System.Data.Common;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
 namespace MetacognitiveLayer.Protocols.Common.Memory
@@ -13,6 +16,11 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         private bool _initialized = false;
         private string _connectionString;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DuckDbMemoryStore"/> class.
+        /// </summary>
+        /// <param name="dbFilePath">The file path for the DuckDB database.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public DuckDbMemoryStore(string dbFilePath, ILogger<DuckDbMemoryStore> logger)
         {
             _dbFilePath = dbFilePath ?? throw new ArgumentNullException(nameof(dbFilePath));
@@ -102,7 +110,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                     {
                         _logger.LogWarning(ex, "Failed to load DuckDB vector extension, falling back to manual vector operations");
                     }
-        }
+                }
 
                 _initialized = true;
                 _logger.LogInformation("DuckDB memory store initialized successfully");
@@ -148,10 +156,10 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
 
                     // If this looks like embedding data, store in embeddings table
                     if (key.Contains("embedding"))
-                {
+                    {
                         try
                         {
-                            var embeddingArray = JsonConvert.DeserializeObject<float[]>(value);
+                            var embeddingArray = JsonSerializer.Deserialize<float[]>(value);
                             if (embeddingArray != null && embeddingArray.Length > 0)
                             {
                                 using (var command = connection.CreateCommand())
@@ -171,20 +179,20 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                                 }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Failed to parse embedding value for key {Key}, storing as plain text only", key);
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to parse embedding value for key {Key}, storing as plain text only", key);
+                        }
                     }
                 }
 
                 _logger.LogDebug("Context saved successfully");
             }
             catch (Exception ex)
-        {
+            {
                 _logger.LogError(ex, "Error saving context to DuckDB");
                 throw;
-        }
+            }
         }
 
         /// <summary>
@@ -214,7 +222,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                     command.Parameters.AddWithValue("@key", key);
 
                     var result = await command.ExecuteScalarAsync();
-                    return result?.ToString();
+                    return result?.ToString() ?? string.Empty;
                 }
             }
         }
@@ -238,7 +246,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                 _logger.LogDebug("Querying similar embeddings with threshold {Threshold}", threshold);
 
                 // Parse the embedding string into a float array
-                var queryEmbedding = JsonConvert.DeserializeObject<float[]>(embedding);
+                var queryEmbedding = JsonSerializer.Deserialize<float[]>(embedding);
                 if (queryEmbedding == null || queryEmbedding.Length == 0)
                 {
                     throw new ArgumentException("Invalid embedding format", nameof(embedding));
@@ -269,7 +277,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                             {
                                 while (await reader.ReadAsync())
                                 {
-                                    results.Add(reader["context_value"].ToString());
+                                    results.Add(reader["context_value"]?.ToString() ?? string.Empty);
                                 }
                             }
 
@@ -294,13 +302,13 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                                 while (await reader.ReadAsync())
                                 {
                                     var storedEmbedding = reader.GetFieldValue<float[]>(0);
-                                    var contextValue = reader["context_value"].ToString();
-                                    
+                                    var contextValue = reader["context_value"]?.ToString() ?? string.Empty;
+
                                     // Compute cosine similarity
                                     var similarity = ComputeCosineSimilarity(queryEmbedding, storedEmbedding);
                                     if (similarity >= threshold)
                                     {
-                                        similarities.Add((similarity, contextValue));
+                                        similarities.Add((similarity: similarity, value: contextValue));
                                     }
                                 }
 
@@ -347,4 +355,171 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             return dotProduct / (float)(Math.Sqrt(normA) * Math.Sqrt(normB));
         }
     }
+
+    // Stub classes for DuckDB connection when DuckDB.NET.Data is not available
+#nullable disable
+    internal class DuckDBConnection : DbConnection
+    {
+        private string _connectionString;
+
+        public DuckDBConnection(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        public override string ConnectionString
+        {
+            get => _connectionString;
+            set => _connectionString = value;
+        }
+
+        public override string Database => string.Empty;
+        public override string DataSource => string.Empty;
+        public override string ServerVersion => string.Empty;
+        public override ConnectionState State => ConnectionState.Open;
+
+        public override void ChangeDatabase(string databaseName) { }
+        public override void Close() { }
+        public override void Open() { }
+
+        protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
+            => throw new NotSupportedException("DuckDB stub does not support transactions");
+
+        protected override DbCommand CreateDbCommand() => new DuckDBCommand();
+
+        /// <summary>
+        /// Creates a new DuckDB command associated with this connection.
+        /// </summary>
+        public new DuckDBCommand CreateCommand() => new();
+    }
+
+    internal class DuckDBParameterCollection : DbParameterCollection
+    {
+        private readonly List<DbParameter> _parameters = new();
+
+        public override int Count => _parameters.Count;
+        public override object SyncRoot => ((System.Collections.ICollection)_parameters).SyncRoot;
+
+        public override int Add(object value)
+        {
+            _parameters.Add((DbParameter)value);
+            return _parameters.Count - 1;
+        }
+
+        public override void AddRange(Array values)
+        {
+            foreach (var value in values)
+                _parameters.Add((DbParameter)value);
+        }
+
+        /// <summary>
+        /// Adds a parameter with the specified name and value.
+        /// </summary>
+        public DbParameter AddWithValue(string parameterName, object value)
+        {
+            var param = new DuckDBParameter { ParameterName = parameterName, Value = value };
+            _parameters.Add(param);
+            return param;
+        }
+
+        public override void Clear() => _parameters.Clear();
+        public override bool Contains(object value) => _parameters.Contains((DbParameter)value);
+        public override bool Contains(string value) => _parameters.Any(p => p.ParameterName == value);
+        public override void CopyTo(Array array, int index) => ((System.Collections.ICollection)_parameters).CopyTo(array, index);
+        public override System.Collections.IEnumerator GetEnumerator() => _parameters.GetEnumerator();
+        public override int IndexOf(object value) => _parameters.IndexOf((DbParameter)value);
+        public override int IndexOf(string parameterName) => _parameters.FindIndex(p => p.ParameterName == parameterName);
+        public override void Insert(int index, object value) => _parameters.Insert(index, (DbParameter)value);
+        public override void Remove(object value) => _parameters.Remove((DbParameter)value);
+        public override void RemoveAt(int index) => _parameters.RemoveAt(index);
+        public override void RemoveAt(string parameterName) => _parameters.RemoveAll(p => p.ParameterName == parameterName);
+        protected override DbParameter GetParameter(int index) => _parameters[index];
+        protected override DbParameter GetParameter(string parameterName) => _parameters.First(p => p.ParameterName == parameterName);
+        protected override void SetParameter(int index, DbParameter value) => _parameters[index] = value;
+        protected override void SetParameter(string parameterName, DbParameter value)
+        {
+            var idx = IndexOf(parameterName);
+            if (idx >= 0) _parameters[idx] = value;
+        }
+    }
+
+    internal class DuckDBParameter : DbParameter
+    {
+        public override DbType DbType { get; set; }
+        public override ParameterDirection Direction { get; set; }
+        public override bool IsNullable { get; set; }
+        public override string ParameterName { get; set; } = string.Empty;
+        public override int Size { get; set; }
+        public override string SourceColumn { get; set; } = string.Empty;
+        public override bool SourceColumnNullMapping { get; set; }
+        public override object Value { get; set; }
+        public override void ResetDbType() { }
+    }
+
+    internal class DuckDBCommand : DbCommand
+    {
+        private readonly DuckDBParameterCollection _parameters = new();
+
+        public override string CommandText { get; set; } = string.Empty;
+        public override int CommandTimeout { get; set; }
+        public override CommandType CommandType { get; set; }
+        public override bool DesignTimeVisible { get; set; }
+        public override UpdateRowSource UpdatedRowSource { get; set; }
+        protected override DbConnection DbConnection { get; set; }
+        protected override DbParameterCollection DbParameterCollection => _parameters;
+        protected override DbTransaction DbTransaction { get; set; }
+
+        /// <summary>
+        /// Gets the parameter collection for this command.
+        /// </summary>
+        public new DuckDBParameterCollection Parameters => _parameters;
+
+        public override void Cancel() { }
+        public override int ExecuteNonQuery() => 0;
+        public override object ExecuteScalar() => null;
+        public override void Prepare() { }
+
+        protected override DbParameter CreateDbParameter() => new DuckDBParameter();
+
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+            => new DuckDBDataReader();
+    }
+
+    internal class DuckDBDataReader : DbDataReader
+    {
+        public override int FieldCount => 0;
+        public override int Depth => 0;
+        public override bool HasRows => false;
+        public override bool IsClosed => true;
+        public override int RecordsAffected => 0;
+
+        public override object this[int ordinal] => GetValue(ordinal);
+        public override object this[string name] => string.Empty;
+
+        public override bool GetBoolean(int ordinal) => false;
+        public override byte GetByte(int ordinal) => 0;
+        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) => 0;
+        public override char GetChar(int ordinal) => '\0';
+        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) => 0;
+        public override string GetDataTypeName(int ordinal) => string.Empty;
+        public override DateTime GetDateTime(int ordinal) => DateTime.MinValue;
+        public override decimal GetDecimal(int ordinal) => 0m;
+        public override double GetDouble(int ordinal) => 0.0;
+        public override Type GetFieldType(int ordinal) => typeof(object);
+        public override float GetFloat(int ordinal) => 0f;
+        public override Guid GetGuid(int ordinal) => Guid.Empty;
+        public override short GetInt16(int ordinal) => 0;
+        public override int GetInt32(int ordinal) => 0;
+        public override long GetInt64(int ordinal) => 0;
+        public override string GetName(int ordinal) => string.Empty;
+        public override int GetOrdinal(string name) => -1;
+        public override string GetString(int ordinal) => string.Empty;
+        public override object GetValue(int ordinal) => string.Empty;
+        public override int GetValues(object[] values) => 0;
+        public override bool IsDBNull(int ordinal) => true;
+        public override bool NextResult() => false;
+        public override bool Read() => false;
+        public override System.Collections.IEnumerator GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
+    }
+#nullable restore
 }

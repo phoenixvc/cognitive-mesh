@@ -14,11 +14,13 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Moq" />
+    <PackageReference Include="FluentAssertions" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\AgencyLayer\DecisionExecution\DecisionExecution.csproj" />
     <ProjectReference Include="..\..\..\src\ReasoningLayer\ReasoningLayer.csproj" />
+    <ProjectReference Include="..\..\..\src\Shared\CognitiveMesh.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -15,22 +15,22 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
         /// <summary>
         /// The unique identifier of the data subject making the request.
         /// </summary>
-        public string SubjectId { get; set; }
+        public string SubjectId { get; set; } = string.Empty;
 
         /// <summary>
         /// The tenant ID in which the request is made.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// A token or evidence used to verify the identity of the data subject.
         /// </summary>
-        public string IdentityVerificationToken { get; set; }
+        public string IdentityVerificationToken { get; set; } = string.Empty;
 
         /// <summary>
         /// The user or system that initiated the request.
         /// </summary>
-        public string RequestedBy { get; set; }
+        public string RequestedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// A correlation ID for tracing the request across the system.
@@ -60,6 +60,27 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class DataSubjectErasureRequest : DataSubjectRightRequest { }
 
     /// <summary>
+    /// Represents a data transfer to another country or region.
+    /// </summary>
+    public class DataTransfer
+    {
+        /// <summary>
+        /// The destination country or region.
+        /// </summary>
+        public string Destination { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The mechanism used for the transfer (e.g., adequacy decision, SCCs).
+        /// </summary>
+        public string TransferMechanism { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Indicates whether additional safeguards are in place beyond the transfer mechanism.
+        /// </summary>
+        public bool AdditionalSafeguards { get; set; }
+    }
+
+    /// <summary>
     /// Represents a request for data portability (GDPR Article 20).
     /// </summary>
     public class DataSubjectPortabilityRequest : DataSubjectRightRequest
@@ -78,12 +99,12 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
         /// <summary>
         /// The specific data processing activity being objected to.
         /// </summary>
-        public string ProcessingActivity { get; set; }
+        public string ProcessingActivity { get; set; } = string.Empty;
 
         /// <summary>
         /// The grounds for the objection.
         /// </summary>
-        public string GroundsForObjection { get; set; }
+        public string GroundsForObjection { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -92,11 +113,11 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class DataSubjectRightResponse
     {
         public bool IsSuccess { get; set; }
-        public string RequestType { get; set; }
-        public string SubjectId { get; set; }
+        public string RequestType { get; set; } = string.Empty;
+        public string SubjectId { get; set; } = string.Empty;
         public DateTimeOffset ProcessedAt { get; set; }
-        public Dictionary<string, object> Data { get; set; }
-        public ErrorEnvelope Error { get; set; }
+        public Dictionary<string, object> Data { get; set; } = new Dictionary<string, object>();
+        public ErrorEnvelope? Error { get; set; }
     }
 
     #endregion
@@ -108,15 +129,15 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     /// </summary>
     public class DataProcessingAssessmentRequest
     {
-        public string ActivityName { get; set; }
-        public string ProcessingPurpose { get; set; }
+        public string ActivityName { get; set; } = string.Empty;
+        public string ProcessingPurpose { get; set; } = string.Empty;
         public List<string> DataCategories { get; set; } = new List<string>();
-        public string LegalBasis { get; set; }
+        public string LegalBasis { get; set; } = string.Empty;
         public Dictionary<string, object> ProcessingDetails { get; set; } = new Dictionary<string, object>();
-        public string RetentionPeriod { get; set; }
+        public string RetentionPeriod { get; set; } = string.Empty;
         public List<DataTransfer> DataTransfers { get; set; } = new List<DataTransfer>();
-        public string TenantId { get; set; }
-        public string AssessedBy { get; set; }
+        public string TenantId { get; set; } = string.Empty;
+        public string AssessedBy { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
     }
 
@@ -126,11 +147,11 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class DataProcessingAssessmentResponse
     {
         public bool IsCompliant { get; set; }
-        public string ActivityName { get; set; }
+        public string ActivityName { get; set; } = string.Empty;
         public DateTimeOffset AssessedAt { get; set; }
         public List<ComplianceIssue> Issues { get; set; } = new List<ComplianceIssue>();
-        public Dictionary<string, object> AssessmentDetails { get; set; }
-        public ErrorEnvelope Error { get; set; }
+        public Dictionary<string, object> AssessmentDetails { get; set; } = new Dictionary<string, object>();
+        public ErrorEnvelope? Error { get; set; }
     }
 
     #endregion
@@ -142,11 +163,11 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     /// </summary>
     public class ConsentVerificationRequest
     {
-        public string SubjectId { get; set; }
-        public string TenantId { get; set; }
-        public string ConsentType { get; set; }
-        public string ProcessingOperation { get; set; }
-        public string VerifiedBy { get; set; }
+        public string SubjectId { get; set; } = string.Empty;
+        public string TenantId { get; set; } = string.Empty;
+        public string ConsentType { get; set; } = string.Empty;
+        public string ProcessingOperation { get; set; } = string.Empty;
+        public string VerifiedBy { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
     }
 
@@ -156,11 +177,11 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class ConsentVerificationResponse
     {
         public bool HasConsent { get; set; }
-        public string SubjectId { get; set; }
-        public string ConsentType { get; set; }
+        public string SubjectId { get; set; } = string.Empty;
+        public string ConsentType { get; set; } = string.Empty;
         public DateTimeOffset VerifiedAt { get; set; }
-        public string ConsentRecordId { get; set; }
-        public ErrorEnvelope Error { get; set; }
+        public string ConsentRecordId { get; set; } = string.Empty;
+        public ErrorEnvelope? Error { get; set; }
     }
 
     /// <summary>
@@ -168,15 +189,15 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     /// </summary>
     public class ConsentRecordRequest
     {
-        public string SubjectId { get; set; }
-        public string TenantId { get; set; }
-        public string ConsentType { get; set; }
-        public string ProcessingOperation { get; set; }
+        public string SubjectId { get; set; } = string.Empty;
+        public string TenantId { get; set; } = string.Empty;
+        public string ConsentType { get; set; } = string.Empty;
+        public string ProcessingOperation { get; set; } = string.Empty;
         public bool IsGranted { get; set; }
-        public string Source { get; set; }
-        public string Evidence { get; set; }
+        public string Source { get; set; } = string.Empty;
+        public string Evidence { get; set; } = string.Empty;
         public DateTimeOffset? ExpirationTime { get; set; }
-        public string RecordedBy { get; set; }
+        public string RecordedBy { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
     }
 
@@ -186,12 +207,12 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class ConsentRecordResponse
     {
         public bool IsSuccess { get; set; }
-        public string SubjectId { get; set; }
-        public string ConsentType { get; set; }
+        public string SubjectId { get; set; } = string.Empty;
+        public string ConsentType { get; set; } = string.Empty;
         public DateTimeOffset RecordedAt { get; set; }
-        public string ConsentRecordId { get; set; }
+        public string ConsentRecordId { get; set; } = string.Empty;
         public bool IsGranted { get; set; }
-        public ErrorEnvelope Error { get; set; }
+        public ErrorEnvelope? Error { get; set; }
     }
 
     #endregion

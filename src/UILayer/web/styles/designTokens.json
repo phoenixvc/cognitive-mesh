@@ -1,0 +1,42 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "Merged Cognitive Mesh Design Tokens with Extended Visual Tokens",
+  "cognitive-mesh": {
+    "accent": {
+      "terminal-glow": {
+        "$type": "color",
+        "$value": "#00FF9D",
+        "$description": "Terminal text glow green"
+      },
+      "metric-gradient": {
+        "$type": "gradient",
+        "$value": "linear-gradient(90deg, #B06CFF, #3DE4FF)",
+        "$description": "Used on large metric values"
+      }
+    },
+    "effect": {
+      "terminal-shadow": {
+        "$type": "shadow",
+        "$value": "0 0 2px #00FF9D, 0 0 10px #00FF9D",
+        "$description": "Shadow style for terminal text"
+      },
+      "panel-glow-soft": {
+        "$type": "shadow",
+        "$value": "0 0 8px rgba(61, 228, 255, 0.12)",
+        "$description": "Soft ambient glow for panels"
+      }
+    },
+    "typography-extension": {
+      "metrics-size": {
+        "$type": "dimension",
+        "$value": "2.25rem",
+        "$description": "Font size for metric values - 36px"
+      },
+      "title-size": {
+        "$type": "dimension",
+        "$value": "1.125rem",
+        "$description": "Font size for titles - 18px"
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Compile Include="CustomerIntelligenceManager.cs" />
+    <Compile Include="ICustomerDataPort.cs" />
   </ItemGroup>
 
   <ItemGroup>

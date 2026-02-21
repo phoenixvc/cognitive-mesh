@@ -11,7 +11,7 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Author of the task template
         /// </summary>
         [XmlElement("Author")]
-        public string Author { get; set; }
+        public string Author { get; set; } = string.Empty;
         
         /// <summary>
         /// Creation date of the task template
@@ -36,7 +36,7 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Parent template ID if this is derived from another template
         /// </summary>
         [XmlElement("ParentTemplate")]
-        public string ParentTemplate { get; set; }
+        public string ParentTemplate { get; set; } = string.Empty;
         
         /// <summary>
         /// Additional custom properties
@@ -55,12 +55,12 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Key of the property
         /// </summary>
         [XmlAttribute("key")]
-        public string Key { get; set; }
+        public string Key { get; set; } = string.Empty;
         
         /// <summary>
         /// Value of the property
         /// </summary>
         [XmlAttribute("value")]
-        public string Value { get; set; }
+        public string Value { get; set; } = string.Empty;
     }
 }

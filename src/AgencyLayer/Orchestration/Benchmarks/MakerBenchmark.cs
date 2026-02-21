@@ -320,37 +320,68 @@ public class MakerBenchmark
     }
 }
 
+/// <summary>
+/// Represents a single Tower of Hanoi move in the MAKER benchmark.
+/// </summary>
 public class HanoiMove
 {
+    /// <summary>Gets or sets the sequential move number.</summary>
     public int MoveNumber { get; set; }
+    /// <summary>Gets or sets the disc number being moved.</summary>
     public int Disc { get; set; }
+    /// <summary>Gets or sets the source peg.</summary>
     public char From { get; set; }
+    /// <summary>Gets or sets the destination peg.</summary>
     public char To { get; set; }
 }
 
+/// <summary>
+/// Reports the score for a single MAKER benchmark run at a given disc count.
+/// </summary>
 public class MakerScoreReport
 {
+    /// <summary>Gets or sets the name of the benchmark.</summary>
     public string BenchmarkName { get; set; } = string.Empty;
+    /// <summary>Gets or sets the number of discs used.</summary>
     public int NumDiscs { get; set; }
+    /// <summary>Gets or sets the total steps required for completion.</summary>
     public int TotalStepsRequired { get; set; }
+    /// <summary>Gets or sets the number of steps completed successfully.</summary>
     public int StepsCompleted { get; set; }
+    /// <summary>Gets or sets the number of steps that failed.</summary>
     public int StepsFailed { get; set; }
+    /// <summary>Gets or sets whether the benchmark run was successful.</summary>
     public bool Success { get; set; }
+    /// <summary>Gets or sets the total duration of the benchmark run.</summary>
     public TimeSpan TotalDuration { get; set; }
+    /// <summary>Gets or sets the average duration per step.</summary>
     public TimeSpan AverageStepDuration { get; set; }
+    /// <summary>Gets or sets the number of checkpoints created during the run.</summary>
     public int CheckpointsCreated { get; set; }
+    /// <summary>Gets or sets the computed MAKER score.</summary>
     public double MakerScore { get; set; }
+    /// <summary>Gets or sets the workflow identifier for this run.</summary>
     public string WorkflowId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the timestamp of the benchmark run.</summary>
     public DateTime Timestamp { get; set; }
 }
 
+/// <summary>
+/// Reports the results of a progressive MAKER benchmark across multiple disc counts.
+/// </summary>
 public class MakerProgressiveReport
 {
+    /// <summary>Gets or sets the maximum number of discs attempted.</summary>
     public int MaxDiscsAttempted { get; set; }
+    /// <summary>Gets or sets the maximum number of discs completed successfully.</summary>
     public int MaxDiscsCompleted { get; set; }
+    /// <summary>Gets or sets the maximum number of steps completed in any run.</summary>
     public int MaxStepsCompleted { get; set; }
+    /// <summary>Gets or sets the overall MAKER score across all runs.</summary>
     public double OverallMakerScore { get; set; }
+    /// <summary>Gets or sets the individual results for each disc count.</summary>
     public List<MakerScoreReport> Results { get; set; } = new();
+    /// <summary>Gets or sets the timestamp of the report.</summary>
     public DateTime Timestamp { get; set; }
 
     public string GetSummary()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -8,7 +9,9 @@ using CognitiveMesh.Shared.Interfaces;
 namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
 {
     /// <summary>
-    /// Handles research analysis tasks including data collection, processing, and insights generation
+    /// Handles research analysis tasks including data collection, processing, and insights generation.
+    /// Uses IResearchDataPort for persistence, IResearchAnalysisPort for LLM-based analysis,
+    /// and IVectorDatabaseAdapter for semantic search across research results.
     /// </summary>
     public class ResearchAnalyst : IResearchAnalyst
     {
@@ -16,23 +19,40 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
         private readonly IKnowledgeGraphManager _knowledgeGraphManager;
         private readonly ILLMClient _llmClient;
         private readonly IVectorDatabaseAdapter _vectorDatabase;
+        private readonly IResearchDataPort _researchDataPort;
+        private readonly IResearchAnalysisPort _analysisPort;
 
+        private const string ResearchVectorCollection = "research-results";
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResearchAnalyst"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
+        /// <param name="knowledgeGraphManager">The knowledge graph manager for relationship-based queries.</param>
+        /// <param name="llmClient">The LLM client for embedding generation used in vector search.</param>
+        /// <param name="vectorDatabase">The vector database for semantic similarity search.</param>
+        /// <param name="researchDataPort">The port for research data persistence operations.</param>
+        /// <param name="analysisPort">The port for LLM-based research analysis operations.</param>
         public ResearchAnalyst(
             ILogger<ResearchAnalyst> logger,
             IKnowledgeGraphManager knowledgeGraphManager,
             ILLMClient llmClient,
-            IVectorDatabaseAdapter vectorDatabase)
+            IVectorDatabaseAdapter vectorDatabase,
+            IResearchDataPort researchDataPort,
+            IResearchAnalysisPort analysisPort)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _knowledgeGraphManager = knowledgeGraphManager ?? throw new ArgumentNullException(nameof(knowledgeGraphManager));
             _llmClient = llmClient ?? throw new ArgumentNullException(nameof(llmClient));
             _vectorDatabase = vectorDatabase ?? throw new ArgumentNullException(nameof(vectorDatabase));
+            _researchDataPort = researchDataPort ?? throw new ArgumentNullException(nameof(researchDataPort));
+            _analysisPort = analysisPort ?? throw new ArgumentNullException(nameof(analysisPort));
         }
 
         /// <inheritdoc/>
         public async Task<ResearchResult> AnalyzeResearchTopicAsync(
-            string topic, 
-            ResearchParameters parameters = null,
+            string topic,
+            ResearchParameters? parameters = null,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(topic))
@@ -43,27 +63,61 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
             try
             {
                 _logger.LogInformation("Starting research analysis for topic: {Topic}", topic);
-                
-                // TODO: Implement actual research analysis logic
-                // This is a placeholder implementation
-                await Task.Delay(100, cancellationToken); // Simulate work
-                
-                return new ResearchResult
+
+                var researchId = $"research-{Guid.NewGuid()}";
+                var createdAt = DateTime.UtcNow;
+
+                // Use the analysis port to perform LLM-based topic analysis
+                var (summary, keyFindings) = await _analysisPort.AnalyzeTopicAsync(
+                    topic, parameters, cancellationToken).ConfigureAwait(false);
+
+                var result = new ResearchResult
                 {
-                    Id = $"research-{Guid.NewGuid()}",
+                    Id = researchId,
                     Topic = topic,
                     Status = ResearchStatus.Completed,
-                    Summary = $"Research summary for topic: {topic}",
-                    KeyFindings = new List<string>
-                    {
-                        "Sample finding 1",
-                        "Sample finding 2",
-                        "Sample finding 3"
-                    },
-                    CreatedAt = DateTime.UtcNow,
+                    Summary = summary,
+                    KeyFindings = keyFindings,
+                    CreatedAt = createdAt,
                     CompletedAt = DateTime.UtcNow,
-                    Parameters = parameters
+                    Parameters = parameters,
+                    Metadata = new Dictionary<string, object>
+                    {
+                        ["findingsCount"] = keyFindings.Count,
+                        ["analysisMethod"] = "llm-structured"
+                    }
                 };
+
+                // Persist the result
+                await _researchDataPort.SaveResearchResultAsync(result, cancellationToken).ConfigureAwait(false);
+
+                // Index in vector database for semantic search
+                var embedding = await _llmClient.GetEmbeddingsAsync(
+                    $"{topic}: {summary}", cancellationToken).ConfigureAwait(false);
+
+                if (embedding.Length > 0)
+                {
+                    var items = new[] { new { Id = researchId, Vector = embedding } };
+                    await _vectorDatabase.UpsertVectorsAsync(
+                        ResearchVectorCollection,
+                        items,
+                        item => item.Vector,
+                        item => item.Id,
+                        cancellationToken).ConfigureAwait(false);
+                }
+
+                // Record in knowledge graph
+                await _knowledgeGraphManager.AddNodeAsync(
+                    researchId,
+                    new { topic, status = "Completed", summary },
+                    label: "Research",
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
+
+                _logger.LogInformation(
+                    "Research analysis completed for topic: {Topic}, findings: {FindingsCount}",
+                    topic, keyFindings.Count);
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -83,21 +137,22 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
             try
             {
                 _logger.LogInformation("Retrieving research result: {ResearchId}", researchId);
-                
-                // TODO: Implement actual research result retrieval logic
-                // This is a placeholder implementation
-                await Task.Delay(50, cancellationToken); // Simulate work
-                
-                return new ResearchResult
+
+                var result = await _researchDataPort.GetResearchResultByIdAsync(researchId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (result is null)
                 {
-                    Id = researchId,
-                    Topic = "Sample Research Topic",
-                    Status = ResearchStatus.Completed,
-                    Summary = "This is a sample research result",
-                    KeyFindings = new List<string> { "Sample finding" },
-                    CreatedAt = DateTime.UtcNow.AddHours(-1),
-                    CompletedAt = DateTime.UtcNow
-                };
+                    _logger.LogWarning("Research result not found: {ResearchId}", researchId);
+                    throw new KeyNotFoundException($"Research result not found for ID: {researchId}");
+                }
+
+                _logger.LogInformation("Successfully retrieved research result: {ResearchId}", researchId);
+                return result;
+            }
+            catch (KeyNotFoundException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -108,7 +163,7 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
 
         /// <inheritdoc/>
         public async Task<IEnumerable<ResearchResult>> SearchResearchResultsAsync(
-            string query, 
+            string query,
             int limit = 10,
             CancellationToken cancellationToken = default)
         {
@@ -117,24 +172,44 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
 
             try
             {
-                _logger.LogInformation("Searching research results for query: {Query}", query);
-                
-                // TODO: Implement actual research search logic
-                // This is a placeholder implementation
-                await Task.Delay(50, cancellationToken); // Simulate work
-                
-                return new[]
+                _logger.LogInformation("Searching research results for query: {Query}, limit: {Limit}", query, limit);
+
+                // First attempt semantic search via vector database
+                var queryEmbedding = await _llmClient.GetEmbeddingsAsync(query, cancellationToken)
+                    .ConfigureAwait(false);
+
+                var results = new List<ResearchResult>();
+
+                if (queryEmbedding.Length > 0)
                 {
-                    new ResearchResult
+                    var similarVectors = await _vectorDatabase.SearchVectorsAsync(
+                        ResearchVectorCollection, queryEmbedding, limit, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    foreach (var (id, score) in similarVectors)
                     {
-                        Id = $"research-{Guid.NewGuid()}",
-                        Topic = "Sample Research Result",
-                        Status = ResearchStatus.Completed,
-                        Summary = $"Sample result matching query: {query}",
-                        CreatedAt = DateTime.UtcNow.AddDays(-1),
-                        CompletedAt = DateTime.UtcNow.AddHours(-23)
+                        var research = await _researchDataPort.GetResearchResultByIdAsync(id, cancellationToken)
+                            .ConfigureAwait(false);
+                        if (research is not null)
+                        {
+                            research.Metadata["similarityScore"] = score;
+                            results.Add(research);
+                        }
                     }
-                };
+                }
+
+                // Fall back to text-based search if semantic search yields no results
+                if (results.Count == 0)
+                {
+                    _logger.LogDebug("No semantic search results; falling back to text search for query: {Query}", query);
+                    var textResults = await _researchDataPort.SearchAsync(query, limit, cancellationToken)
+                        .ConfigureAwait(false);
+                    results.AddRange(textResults);
+                }
+
+                _logger.LogInformation("Found {ResultCount} research results for query: {Query}",
+                    results.Count, query);
+                return results;
             }
             catch (Exception ex)
             {
@@ -145,7 +220,7 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
 
         /// <inheritdoc/>
         public async Task<ResearchResult> UpdateResearchAsync(
-            string researchId, 
+            string researchId,
             ResearchUpdate update,
             CancellationToken cancellationToken = default)
         {
@@ -157,20 +232,78 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
             try
             {
                 _logger.LogInformation("Updating research: {ResearchId}", researchId);
-                
-                // TODO: Implement actual research update logic
-                // This is a placeholder implementation
-                await Task.Delay(50, cancellationToken); // Simulate work
-                
-                return new ResearchResult
+
+                // Retrieve the existing research
+                var existing = await _researchDataPort.GetResearchResultByIdAsync(researchId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (existing is null)
                 {
-                    Id = researchId,
-                    Topic = "Updated Research Topic",
-                    Status = ResearchStatus.InProgress,
-                    Summary = "This research has been updated",
-                    CreatedAt = DateTime.UtcNow.AddDays(-1),
-                    UpdatedAt = DateTime.UtcNow
-                };
+                    _logger.LogWarning("Research result not found for update: {ResearchId}", researchId);
+                    throw new KeyNotFoundException($"Research result not found for ID: {researchId}");
+                }
+
+                // Apply the update
+                if (update.Status.HasValue)
+                {
+                    existing.Status = update.Status.Value;
+                    if (update.Status.Value == ResearchStatus.Completed)
+                    {
+                        existing.CompletedAt = DateTime.UtcNow;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(update.Summary))
+                {
+                    existing.Summary = update.Summary;
+                }
+
+                if (update.KeyFindings is not null && update.KeyFindings.Count > 0)
+                {
+                    existing.KeyFindings = update.KeyFindings;
+                }
+
+                foreach (var kvp in update.Metadata)
+                {
+                    existing.Metadata[kvp.Key] = kvp.Value;
+                }
+
+                existing.UpdatedAt = DateTime.UtcNow;
+
+                // Persist the updated result
+                await _researchDataPort.UpdateResearchResultAsync(existing, cancellationToken)
+                    .ConfigureAwait(false);
+
+                // Update the knowledge graph node
+                await _knowledgeGraphManager.UpdateNodeAsync(
+                    researchId,
+                    new { topic = existing.Topic, status = existing.Status.ToString(), summary = existing.Summary },
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
+
+                // Re-index in vector database if summary changed
+                if (!string.IsNullOrEmpty(update.Summary))
+                {
+                    var embedding = await _llmClient.GetEmbeddingsAsync(
+                        $"{existing.Topic}: {existing.Summary}", cancellationToken).ConfigureAwait(false);
+
+                    if (embedding.Length > 0)
+                    {
+                        var items = new[] { new { Id = researchId, Vector = embedding } };
+                        await _vectorDatabase.UpsertVectorsAsync(
+                            ResearchVectorCollection,
+                            items,
+                            item => item.Vector,
+                            item => item.Id,
+                            cancellationToken).ConfigureAwait(false);
+                    }
+                }
+
+                _logger.LogInformation("Successfully updated research: {ResearchId}", researchId);
+                return existing;
+            }
+            catch (KeyNotFoundException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -188,48 +321,48 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
         /// <summary>
         /// Unique identifier for the research result
         /// </summary>
-        public string Id { get; set; }
-        
+        public string Id { get; set; } = string.Empty;
+
         /// <summary>
         /// The research topic
         /// </summary>
-        public string Topic { get; set; }
-        
+        public string Topic { get; set; } = string.Empty;
+
         /// <summary>
         /// Current status of the research
         /// </summary>
         public ResearchStatus Status { get; set; }
-        
+
         /// <summary>
         /// Summary of the research findings
         /// </summary>
-        public string Summary { get; set; }
-        
+        public string Summary { get; set; } = string.Empty;
+
         /// <summary>
         /// Key findings from the research
         /// </summary>
         public List<string> KeyFindings { get; set; } = new();
-        
+
         /// <summary>
         /// When the research was started
         /// </summary>
         public DateTime CreatedAt { get; set; }
-        
+
         /// <summary>
         /// When the research was last updated
         /// </summary>
         public DateTime? UpdatedAt { get; set; }
-        
+
         /// <summary>
         /// When the research was completed
         /// </summary>
         public DateTime? CompletedAt { get; set; }
-        
+
         /// <summary>
         /// Parameters used for this research
         /// </summary>
-        public ResearchParameters Parameters { get; set; }
-        
+        public ResearchParameters? Parameters { get; set; }
+
         /// <summary>
         /// Additional metadata
         /// </summary>
@@ -245,22 +378,22 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
         /// Maximum number of sources to consider
         /// </summary>
         public int MaxSources { get; set; } = 10;
-        
+
         /// <summary>
         /// Whether to include external sources
         /// </summary>
         public bool IncludeExternalSources { get; set; } = true;
-        
+
         /// <summary>
         /// Minimum confidence threshold for including results (0-1)
         /// </summary>
         public float MinConfidence { get; set; } = 0.7f;
-        
+
         /// <summary>
         /// Timeout in seconds for the research
         /// </summary>
         public int TimeoutSeconds { get; set; } = 300;
-        
+
         /// <summary>
         /// Additional parameters
         /// </summary>
@@ -276,22 +409,22 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
         /// Research has been queued but not started
         /// </summary>
         Pending,
-        
+
         /// <summary>
         /// Research is in progress
         /// </summary>
         InProgress,
-        
+
         /// <summary>
         /// Research has been completed
         /// </summary>
         Completed,
-        
+
         /// <summary>
         /// Research failed
         /// </summary>
         Failed,
-        
+
         /// <summary>
         /// Research was cancelled
         /// </summary>
@@ -307,17 +440,17 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
         /// New status for the research
         /// </summary>
         public ResearchStatus? Status { get; set; }
-        
+
         /// <summary>
         /// Updated summary
         /// </summary>
-        public string Summary { get; set; }
-        
+        public string? Summary { get; set; }
+
         /// <summary>
         /// Updated key findings
         /// </summary>
-        public List<string> KeyFindings { get; set; }
-        
+        public List<string>? KeyFindings { get; set; }
+
         /// <summary>
         /// Additional metadata
         /// </summary>
@@ -333,8 +466,8 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
         /// Analyzes a research topic and returns the results
         /// </summary>
         Task<ResearchResult> AnalyzeResearchTopicAsync(
-            string topic, 
-            ResearchParameters parameters = null,
+            string topic,
+            ResearchParameters? parameters = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -348,7 +481,7 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
         /// Searches for research results matching a query
         /// </summary>
         Task<IEnumerable<ResearchResult>> SearchResearchResultsAsync(
-            string query, 
+            string query,
             int limit = 10,
             CancellationToken cancellationToken = default);
 
@@ -356,7 +489,7 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis
         /// Updates a research task
         /// </summary>
         Task<ResearchResult> UpdateResearchAsync(
-            string researchId, 
+            string researchId,
             ResearchUpdate update,
             CancellationToken cancellationToken = default);
     }
