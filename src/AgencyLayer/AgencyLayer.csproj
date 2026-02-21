@@ -23,6 +23,7 @@
     <ProjectReference Include=".\MultiAgentOrchestration\MultiAgentOrchestration.csproj" />
     <ProjectReference Include=".\Orchestration\Orchestration.csproj" />
     <ProjectReference Include=".\ProcessAutomation\ProcessAutomation.csproj" />
+    <ProjectReference Include=".\RefactoringAgents\RefactoringAgents.csproj" />
     <ProjectReference Include=".\SecurityAgents\SecurityAgents.csproj" />
     <ProjectReference Include=".\ToolIntegration\ToolIntegration.csproj" />
     <ProjectReference Include=".\CognitiveSandwich\CognitiveSandwich.csproj" />
