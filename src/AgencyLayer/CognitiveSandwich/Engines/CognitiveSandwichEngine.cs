@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using AgencyLayer.CognitiveSandwich.Models;
 using AgencyLayer.CognitiveSandwich.Ports;
 using Microsoft.Extensions.Logging;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace AgencyLayer.CognitiveSandwich.Engines;
 
@@ -88,7 +89,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
 
         _logger.LogInformation(
             "Created Cognitive Sandwich process {ProcessId} '{ProcessName}' with {PhaseCount} phases",
-            process.ProcessId, process.Name, phases.Count);
+            Sanitize(process.ProcessId), Sanitize(process.Name), phases.Count);
 
         return process;
     }
@@ -160,7 +161,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
 
                 _logger.LogWarning(
                     "Transition blocked for process {ProcessId} at phase {PhaseId}: postconditions not met",
-                    processId, currentPhase.PhaseId);
+                    Sanitize(processId), Sanitize(currentPhase.PhaseId));
 
                 return new PhaseResult
                 {
@@ -191,7 +192,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
 
             _logger.LogWarning(
                 "Transition blocked for process {ProcessId}: cognitive debt threshold breached (score: {DebtScore})",
-                processId, debtAssessment.DebtScore);
+                Sanitize(processId), debtAssessment.DebtScore);
 
             return new PhaseResult
             {
@@ -204,7 +205,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
         }
 
         // Mark current phase as completed
-        var mutableCurrentPhase = (Phase)currentPhase;
+        var mutableCurrentPhase = currentPhase;
         mutableCurrentPhase.Status = PhaseStatus.Completed;
 
         // Check if this was the last phase
@@ -222,7 +223,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
             };
             await _auditLoggingAdapter.LogAuditEntryAsync(completedEntry, ct);
 
-            _logger.LogInformation("Process {ProcessId} completed all phases successfully", processId);
+            _logger.LogInformation("Process {ProcessId} completed all phases successfully", Sanitize(processId));
 
             return new PhaseResult
             {
@@ -262,7 +263,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
 
             _logger.LogWarning(
                 "Transition blocked for process {ProcessId}: preconditions for phase {NextPhaseId} not met",
-                processId, nextPhase.PhaseId);
+                Sanitize(processId), Sanitize(nextPhase.PhaseId));
 
             return new PhaseResult
             {
@@ -276,7 +277,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
 
         // Perform the transition
         process.CurrentPhaseIndex = nextPhaseIndex;
-        var mutableNextPhase = (Phase)nextPhase;
+        var mutableNextPhase = nextPhase;
         mutableNextPhase.Status = PhaseStatus.InProgress;
         process.State = SandwichProcessState.InProgress;
 
@@ -298,7 +299,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
 
             _logger.LogInformation(
                 "Process {ProcessId} awaiting human review at phase {PhaseId} '{PhaseName}'",
-                processId, nextPhase.PhaseId, nextPhase.Name);
+                Sanitize(processId), Sanitize(nextPhase.PhaseId), Sanitize(nextPhase.Name));
         }
 
         var transitionEntry = new PhaseAuditEntry
@@ -313,7 +314,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
 
         _logger.LogInformation(
             "Process {ProcessId} transitioned to phase {PhaseIndex} '{PhaseName}'",
-            processId, process.CurrentPhaseIndex, nextPhase.Name);
+            Sanitize(processId), process.CurrentPhaseIndex, Sanitize(nextPhase.Name));
 
         return new PhaseResult
         {
@@ -349,7 +350,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
 
             _logger.LogWarning(
                 "Step-back blocked for process {ProcessId}: max step-backs ({MaxStepBacks}) exceeded",
-                processId, process.MaxStepBacks);
+                Sanitize(processId), process.MaxStepBacks);
 
             return new PhaseResult
             {
@@ -386,12 +387,12 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
         // Roll back all phases between current and target (inclusive of current)
         for (int i = process.CurrentPhaseIndex; i > targetPhaseIndex; i--)
         {
-            var phaseToRollBack = (Phase)process.Phases[i];
+            var phaseToRollBack = process.Phases[i];
             phaseToRollBack.Status = PhaseStatus.RolledBack;
         }
 
         // Set target phase back to InProgress
-        var targetPhase = (Phase)process.Phases[targetPhaseIndex];
+        var targetPhase = process.Phases[targetPhaseIndex];
         targetPhase.Status = PhaseStatus.InProgress;
 
         process.CurrentPhaseIndex = targetPhaseIndex;
@@ -410,7 +411,7 @@ public class CognitiveSandwichEngine : IPhaseManagerPort
 
         _logger.LogInformation(
             "Process {ProcessId} stepped back to phase {TargetPhaseIndex} '{TargetPhaseName}' (step-back {StepBackCount}/{MaxStepBacks}). Reason: {Reason}",
-            processId, targetPhaseIndex, targetPhase.Name, process.StepBackCount, process.MaxStepBacks, reason.Reason);
+            Sanitize(processId), targetPhaseIndex, Sanitize(targetPhase.Name), process.StepBackCount, process.MaxStepBacks, Sanitize(reason.Reason));
 
         return new PhaseResult
         {

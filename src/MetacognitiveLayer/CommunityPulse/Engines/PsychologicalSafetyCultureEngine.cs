@@ -217,7 +217,7 @@ namespace MetacognitiveLayer.CommunityPulse.Engines
             double numerator = n * sumXy - sumX * sumY;
             double denominator = n * sumX2 - sumX * sumX;
 
-            return denominator == 0 ? 0 : numerator / denominator;
+            return Math.Abs(denominator) < 1e-10 ? 0 : numerator / denominator;
         }
     }
 }

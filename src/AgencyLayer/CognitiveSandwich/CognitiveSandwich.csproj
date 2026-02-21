@@ -17,4 +17,8 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../../Shared/CognitiveMesh.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -130,11 +130,13 @@ public class SolidDryRefactoringAgent
 
     private static string? ExtractString(object? obj)
     {
+        if (obj is null) return null;
+
         return obj switch
         {
             string s => s,
             JsonElement { ValueKind: JsonValueKind.String } je => je.GetString(),
-            _ => obj?.ToString()
+            _ => obj.ToString()
         };
     }
 }

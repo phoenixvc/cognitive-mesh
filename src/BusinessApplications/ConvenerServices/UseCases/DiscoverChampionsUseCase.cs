@@ -1,5 +1,6 @@
 using FoundationLayer.ConvenerData;
 using Microsoft.Extensions.Logging;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace CognitiveMesh.BusinessApplications.ConvenerServices.UseCases;
 
@@ -86,7 +87,7 @@ public class DiscoverChampionsUseCase
     {
         _logger.LogInformation(
             "Discovering champions for Tenant '{TenantId}', Skill='{Skill}', Max={Max}",
-            request.TenantId, request.SkillFilter ?? "any", request.MaxResults);
+            Sanitize(request.TenantId), Sanitize(request.SkillFilter ?? "any"), request.MaxResults);
 
         var candidates = await _championDiscoveryPort.GetChampionCandidatesAsync(
             request.TenantId, request.SkillFilter, cancellationToken);

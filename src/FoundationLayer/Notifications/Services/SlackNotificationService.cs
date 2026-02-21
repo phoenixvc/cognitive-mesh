@@ -93,7 +93,7 @@ namespace FoundationLayer.Notifications.Services
             var payload = BuildSlackPayload(notification, color);
 
             var json = JsonSerializer.Serialize(payload, JsonSerializerOptions);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             _logger.LogDebug(
                 "Sending Slack notification {NotificationId} with priority {Priority}",
@@ -200,7 +200,7 @@ namespace FoundationLayer.Notifications.Services
                     {
                         ActionType.Positive => "primary",
                         ActionType.Negative => "danger",
-                        _ => (string?)null
+                        _ => null
                     };
 
                     var button = new Dictionary<string, object>
@@ -209,7 +209,7 @@ namespace FoundationLayer.Notifications.Services
                         ["text"] = new Dictionary<string, object>
                         {
                             ["type"] = "plain_text",
-                            ["text"] = (object)(action.Label ?? action.ActionId ?? string.Empty)
+                            ["text"] = action.Label ?? action.ActionId ?? string.Empty
                         },
                         ["action_id"] = action.ActionId ?? Guid.NewGuid().ToString()
                     };

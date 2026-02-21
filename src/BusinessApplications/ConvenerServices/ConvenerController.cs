@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace CognitiveMesh.BusinessApplications.ConvenerServices
 {
@@ -191,7 +192,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices
 
                 _logger.LogInformation(
                     "Tracking innovation spread for Idea '{IdeaId}' in Tenant '{TenantId}'.",
-                    ideaId, tenantId);
+                    Sanitize(ideaId), Sanitize(tenantId));
 
                 var result = await _innovationSpreadPort.GetInnovationSpreadAsync(ideaId, tenantId);
                 if (result == null)
@@ -203,7 +204,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unhandled exception occurred during innovation spread tracking for Idea '{IdeaId}'.", ideaId);
+                _logger.LogError(ex, "An unhandled exception occurred during innovation spread tracking for Idea '{IdeaId}'.", Sanitize(ideaId));
                 return StatusCode(StatusCodes.Status500InternalServerError, "An internal error occurred while processing your request.");
             }
         }

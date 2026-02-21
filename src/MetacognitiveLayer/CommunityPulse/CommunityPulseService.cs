@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace MetacognitiveLayer.CommunityPulse;
 
@@ -109,7 +110,7 @@ public class CommunityPulseService
 
         _logger.LogInformation(
             "Fetching community pulse for Tenant '{TenantId}', Channel '{ChannelId}' from {StartTime} to {EndTime}.",
-            request.TenantId, request.ChannelId, startTime, endTime);
+            Sanitize(request.TenantId), Sanitize(request.ChannelId), startTime, endTime);
 
         // 1. Aggregate Metrics
         var events = await AggregateMetricsAsync(request.TenantId, request.ChannelId, startTime, endTime);
