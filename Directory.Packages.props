@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Microsoft Extensions -->
-    <PackageVersion Include="MediatR" Version="[12.4.1]" />
+    <PackageVersion Include="MediatR" Version="[12.5.0]" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.6" />
@@ -18,42 +18,42 @@
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.6" />
     <!-- Azure SDKs -->
-    <PackageVersion Include="Azure.Identity" Version="[1.13.1]" />
+    <PackageVersion Include="Azure.Identity" Version="[1.17.1]" />
     <PackageVersion Include="Azure.AI.OpenAI" Version="1.0.0-beta.14" />
     <PackageVersion Include="Azure.AI.TextAnalytics" Version="[5.3.0]" />
-    <PackageVersion Include="Azure.Messaging.EventGrid" Version="[4.18.0]" />
-    <PackageVersion Include="Azure.Storage.Blobs" Version="[12.24.1]" />
-    <PackageVersion Include="Azure.Storage.Files.DataLake" Version="[12.20.0]" />
+    <PackageVersion Include="Azure.Messaging.EventGrid" Version="[5.0.0]" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="[12.27.0]" />
+    <PackageVersion Include="Azure.Storage.Files.DataLake" Version="[12.25.0]" />
     <PackageVersion Include="Microsoft.Azure.NotificationHubs" Version="[4.2.0]" />
     <!-- Identity / Security -->
-    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="[7.5.1]" />
-    <PackageVersion Include="Newtonsoft.Json" Version="[13.0.3]" />
-    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="[7.5.1]" />
+    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="[7.7.1]" />
+    <PackageVersion Include="Newtonsoft.Json" Version="[13.0.4]" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="[7.7.1]" />
     <!-- SQLite -->
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="[9.0.6]" />
     <!-- Entity Framework Core -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="[9.0.6]" />
     <!-- JSON / XML / Tasks -->
-    <PackageVersion Include="System.Text.Json" Version="[9.0.6]" />
+    <PackageVersion Include="System.Text.Json" Version="[9.0.13]" />
     <PackageVersion Include="System.Xml.XmlSerializer" Version="[4.3.0]" />
-    <PackageVersion Include="System.Threading.Tasks.Extensions" Version="[4.5.4]" />
+    <PackageVersion Include="System.Threading.Tasks.Extensions" Version="[4.6.3]" />
     <!-- PostgreSQL -->
     <PackageVersion Include="Npgsql" Version="[9.0.3]" />
     <!-- LiteDB -->
     <PackageVersion Include="LiteDB" Version="[5.0.21]" />
     <!-- Redis -->
-    <PackageVersion Include="StackExchange.Redis" Version="[2.8.41]" />
+    <PackageVersion Include="StackExchange.Redis" Version="[2.11.3]" />
     <!-- Geospatial -->
     <PackageVersion Include="NetTopologySuite" Version="[2.6.0]" />
     <!-- Command Line -->
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
     <!-- Email -->
-    <PackageVersion Include="SendGrid" Version="[9.28.1]" />
+    <PackageVersion Include="SendGrid" Version="[9.29.3]" />
     <!-- Messaging -->
     <PackageVersion Include="WolverineFx" Version="[3.0.0]" />
     <!-- Resilience -->
-    <PackageVersion Include="Polly" Version="[8.5.0]" />
+    <PackageVersion Include="Polly" Version="[8.6.5]" />
     <!-- Entity Framework Core -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[9.0.6]" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="[9.0.6]" />
@@ -67,14 +67,14 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="[1.11.1]" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="[1.11.1]" />
     <!-- Application Insights -->
-    <PackageVersion Include="Microsoft.ApplicationInsights" Version="[2.22.0]" />
-    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="[3.52.0]" />
-    <PackageVersion Include="Qdrant.Client" Version="[1.10.0]" />
+    <PackageVersion Include="Microsoft.ApplicationInsights" Version="[2.23.0]" />
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="[3.57.0]" />
+    <PackageVersion Include="Qdrant.Client" Version="[1.17.0]" />
     <!-- Testing -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="[17.11.1]" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="[17.14.1]" />
     <PackageVersion Include="xunit" Version="[2.9.2]" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="[2.8.2]" />
-    <PackageVersion Include="coverlet.collector" Version="[6.0.2]" />
+    <PackageVersion Include="coverlet.collector" Version="[8.0.0]" />
     <PackageVersion Include="Moq" Version="[4.20.72]" />
     <PackageVersion Include="FluentAssertions" Version="[8.4.0]" />
   </ItemGroup>
