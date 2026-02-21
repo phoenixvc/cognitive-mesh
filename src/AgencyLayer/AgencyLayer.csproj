@@ -24,6 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Explicit reference to resolve NU1107 diamond dependency (EF Core >= 9.0.6 vs WolverineFx < 9.0.0) -->
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Dependencies on other architectural layers -->
     <ProjectReference Include="..\Shared\CognitiveMesh.Shared.csproj" />
     <ProjectReference Include="..\FoundationLayer\FoundationLayer.csproj" />
