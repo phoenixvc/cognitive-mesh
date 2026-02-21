@@ -14,12 +14,12 @@ namespace MetacognitiveLayer.Protocols.Common
         /// <summary>
         /// User associated with this session
         /// </summary>
-        public string UserId { get; set; }
-        
+        public string UserId { get; set; } = string.Empty;
+
         /// <summary>
         /// Conversation ID for this session
         /// </summary>
-        public string ConversationId { get; set; }
+        public string ConversationId { get; set; } = string.Empty;
         
         /// <summary>
         /// Creation time of the session
@@ -47,8 +47,8 @@ namespace MetacognitiveLayer.Protocols.Common
         public SessionContext(string sessionId, string? userId = null, string? conversationId = null)
         {
             SessionId = sessionId ?? throw new ArgumentNullException(nameof(sessionId));
-            UserId = userId;
-            ConversationId = conversationId;
+            UserId = userId ?? string.Empty;
+            ConversationId = conversationId ?? string.Empty;
             CreatedTime = DateTime.UtcNow;
             LastAccessTime = CreatedTime;
             _contextValues = new Dictionary<string, object>();
@@ -75,7 +75,7 @@ namespace MetacognitiveLayer.Protocols.Common
                 throw new ArgumentException("Key cannot be null or empty", nameof(key));
             }
             
-            return _contextValues.TryGetValue(key, out var value) ? value : null;
+            return _contextValues.TryGetValue(key, out var value) ? value : null!;
         }
         
         /// <summary>
@@ -105,7 +105,7 @@ namespace MetacognitiveLayer.Protocols.Common
                 throw new ArgumentException("Key cannot be null or empty", nameof(key));
             }
             
-            return _memory.TryGetValue(key, out var value) ? value : null;
+            return _memory.TryGetValue(key, out var value) ? value : null!;
         }
         
         /// <summary>

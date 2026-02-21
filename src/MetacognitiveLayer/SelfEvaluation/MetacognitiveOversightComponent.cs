@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 using Azure;
 using Azure.AI.OpenAI;

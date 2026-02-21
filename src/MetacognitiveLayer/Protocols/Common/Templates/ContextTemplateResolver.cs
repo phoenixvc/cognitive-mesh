@@ -110,25 +110,25 @@ namespace MetacognitiveLayer.Protocols.Common.Templates
                 {
                     _logger.LogWarning("Template file not found for agent: {AgentId} at path: {TemplatePath}", 
                         agentId, templatePath);
-                    return null;
+                    return null!;
                 }
 
                 // Load and parse XML template
                 var serializer = new XmlSerializer(typeof(ACPTemplate));
                 using (var fileStream = new FileStream(templatePath, FileMode.Open))
                 {
-                    var template = (ACPTemplate)serializer.Deserialize(fileStream);
-                    
+                    var template = (ACPTemplate)serializer.Deserialize(fileStream)!;
+
                     // Cache the parsed template
                     _templateCache[agentId] = template;
-                    
+
                     return template;
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading template for agent: {AgentId}", agentId);
-                return null;
+                return null!;
             }
         }
 
@@ -221,7 +221,7 @@ namespace MetacognitiveLayer.Protocols.Common.Templates
             var result = Regex.Replace(template, @"\{\{([^}]+)\}\}", match =>
             {
                 var variableName = match.Groups[1].Value.Trim();
-                if (variables.TryGetValue(variableName, out object value))
+                if (variables.TryGetValue(variableName, out object? value))
                 {
                     return value?.ToString() ?? string.Empty;
                 }
@@ -262,7 +262,7 @@ namespace MetacognitiveLayer.Protocols.Common.Templates
                 var collectionName = match.Groups[2].Value.Trim();
                 var loopContent = match.Groups[3].Value;
                 
-                if (!variables.TryGetValue(collectionName, out object collectionObj) || collectionObj == null)
+                if (!variables.TryGetValue(collectionName, out object? collectionObj) || collectionObj == null)
                 {
                     return string.Empty;
                 }
@@ -295,7 +295,7 @@ namespace MetacognitiveLayer.Protocols.Common.Templates
                 var leftVar = equalityMatch.Groups[1].Value.Trim();
                 var rightVal = equalityMatch.Groups[2].Value.Trim().Trim('"', '\'');
                 
-                if (variables.TryGetValue(leftVar, out object varValue))
+                if (variables.TryGetValue(leftVar, out object? varValue))
                 {
                     return varValue?.ToString() == rightVal;
                 }
@@ -303,7 +303,7 @@ namespace MetacognitiveLayer.Protocols.Common.Templates
             }
             
             // Handle existence checks
-            if (variables.TryGetValue(condition, out object value))
+            if (variables.TryGetValue(condition, out object? value))
             {
                 if (value is bool boolValue)
                     return boolValue;
@@ -322,23 +322,23 @@ namespace MetacognitiveLayer.Protocols.Common.Templates
     public class ACPTemplate
     {
         [XmlElement("SystemInstructions")]
-        public string SystemInstructions { get; set; }
-        
+        public string SystemInstructions { get; set; } = string.Empty;
+
         [XmlElement("RoleDefinition")]
-        public string RoleDefinition { get; set; }
-        
+        public string RoleDefinition { get; set; } = string.Empty;
+
         [XmlElement("Context")]
-        public string Context { get; set; }
-        
+        public string Context { get; set; } = string.Empty;
+
         [XmlArray("Examples")]
         [XmlArrayItem("Example")]
-        public List<string> Examples { get; set; }
-        
+        public List<string> Examples { get; set; } = new();
+
         [XmlElement("Task")]
-        public string Task { get; set; }
-        
+        public string Task { get; set; } = string.Empty;
+
         [XmlArray("Constraints")]
         [XmlArrayItem("Constraint")]
-        public List<string> Constraints { get; set; }
+        public List<string> Constraints { get; set; } = new();
     }
 }

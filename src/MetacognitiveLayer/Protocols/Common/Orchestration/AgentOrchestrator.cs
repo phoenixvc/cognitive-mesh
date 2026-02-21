@@ -64,7 +64,7 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
 
                 // Store request in memory
                 await _memoryStore.SaveContextAsync(
-                    sessionId,
+                    sessionId!,
                     $"request:{DateTime.UtcNow.Ticks}",
                     JsonSerializer.Serialize(request)
                 );
@@ -90,8 +90,8 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
                         Temperature = agent.Configuration.ContainsKey("temperature") 
                             ? Convert.ToSingle(agent.Configuration["temperature"]) 
                             : 0.7f,
-                        Model = agent.Configuration.ContainsKey("model") 
-                            ? agent.Configuration["model"].ToString() 
+                        Model = agent.Configuration.ContainsKey("model")
+                            ? agent.Configuration["model"].ToString()!
                             : "default"
                     }
                 );
@@ -170,13 +170,14 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
         /// </summary>
         public async Task<Dictionary<string, string>> GetAvailableAgentsAsync()
         {
+            await Task.CompletedTask;
             var agents = new Dictionary<string, string>();
-            
+
             foreach (var agent in _agents)
             {
                 agents[agent.Key] = agent.Value.AgentType;
             }
-            
+
             return agents;
         }
 
@@ -212,17 +213,17 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
                     try
                     {
                         // Parse tool input
-                        var toolInput = JsonSerializer.Deserialize<Dictionary<string, object>>(toolInputJson);
+                        var toolInput = JsonSerializer.Deserialize<Dictionary<string, object>>(toolInputJson)!;
                         
                         // Execute tool
                         var toolContext = new ToolContext
                         {
                             SessionId = sessionId,
-                            UserId = parameters.ContainsKey("user_id") ? parameters["user_id"].ToString() : "system",
+                            UserId = parameters.ContainsKey("user_id") ? parameters["user_id"].ToString()! : "system",
                             AdditionalContext = parameters
                         };
 
-                        var toolResult = await _toolRunner.Execute(toolId, toolInput, toolContext);
+                        var toolResult = await _toolRunner.Execute(toolId, toolInput!, toolContext);
                         
                         // Replace tool invocation with result
                         var toolResultJson = JsonSerializer.Serialize(toolResult);
@@ -252,9 +253,9 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
         /// </summary>
         private class AgentRegistration
         {
-            public string AgentId { get; set; }
-            public string AgentType { get; set; }
-            public Dictionary<string, object> Configuration { get; set; }
+            public string AgentId { get; set; } = string.Empty;
+            public string AgentType { get; set; } = string.Empty;
+            public Dictionary<string, object> Configuration { get; set; } = new();
             public DateTimeOffset RegisteredAt { get; set; }
         }
     }

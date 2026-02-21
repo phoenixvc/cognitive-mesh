@@ -40,7 +40,7 @@ namespace MetacognitiveLayer.Protocols.Common
                 }
                 
                 // Parse and validate tool definition
-                var toolObject = JsonConvert.DeserializeObject(toolDefinition);
+                var toolObject = JsonSerializer.Deserialize<object>(toolDefinition);
                 if (toolObject == null)
                 {
                     _logger.LogError("Invalid tool definition JSON for tool {ToolId}", toolId);

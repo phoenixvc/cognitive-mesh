@@ -93,7 +93,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             {
                 _logger.LogDebug("Retrieving context from hybrid store for session {SessionId}, key {Key}", sessionId, key);
                 
-                string value = null;
+                string? value = null;
                 
                 // Try primary store first
                 if (_preferRedisForRetrieval)

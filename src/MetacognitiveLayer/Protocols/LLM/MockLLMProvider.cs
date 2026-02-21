@@ -28,7 +28,7 @@ namespace MetacognitiveLayer.Protocols.LLM
             await Task.Delay(500 + _random.Next(1000));
             
             // Generate a mock response based on prompt content
-            var response = GenerateMockResponse(prompt, options);
+            var response = GenerateMockResponse(prompt, options ?? new LLMOptions());
             
             _logger.LogInformation("Mock LLM generated response with {Length} characters", response.Length);
             return response;

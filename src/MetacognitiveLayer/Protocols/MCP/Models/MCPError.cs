@@ -11,32 +11,32 @@ namespace MetacognitiveLayer.Protocols.MCP.Models
         /// Error message
         /// </summary>
         [JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
         
         /// <summary>
         /// Type of error
         /// </summary>
         [JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         
         /// <summary>
         /// Detailed error information for debugging
         /// </summary>
         [JsonPropertyName("details")]
-        public string Details { get; set; }
+        public string Details { get; set; } = string.Empty;
         
         /// <summary>
         /// Error code for categorization
         /// </summary>
         [JsonPropertyName("code")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
         
         /// <summary>
         /// Recommended action to resolve the error
         /// </summary>
         [JsonPropertyName("recommendation")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string Recommendation { get; set; }
+        public string Recommendation { get; set; } = string.Empty;
     }
 }

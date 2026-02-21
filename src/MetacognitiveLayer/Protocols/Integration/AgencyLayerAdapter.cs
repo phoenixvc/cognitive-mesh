@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MetacognitiveLayer.Protocols.ACP.Models;
 using MetacognitiveLayer.Protocols.Common;
 using Microsoft.Extensions.Logging;
@@ -84,12 +85,12 @@ namespace MetacognitiveLayer.Protocols.Integration
                     await _memoryStore.SaveContextAsync(
                         sessionContext.SessionId, 
                         $"tool_result_{task.PrimaryTool}", 
-                        JsonConvert.SerializeObject(toolResult)
+                        JsonSerializer.Serialize(toolResult)
                     );
             }
                 
                 _logger.LogInformation("Tool execution completed for task: {TaskName}", task.Name);
-                return toolResult;
+                return toolResult!;
             }
             catch (Exception ex)
             {
@@ -135,7 +136,7 @@ namespace MetacognitiveLayer.Protocols.Integration
                 await _memoryStore.SaveContextAsync(
                     sessionContext.SessionId,
                     $"agent_result_{agentId}",
-                    JsonConvert.SerializeObject(agentResponse)
+                    JsonSerializer.Serialize(agentResponse)
                 );
                 
                 _logger.LogInformation("Agent execution completed for agent: {AgentId}", agentId);
@@ -166,7 +167,7 @@ namespace MetacognitiveLayer.Protocols.Integration
                 {
                     var success = await _toolRegistry.RegisterToolAsync(
                         tool.Key, 
-                        JsonConvert.SerializeObject(tool.Value)
+                        JsonSerializer.Serialize(tool.Value)
                     );
                     
                     if (success)
@@ -230,6 +231,7 @@ namespace MetacognitiveLayer.Protocols.Integration
 
         private async Task<Dictionary<string, object>> GetAvailableToolsAsync()
         {
+            await Task.CompletedTask;
             // This would typically call into the IToolRunner to get available tools
             // For now, returning a sample set of tools
             return new Dictionary<string, object>
@@ -270,22 +272,22 @@ namespace MetacognitiveLayer.Protocols.Integration
     // Helper classes to match the interfaces mentioned in the requirements
     public class ToolContext
     {
-        public string SessionId { get; set; }
-        public string UserId { get; set; }
+        public string SessionId { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
         public Dictionary<string, object> AdditionalContext { get; set; } = new Dictionary<string, object>();
     }
 
     public class ACPRequest
     {
-        public string AgentId { get; set; }
-        public string TaskName { get; set; }
+        public string AgentId { get; set; } = string.Empty;
+        public string TaskName { get; set; } = string.Empty;
         public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
-        public string ResolvedPrompt { get; set; }
+        public string ResolvedPrompt { get; set; } = string.Empty;
     }
 
     public class AgentResponse
     {
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
         public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
     }
 

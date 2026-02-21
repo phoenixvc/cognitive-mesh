@@ -12,12 +12,12 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         {
             try
             {
-                return JsonSerializer.Deserialize<float[]>(json);
+                return JsonSerializer.Deserialize<float[]>(json)!;
             }
             catch (Exception ex)
             {
                 logger?.LogWarning(ex, "Failed to parse embedding for key {Key}", key ?? "unknown");
-                return null;
+                return null!;
             }
         }
     }

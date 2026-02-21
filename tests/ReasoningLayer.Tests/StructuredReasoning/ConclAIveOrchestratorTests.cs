@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Moq;
@@ -49,7 +50,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("Perspective 1\nPerspective 2");
 
             _debateReasoningMock
@@ -80,7 +81,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _sequentialReasoningMock
-                .Setup(x => x.ExecuteSequentialReasoningAsync(It.IsAny<SequentialReasoningRequest>()))
+                .Setup(x => x.ExecuteSequentialReasoningAsync(It.IsAny<SequentialReasoningRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedOutput);
 
             // Act
@@ -93,7 +94,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             Assert.NotNull(result);
             Assert.Equal(ReasoningRecipeType.Sequential, result.RecipeType);
             _sequentialReasoningMock.Verify(
-                x => x.ExecuteSequentialReasoningAsync(It.IsAny<SequentialReasoningRequest>()),
+                x => x.ExecuteSequentialReasoningAsync(It.IsAny<SequentialReasoningRequest>(), It.IsAny<CancellationToken>()),
                 Times.Once
             );
         }
@@ -140,11 +141,11 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("SEQUENTIAL");
 
             _sequentialReasoningMock
-                .Setup(x => x.ExecuteSequentialReasoningAsync(It.IsAny<SequentialReasoningRequest>()))
+                .Setup(x => x.ExecuteSequentialReasoningAsync(It.IsAny<SequentialReasoningRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedOutput);
 
             // Act
@@ -152,7 +153,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
 
             // Assert
             Assert.NotNull(result);
-            _llmClientMock.Verify(x => x.GenerateCompletionAsync(It.IsAny<string>()), Times.AtLeastOnce);
+            _llmClientMock.Verify(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
         }
 
         [Fact]
@@ -173,7 +174,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _sequentialReasoningMock
-                .Setup(x => x.ExecuteSequentialReasoningAsync(It.IsAny<SequentialReasoningRequest>()))
+                .Setup(x => x.ExecuteSequentialReasoningAsync(It.IsAny<SequentialReasoningRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedOutput);
 
             // Act
@@ -187,7 +188,8 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             Assert.NotNull(result);
             _sequentialReasoningMock.Verify(
                 x => x.ExecuteSequentialReasoningAsync(
-                    It.Is<SequentialReasoningRequest>(r => r.Context.ContainsKey("domain"))
+                    It.Is<SequentialReasoningRequest>(r => r.Context.ContainsKey("domain")),
+                    It.IsAny<CancellationToken>()
                 ),
                 Times.Once
             );

@@ -29,18 +29,18 @@ namespace MetacognitiveLayer.Protocols.MCP
                 _logger.LogDebug("Parsing MCP request");
                 
                 // Parse JSON
-                var jsonObject = JObject.Parse(request);
-                
+                using var jsonDocument = JsonDocument.Parse(request);
+
                 // Validate against MCP schema
-                var isValid = await _validator.ValidateAsync(jsonObject);
+                var isValid = await _validator.ValidateAsync(jsonDocument);
                 if (!isValid)
                 {
                     _logger.LogError("Invalid MCP request format");
                     throw new InvalidOperationException("The MCP request does not conform to the required schema");
                 }
-                
+
                 // Extract MCP context
-                var mcpContext = jsonObject.ToObject<MCPContext>();
+                var mcpContext = JsonSerializer.Deserialize<MCPContext>(request);
                 
                 _logger.LogDebug("Successfully parsed MCP request for session {SessionId}", mcpContext.SessionId);
                 return mcpContext;
@@ -95,7 +95,7 @@ namespace MetacognitiveLayer.Protocols.MCP
                     Result = taskResult
                 };
                 
-                return JsonConvert.SerializeObject(response, Formatting.Indented);
+                return JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true });
             }
             catch (Exception ex)
             {
@@ -124,7 +124,7 @@ namespace MetacognitiveLayer.Protocols.MCP
                 }
             };
             
-            return JsonConvert.SerializeObject(errorResponse, Formatting.Indented);
+            return JsonSerializer.Serialize(errorResponse, new JsonSerializerOptions { WriteIndented = true });
         }
     }
 }

@@ -28,7 +28,7 @@ namespace MetacognitiveLayer.Protocols.LLM
         /// <summary>
         /// System message for chat-based models
         /// </summary>
-        public string SystemMessage { get; set; }
+        public string SystemMessage { get; set; } = string.Empty;
     }
 
     /// <summary>

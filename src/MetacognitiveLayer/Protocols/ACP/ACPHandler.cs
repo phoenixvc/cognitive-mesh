@@ -46,10 +46,10 @@ namespace MetacognitiveLayer.Protocols.ACP
                 using (var reader = new StringReader(templateXml))
                 {
                     var serializer = new XmlSerializer(typeof(ACPTask));
-                    task = (ACPTask)serializer.Deserialize(reader);
+                    task = (ACPTask)serializer.Deserialize(reader)!;
                 }
-                
-                _logger.LogDebug("Successfully parsed ACP template for task: {TaskName}", task.Name);
+
+                _logger.LogDebug("Successfully parsed ACP template for task: {TaskName}", task?.Name);
                 return task;
             }
             catch (XmlException ex)
@@ -147,7 +147,7 @@ namespace MetacognitiveLayer.Protocols.ACP
                 }
                 
                 _logger.LogWarning("ACP template not found: {TemplateId}", templateId);
-                return Task.FromResult<string>(null);
+                return Task.FromResult<string>(null!);
             }
             catch (Exception ex)
             {

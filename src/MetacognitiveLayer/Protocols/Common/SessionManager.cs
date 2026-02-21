@@ -39,7 +39,7 @@ namespace MetacognitiveLayer.Protocols.Common
                 
                 SessionContext session;
                 
-                if (_sessions.TryGetValue(sessionId, out session))
+                if (_sessions.TryGetValue(sessionId, out session!))
                 {
                     _logger.LogDebug("Retrieved existing session: {SessionId}", sessionId);
                     session.UpdateLastAccessTime();
@@ -51,7 +51,7 @@ namespace MetacognitiveLayer.Protocols.Common
                     {
                         _logger.LogInformation("Created new session: {SessionId}", sessionId);
                     }
-                    else if (_sessions.TryGetValue(sessionId, out session))
+                    else if (_sessions.TryGetValue(sessionId, out session!))
                     {
                         _logger.LogWarning("Race condition when creating session: {SessionId}. Using existing session.", sessionId);
                     }
@@ -160,7 +160,7 @@ namespace MetacognitiveLayer.Protocols.Common
         /// <summary>
         /// Cleans up expired sessions.
         /// </summary>
-        private void CleanupSessions(object state)
+        private void CleanupSessions(object? state)
         {
             try
             {

@@ -52,13 +52,13 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
         /// <summary>
         /// Initializes the tool runner by scanning for available tools.
         /// </summary>
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
             if (_initialized)
-                return;
-                
+                return Task.CompletedTask;
+
             _logger.LogInformation("Initializing Node tool runner");
-            
+
             try
             {
                 // Ensure tools directory exists
@@ -90,6 +90,8 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                 _logger.LogError(ex, "Error initializing Node tool runner");
                 throw;
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -145,7 +147,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                 };
 
                 // Convert input to JSON and prepare for stdin
-                var inputJson = JsonConvert.SerializeObject(toolInput);
+                var inputJson = JsonSerializer.Serialize(toolInput);
                 
                 // Start the process
                 using (var process = new Process())
@@ -205,7 +207,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                     try
                     {
                         // Parse the output as JSON
-                        var result = JsonConvert.DeserializeObject(output);
+                        var result = JsonSerializer.Deserialize<object>(output);
                         return result;
                     }
                     catch (JsonException)
@@ -294,7 +296,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
         /// <summary>
         /// Gets metadata for a tool by invoking it with the --info flag.
         /// </summary>
-        private async Task<object> GetToolMetadataAsync(string toolId)
+        private Task<object> GetToolMetadataAsync(string toolId)
         {
             try
             {
@@ -304,12 +306,11 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                 }
 
                 // Prepare the process
-                var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
                 var nodeExecutable = _options.NodePath;
-                
+
                 string command;
                 var args = new List<string>();
-                
+
                 if (_options.UseTypeScript && toolPath.EndsWith(".ts"))
                 {
                     command = "npx";
@@ -321,7 +322,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                     command = nodeExecutable;
                     args.Add(toolPath);
                 }
-                
+
                 args.Add("--info");
 
                 using (var process = new Process())
@@ -355,34 +356,37 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                     }
 
                     var output = outputBuilder.ToString().Trim();
-                    
+
                     if (process.ExitCode != 0 || string.IsNullOrEmpty(output))
                     {
                         // Default metadata if not available
-                        return new
+                        object defaultMeta = new
                         {
                             id = toolId,
                             path = toolPath,
                             type = toolPath.EndsWith(".ts") ? "typescript" : "javascript",
                             description = "No metadata available"
                         };
+                        return Task.FromResult(defaultMeta);
                     }
 
                     try
                     {
                         // Try to parse the output as JSON
-                        return JsonConvert.DeserializeObject(output);
+                        object? parsed = JsonSerializer.Deserialize<object>(output);
+                        return Task.FromResult(parsed ?? (object)new { id = toolId, description = output });
                     }
                     catch
                     {
                         // If not valid JSON, return as description
-                        return new
+                        object fallbackMeta = new
                         {
                             id = toolId,
                             path = toolPath,
                             type = toolPath.EndsWith(".ts") ? "typescript" : "javascript",
                             description = output
                         };
+                        return Task.FromResult(fallbackMeta);
                     }
                 }
             }

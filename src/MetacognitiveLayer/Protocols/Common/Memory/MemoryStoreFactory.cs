@@ -36,12 +36,20 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                 return new DuckDbMemoryStore(options.DuckDbFilePath, logger);
             });
 
+            // Register the vector search provider
+            services.AddSingleton<IVectorSearchProvider>(provider =>
+            {
+                var options = provider.GetRequiredService<MemoryStoreOptions>();
+                var logger = provider.GetRequiredService<ILogger<RedisVectorSearchProvider>>();
+                return new RedisVectorSearchProvider(options.RedisConnectionString, logger);
+            });
+
             // Register Redis store
             services.AddSingleton<RedisVectorMemoryStore>(provider =>
             {
-                var options = provider.GetRequiredService<MemoryStoreOptions>();
+                var vectorSearch = provider.GetRequiredService<IVectorSearchProvider>();
                 var logger = provider.GetRequiredService<ILogger<RedisVectorMemoryStore>>();
-                return new RedisVectorMemoryStore(options.RedisConnectionString, logger);
+                return new RedisVectorMemoryStore(vectorSearch, logger);
             });
 
             // Register the appropriate implementation as IMeshMemoryStore

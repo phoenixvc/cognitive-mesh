@@ -5,8 +5,8 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
     /// </summary>
     public class ToolContext
     {
-        public string SessionId { get; set; }
-        public string UserId { get; set; }
+        public string SessionId { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
         public Dictionary<string, object> AdditionalContext { get; set; } = new Dictionary<string, object>();
     }
 

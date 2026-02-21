@@ -164,7 +164,7 @@ public class SecurityIncidentMonitor : ISecurityIncidentPort
     public Task<SecurityIncident> GetIncidentDetailsAsync(string incidentId)
     {
         var incident = _activeIncidents.Values.FirstOrDefault(i => i.IncidentId == incidentId);
-        return Task.FromResult(incident);
+        return Task.FromResult(incident!);
     }
 
     public Task<IEnumerable<SecurityIncident>> GetActiveIncidentsAsync()
@@ -208,9 +208,9 @@ public class SecurityIncidentMonitor : ISecurityIncidentPort
             {
                 var riskRequest = new RiskScoringRequest
                 {
-                    SubjectId = evt.Data.GetValueOrDefault("subjectId")?.ToString(),
+                    SubjectId = evt.Data.GetValueOrDefault("subjectId")?.ToString()!,
                     Action = evt.EventType,
-                    ResourceId = evt.Data.GetValueOrDefault("resourceId")?.ToString(),
+                    ResourceId = evt.Data.GetValueOrDefault("resourceId")?.ToString()!,
                     Context = evt.Data
                 };
                 var riskResponse = await _threatIntelPort.CalculateRiskScoreAsync(riskRequest);
