@@ -110,7 +110,7 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
                 result.Success = true;
                 result.Output = processedResponse;
                 result.Data["raw_llm_response"] = llmResponse;
-                result.Data["session_id"] = sessionId;
+                result.Data["session_id"] = sessionId ?? string.Empty;
             }
             catch (Exception ex)
             {
