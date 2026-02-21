@@ -54,11 +54,11 @@ public class CulturalProfileRequest
     /// <summary>
     /// The user for whom the profile is being requested.
     /// </summary>
-    public string UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
     /// <summary>
     /// The locale (e.g., "en-US", "de-DE") to use for determining the cultural context.
     /// </summary>
-    public string Locale { get; set; }
+    public string Locale { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -67,8 +67,8 @@ public class CulturalProfileRequest
 public class CulturalProfileResponse
 {
     public bool IsSuccess { get; set; }
-    public CulturalProfile Profile { get; set; }
-    public string DataSource { get; set; } // e.g., "Hofstede Insights - Country Comparison Tool"
+    public CulturalProfile Profile { get; set; } = null!;
+    public string DataSource { get; set; } = string.Empty; // e.g., "Hofstede Insights - Country Comparison Tool"
 }
 
 /// <summary>
@@ -76,11 +76,11 @@ public class CulturalProfileResponse
 /// </summary>
 public class UIAdaptationRequest
 {
-    public CulturalProfile Profile { get; set; }
+    public CulturalProfile Profile { get; set; } = null!;
     /// <summary>
     /// The specific UI component being adapted (e.g., "Dashboard", "NotificationBanner", "ConsentForm").
     /// </summary>
-    public string UIComponentContext { get; set; }
+    public string UIComponentContext { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -96,7 +96,7 @@ public class UIAdaptationResponse
 /// </summary>
 public class ConsentFlowCustomizationRequest
 {
-    public CulturalProfile Profile { get; set; }
+    public CulturalProfile Profile { get; set; } = null!;
 }
 
 /// <summary>
@@ -104,8 +104,8 @@ public class ConsentFlowCustomizationRequest
 /// </summary>
 public class ConsentFlowCustomizationResponse
 {
-    public string RecommendedPattern { get; set; } // e.g., "ExplicitOptIn", "DetailedExplanation", "Minimalist"
-    public string Rationale { get; set; }
+    public string RecommendedPattern { get; set; } = string.Empty; // e.g., "ExplicitOptIn", "DetailedExplanation", "Minimalist"
+    public string Rationale { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -113,7 +113,7 @@ public class ConsentFlowCustomizationResponse
 /// </summary>
 public class AuthorityModelAdjustmentRequest
 {
-    public CulturalProfile Profile { get; set; }
+    public CulturalProfile Profile { get; set; } = null!;
 }
 
 /// <summary>

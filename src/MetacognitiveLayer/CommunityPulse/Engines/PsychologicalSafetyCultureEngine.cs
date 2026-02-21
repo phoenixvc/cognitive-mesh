@@ -179,7 +179,7 @@ namespace MetacognitiveLayer.CommunityPulse.Engines
             
             return new SentimentMetrics
             {
-                AverageSentiment = Math.Round(validEvents.Average(e => e.SentimentScore.Value), 2),
+                AverageSentiment = Math.Round(validEvents.Average(e => e.SentimentScore!.Value), 2),
                 PositiveRatio = Math.Round(positive / total, 2),
                 NegativeRatio = Math.Round(negative / total, 2),
                 NeutralRatio = Math.Round((total - positive - negative) / total, 2)

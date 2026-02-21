@@ -6,16 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="PerformanceMonitor.cs" />
-    <Compile Include="Ports\IPerformanceMonitoringPort.cs" />
-    <Compile Include="Models\PerformanceDashboardSummary.cs" />
-    <Compile Include="Models\MetricSummaryEntry.cs" />
-    <Compile Include="Adapters\InMemoryMetricsStoreAdapter.cs" />
-    <Compile Include="Adapters\PerformanceMonitoringAdapter.cs" />
-    <Compile Include="Infrastructure\ServiceCollectionExtensions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" />
     <PackageReference Include="Azure.Messaging.EventGrid" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />

@@ -102,7 +102,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                     {
                         _logger.LogWarning(ex, "Failed to load DuckDB vector extension, falling back to manual vector operations");
                     }
-        }
+                }
 
                 _initialized = true;
                 _logger.LogInformation("DuckDB memory store initialized successfully");
@@ -148,7 +148,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
 
                     // If this looks like embedding data, store in embeddings table
                     if (key.Contains("embedding"))
-                {
+                    {
                         try
                         {
                             var embeddingArray = JsonConvert.DeserializeObject<float[]>(value);
@@ -171,20 +171,20 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
                                 }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Failed to parse embedding value for key {Key}, storing as plain text only", key);
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to parse embedding value for key {Key}, storing as plain text only", key);
+                        }
                     }
                 }
 
                 _logger.LogDebug("Context saved successfully");
             }
             catch (Exception ex)
-        {
+            {
                 _logger.LogError(ex, "Error saving context to DuckDB");
                 throw;
-        }
+            }
         }
 
         /// <summary>

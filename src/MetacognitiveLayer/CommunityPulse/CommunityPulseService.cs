@@ -10,11 +10,11 @@ namespace MetacognitiveLayer.CommunityPulse;
 /// </summary>
 public class RawInteractionEvent
 {
-    public string EventId { get; set; }
-    public string UserId { get; set; }
-    public string ChannelId { get; set; }
-    public string TenantId { get; set; }
-    public string Message { get; set; }
+    public string EventId { get; set; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
+    public string ChannelId { get; set; } = string.Empty;
+    public string TenantId { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
     public int ReactionCount { get; set; }
     public double? SentimentScore { get; set; } // e.g., -1.0 (negative) to 1.0 (positive)
     public DateTimeOffset Timestamp { get; set; }
@@ -39,8 +39,8 @@ public interface ICommunityDataRepository
 // --- DTOs for the Community Pulse Service ---
 public class CommunityPulseRequest
 {
-    public string TenantId { get; set; }
-    public string ChannelId { get; set; }
+    public string TenantId { get; set; } = string.Empty;
+    public string ChannelId { get; set; } = string.Empty;
     public int TimeframeInDays { get; set; } = 30; // Default to the last 30 days
 }
 
@@ -49,7 +49,7 @@ public class EngagementMetrics
     public int TotalMessages { get; set; }
     public int ActiveUsers { get; set; }
     public int TotalReactions { get; set; }
-    public string EngagementTrend { get; set; } // "Increasing", "Decreasing", "Stable"
+    public string EngagementTrend { get; set; } = string.Empty; // "Increasing", "Decreasing", "Stable"
 }
 
 public class SentimentMetrics
@@ -63,17 +63,17 @@ public class SentimentMetrics
 public class PsychologicalSafetyMetrics
 {
     public double SafetyScore { get; set; } // A calculated score from 0 to 100
-    public string RiskLevel { get; set; } // "Low", "Medium", "High"
+    public string RiskLevel { get; set; } = string.Empty; // "Low", "Medium", "High"
 }
 
 public class CommunityPulseResponse
 {
-    public string ChannelId { get; set; }
+    public string ChannelId { get; set; } = string.Empty;
     public DateTimeOffset StartDate { get; set; }
     public DateTimeOffset EndDate { get; set; }
-    public EngagementMetrics Engagement { get; set; }
-    public SentimentMetrics Sentiment { get; set; }
-    public PsychologicalSafetyMetrics PsychologicalSafety { get; set; }
+    public EngagementMetrics Engagement { get; set; } = null!;
+    public SentimentMetrics Sentiment { get; set; } = null!;
+    public PsychologicalSafetyMetrics PsychologicalSafety { get; set; } = null!;
 }
 
 
@@ -101,7 +101,7 @@ public class CommunityPulseService
         if (request == null || string.IsNullOrWhiteSpace(request.TenantId) || string.IsNullOrWhiteSpace(request.ChannelId))
         {
             _logger.LogWarning("GetCommunityPulseAsync called with an invalid request.");
-            return null;
+            return null!;
         }
 
         var endTime = DateTimeOffset.UtcNow;
@@ -222,7 +222,7 @@ public class CommunityPulseService
 
         return new SentimentMetrics
         {
-            AverageSentiment = Math.Round(validEvents.Average(e => e.SentimentScore.Value), 2),
+            AverageSentiment = Math.Round(validEvents.Average(e => e.SentimentScore!.Value), 2),
             PositiveRatio = Math.Round(positiveCount / totalEvents, 2),
             NegativeRatio = Math.Round(negativeCount / totalEvents, 2),
             NeutralRatio = Math.Round(neutralCount / totalEvents, 2)

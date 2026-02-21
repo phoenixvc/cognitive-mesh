@@ -4,6 +4,67 @@ using Microsoft.Extensions.Logging;
 
 namespace MetacognitiveLayer.SecurityMonitoring;
 
+/// <summary>
+/// Represents a notification to be sent through one or more channels.
+/// </summary>
+public class Notification
+{
+    /// <summary>Gets or sets the notification subject.</summary>
+    public string Subject { get; set; } = string.Empty;
+    /// <summary>Gets or sets the notification message body.</summary>
+    public string Message { get; set; } = string.Empty;
+    /// <summary>Gets or sets the delivery channels.</summary>
+    public List<string> Channels { get; set; } = new();
+    /// <summary>Gets or sets the notification recipients.</summary>
+    public List<string> Recipients { get; set; } = new();
+    /// <summary>Gets or sets the timestamp.</summary>
+    public DateTimeOffset Timestamp { get; set; }
+}
+
+/// <summary>
+/// Port for sending notifications.
+/// </summary>
+public interface INotificationPort
+{
+    /// <summary>Sends the specified notification.</summary>
+    Task SendNotificationAsync(Notification notification);
+}
+
+/// <summary>
+/// Represents a request to execute an agent task.
+/// </summary>
+public class AgentTaskRequest
+{
+    /// <summary>Gets or sets the agent identifier.</summary>
+    public string AgentId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the task description.</summary>
+    public string TaskDescription { get; set; } = string.Empty;
+    /// <summary>Gets or sets the task parameters.</summary>
+    public Dictionary<string, object> Parameters { get; set; } = new();
+    /// <summary>Gets or sets the task priority.</summary>
+    public int Priority { get; set; }
+}
+
+/// <summary>
+/// Represents the response from an agent task execution.
+/// </summary>
+public class AgentTaskResponse
+{
+    /// <summary>Gets or sets whether the task succeeded.</summary>
+    public bool IsSuccess { get; set; }
+    /// <summary>Gets or sets the result data.</summary>
+    public object? ResultData { get; set; }
+}
+
+/// <summary>
+/// Port for orchestrating agent tasks.
+/// </summary>
+public interface IAgentOrchestrationPort
+{
+    /// <summary>Executes the specified agent task.</summary>
+    Task<AgentTaskResponse> ExecuteTaskAsync(AgentTaskRequest request);
+}
+
 public enum IncidentStatus
 {
     New,
@@ -26,14 +87,14 @@ public enum IncidentSeverity
 public class SecurityIncident
 {
     public string IncidentId { get; set; } = Guid.NewGuid().ToString();
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
     public IncidentStatus Status { get; set; }
     public IncidentSeverity Severity { get; set; }
     public DateTimeOffset FirstSeen { get; set; }
     public DateTimeOffset LastSeen { get; set; }
     public List<SecurityEvent> CorrelatedEvents { get; set; } = new();
     public List<string> RecommendedActions { get; set; } = new();
-    public string Summary { get; set; }
+    public string Summary { get; set; } = string.Empty;
 }
 
 public interface ISecurityIncidentPort

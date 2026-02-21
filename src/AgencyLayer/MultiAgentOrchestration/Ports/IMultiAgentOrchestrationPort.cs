@@ -109,8 +109,8 @@ public class AgentDefinition
     /// </summary>
     public Guid AgentId { get; set; }
 
-    public string AgentType { get; set; } // e.g., "ChampionNudger", "VelocityRecalibrator"
-    public string Description { get; set; }
+    public string AgentType { get; set; } = string.Empty; // e.g., "ChampionNudger", "VelocityRecalibrator"
+    public string Description { get; set; } = string.Empty;
     public List<string> Capabilities { get; set; } = new();
     public AutonomyLevel DefaultAutonomyLevel { get; set; } = AutonomyLevel.RecommendOnly;
     public AuthorityScope DefaultAuthorityScope { get; set; } = new();
@@ -127,7 +127,7 @@ public class AgentDefinition
 public class AgentTask
 {
     public string TaskId { get; set; } = Guid.NewGuid().ToString();
-    public string Goal { get; set; }
+    public string Goal { get; set; } = string.Empty;
     public Dictionary<string, object> Context { get; set; } = new();
     public List<string> Constraints { get; set; } = new();
     public CoordinationPattern CoordinationPattern { get; set; } = CoordinationPattern.CollaborativeSwarm;
@@ -139,9 +139,9 @@ public class AgentTask
 /// </summary>
 public class AgentExecutionRequest
 {
-    public AgentTask Task { get; set; }
-    public string TenantId { get; set; }
-    public string RequestingUserId { get; set; }
+    public AgentTask Task { get; set; } = null!;
+    public string TenantId { get; set; } = string.Empty;
+    public string RequestingUserId { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -149,12 +149,12 @@ public class AgentExecutionRequest
 /// </summary>
 public class AgentExecutionResponse
 {
-    public string TaskId { get; set; }
+    public string TaskId { get; set; } = string.Empty;
     public bool IsSuccess { get; set; }
-    public object Result { get; set; }
-    public string Summary { get; set; }
+    public object Result { get; set; } = null!;
+    public string Summary { get; set; } = string.Empty;
     public List<string> AgentIdsInvolved { get; set; } = new();
-    public string AuditTrailId { get; set; }
+    public string AuditTrailId { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -163,9 +163,9 @@ public class AgentExecutionResponse
 public class AgentLearningInsight
 {
     public string InsightId { get; set; } = Guid.NewGuid().ToString();
-    public string GeneratingAgentType { get; set; }
-    public string InsightType { get; set; } // e.g., "OptimizedWorkflow", "NewRiskFactor"
-    public object InsightData { get; set; }
+    public string GeneratingAgentType { get; set; } = string.Empty;
+    public string InsightType { get; set; } = string.Empty; // e.g., "OptimizedWorkflow", "NewRiskFactor"
+    public object InsightData { get; set; } = null!;
     public double ConfidenceScore { get; set; }
 }
 
@@ -174,11 +174,11 @@ public class AgentLearningInsight
 /// </summary>
 public class DynamicAgentSpawnRequest
 {
-    public string AgentType { get; set; }
-    public string TenantId { get; set; }
-    public string ParentTaskId { get; set; } // The task that requires this new agent.
+    public string AgentType { get; set; } = string.Empty;
+    public string TenantId { get; set; } = string.Empty;
+    public string ParentTaskId { get; set; } = string.Empty; // The task that requires this new agent.
     public AutonomyLevel? CustomAutonomy { get; set; }
-    public AuthorityScope CustomAuthority { get; set; }
+    public AuthorityScope CustomAuthority { get; set; } = null!;
 }
 
 
