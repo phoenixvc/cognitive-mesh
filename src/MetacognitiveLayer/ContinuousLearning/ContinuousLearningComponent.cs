@@ -1,8 +1,17 @@
+using System.Text;
+using System.Text.RegularExpressions;
+using Azure;
 using Azure.AI.OpenAI;
-using MetacognitiveLayer.SelfEvaluation;
+using FoundationLayer.EnterpriseConnectors;
+using MetacognitiveLayer.ContinuousLearning.Models;
+using Microsoft.Azure.Cosmos;
 
 namespace MetacognitiveLayer.ContinuousLearning;
 
+/// <summary>
+/// Manages continuous learning by storing feedback, interactions, generating insights,
+/// and delegating framework-specific operations based on feature flags.
+/// </summary>
 public class ContinuousLearningComponent
 {
     private readonly OpenAIClient _openAIClient;
@@ -10,10 +19,20 @@ public class ContinuousLearningComponent
     private readonly CosmosClient _cosmosClient;
     private readonly Container _learningDataContainer;
     private readonly FeatureFlagManager _featureFlagManager;
-    
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ContinuousLearningComponent"/> class.
+    /// </summary>
+    /// <param name="openAIEndpoint">The Azure OpenAI endpoint URL.</param>
+    /// <param name="openAIApiKey">The Azure OpenAI API key.</param>
+    /// <param name="completionDeployment">The deployment name for chat completions.</param>
+    /// <param name="cosmosConnectionString">The Cosmos DB connection string.</param>
+    /// <param name="databaseName">The Cosmos DB database name.</param>
+    /// <param name="containerName">The Cosmos DB container name for learning data.</param>
+    /// <param name="featureFlagManager">The feature flag manager for checking enablement.</param>
     public ContinuousLearningComponent(
-        string openAIEndpoint, 
-        string openAIApiKey, 
+        string openAIEndpoint,
+        string openAIApiKey,
         string completionDeployment,
         string cosmosConnectionString,
         string databaseName,
@@ -27,6 +46,9 @@ public class ContinuousLearningComponent
         _featureFlagManager = featureFlagManager;
     }
     
+    /// <summary>Stores user feedback for a specific query in Cosmos DB.</summary>
+    /// <param name="queryId">The identifier of the query the feedback relates to.</param>
+    /// <param name="feedback">The user feedback to store.</param>
     public async Task StoreFeedbackAsync(string queryId, UserFeedback feedback)
     {
         // Create feedback record
@@ -47,6 +69,9 @@ public class ContinuousLearningComponent
         await IntegrateWithFabricForFeedbackAsync(feedbackRecord);
     }
     
+    /// <summary>Stores an interaction record with evaluation scores in Cosmos DB.</summary>
+    /// <param name="response">The cognitive mesh response to record.</param>
+    /// <param name="evaluation">The metacognitive evaluation of the response.</param>
     public async Task StoreInteractionAsync(CognitiveMeshResponse response, MetacognitiveEvaluation evaluation)
     {
         // Create interaction record
@@ -75,6 +100,9 @@ public class ContinuousLearningComponent
         await IntegrateWithFabricForInteractionAsync(interactionRecord);
     }
     
+    /// <summary>Generates learning insights by analyzing recent interactions and feedback.</summary>
+    /// <param name="days">The number of past days to analyze. Defaults to 7.</param>
+    /// <returns>A list of generated learning insights.</returns>
     public async Task<List<LearningInsight>> GenerateInsightsAsync(int days = 7)
     {
         // Step 1: Retrieve recent interactions
@@ -373,6 +401,9 @@ public class ContinuousLearningComponent
         return insights;
     }
     
+    /// <summary>Generates system improvement recommendations from learning insights.</summary>
+    /// <param name="insights">The learning insights to analyze.</param>
+    /// <returns>A list of actionable improvement suggestions.</returns>
     public async Task<List<string>> GenerateSystemImprovementsAsync(List<LearningInsight> insights)
     {
         // Format insights for analysis
@@ -574,6 +605,10 @@ public class ContinuousLearningComponent
         }
     }
 
+    /// <summary>Performs multi-agent orchestration for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformMultiAgentOrchestrationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableMultiAgent)
@@ -585,6 +620,10 @@ public class ContinuousLearningComponent
         return "Multi-agent orchestration performed successfully.";
     }
 
+    /// <summary>Performs dynamic task routing for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformDynamicTaskRoutingAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableDynamicTaskRouting)
@@ -596,6 +635,10 @@ public class ContinuousLearningComponent
         return "Dynamic task routing performed successfully.";
     }
 
+    /// <summary>Performs stateful workflow management for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformStatefulWorkflowManagementAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableStatefulWorkflows)
@@ -607,6 +650,10 @@ public class ContinuousLearningComponent
         return "Stateful workflow management performed successfully.";
     }
 
+    /// <summary>Performs human-in-the-loop moderation for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformHumanInTheLoopModerationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableHumanInTheLoop)
@@ -618,6 +665,10 @@ public class ContinuousLearningComponent
         return "Human-in-the-loop moderation performed successfully.";
     }
 
+    /// <summary>Performs tool integration for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformToolIntegrationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableToolIntegration)
@@ -629,6 +680,10 @@ public class ContinuousLearningComponent
         return "Tool integration performed successfully.";
     }
 
+    /// <summary>Performs memory management for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformMemoryManagementAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableMemoryManagement)
@@ -640,6 +695,10 @@ public class ContinuousLearningComponent
         return "Memory management performed successfully.";
     }
 
+    /// <summary>Performs streaming for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformStreamingAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableStreaming)
@@ -651,6 +710,10 @@ public class ContinuousLearningComponent
         return "Streaming performed successfully.";
     }
 
+    /// <summary>Performs code execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformCodeExecutionAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableCodeExecution)
@@ -662,6 +725,10 @@ public class ContinuousLearningComponent
         return "Code execution performed successfully.";
     }
 
+    /// <summary>Performs guardrails activation for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformGuardrailsActivationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableGuardrails)
@@ -673,6 +740,10 @@ public class ContinuousLearningComponent
         return "Guardrails activation performed successfully.";
     }
 
+    /// <summary>Performs enterprise integration for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformEnterpriseIntegrationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableEnterpriseIntegration)
@@ -684,6 +755,10 @@ public class ContinuousLearningComponent
         return "Enterprise integration performed successfully.";
     }
 
+    /// <summary>Performs modular skills activation for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformModularSkillsActivationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableModularSkills)
@@ -695,6 +770,10 @@ public class ContinuousLearningComponent
         return "Modular skills activation performed successfully.";
     }
 
+    /// <summary>Performs ADK workflow agents execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformADKWorkflowAgentsAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableADKWorkflowAgents)
@@ -706,6 +785,10 @@ public class ContinuousLearningComponent
         return "ADK Workflow Agents executed successfully.";
     }
 
+    /// <summary>Performs ADK tool integration for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformADKToolIntegrationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableADKToolIntegration)
@@ -717,6 +800,10 @@ public class ContinuousLearningComponent
         return "ADK Tool Integration performed successfully.";
     }
 
+    /// <summary>Performs ADK guardrails activation for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformADKGuardrailsAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableADKGuardrails)
@@ -728,6 +815,10 @@ public class ContinuousLearningComponent
         return "ADK Guardrails activated successfully.";
     }
 
+    /// <summary>Performs ADK multimodal execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformADKMultimodalAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableADKMultimodal)
@@ -739,6 +830,10 @@ public class ContinuousLearningComponent
         return "ADK Multimodal executed successfully.";
     }
 
+    /// <summary>Performs LangGraph stateful execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformLangGraphStatefulAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableLangGraphStateful)
@@ -750,6 +845,10 @@ public class ContinuousLearningComponent
         return "LangGraph Stateful executed successfully.";
     }
 
+    /// <summary>Performs LangGraph streaming execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformLangGraphStreamingAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableLangGraphStreaming)
@@ -761,6 +860,10 @@ public class ContinuousLearningComponent
         return "LangGraph Streaming executed successfully.";
     }
 
+    /// <summary>Performs LangGraph human-in-the-loop execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformLangGraphHITLAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableLangGraphHITL)
@@ -772,6 +875,10 @@ public class ContinuousLearningComponent
         return "LangGraph HITL executed successfully.";
     }
 
+    /// <summary>Performs CrewAI team execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformCrewAITeamAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableCrewAITeam)
@@ -783,6 +890,10 @@ public class ContinuousLearningComponent
         return "CrewAI Team executed successfully.";
     }
 
+    /// <summary>Performs CrewAI dynamic planning for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformCrewAIDynamicPlanningAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableCrewAIDynamicPlanning)
@@ -794,6 +905,10 @@ public class ContinuousLearningComponent
         return "CrewAI Dynamic Planning executed successfully.";
     }
 
+    /// <summary>Performs CrewAI adaptive execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformCrewAIAdaptiveExecutionAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableCrewAIAdaptiveExecution)
@@ -805,6 +920,10 @@ public class ContinuousLearningComponent
         return "CrewAI Adaptive Execution executed successfully.";
     }
 
+    /// <summary>Performs Semantic Kernel memory operations for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformSemanticKernelMemoryAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableSemanticKernelMemory)
@@ -816,6 +935,10 @@ public class ContinuousLearningComponent
         return "Semantic Kernel Memory executed successfully.";
     }
 
+    /// <summary>Performs Semantic Kernel security operations for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformSemanticKernelSecurityAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableSemanticKernelSecurity)
@@ -827,6 +950,10 @@ public class ContinuousLearningComponent
         return "Semantic Kernel Security executed successfully.";
     }
 
+    /// <summary>Performs Semantic Kernel automation for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformSemanticKernelAutomationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableSemanticKernelAutomation)
@@ -838,6 +965,10 @@ public class ContinuousLearningComponent
         return "Semantic Kernel Automation executed successfully.";
     }
 
+    /// <summary>Performs AutoGen conversations for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformAutoGenConversationsAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableAutoGenConversations)
@@ -849,6 +980,10 @@ public class ContinuousLearningComponent
         return "AutoGen Conversations executed successfully.";
     }
 
+    /// <summary>Performs AutoGen context management for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformAutoGenContextAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableAutoGenContext)
@@ -860,6 +995,10 @@ public class ContinuousLearningComponent
         return "AutoGen Context executed successfully.";
     }
 
+    /// <summary>Performs AutoGen API integration for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformAutoGenAPIIntegrationAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableAutoGenAPIIntegration)
@@ -871,6 +1010,10 @@ public class ContinuousLearningComponent
         return "AutoGen API Integration executed successfully.";
     }
 
+    /// <summary>Performs Smolagents modular execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformSmolagentsModularAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableSmolagentsModular)
@@ -882,6 +1025,10 @@ public class ContinuousLearningComponent
         return "Smolagents Modular executed successfully.";
     }
 
+    /// <summary>Performs Smolagents context management for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformSmolagentsContextAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableSmolagentsContext)
@@ -893,6 +1040,10 @@ public class ContinuousLearningComponent
         return "Smolagents Context executed successfully.";
     }
 
+    /// <summary>Performs AutoGPT autonomous execution for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformAutoGPTAutonomousAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableAutoGPTAutonomous)
@@ -904,6 +1055,10 @@ public class ContinuousLearningComponent
         return "AutoGPT Autonomous executed successfully.";
     }
 
+    /// <summary>Performs AutoGPT memory operations for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformAutoGPTMemoryAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableAutoGPTMemory)
@@ -915,6 +1070,10 @@ public class ContinuousLearningComponent
         return "AutoGPT Memory executed successfully.";
     }
 
+    /// <summary>Performs AutoGPT internet access operations for the given task.</summary>
+    /// <param name="task">The task description.</param>
+    /// <param name="context">Additional context for the operation.</param>
+    /// <returns>A status message indicating the result.</returns>
     public async Task<string> PerformAutoGPTInternetAccessAsync(string task, Dictionary<string, string> context)
     {
         if (!_featureFlagManager.EnableAutoGPTInternetAccess)
@@ -927,39 +1086,59 @@ public class ContinuousLearningComponent
     }
 }
 
-public class UserFeedback
-{
-    public int Rating { get; set; } // 1-5 scale
-    public string Comments { get; set; }
-}
-
+/// <summary>
+/// Represents a stored feedback record in Cosmos DB.
+/// This is a pure serializable DTO; no constructor injection or <see cref="Microsoft.Extensions.Logging.ILogger{T}"/> is required.
+/// </summary>
 public class FeedbackRecord
 {
-    public string Id { get; set; }
-    public string QueryId { get; set; }
-    public string Type { get; set; } // "Feedback"
+    /// <summary>Gets or sets the record identifier.</summary>
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the query identifier this feedback relates to.</summary>
+    public string QueryId { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the record type (always "Feedback").</summary>
+    public string Type { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the user rating on a 1-5 scale.</summary>
     public int Rating { get; set; }
-    public string Comments { get; set; }
+
+    /// <summary>Gets or sets the user's textual comments.</summary>
+    public string Comments { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the timestamp when the feedback was recorded.</summary>
     public DateTimeOffset Timestamp { get; set; }
 }
 
+/// <summary>
+/// Represents a stored interaction record in Cosmos DB with evaluation scores.
+/// This is a pure serializable DTO; no constructor injection or <see cref="Microsoft.Extensions.Logging.ILogger{T}"/> is required.
+/// </summary>
 public class InteractionRecord
 {
-    public string Id { get; set; }
-    public string QueryId { get; set; }
-    public string Type { get; set; } // "Interaction"
-    public string Query { get; set; }
-    public string Response { get; set; }
+    /// <summary>Gets or sets the record identifier.</summary>
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the query identifier.</summary>
+    public string QueryId { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the record type (always "Interaction").</summary>
+    public string Type { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the original query text.</summary>
+    public string Query { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the generated response text.</summary>
+    public string Response { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the processing time for the interaction.</summary>
     public TimeSpan ProcessingTime { get; set; }
-    public Dictionary<string, double> EvaluationScores { get; set; }
+
+    /// <summary>Gets or sets the evaluation dimension scores.</summary>
+    public Dictionary<string, double> EvaluationScores { get; set; } = new();
+
+    /// <summary>Gets or sets the timestamp when the interaction was recorded.</summary>
     public DateTimeOffset Timestamp { get; set; }
 }
 
-public class LearningInsight
-{
-    public string Id { get; set; }
-    public string Type { get; set; } // "PerformanceTrend", "FeedbackInsight", "ImprovementOpportunity"
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public string Severity { get; set; } // "High", "Medium", "Low"
-}

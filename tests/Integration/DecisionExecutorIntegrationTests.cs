@@ -133,11 +133,11 @@ public class DecisionExecutorIntegrationTests
         var cts = new CancellationTokenSource();
         _mockLlm.Setup(l => l.GenerateCompletionAsync(
                 It.IsAny<string>(), It.IsAny<float>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .Returns<string, float, int, CancellationToken>(async (_, _, _, ct) =>
+            .Returns<string, float, int, CancellationToken>((_, _, _, ct) =>
             {
                 cts.Cancel();
                 ct.ThrowIfCancellationRequested();
-                return "never reached";
+                return Task.FromResult("never reached");
             });
 
         var request = new DecisionRequest

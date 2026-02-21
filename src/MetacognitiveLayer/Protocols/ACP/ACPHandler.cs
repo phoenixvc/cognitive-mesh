@@ -17,6 +17,11 @@ namespace MetacognitiveLayer.Protocols.ACP
         private readonly Dictionary<string, string> _templateLibrary;
         private readonly ILogger<ACPHandler> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ACPHandler"/> class.
+        /// </summary>
+        /// <param name="validator">The ACP validator used to validate XML templates.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public ACPHandler(ACPValidator validator, ILogger<ACPHandler> logger)
         {
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
@@ -46,11 +51,11 @@ namespace MetacognitiveLayer.Protocols.ACP
                 using (var reader = new StringReader(templateXml))
                 {
                     var serializer = new XmlSerializer(typeof(ACPTask));
-                    task = (ACPTask)serializer.Deserialize(reader);
+                    task = (ACPTask)serializer.Deserialize(reader)!;
                 }
-                
-                _logger.LogDebug("Successfully parsed ACP template for task: {TaskName}", task.Name);
-                return task;
+
+                _logger.LogDebug("Successfully parsed ACP template for task: {TaskName}", task?.Name);
+                return task!;
             }
             catch (XmlException ex)
             {
@@ -147,7 +152,7 @@ namespace MetacognitiveLayer.Protocols.ACP
                 }
                 
                 _logger.LogWarning("ACP template not found: {TemplateId}", templateId);
-                return Task.FromResult<string>(null);
+                return Task.FromResult<string>(null!);
             }
             catch (Exception ex)
             {

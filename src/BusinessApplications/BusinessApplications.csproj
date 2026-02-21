@@ -5,6 +5,24 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
+  <!-- Exclude sub-project directories that are also ProjectReferences to avoid CS0436/CS0433 type conflicts -->
+  <ItemGroup>
+    <Compile Remove="AdaptiveBalance\**" />
+    <Compile Remove="AgencyRouter\**" />
+    <Compile Remove="AgentRegistry\**" />
+    <Compile Remove="Common\**" />
+    <Compile Remove="Compliance\**" />
+    <Compile Remove="ConvenerServices\**" />
+    <Compile Remove="CustomerIntelligence\**" />
+    <Compile Remove="DecisionSupport\**" />
+    <Compile Remove="ImpactMetrics\**" />
+    <Compile Remove="KnowledgeManagement\**" />
+    <Compile Remove="NISTCompliance\**" />
+    <Compile Remove="ProcessAutomation\**" />
+    <Compile Remove="ResearchAnalysis\**" />
+    <Compile Remove="ValueGeneration\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Dependencies on other architectural layers -->
     <ProjectReference Include="..\Shared\CognitiveMesh.Shared.csproj" />
@@ -16,19 +34,20 @@
 
   <ItemGroup>
     <!-- Sub-projects within the BusinessApplications -->
+    <ProjectReference Include=".\AdaptiveBalance\AdaptiveBalance.csproj" />
+    <ProjectReference Include=".\AgencyRouter\AgencyRouter.csproj" />
     <ProjectReference Include=".\AgentRegistry\AgentRegistry.csproj" />
     <ProjectReference Include=".\Common\Common.csproj" />
     <ProjectReference Include=".\Compliance\Compliance.csproj" />
     <ProjectReference Include=".\ConvenerServices\ConvenerServices.csproj" />
     <ProjectReference Include=".\CustomerIntelligence\CustomerIntelligence.csproj" />
     <ProjectReference Include=".\DecisionSupport\DecisionSupport.csproj" />
-    <ProjectReference Include=".\KnowledgeManagement\KnowledgeManagement.csproj" />
-    <ProjectReference Include=".\ProcessAutomation\BusinessProcessAutomation.csproj" />
-    <!-- ResearchAnalysis is included directly in the solution, not as a sub-project -->
-    <ProjectReference Include=".\ValueGeneration\ValueGeneration.csproj" />
     <ProjectReference Include=".\ImpactMetrics\ImpactMetrics.csproj" />
+    <ProjectReference Include=".\KnowledgeManagement\KnowledgeManagement.csproj" />
     <ProjectReference Include=".\NISTCompliance\NISTCompliance.csproj" />
-    <ProjectReference Include=".\AdaptiveBalance\AdaptiveBalance.csproj" />
+    <ProjectReference Include=".\ProcessAutomation\ProcessAutomation.csproj" />
+    <ProjectReference Include=".\ResearchAnalysis\ResearchAnalysis.csproj" />
+    <ProjectReference Include=".\ValueGeneration\ValueGeneration.csproj" />
   </ItemGroup>
 
 </Project>

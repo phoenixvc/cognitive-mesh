@@ -10,9 +10,9 @@ public class SecurityEvent
     /// <summary>Gets or sets the timestamp of the event.</summary>
     public DateTimeOffset Timestamp { get; set; }
     /// <summary>Gets or sets the source of the event (e.g., "Firewall", "ApplicationLog").</summary>
-    public string Source { get; set; }
+    public string Source { get; set; } = string.Empty;
     /// <summary>Gets or sets the type of the event (e.g., "LoginAttempt", "PolicyViolation").</summary>
-    public string EventType { get; set; }
+    public string EventType { get; set; } = string.Empty;
     /// <summary>Gets or sets the event data payload.</summary>
     public Dictionary<string, object> Data { get; set; } = new();
 }
@@ -25,7 +25,7 @@ public class ThreatAnalysisRequest
     /// <summary>
     /// A collection of correlated security events to be analyzed.
     /// </summary>
-    public IEnumerable<SecurityEvent> Events { get; set; }
+    public IEnumerable<SecurityEvent> Events { get; set; } = [];
     /// <summary>
     /// Additional context for the analysis, such as the user session or transaction ID.
     /// </summary>
@@ -42,11 +42,11 @@ public class ThreatAnalysisResponse
     /// <summary>
     /// A description of the detected threat, if any.
     /// </summary>
-    public string ThreatDescription { get; set; }
+    public string ThreatDescription { get; set; } = string.Empty;
     /// <summary>
     /// The severity level of the detected threat (e.g., "Low", "Medium", "High", "Critical").
     /// </summary>
-    public string Severity { get; set; }
+    public string Severity { get; set; } = string.Empty;
     /// <summary>
     /// A list of recommended actions to mitigate the detected threat.
     /// </summary>
@@ -82,13 +82,13 @@ public class IOCDetectionResponse
 public class DetectedIOC
 {
     /// <summary>Gets or sets the type of the artifact (e.g., "ip_address", "file_hash").</summary>
-    public string ArtifactType { get; set; }
+    public string ArtifactType { get; set; } = string.Empty;
     /// <summary>Gets or sets the value of the detected artifact.</summary>
-    public string ArtifactValue { get; set; }
+    public string ArtifactValue { get; set; } = string.Empty;
     /// <summary>
     /// Information about the threat associated with this IOC.
     /// </summary>
-    public string ThreatInfo { get; set; }
+    public string ThreatInfo { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -99,15 +99,15 @@ public class RiskScoringRequest
     /// <summary>
     /// The unique identifier of the subject (user, service, agent) being scored.
     /// </summary>
-    public string SubjectId { get; set; }
+    public string SubjectId { get; set; } = string.Empty;
     /// <summary>
     /// The action being performed by the subject.
     /// </summary>
-    public string Action { get; set; }
+    public string Action { get; set; } = string.Empty;
     /// <summary>
     /// The resource being accessed.
     /// </summary>
-    public string ResourceId { get; set; }
+    public string ResourceId { get; set; } = string.Empty;
     /// <summary>
     /// Additional context used for scoring, such as time, location, and recent behavior.
     /// </summary>
@@ -126,7 +126,7 @@ public class RiskScoringResponse
     /// <summary>
     /// A qualitative risk level (e.g., "Low", "Medium", "High").
     /// </summary>
-    public string RiskLevel { get; set; }
+    public string RiskLevel { get; set; } = string.Empty;
     /// <summary>
     /// A list of factors that contributed to the calculated risk score.
     /// </summary>

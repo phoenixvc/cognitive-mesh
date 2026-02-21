@@ -16,6 +16,10 @@ namespace CognitiveMesh.ReasoningLayer.ExperimentalVelocity.Engines
         private const string TheaterModelVersion = "InnovationTheaterDetector-v1.2";
         private const string RealityCheckModelVersion = "CompetitiveRealityCheck-v1.1";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExperimentalVelocityEngine"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
         public ExperimentalVelocityEngine(ILogger<ExperimentalVelocityEngine> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

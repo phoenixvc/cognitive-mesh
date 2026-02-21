@@ -19,12 +19,12 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
         /// The name of the regulation to check against (e.g., "HIPAA", "MiFID II").
         /// This is used to dispatch the request to the correct compliance module.
         /// </summary>
-        public string Regulation { get; set; }
+        public string Regulation { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of action being assessed (e.g., "DataStorage", "DataSharing", "AutomatedDecision").
         /// </summary>
-        public string ActionType { get; set; }
+        public string ActionType { get; set; } = string.Empty;
 
         /// <summary>
         /// The data involved in the action, which will be assessed by the compliance module.
@@ -34,7 +34,7 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
         /// <summary>
         /// The tenant ID under which the compliance check is being performed.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// A unique identifier for tracing this request across systems.
@@ -55,7 +55,7 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
         /// <summary>
         /// The regulation against which the assessment was performed.
         /// </summary>
-        public string Regulation { get; set; }
+        public string Regulation { get; set; } = string.Empty;
 
         /// <summary>
         /// A list of compliance issues identified during the assessment. This list is empty if IsCompliant is true.
@@ -81,22 +81,42 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
         /// <summary>
         /// A unique code for the identified issue.
         /// </summary>
-        public string IssueCode { get; set; }
+        public string IssueCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// A unique identifier for the compliance issue instance.
+        /// </summary>
+        public string IssueId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The regulatory framework this issue pertains to (e.g., "GDPR", "EU AI Act").
+        /// </summary>
+        public string Framework { get; set; } = string.Empty;
 
         /// <summary>
         /// A description of the compliance issue.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// The severity of the issue (e.g., "Low", "Medium", "High", "Critical").
         /// </summary>
-        public string Severity { get; set; }
+        public string Severity { get; set; } = string.Empty;
 
         /// <summary>
         /// A reference to the specific article or section of the regulation that was violated.
         /// </summary>
-        public string RegulatoryReference { get; set; }
+        public string RegulatoryReference { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The timestamp when this compliance issue was identified.
+        /// </summary>
+        public DateTimeOffset IdentifiedAt { get; set; }
+
+        /// <summary>
+        /// Recommended steps to remediate the compliance issue.
+        /// </summary>
+        public string RemediationSteps { get; set; } = string.Empty;
     }
 
     #endregion

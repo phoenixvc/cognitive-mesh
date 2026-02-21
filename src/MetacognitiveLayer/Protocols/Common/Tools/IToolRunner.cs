@@ -5,8 +5,17 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
     /// </summary>
     public class ToolContext
     {
-        public string SessionId { get; set; }
-        public string UserId { get; set; }
+        /// <summary>
+        /// Gets or sets the session identifier for tool execution.
+        /// </summary>
+        public string SessionId { get; set; } = string.Empty;
+        /// <summary>
+        /// Gets or sets the user identifier for tool execution.
+        /// </summary>
+        public string UserId { get; set; } = string.Empty;
+        /// <summary>
+        /// Gets or sets additional context data for tool execution.
+        /// </summary>
         public Dictionary<string, object> AdditionalContext { get; set; } = new Dictionary<string, object>();
     }
 

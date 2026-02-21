@@ -53,6 +53,13 @@ public class ContextualAdaptiveAgencyEngine : IAgencyRouterPort
     // In-memory cache for tenant policies to improve performance, as per the PRD.
     private static readonly ConcurrentDictionary<string, PolicyConfiguration> _policyCache = new();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ContextualAdaptiveAgencyEngine"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance for structured logging.</param>
+    /// <param name="policyRepository">The repository for persisting and retrieving policy configurations.</param>
+    /// <param name="taskContextRepository">The repository for persisting and retrieving task contexts.</param>
+    /// <param name="auditLoggingAdapter">The adapter for immutable audit logging.</param>
     public ContextualAdaptiveAgencyEngine(
         ILogger<ContextualAdaptiveAgencyEngine> logger,
         IPolicyRepository policyRepository,
@@ -84,7 +91,7 @@ public class ContextualAdaptiveAgencyEngine : IAgencyRouterPort
             decision.PolicyVersionApplied = policy?.PolicyVersion ?? "N/A";
 
             // Evaluate policy rules to determine the autonomy level.
-            var chosenLevel = EvaluatePolicy(context, policy);
+            var chosenLevel = EvaluatePolicy(context, policy!);
             decision.ChosenAutonomyLevel = chosenLevel;
             decision.Justification = $"Autonomy level set to '{chosenLevel}' based on policy '{decision.PolicyVersionApplied}'.";
 
@@ -145,7 +152,7 @@ public class ContextualAdaptiveAgencyEngine : IAgencyRouterPort
             _policyCache[tenantId] = policy;
         }
 
-        return policy;
+        return policy ?? new PolicyConfiguration { TenantId = tenantId, PolicyVersion = "default" };
     }
 
     /// <inheritdoc />

@@ -250,7 +250,7 @@ public sealed class TelemetryEngineTests : IDisposable
 
         activity.Should().NotBeNull();
         activity!.Status.Should().Be(ActivityStatusCode.Ok);
-        activity.StatusDescription.Should().Be("All good");
+        // Note: OpenTelemetry only preserves StatusDescription for Error status per spec
     }
 
     /// <summary>

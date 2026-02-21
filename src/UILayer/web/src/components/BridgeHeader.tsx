@@ -40,7 +40,7 @@ const BridgeHeader: React.FC<BridgeHeaderProps> = ({
   handleNexusToggle,
 }) => {
   return (
-    <header className="mb-6">
+    <header className="mb-6" data-tour="bridge-header">
       <div className="backdrop-blur-md bg-slate-900/70 border border-slate-700/50 rounded-xl shadow-2xl p-4 relative overflow-hidden header-glow flex flex-col gap-2">
         {/* Animated SVG Background Layers */}
         <div className="animated-svg-bg"></div>

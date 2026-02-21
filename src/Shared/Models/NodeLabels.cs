@@ -17,5 +17,7 @@ namespace CognitiveMesh.Shared.Models
         public const string Policy = "Policy";
         /// <summary>Label for Resource nodes.</summary>
         public const string Resource = "Resource";
+        /// <summary>Label for ActionPlan nodes.</summary>
+        public const string ActionPlan = "ActionPlan";
     }
 }

@@ -13,6 +13,11 @@ namespace MetacognitiveLayer.Protocols.Common
         private readonly Timer _cleanupTimer;
         private readonly TimeSpan _sessionTimeout;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SessionManager"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="sessionTimeout">Optional session timeout duration. Defaults to one hour if not specified.</param>
         public SessionManager(ILogger<SessionManager> logger, TimeSpan? sessionTimeout = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -26,7 +31,7 @@ namespace MetacognitiveLayer.Protocols.Common
         /// <summary>
         /// Gets an existing session or creates a new one if it doesn't exist.
         /// </summary>
-        public Task<SessionContext> GetOrCreateSessionAsync(string sessionId, string userId = null, string conversationId = null)
+        public Task<SessionContext> GetOrCreateSessionAsync(string sessionId, string? userId = null, string? conversationId = null)
         {
             try
             {
@@ -39,7 +44,7 @@ namespace MetacognitiveLayer.Protocols.Common
                 
                 SessionContext session;
                 
-                if (_sessions.TryGetValue(sessionId, out session))
+                if (_sessions.TryGetValue(sessionId, out session!))
                 {
                     _logger.LogDebug("Retrieved existing session: {SessionId}", sessionId);
                     session.UpdateLastAccessTime();
@@ -51,7 +56,7 @@ namespace MetacognitiveLayer.Protocols.Common
                     {
                         _logger.LogInformation("Created new session: {SessionId}", sessionId);
                     }
-                    else if (_sessions.TryGetValue(sessionId, out session))
+                    else if (_sessions.TryGetValue(sessionId, out session!))
                     {
                         _logger.LogWarning("Race condition when creating session: {SessionId}. Using existing session.", sessionId);
                     }
@@ -160,7 +165,7 @@ namespace MetacognitiveLayer.Protocols.Common
         /// <summary>
         /// Cleans up expired sessions.
         /// </summary>
-        private void CleanupSessions(object state)
+        private void CleanupSessions(object? state)
         {
             try
             {

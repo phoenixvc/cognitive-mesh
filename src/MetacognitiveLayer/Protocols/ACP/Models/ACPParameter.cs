@@ -11,13 +11,13 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Name of the parameter
         /// </summary>
         [XmlAttribute("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         
         /// <summary>
         /// Data type of the parameter
         /// </summary>
         [XmlAttribute("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         
         /// <summary>
         /// Whether this parameter is required
@@ -35,12 +35,12 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Default or provided value of the parameter
         /// </summary>
         [XmlElement("Value")]
-        public object Value { get; set; }
+        public object Value { get; set; } = string.Empty;
         
         /// <summary>
         /// Description of the parameter
         /// </summary>
         [XmlElement("Description")]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
     }
 }

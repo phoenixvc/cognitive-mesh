@@ -38,7 +38,7 @@ public abstract class CommunityEvent
 {
     public Guid EventId { get; } = Guid.NewGuid();
     public DateTimeOffset Timestamp { get; } = DateTimeOffset.UtcNow;
-    public string TenantId { get; set; }
+    public required string TenantId { get; set; }
 }
 
 /// <summary>
@@ -46,11 +46,11 @@ public abstract class CommunityEvent
 /// </summary>
 public class ProjectNeedsChampionEvent : CommunityEvent
 {
-    public string ProjectId { get; set; }
-    public string ProjectName { get; set; }
-    public string RequiredSkill { get; set; }
-    public string RequestingUserId { get; set; }
-    public IEnumerable<string> PotentialChampionUserIds { get; set; }
+    public required string ProjectId { get; set; }
+    public required string ProjectName { get; set; }
+    public required string RequiredSkill { get; set; }
+    public required string RequestingUserId { get; set; }
+    public required IEnumerable<string> PotentialChampionUserIds { get; set; }
 }
 
 /// <summary>
@@ -58,9 +58,9 @@ public class ProjectNeedsChampionEvent : CommunityEvent
 /// </summary>
 public class CollaborationRequestedEvent : CommunityEvent
 {
-    public string RequestingUserId { get; set; }
-    public string ChampionUserId { get; set; }
-    public string ContextMessage { get; set; }
+    public required string RequestingUserId { get; set; }
+    public required string ChampionUserId { get; set; }
+    public required string ContextMessage { get; set; }
 }
 
 /// <summary>
@@ -68,9 +68,9 @@ public class CollaborationRequestedEvent : CommunityEvent
 /// </summary>
 public class SafetyConcernDetectedEvent : CommunityEvent
 {
-    public string ChannelId { get; set; }
-    public string ConcernDetails { get; set; }
-    public string EscalationTargetUserId { get; set; } // e.g., HR or community manager
+    public required string ChannelId { get; set; }
+    public required string ConcernDetails { get; set; }
+    public required string EscalationTargetUserId { get; set; } // e.g., HR or community manager
 }
 
 

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\FoundationLayer\FoundationLayer.csproj" />
+    <ProjectReference Include="..\..\ReasoningLayer\ReasoningLayer.csproj" />
     <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
     <ProjectReference Include="..\Orchestration\Orchestration.csproj" />
   </ItemGroup>

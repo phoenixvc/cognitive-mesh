@@ -11,7 +11,7 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Type of fallback action (e.g., retry, alternate, abort)
         /// </summary>
         [XmlAttribute("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         
         /// <summary>
         /// Maximum number of retries if Type is "retry"
@@ -23,13 +23,13 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Name of alternate task to execute if Type is "alternate"
         /// </summary>
         [XmlElement("AlternateTask")]
-        public string AlternateTask { get; set; }
+        public string AlternateTask { get; set; } = string.Empty;
         
         /// <summary>
         /// Default response to return if fallback occurs
         /// </summary>
         [XmlElement("DefaultResponse")]
-        public string DefaultResponse { get; set; }
+        public string DefaultResponse { get; set; } = string.Empty;
         
         /// <summary>
         /// Whether to log detailed information about the failure

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\FoundationLayer\FoundationLayer.csproj" />
+    <ProjectReference Include="..\..\ReasoningLayer\SecurityReasoning\SecurityReasoning.csproj" />
     <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
   </ItemGroup>
 

@@ -7,6 +7,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors>CS1591</WarningsAsErrors> <!-- XML docs required -->
-    <NoWarn>NU1604;NU1602;NU1506;NU1701</NoWarn> <!-- Common NuGet warning suppressions -->
+    <NoWarn>NU1604;NU1602;NU1506;NU1701;NU1608</NoWarn> <!-- Common NuGet warning suppressions -->
   </PropertyGroup>
 </Project>

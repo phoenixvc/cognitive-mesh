@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CognitiveMesh.ReasoningLayer.SecurityReasoning.Ports;
 using MetacognitiveLayer.SecurityMonitoring;
 using Microsoft.Extensions.Logging;
 
@@ -43,9 +44,9 @@ public interface IForensicDataPort
 public class AgentTaskRequest
 {
     /// <summary>Gets or sets the unique identifier of the agent.</summary>
-    public string AgentId { get; set; }
+    public string AgentId { get; set; } = string.Empty;
     /// <summary>Gets or sets the description of the task to execute.</summary>
-    public string TaskDescription { get; set; }
+    public string TaskDescription { get; set; } = string.Empty;
     /// <summary>Gets or sets the parameters for the task.</summary>
     public Dictionary<string, object> Parameters { get; set; } = new();
     /// <summary>Gets or sets the priority of the task.</summary>
@@ -60,7 +61,7 @@ public class AgentTaskResponse
     /// <summary>Gets or sets whether the task was successful.</summary>
     public bool IsSuccess { get; set; }
     /// <summary>Gets or sets the result message.</summary>
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
     /// <summary>Gets or sets the output data from the task.</summary>
     public Dictionary<string, object> Output { get; set; } = new();
 }
@@ -95,13 +96,13 @@ public interface IAgentOrchestrationPort
 public class Notification
 {
     /// <summary>Gets or sets the notification subject.</summary>
-    public string Subject { get; set; }
+    public string Subject { get; set; } = string.Empty;
     /// <summary>Gets or sets the notification message body.</summary>
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
     /// <summary>Gets or sets the delivery channels (e.g., email, SMS).</summary>
-    public List<string> Channels { get; set; }
+    public List<string> Channels { get; set; } = new();
     /// <summary>Gets or sets the notification recipients.</summary>
-    public List<string> Recipients { get; set; }
+    public List<string> Recipients { get; set; } = new();
     /// <summary>Gets or sets the timestamp when the notification was created.</summary>
     public DateTimeOffset Timestamp { get; set; }
 }
@@ -229,15 +230,18 @@ public class AutomatedResponseAgent : IAgent
         out List<SecurityEvent> events,
         out List<string> recommendedActions)
     {
-        incidentId = parameters.GetValueOrDefault("incidentId")?.ToString();
-            
+        incidentId = parameters.GetValueOrDefault("incidentId")?.ToString() ?? string.Empty;
+
         var eventsObj = parameters.GetValueOrDefault("correlatedEvents");
-        events = eventsObj is JsonElement je ? JsonSerializer.Deserialize<List<SecurityEvent>>(je.GetRawText()) : eventsObj as List<SecurityEvent>;
+        var parsedEvents = eventsObj is JsonElement je ? JsonSerializer.Deserialize<List<SecurityEvent>>(je.GetRawText()) : eventsObj as List<SecurityEvent>;
 
         var actionsObj = parameters.GetValueOrDefault("recommendedActions");
-        recommendedActions = actionsObj is JsonElement jeActions ? JsonSerializer.Deserialize<List<string>>(jeActions.GetRawText()) : actionsObj as List<string>;
+        var parsedActions = actionsObj is JsonElement jeActions ? JsonSerializer.Deserialize<List<string>>(jeActions.GetRawText()) : actionsObj as List<string>;
 
-        return !string.IsNullOrEmpty(incidentId) && events != null && recommendedActions != null;
+        events = parsedEvents ?? [];
+        recommendedActions = parsedActions ?? [];
+
+        return !string.IsNullOrEmpty(incidentId) && parsedEvents != null && parsedActions != null;
     }
 
     private async Task<string> PreserveEvidence(string incidentId, List<SecurityEvent> events, List<string> actionsTaken)

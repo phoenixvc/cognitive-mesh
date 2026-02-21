@@ -23,6 +23,9 @@ namespace AgencyLayer.ActionPlanning
         private readonly ISemanticSearchManager _semanticSearchManager;
         private readonly IMessageBus _bus;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActionPlanner"/> class.
+        /// </summary>
         public ActionPlanner(
             ILogger<ActionPlanner> logger,
             IKnowledgeGraphManager knowledgeGraphManager,
@@ -86,7 +89,7 @@ namespace AgencyLayer.ActionPlanning
                 };
 
                 // Step 4: Call LLM
-                var response = await _llmClient.GenerateChatCompletionAsync(messages, temperature: 0.3f, cancellationToken: cancellationToken);
+                var response = await _llmClient.GenerateChatCompletionAsync(messages, temperature: 0.3f);
 
                 // Step 5: Parse Response
                 var plans = ParsePlans(response);
@@ -97,7 +100,7 @@ namespace AgencyLayer.ActionPlanning
                     if (plan.Status != ActionPlanStatus.Failed)
                     {
                         await _knowledgeGraphManager.AddNodeAsync(plan.Id, plan, NodeLabels.ActionPlan, cancellationToken);
-                        await _bus.PublishAsync(new PlanGeneratedNotification(plan), cancellationToken: cancellationToken);
+                        await _bus.PublishAsync(new PlanGeneratedNotification(plan));
                     }
                 }
 
@@ -224,7 +227,7 @@ namespace AgencyLayer.ActionPlanning
                 }
 
                 // 5. Notify subscribers
-                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken: cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan));
 
                 return plan;
             }
@@ -246,7 +249,7 @@ namespace AgencyLayer.ActionPlanning
             {
                 _logger.LogInformation("Updating action plan: {PlanId}", plan.Id);
                 await _knowledgeGraphManager.UpdateNodeAsync(plan.Id, plan, cancellationToken);
-                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken: cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan));
             }
             catch (Exception ex)
             {
@@ -280,7 +283,7 @@ namespace AgencyLayer.ActionPlanning
                 plan.CompletedAt = DateTime.UtcNow;
 
                 await _knowledgeGraphManager.UpdateNodeAsync(planId, plan, cancellationToken);
-                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken: cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan));
             }
             catch (Exception ex)
             {
@@ -340,7 +343,7 @@ namespace AgencyLayer.ActionPlanning
         /// <summary>
         /// Generates an action plan for the specified goal and constraints.
         /// </summary>
-        Task<IEnumerable<ActionPlan>> GeneratePlanAsync(string goal, IEnumerable<string> constraints = null, CancellationToken cancellationToken = default);
+        Task<IEnumerable<ActionPlan>> GeneratePlanAsync(string goal, IEnumerable<string>? constraints = null, CancellationToken cancellationToken = default);
         /// <summary>
         /// Executes the action plan with the specified identifier.
         /// </summary>
@@ -352,6 +355,6 @@ namespace AgencyLayer.ActionPlanning
         /// <summary>
         /// Cancels the action plan with the specified identifier.
         /// </summary>
-        Task CancelPlanAsync(string planId, string reason = null, CancellationToken cancellationToken = default);
+        Task CancelPlanAsync(string planId, string? reason = null, CancellationToken cancellationToken = default);
     }
 }

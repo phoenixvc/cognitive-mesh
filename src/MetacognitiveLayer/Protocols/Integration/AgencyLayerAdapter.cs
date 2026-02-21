@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MetacognitiveLayer.Protocols.ACP.Models;
 using MetacognitiveLayer.Protocols.Common;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,15 @@ namespace MetacognitiveLayer.Protocols.Integration
         private readonly IAgentOrchestrator _agentOrchestrator;
         private readonly IContextTemplateResolver _templateResolver;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AgencyLayerAdapter"/> class.
+        /// </summary>
+        /// <param name="toolRegistry">The tool registry for managing available tools.</param>
+        /// <param name="memoryStore">The memory store for persisting and retrieving context.</param>
+        /// <param name="toolRunner">The tool runner for executing tools.</param>
+        /// <param name="agentOrchestrator">The agent orchestrator for running agents.</param>
+        /// <param name="templateResolver">The template resolver for resolving context prompts and DSL templates.</param>
+        /// <param name="logger">The logger instance.</param>
         public AgencyLayerAdapter(
             ToolRegistry toolRegistry,
             IMeshMemoryStore memoryStore,
@@ -84,12 +94,12 @@ namespace MetacognitiveLayer.Protocols.Integration
                     await _memoryStore.SaveContextAsync(
                         sessionContext.SessionId, 
                         $"tool_result_{task.PrimaryTool}", 
-                        JsonConvert.SerializeObject(toolResult)
+                        JsonSerializer.Serialize(toolResult)
                     );
             }
                 
                 _logger.LogInformation("Tool execution completed for task: {TaskName}", task.Name);
-                return toolResult;
+                return toolResult!;
             }
             catch (Exception ex)
             {
@@ -135,7 +145,7 @@ namespace MetacognitiveLayer.Protocols.Integration
                 await _memoryStore.SaveContextAsync(
                     sessionContext.SessionId,
                     $"agent_result_{agentId}",
-                    JsonConvert.SerializeObject(agentResponse)
+                    JsonSerializer.Serialize(agentResponse)
                 );
                 
                 _logger.LogInformation("Agent execution completed for agent: {AgentId}", agentId);
@@ -166,7 +176,7 @@ namespace MetacognitiveLayer.Protocols.Integration
                 {
                     var success = await _toolRegistry.RegisterToolAsync(
                         tool.Key, 
-                        JsonConvert.SerializeObject(tool.Value)
+                        JsonSerializer.Serialize(tool.Value)
                     );
                     
                     if (success)
@@ -230,6 +240,7 @@ namespace MetacognitiveLayer.Protocols.Integration
 
         private async Task<Dictionary<string, object>> GetAvailableToolsAsync()
         {
+            await Task.CompletedTask;
             // This would typically call into the IToolRunner to get available tools
             // For now, returning a sample set of tools
             return new Dictionary<string, object>
@@ -267,49 +278,84 @@ namespace MetacognitiveLayer.Protocols.Integration
         }
     }
 
-    // Helper classes to match the interfaces mentioned in the requirements
+    /// <summary>
+    /// Represents the context in which a tool is executed, including session and user information.
+    /// </summary>
     public class ToolContext
     {
-        public string SessionId { get; set; }
-        public string UserId { get; set; }
+        /// <summary>Gets or sets the session identifier.</summary>
+        public string SessionId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the user identifier.</summary>
+        public string UserId { get; set; } = string.Empty;
+        /// <summary>Gets or sets additional context data for the tool execution.</summary>
         public Dictionary<string, object> AdditionalContext { get; set; } = new Dictionary<string, object>();
     }
 
+    /// <summary>
+    /// Represents a request to execute an agent task via the Agent Communication Protocol.
+    /// </summary>
     public class ACPRequest
     {
-        public string AgentId { get; set; }
-        public string TaskName { get; set; }
+        /// <summary>Gets or sets the identifier of the agent to execute.</summary>
+        public string AgentId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the name of the task to execute.</summary>
+        public string TaskName { get; set; } = string.Empty;
+        /// <summary>Gets or sets the parameters for the task execution.</summary>
         public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
-        public string ResolvedPrompt { get; set; }
+        /// <summary>Gets or sets the resolved prompt after template resolution.</summary>
+        public string ResolvedPrompt { get; set; } = string.Empty;
     }
 
+    /// <summary>
+    /// Represents the response returned by an agent after task execution.
+    /// </summary>
     public class AgentResponse
     {
-        public string Content { get; set; }
+        /// <summary>Gets or sets the content of the agent response.</summary>
+        public string Content { get; set; } = string.Empty;
+        /// <summary>Gets or sets the metadata associated with the agent response.</summary>
         public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
     }
 
-    // Interface definitions for the new abstractions
+    /// <summary>
+    /// Defines the contract for a memory store that persists and retrieves session context and supports similarity queries.
+    /// </summary>
     public interface IMeshMemoryStore
     {
+        /// <summary>Saves a context value associated with a session and key.</summary>
         Task SaveContextAsync(string sessionId, string key, string value);
+        /// <summary>Retrieves a context value by session identifier and key.</summary>
         Task<string> GetContextAsync(string sessionId, string key);
+        /// <summary>Queries the memory store for entries similar to the given embedding within the specified threshold.</summary>
         Task<IEnumerable<string>> QuerySimilarAsync(string embedding, float threshold);
     }
 
+    /// <summary>
+    /// Defines the contract for executing tools by identifier with given inputs and context.
+    /// </summary>
     public interface IToolRunner
     {
+        /// <summary>Executes the specified tool with the provided input parameters and context.</summary>
         Task<object> Execute(string toolId, Dictionary<string, object> input, ToolContext context);
     }
 
+    /// <summary>
+    /// Defines the contract for orchestrating agent execution based on ACP requests.
+    /// </summary>
     public interface IAgentOrchestrator
     {
+        /// <summary>Runs the specified agent with the given ACP request and returns the agent response.</summary>
         Task<AgentResponse> RunAgent(string agentId, ACPRequest request);
     }
 
+    /// <summary>
+    /// Defines the contract for resolving context templates and applying DSL transformations.
+    /// </summary>
     public interface IContextTemplateResolver
     {
+        /// <summary>Resolves a prompt from the given ACP request using template resolution.</summary>
         string ResolvePrompt(ACPRequest acpRequest);
+        /// <summary>Applies a DSL template with the provided variables and returns the resolved string.</summary>
         string ApplyDSL(string acpDslTemplate, Dictionary<string, object> variables);
     }
 }

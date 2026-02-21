@@ -11,7 +11,7 @@ using CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions;
 namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
 {
     /// <summary>
-    /// Engine for Debate & Vote reasoning.
+    /// Engine for Debate &amp; Vote reasoning.
     /// Implements an ideology collider brainstorming system that uses opposing
     /// ideological perspectives to generate and synthesize ideas.
     /// </summary>
@@ -26,6 +26,11 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
             RegexOptions.IgnoreCase | RegexOptions.Compiled
         );
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DebateReasoningEngine"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
+        /// <param name="llmClient">The LLM client used for generating debate perspectives and synthesis.</param>
         public DebateReasoningEngine(
             ILogger<DebateReasoningEngine> logger,
             ILLMClient llmClient)

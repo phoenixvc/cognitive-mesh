@@ -1,31 +1,76 @@
+using Microsoft.Extensions.Logging;
 using CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 
 namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Engines;
 
 // --- Placeholder Interfaces for Outbound Adapters ---
-// Data required for Employability check
+
+/// <summary>
+/// Holds the raw data required to perform an employability risk assessment for a user.
+/// </summary>
 public class EmployabilityData
 {
-    public List<string> UserSkills { get; set; }
-    public List<string> MarketTrendingSkills { get; set; }
+    /// <summary>Gets or sets the list of skills the user currently possesses.</summary>
+    public List<string> UserSkills { get; set; } = new();
+
+    /// <summary>Gets or sets the list of skills currently trending in the market.</summary>
+    public List<string> MarketTrendingSkills { get; set; } = new();
+
+    /// <summary>Gets or sets the user's creative output score, ranging from 0.0 to 1.0.</summary>
     public double UserCreativeOutputScore { get; set; }
+
+    /// <summary>Gets or sets the number of projects the user has completed.</summary>
     public int ProjectsCompleted { get; set; }
+
+    /// <summary>Gets or sets the user's collaboration score, ranging from 0.0 to 1.0.</summary>
     public double CollaborationScore { get; set; }
-    public Dictionary<string, double> SkillRelevanceScores { get; set; }
+
+    /// <summary>Gets or sets the relevance scores for each of the user's skills.</summary>
+    public Dictionary<string, double> SkillRelevanceScores { get; set; } = new();
 }
 
+/// <summary>
+/// Defines the contract for retrieving employability data from an external data store.
+/// </summary>
 public interface IEmployabilityDataRepository
 {
+    /// <summary>
+    /// Retrieves the employability data for the specified user and tenant.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="tenantId">The tenant context for the request.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the employability data.</returns>
     Task<EmployabilityData> GetEmployabilityDataAsync(string userId, string tenantId);
 }
 
+/// <summary>
+/// Defines the contract for verifying that user consent exists for a given operation.
+/// </summary>
 public interface IConsentVerifier
 {
+    /// <summary>
+    /// Verifies whether the specified consent type has been granted by the user.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <param name="tenantId">The tenant context for the request.</param>
+    /// <param name="consentType">The type of consent to verify.</param>
+    /// <returns>A task that represents the asynchronous operation, containing <see langword="true"/> if consent exists; otherwise, <see langword="false"/>.</returns>
     Task<bool> VerifyConsentExistsAsync(string userId, string tenantId, string consentType);
 }
 
+/// <summary>
+/// Defines the contract for requesting a manual human review of a sensitive assessment.
+/// </summary>
 public interface IManualReviewRequester
 {
+    /// <summary>
+    /// Submits a request for manual review of an assessment.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user being assessed.</param>
+    /// <param name="tenantId">The tenant context for the request.</param>
+    /// <param name="reviewType">The type of review being requested.</param>
+    /// <param name="context">Additional context data for the reviewer.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     Task RequestManualReviewAsync(string userId, string tenantId, string reviewType, Dictionary<string, object> context);
 }
 
@@ -52,6 +97,13 @@ public class EmployabilityPredictorEngine : IEmployabilityPort
     // Threshold for high-risk assessments that require manual review
     private const double HighRiskThreshold = 0.6;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EmployabilityPredictorEngine"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance for structured logging.</param>
+    /// <param name="employabilityDataRepository">The repository for retrieving employability data.</param>
+    /// <param name="consentVerifier">The verifier for checking user consent.</param>
+    /// <param name="manualReviewRequester">The requester for submitting manual reviews.</param>
     public EmployabilityPredictorEngine(
         ILogger<EmployabilityPredictorEngine> logger,
         IEmployabilityDataRepository employabilityDataRepository,
@@ -198,10 +250,19 @@ public class EmployabilityPredictorEngine : IEmployabilityPort
 /// </summary>
 public class ConsentRequiredException : Exception
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConsentRequiredException"/> class.
+    /// </summary>
+    /// <param name="message">The error message describing the missing consent.</param>
     public ConsentRequiredException(string message) : base(message)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConsentRequiredException"/> class.
+    /// </summary>
+    /// <param name="message">The error message describing the missing consent.</param>
+    /// <param name="innerException">The exception that caused this exception.</param>
     public ConsentRequiredException(string message, Exception innerException) : base(message, innerException)
     {
     }

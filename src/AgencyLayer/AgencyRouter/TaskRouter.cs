@@ -16,6 +16,12 @@ public class TaskRouter
     private readonly IMultiAgentOrchestrationPort _orchestrationPort;
     private readonly ILogger<TaskRouter> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TaskRouter"/> class.
+    /// </summary>
+    /// <param name="workflowEngine">The workflow engine for multi-step sequential task execution.</param>
+    /// <param name="orchestrationPort">The multi-agent orchestration port for single-step coordination.</param>
+    /// <param name="logger">The logger instance.</param>
     public TaskRouter(
         IWorkflowEngine workflowEngine,
         IMultiAgentOrchestrationPort orchestrationPort,

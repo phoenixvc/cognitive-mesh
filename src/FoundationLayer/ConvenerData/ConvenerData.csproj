@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Compile Remove="AgentDefinition.cs" />
-    <Compile Remove="Champion.cs" />
   </ItemGroup>
 
   <ItemGroup>

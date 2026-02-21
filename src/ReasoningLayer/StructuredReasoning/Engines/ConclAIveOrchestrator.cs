@@ -29,6 +29,14 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
             RegexOptions.Compiled
         );
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConclAIveOrchestrator"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
+        /// <param name="debateReasoning">The debate reasoning engine port.</param>
+        /// <param name="sequentialReasoning">The sequential reasoning engine port.</param>
+        /// <param name="strategicSimulation">The strategic simulation engine port.</param>
+        /// <param name="llmClient">The LLM client used for recipe selection.</param>
         public ConclAIveOrchestrator(
             ILogger<ConclAIveOrchestrator> logger,
             IDebateReasoningPort debateReasoning,

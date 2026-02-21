@@ -10,9 +10,13 @@ namespace MetacognitiveLayer.Protocols.ACP
     public class ACPValidator
     {
         private readonly ILogger<ACPValidator> _logger;
-        private XmlSchemaSet _schemaSet;
+        private XmlSchemaSet _schemaSet = null!;
         private bool _hasValidationErrors;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ACPValidator"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public ACPValidator(ILogger<ACPValidator> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -166,9 +170,9 @@ namespace MetacognitiveLayer.Protocols.ACP
                 var settings = new XmlReaderSettings
                 {
                     ValidationType = ValidationType.Schema,
-                    Schemas = _schemaSet,
-                    ValidationEventHandler = ValidationEventHandler
+                    Schemas = _schemaSet
                 };
+                settings.ValidationEventHandler += ValidationEventHandler;
                 
                 using (var stringReader = new StringReader(templateXml))
                 {
@@ -198,7 +202,7 @@ namespace MetacognitiveLayer.Protocols.ACP
         /// <summary>
         /// Handles XML validation errors.
         /// </summary>
-        private void ValidationEventHandler(object sender, ValidationEventArgs e)
+        private void ValidationEventHandler(object? sender, ValidationEventArgs e)
         {
             _hasValidationErrors = true;
             

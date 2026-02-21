@@ -225,7 +225,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     public Task<AgentTask> GetAgentTaskStatusAsync(string taskId, string tenantId)
     {
         _activeTasks.TryGetValue(taskId, out var task);
-        return Task.FromResult(task); // Returns null if not found
+        return Task.FromResult(task)!; // Returns null if not found
     }
 
     /// <inheritdoc />
@@ -332,7 +332,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
             var assignedAgent = subordinates.FirstOrDefault(); // Simple assignment
             if (assignedAgent != null)
             {
-                subTaskResults.Add(await ExecuteSingleAgent(assignedAgent, task, subTaskDef.Value.ToString(), cancellationToken));
+                subTaskResults.Add(await ExecuteSingleAgent(assignedAgent, task, subTaskDef.Value?.ToString() ?? string.Empty, cancellationToken));
             }
         }
         return subTaskResults;
@@ -340,7 +340,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
 
     private async Task<object> CoordinateCompetitiveExecution(List<IAgent> agents, AgentTask task, CancellationToken cancellationToken)
     {
-        var results = await CoordinateParallelExecution(agents, task, cancellationToken) as object[];
+        var results = await CoordinateParallelExecution(agents, task, cancellationToken) as object[] ?? Array.Empty<object>();
         return ResolveConflicts(results);
     }
 
@@ -348,7 +348,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     {
         const int maxIterations = 5;
         var sharedContext = new Dictionary<string, object>(task.Context);
-        object finalResult = null;
+        object? finalResult = null;
 
         for (int i = 0; i < maxIterations; i++)
         {
@@ -367,9 +367,9 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
             sharedContext[$"Iteration_{i}_Results"] = iterationResults;
 
             // Simple convergence check.
-            if (iterationResults.Any(r => r.ToString().Contains("COMPLETE")))
+            if (iterationResults.Any(r => (r?.ToString()?.Contains("COMPLETE") == true)))
             {
-                finalResult = iterationResults.First(r => r.ToString().Contains("COMPLETE"));
+                finalResult = iterationResults.First(r => (r?.ToString()?.Contains("COMPLETE") == true));
                 break;
             }
         }
@@ -396,9 +396,9 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
         if (autonomy == AutonomyLevel.ActWithConfirmation)
         {
             var approved = await _approvalAdapter.RequestApprovalAsync(
-                parentTask.RequestingUserId,
+                parentTask.Context.GetValueOrDefault("RequestingUserId")?.ToString() ?? "system",
                 $"Agent {agent.AgentId} wants to perform action for goal: {subGoal}",
-                null);
+                null!);
 
             if (!approved)
             {
@@ -440,7 +440,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
                 var dignityRequest = new DignityAssessmentRequest
                 {
                     SubjectId      = parentTask.Context.ContainsKey("UserId")
-                        ? parentTask.Context["UserId"].ToString()
+                        ? parentTask.Context["UserId"]?.ToString() ?? "unknown"
                         : "unknown",
                     DataType       = "Behavioral",
                     ProposedAction = "Process",
@@ -470,7 +470,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
         }
 
         // 4. Execute via Runtime Adapter -----------------------------------------
-        var agentSubTask = new AgentTask { Goal = subGoal, Context = parentTask.Context };
+        var agentSubTask = new AgentTask { Goal = subGoal, Context = parentTask.Context ?? new Dictionary<string, object>() };
         return await _agentRuntimeAdapter.ExecuteAgentLogicAsync(agent.AgentId, agentSubTask);
     }
 
@@ -478,7 +478,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     {
         // Simple conflict resolution: pick the first non-null result.
         // A more advanced version would score each result based on confidence or other metrics.
-        return results.FirstOrDefault(r => r != null);
+        return results.FirstOrDefault(r => r != null) ?? new object();
     }
 }
 

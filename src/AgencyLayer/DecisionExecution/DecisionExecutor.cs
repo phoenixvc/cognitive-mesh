@@ -277,8 +277,8 @@ namespace AgencyLayer.DecisionExecution
         /// <summary>
         /// Type of decision to execute
         /// </summary>
-        public string DecisionType { get; set; }
-        
+        public string? DecisionType { get; set; }
+
         /// <summary>
         /// Input parameters for the decision
         /// </summary>
@@ -308,22 +308,22 @@ namespace AgencyLayer.DecisionExecution
         /// <summary>
         /// ID of the original request
         /// </summary>
-        public string RequestId { get; set; }
-        
+        public required string RequestId { get; set; }
+
         /// <summary>
         /// Current status of the decision
         /// </summary>
         public DecisionStatus Status { get; set; }
-        
+
         /// <summary>
         /// Outcome of the decision
         /// </summary>
         public DecisionOutcome Outcome { get; set; }
-        
+
         /// <summary>
         /// Error message if the decision failed
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
         
         /// <summary>
         /// When the decision was processed
@@ -354,12 +354,12 @@ namespace AgencyLayer.DecisionExecution
         /// <summary>
         /// ID of the decision request
         /// </summary>
-        public string RequestId { get; set; }
-        
+        public required string RequestId { get; set; }
+
         /// <summary>
         /// Type of decision
         /// </summary>
-        public string DecisionType { get; set; }
+        public required string DecisionType { get; set; }
         
         /// <summary>
         /// Status of the decision

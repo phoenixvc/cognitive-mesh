@@ -8,8 +8,17 @@ namespace CognitiveMesh.ReasoningLayer.AgencyRouter.Ports;
 /// </summary>
 public enum AutonomyLevel
 {
+    /// <summary>
+    /// The agent provides recommendations only; all actions require explicit human approval.
+    /// </summary>
     RecommendOnly,
+    /// <summary>
+    /// The agent can act independently but must obtain confirmation before executing significant actions.
+    /// </summary>
     ActWithConfirmation,
+    /// <summary>
+    /// The agent operates with full autonomy, executing actions without requiring human confirmation.
+    /// </summary>
     FullyAutonomous,
     /// <summary>
     /// A special mode where human authorship is paramount, and AI assistance is minimal and explicit.
@@ -23,9 +32,13 @@ public enum AutonomyLevel
 /// </summary>
 public class ProvenanceContext
 {
-    public string TenantId { get; set; }
-    public string ActorId { get; set; }
-    public string ConsentId { get; set; } // ID of the consent record for this action
+    /// <summary>Gets or sets the tenant identifier for multi-tenant isolation.</summary>
+    public string TenantId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the identifier of the actor initiating the request.</summary>
+    public string ActorId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the identifier of the consent record authorizing this action.</summary>
+    public string ConsentId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the correlation identifier for distributed tracing.</summary>
     public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
 }
 
@@ -35,10 +48,14 @@ public class ProvenanceContext
 /// </summary>
 public class TaskContext
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string TaskId { get; set; }
-    public string TaskType { get; set; } // e.g., "CreativeWriting", "DataAnalysis", "CodeGeneration"
-    public string TaskDescription { get; set; }
+    /// <summary>Gets or sets the provenance context containing tenant, actor, and consent metadata.</summary>
+    public ProvenanceContext Provenance { get; set; } = default!;
+    /// <summary>Gets or sets the unique identifier of the task.</summary>
+    public string TaskId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the type of the task (e.g., "CreativeWriting", "DataAnalysis", "CodeGeneration").</summary>
+    public string TaskType { get; set; } = string.Empty;
+    /// <summary>Gets or sets a human-readable description of the task.</summary>
+    public string TaskDescription { get; set; } = string.Empty;
 
     /// <summary>
     /// Cognitive Impact Assessment (CIA) score. Measures the potential impact of the task on user cognition.
@@ -55,7 +72,7 @@ public class TaskContext
     /// <summary>
     /// The initial data or payload the task will operate on.
     /// </summary>
-    public object InitialPayload { get; set; }
+    public object InitialPayload { get; set; } = default!;
 }
 
 /// <summary>
@@ -64,13 +81,21 @@ public class TaskContext
 /// </summary>
 public class AgencyModeDecision
 {
+    /// <summary>Gets or sets the unique identifier for this routing decision.</summary>
     public string DecisionId { get; set; } = Guid.NewGuid().ToString();
-    public string CorrelationId { get; set; }
+    /// <summary>Gets or sets the correlation identifier linking this decision to the originating request.</summary>
+    public string CorrelationId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the autonomy level determined by the router for the task.</summary>
     public AutonomyLevel ChosenAutonomyLevel { get; set; }
-    public object AppliedAuthorityScope { get; set; } // Could be a specific AuthorityScope object
-    public string RecommendedEngine { get; set; } // e.g., "FullyAutonomousAgent", "HumanInTheLoopWorkflow"
-    public string Justification { get; set; }
-    public string PolicyVersionApplied { get; set; }
+    /// <summary>Gets or sets the authority scope applied to the task based on policy evaluation.</summary>
+    public object AppliedAuthorityScope { get; set; } = default!;
+    /// <summary>Gets or sets the name of the recommended execution engine (e.g., "FullyAutonomousAgent", "HumanInTheLoopWorkflow").</summary>
+    public string RecommendedEngine { get; set; } = string.Empty;
+    /// <summary>Gets or sets the human-readable justification explaining why this autonomy level was chosen.</summary>
+    public string Justification { get; set; } = string.Empty;
+    /// <summary>Gets or sets the version of the policy that was applied to make this decision.</summary>
+    public string PolicyVersionApplied { get; set; } = string.Empty;
+    /// <summary>Gets or sets the UTC timestamp when this decision was made.</summary>
     public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
 }
 
@@ -79,10 +104,14 @@ public class AgencyModeDecision
 /// </summary>
 public class OverrideRequest
 {
-    public ProvenanceContext Provenance { get; set; }
-    public string TaskId { get; set; }
+    /// <summary>Gets or sets the provenance context containing tenant, actor, and consent metadata for the override.</summary>
+    public ProvenanceContext Provenance { get; set; } = default!;
+    /// <summary>Gets or sets the identifier of the task whose agency mode is being overridden.</summary>
+    public string TaskId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the autonomy level to force on the task.</summary>
     public AutonomyLevel ForcedAutonomyLevel { get; set; }
-    public string ReasonForOverride { get; set; }
+    /// <summary>Gets or sets the justification provided by the requestor for the override.</summary>
+    public string ReasonForOverride { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -90,8 +119,10 @@ public class OverrideRequest
 /// </summary>
 public class RoutingRule
 {
-    public string Condition { get; set; } // e.g., "CIA > 0.8", "TaskType == 'CreativeWriting' && CSI < 0.5"
-    public AutonomyLevel Action { get; set; } // The autonomy level to enforce if the condition is met.
+    /// <summary>Gets or sets the condition expression to evaluate (e.g., "CIA > 0.8", "TaskType == 'CreativeWriting'").</summary>
+    public string Condition { get; set; } = string.Empty;
+    /// <summary>Gets or sets the autonomy level to enforce when the condition is met.</summary>
+    public AutonomyLevel Action { get; set; }
 }
 
 /// <summary>
@@ -99,9 +130,13 @@ public class RoutingRule
 /// </summary>
 public class PolicyConfiguration
 {
-    public string PolicyId { get; set; }
-    public string TenantId { get; set; }
-    public string PolicyVersion { get; set; }
+    /// <summary>Gets or sets the unique identifier for this policy configuration.</summary>
+    public string PolicyId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the tenant identifier that this policy applies to.</summary>
+    public string TenantId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the version string of this policy for audit and traceability.</summary>
+    public string PolicyVersion { get; set; } = string.Empty;
+    /// <summary>Gets or sets the ordered list of routing rules that govern agency decisions.</summary>
     public List<RoutingRule> Rules { get; set; } = new List<RoutingRule>();
 }
 

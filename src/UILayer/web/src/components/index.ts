@@ -13,6 +13,14 @@ export { default as LoadingSpinner } from "./LoadingSpinner"
 export { default as Nexus } from "./Nexus"
 export { default as VoiceFeedback } from "./VoiceFeedback"
 
+// Setup & Onboarding
+export { default as SetupWizard } from "./setup/SetupWizard"
+export { default as DatabaseSettings } from "./setup/DatabaseSettings"
+export { default as StorageProviderCard } from "./setup/StorageProviderCard"
+export { default as LLMModelCard } from "./setup/LLMModelCard"
+export { default as LLMSettings } from "./setup/LLMSettings"
+export { default as GuidedTour } from "./GuidedTour/GuidedTour"
+
 // Type exports
 export type { AdvancedDraggableModuleProps } from "./AdvancedDraggableModule"
 export type { DraggableModuleProps } from "./DraggableModule"

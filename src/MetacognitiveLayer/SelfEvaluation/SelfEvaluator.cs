@@ -8,7 +8,7 @@ namespace MetacognitiveLayer.SelfEvaluation
     /// </summary>
     public class SelfEvaluator : ISelfEvaluator, IDisposable
     {
-        private readonly ILogger<SelfEvaluator> _logger;
+        private readonly ILogger<SelfEvaluator>? _logger;
         private bool _disposed = false;
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace MetacognitiveLayer.SelfEvaluation
         /// Initializes a new instance of the <see cref="SelfEvaluator"/> class.
         /// </summary>
         /// <param name="logger">The logger instance.</param>
-        public SelfEvaluator(ILogger<SelfEvaluator> logger = null)
+        public SelfEvaluator(ILogger<SelfEvaluator>? logger = null)
         {
             _logger = logger;
             _logger?.LogInformation("SelfEvaluator initialized");
@@ -502,6 +502,10 @@ namespace MetacognitiveLayer.SelfEvaluation
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="SelfEvaluator"/> and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -514,6 +518,9 @@ namespace MetacognitiveLayer.SelfEvaluation
             }
         }
 
+        /// <summary>
+        /// Finalizer for <see cref="SelfEvaluator"/>.
+        /// </summary>
         ~SelfEvaluator()
         {
             Dispose(false);
