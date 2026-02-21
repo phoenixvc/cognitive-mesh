@@ -32,6 +32,12 @@
     <!-- Redis -->
     <PackageReference Include="StackExchange.Redis" />
 
+    <!-- SQLite -->
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+
+    <!-- Vector Database -->
+    <PackageReference Include="Qdrant.Client" />
+
     <!-- DI Abstractions -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
