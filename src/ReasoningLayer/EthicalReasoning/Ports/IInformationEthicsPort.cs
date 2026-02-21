@@ -168,6 +168,7 @@ public class RegisterAttributionResponse
 /// </summary>
 public class GetProvenanceRequest
 {
+    /// <summary>Gets or sets the identifier of the content whose provenance chain is requested.</summary>
     public string ContentId { get; set; } = string.Empty;
 }
 
@@ -176,8 +177,11 @@ public class GetProvenanceRequest
 /// </summary>
 public class GetProvenanceResponse
 {
+    /// <summary>Gets or sets a value indicating whether the provenance retrieval succeeded.</summary>
     public bool IsSuccess { get; set; }
+    /// <summary>Gets or sets the ordered chain of provenance records tracing the content's history.</summary>
     public List<ProvenanceRecord> ProvenanceChain { get; set; } = new();
+    /// <summary>Gets or sets the error message if the provenance retrieval failed.</summary>
     public string ErrorMessage { get; set; } = string.Empty;
 }
 
