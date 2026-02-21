@@ -36,6 +36,10 @@
     <PackageVersion Include="System.Text.Json" Version="[9.0.6]" />
     <PackageVersion Include="System.Xml.XmlSerializer" Version="[4.3.0]" />
     <PackageVersion Include="System.Threading.Tasks.Extensions" Version="[4.5.4]" />
+    <!-- PostgreSQL -->
+    <PackageVersion Include="Npgsql" Version="[9.0.3]" />
+    <!-- LiteDB -->
+    <PackageVersion Include="LiteDB" Version="[5.0.21]" />
     <!-- Redis -->
     <PackageVersion Include="StackExchange.Redis" Version="[2.8.41]" />
     <!-- Geospatial -->

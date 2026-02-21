@@ -35,8 +35,17 @@
     <!-- SQLite -->
     <PackageReference Include="Microsoft.Data.Sqlite" />
 
-    <!-- Vector Database -->
+    <!-- Vector Databases -->
     <PackageReference Include="Qdrant.Client" />
+
+    <!-- PostgreSQL -->
+    <PackageReference Include="Npgsql" />
+
+    <!-- LiteDB -->
+    <PackageReference Include="LiteDB" />
+
+    <!-- Cosmos DB -->
+    <PackageReference Include="Microsoft.Azure.Cosmos" />
 
     <!-- DI Abstractions -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
