@@ -1,4 +1,5 @@
 using CognitiveMesh.ReasoningLayer.SecurityReasoning.Ports;
+using Microsoft.Extensions.Logging;
 
 namespace CognitiveMesh.ReasoningLayer.SecurityReasoning.Engines
 {

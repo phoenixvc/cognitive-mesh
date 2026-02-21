@@ -8,10 +8,13 @@
     <RootNamespace>CognitiveMesh.ReasoningLayer</RootNamespace>
   </PropertyGroup>
 
-  <!-- Exclude sub-project directories that are also ProjectReferences to avoid CS0436 type conflicts -->
+  <!-- Exclude sub-project directories that are also ProjectReferences to avoid CS0436/CS0433 type conflicts -->
   <ItemGroup>
     <Compile Remove="TemporalDecisionCore\**" />
     <Compile Remove="MemoryStrategy\**" />
+    <Compile Remove="ValueGeneration\**" />
+    <Compile Remove="SecurityReasoning\**" />
+    <Compile Remove="AnalyticalReasoning\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +25,9 @@
   <ItemGroup>
     <ProjectReference Include="TemporalDecisionCore\TemporalDecisionCore.csproj" />
     <ProjectReference Include="MemoryStrategy\MemoryStrategy.csproj" />
+    <ProjectReference Include="ValueGeneration\ValueGeneration.csproj" />
+    <ProjectReference Include="SecurityReasoning\SecurityReasoning.csproj" />
+    <ProjectReference Include="AnalyticalReasoning\AnalyticalReasoning.csproj" />
   </ItemGroup>
 
   <ItemGroup>

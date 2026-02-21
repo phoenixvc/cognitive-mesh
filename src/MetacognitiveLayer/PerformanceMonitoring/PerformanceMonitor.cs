@@ -201,6 +201,10 @@ namespace MetacognitiveLayer.PerformanceMonitoring
             return Task.FromResult<IEnumerable<ThresholdViolation>>(violations);
         }
 
+        /// <summary>
+        /// Releases managed and unmanaged resources used by the <see cref="PerformanceMonitor"/>.
+        /// </summary>
+        /// <param name="disposing">True to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)

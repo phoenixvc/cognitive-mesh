@@ -1,4 +1,5 @@
 using CognitiveMesh.ReasoningLayer.AnalyticalReasoning.Models;
+using Microsoft.Extensions.Logging;
 
 namespace CognitiveMesh.ReasoningLayer.AnalyticalReasoning
 {

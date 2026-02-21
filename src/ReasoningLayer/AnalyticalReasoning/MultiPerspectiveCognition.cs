@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.Json;
+using Azure;
+using Azure.AI.OpenAI;
 
 namespace CognitiveMesh.ReasoningLayer.AnalyticalReasoning;
 
