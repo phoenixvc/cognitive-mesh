@@ -26,6 +26,11 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
             RegexOptions.IgnoreCase | RegexOptions.Compiled
         );
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DebateReasoningEngine"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
+        /// <param name="llmClient">The LLM client used for generating debate perspectives and synthesis.</param>
         public DebateReasoningEngine(
             ILogger<DebateReasoningEngine> logger,
             ILLMClient llmClient)

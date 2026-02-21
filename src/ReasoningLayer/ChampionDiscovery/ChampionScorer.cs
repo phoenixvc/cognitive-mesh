@@ -12,9 +12,13 @@ namespace CognitiveMesh.ReasoningLayer.ChampionDiscovery;
 /// </summary>
 public class ChampionDataSnapshot
 {
+    /// <summary>Gets or sets the unique identifier of the champion user.</summary>
     public string UserId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the total number of interactions recorded for the champion.</summary>
     public int InteractionCount { get; set; }
+    /// <summary>Gets or sets the total number of endorsements received by the champion.</summary>
     public int EndorsementCount { get; set; }
+    /// <summary>Gets or sets the date and time of the champion's most recent activity.</summary>
     public DateTimeOffset LastActivityDate { get; set; }
 }
 
@@ -58,6 +62,10 @@ public class ChampionScorer
     private const double RecencyWeight = 1.2;
     private const int RecencyPeriodDays = 90;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ChampionScorer"/> class.
+    /// </summary>
+    /// <param name="championDataRepository">The repository for fetching champion activity data.</param>
     public ChampionScorer(IChampionDataRepository championDataRepository)
     {
         _championDataRepository = championDataRepository ?? throw new ArgumentNullException(nameof(championDataRepository));

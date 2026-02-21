@@ -119,11 +119,17 @@ public class EpistemicResponsibilityCheckResponse
 /// </summary>
 public class ProvenanceRecord
 {
+    /// <summary>Gets or sets the unique identifier of the content this record describes.</summary>
     public string ContentId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the UTC timestamp when the provenance action occurred.</summary>
     public DateTimeOffset Timestamp { get; set; }
-    public string Action { get; set; } = string.Empty; // e.g., "Created", "DerivedFrom", "Modified"
+    /// <summary>Gets or sets the action performed on the content (e.g., "Created", "DerivedFrom", "Modified").</summary>
+    public string Action { get; set; } = string.Empty;
+    /// <summary>Gets or sets the identifiers of source content from which this content was derived.</summary>
     public List<string> SourceContentIds { get; set; } = new();
+    /// <summary>Gets or sets the identifier of the agent that performed the action.</summary>
     public string AgentId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the justification or description of why the action was taken.</summary>
     public string Justification { get; set; } = string.Empty;
 }
 
@@ -132,10 +138,15 @@ public class ProvenanceRecord
 /// </summary>
 public class RegisterAttributionRequest
 {
+    /// <summary>Gets or sets the unique identifier assigned to the generated content.</summary>
     public string ContentId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the actual generated content being registered.</summary>
     public string GeneratedContent { get; set; } = string.Empty;
+    /// <summary>Gets or sets a description of the process used to generate the content.</summary>
     public string GenerationProcessDescription { get; set; } = string.Empty;
+    /// <summary>Gets or sets the identifiers of source content used during generation.</summary>
     public List<string> SourceContentIds { get; set; } = new();
+    /// <summary>Gets or sets the identifier of the agent that generated the content.</summary>
     public string AgentId { get; set; } = string.Empty;
 }
 
@@ -144,8 +155,11 @@ public class RegisterAttributionRequest
 /// </summary>
 public class RegisterAttributionResponse
 {
+    /// <summary>Gets or sets a value indicating whether the attribution registration succeeded.</summary>
     public bool IsSuccess { get; set; }
+    /// <summary>Gets or sets the identifier of the created provenance record.</summary>
     public string ProvenanceRecordId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the error message if the registration failed.</summary>
     public string ErrorMessage { get; set; } = string.Empty;
 }
 

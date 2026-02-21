@@ -22,6 +22,10 @@ namespace CognitiveMesh.ReasoningLayer.EthicalReasoning.Engines
             { "Ensure Transparency", new Regex(@"\b(explain|transparent|clear|justify|rationale)\b", RegexOptions.IgnoreCase) }
         };
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NormativeAgencyEngine"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
         public NormativeAgencyEngine(ILogger<NormativeAgencyEngine> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

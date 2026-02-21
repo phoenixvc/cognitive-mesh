@@ -8,9 +8,16 @@ namespace CognitiveMesh.ReasoningLayer.ExperimentalVelocity.Ports;
 /// </summary>
 public class ProvenanceContext
 {
+    /// <summary>Gets or sets the tenant identifier for multi-tenancy isolation.</summary>
     public string TenantId { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the actor identifier representing the user or system performing the action.</summary>
     public string ActorId { get; set; } = string.Empty;
-    public string ConsentId { get; set; } = string.Empty; // ID of the consent record for this action
+
+    /// <summary>Gets or sets the identifier of the consent record authorizing this action.</summary>
+    public string ConsentId { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the correlation identifier used to trace requests across services.</summary>
     public string CorrelationId { get; set; } = Guid.NewGuid().ToString();
 }
 
@@ -21,10 +28,19 @@ public class ProvenanceContext
 /// </summary>
 public class VelocityRecalibrationRequest
 {
+    /// <summary>Gets or sets the provenance context containing tenant, actor, and consent metadata.</summary>
     public ProvenanceContext Provenance { get; set; } = default!;
+
+    /// <summary>Gets or sets the unique identifier of the project to recalibrate.</summary>
     public string ProjectId { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the textual description of the project.</summary>
     public string ProjectDescription { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the original estimated effort in hours before recalibration.</summary>
     public double OriginalEffortHours { get; set; }
+
+    /// <summary>Gets or sets the original estimated cost before recalibration.</summary>
     public double OriginalCost { get; set; }
 }
 
@@ -33,13 +49,28 @@ public class VelocityRecalibrationRequest
 /// </summary>
 public class VelocityRecalibrationResponse
 {
+    /// <summary>Gets or sets the unique identifier of the recalibrated project.</summary>
     public string ProjectId { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the original estimated effort in hours before recalibration.</summary>
     public double OriginalEffortHours { get; set; }
+
+    /// <summary>Gets or sets the recalibrated effort in hours after applying the velocity model.</summary>
     public double RecalibratedEffortHours { get; set; }
+
+    /// <summary>Gets or sets the original estimated cost before recalibration.</summary>
     public double OriginalCost { get; set; }
+
+    /// <summary>Gets or sets the recalibrated cost after applying the velocity model.</summary>
     public double RecalibratedCost { get; set; }
+
+    /// <summary>Gets or sets the human-readable explanation of how the recalibration was performed.</summary>
     public string Explanation { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the version of the model used for recalibration, for provenance tracking.</summary>
     public string ModelVersion { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the correlation identifier linking this response to the originating request.</summary>
     public string CorrelationId { get; set; } = string.Empty;
 }
 
@@ -50,9 +81,14 @@ public class VelocityRecalibrationResponse
 /// </summary>
 public class TheaterDetectionRequest
 {
+    /// <summary>Gets or sets the provenance context containing tenant, actor, and consent metadata.</summary>
     public ProvenanceContext Provenance { get; set; } = default!;
+
+    /// <summary>Gets or sets the unique identifier of the project to analyze.</summary>
     public string ProjectId { get; set; } = string.Empty;
-    public Dictionary<string, object> ProjectMetadata { get; set; } = new(); // e.g., meeting_count, decision_velocity, stakeholder_alignment_score
+
+    /// <summary>Gets or sets the project metadata used for theater detection (e.g., meeting_count, decision_velocity, stakeholder_alignment_score).</summary>
+    public Dictionary<string, object> ProjectMetadata { get; set; } = new();
 }
 
 /// <summary>
@@ -60,11 +96,22 @@ public class TheaterDetectionRequest
 /// </summary>
 public class TheaterDetectionResponse
 {
+    /// <summary>Gets or sets the unique identifier of the analyzed project.</summary>
     public string ProjectId { get; set; } = string.Empty;
-    public double TheaterRiskScore { get; set; } // A score from 0.0 (no risk) to 1.0 (high risk)
-    public string RiskLevel { get; set; } = string.Empty; // "Low", "Medium", "High"
+
+    /// <summary>Gets or sets the theater risk score, ranging from 0.0 (no risk) to 1.0 (high risk).</summary>
+    public double TheaterRiskScore { get; set; }
+
+    /// <summary>Gets or sets the categorical risk level: "Low", "Medium", or "High".</summary>
+    public string RiskLevel { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the list of factors contributing to the theater risk score, ordered by impact.</summary>
     public List<string> ContributingFactors { get; set; } = new List<string>();
+
+    /// <summary>Gets or sets the version of the model used for detection, for provenance tracking.</summary>
     public string ModelVersion { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the correlation identifier linking this response to the originating request.</summary>
     public string CorrelationId { get; set; } = string.Empty;
 }
 
@@ -75,10 +122,17 @@ public class TheaterDetectionResponse
 /// </summary>
 public class CompetitiveRealityCheckRequest
 {
+    /// <summary>Gets or sets the provenance context containing tenant, actor, and consent metadata.</summary>
     public ProvenanceContext Provenance { get; set; } = default!;
+
+    /// <summary>Gets or sets the unique identifier of the project to benchmark.</summary>
     public string ProjectId { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the industry sector used to select competitive benchmarks.</summary>
     public string IndustrySector { get; set; } = string.Empty;
-    public Dictionary<string, double> CurrentProjectMetrics { get; set; } = new(); // e.g., time_to_market, feature_velocity
+
+    /// <summary>Gets or sets the current project metrics to compare against industry benchmarks (e.g., time_to_market, feature_velocity).</summary>
+    public Dictionary<string, double> CurrentProjectMetrics { get; set; } = new();
 }
 
 /// <summary>
@@ -86,11 +140,22 @@ public class CompetitiveRealityCheckRequest
 /// </summary>
 public class CompetitiveRealityCheckResponse
 {
+    /// <summary>Gets or sets the unique identifier of the benchmarked project.</summary>
     public string ProjectId { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets a value indicating whether the project is at competitive risk relative to industry benchmarks.</summary>
     public bool IsAtCompetitiveRisk { get; set; }
+
+    /// <summary>Gets or sets a human-readable summary of the competitive risk assessment.</summary>
     public string RiskSummary { get; set; } = string.Empty;
-    public Dictionary<string, double> GapAnalysis { get; set; } = new Dictionary<string, double>(); // Key: metric, Value: gap percentage
+
+    /// <summary>Gets or sets the gap analysis mapping each metric name to its gap percentage relative to the benchmark.</summary>
+    public Dictionary<string, double> GapAnalysis { get; set; } = new Dictionary<string, double>();
+
+    /// <summary>Gets or sets the version of the model used for the reality check, for provenance tracking.</summary>
     public string ModelVersion { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the correlation identifier linking this response to the originating request.</summary>
     public string CorrelationId { get; set; } = string.Empty;
 }
 

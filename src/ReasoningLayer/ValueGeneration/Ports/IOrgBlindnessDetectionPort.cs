@@ -7,8 +7,13 @@ namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 /// </summary>
 public class OrgBlindnessDetectionRequest
 {
+    /// <summary>Gets or sets the provenance context containing tenant, actor, and consent metadata.</summary>
     public ProvenanceContext Provenance { get; set; } = default!;
+
+    /// <summary>Gets or sets the unique identifier of the organization to analyze.</summary>
     public string OrganizationId { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the optional department filters to scope the analysis.</summary>
     public string[] DepartmentFilters { get; set; } = [];
 }
 
@@ -17,10 +22,19 @@ public class OrgBlindnessDetectionRequest
 /// </summary>
 public class OrgBlindnessDetectionResponse
 {
+    /// <summary>Gets or sets the unique identifier of the analyzed organization.</summary>
     public string OrganizationId { get; set; } = string.Empty;
-    public double BlindnessRiskScore { get; set; } // Score from 0.0 (no risk) to 1.0 (high risk)
-    public List<string> IdentifiedBlindSpots { get; set; } = new(); // e.g., "Undervaluing maintenance work", "Overlooking quiet contributors"
+
+    /// <summary>Gets or sets the blindness risk score, from 0.0 (no risk) to 1.0 (high risk).</summary>
+    public double BlindnessRiskScore { get; set; }
+
+    /// <summary>Gets or sets the list of identified blind spots where value is overlooked.</summary>
+    public List<string> IdentifiedBlindSpots { get; set; } = new();
+
+    /// <summary>Gets or sets the version of the model used to produce this analysis.</summary>
     public string ModelVersion { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the correlation identifier for tracing this operation.</summary>
     public string CorrelationId { get; set; } = string.Empty;
 }
 

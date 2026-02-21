@@ -40,6 +40,10 @@ namespace CognitiveMesh.ReasoningLayer.SecurityReasoning.Engines
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ThreatIntelligenceEngine"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
         public ThreatIntelligenceEngine(ILogger<ThreatIntelligenceEngine> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

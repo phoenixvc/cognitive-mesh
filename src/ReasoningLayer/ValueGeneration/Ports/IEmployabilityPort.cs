@@ -8,7 +8,10 @@ namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 /// </summary>
 public class EmployabilityCheckRequest
 {
+    /// <summary>Gets or sets the provenance context containing tenant, actor, and consent metadata.</summary>
     public ProvenanceContext Provenance { get; set; } = default!;
+
+    /// <summary>Gets or sets the unique identifier of the user to assess.</summary>
     public string UserId { get; set; } = string.Empty;
 }
 
@@ -17,12 +20,25 @@ public class EmployabilityCheckRequest
 /// </summary>
 public class EmployabilityCheckResponse
 {
+    /// <summary>Gets or sets the unique identifier of the assessed user.</summary>
     public string UserId { get; set; } = string.Empty;
-    public double EmployabilityRiskScore { get; set; } // Score from 0.0 (low risk) to 1.0 (high risk)
-    public string RiskLevel { get; set; } = string.Empty; // "Low", "Medium", "High"
-    public List<string> RiskFactors { get; set; } = new(); // e.g., "Skills mismatch with market trends", "Low creative output"
-    public List<string> RecommendedActions { get; set; } = new(); // e.g., "Explore training for 'AI Prompt Engineering'", "Engage in more cross-functional projects"
+
+    /// <summary>Gets or sets the employability risk score, from 0.0 (low risk) to 1.0 (high risk).</summary>
+    public double EmployabilityRiskScore { get; set; }
+
+    /// <summary>Gets or sets the risk level classification: "Low", "Medium", or "High".</summary>
+    public string RiskLevel { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the list of identified risk factors contributing to the score.</summary>
+    public List<string> RiskFactors { get; set; } = new();
+
+    /// <summary>Gets or sets the list of recommended actions to mitigate employability risk.</summary>
+    public List<string> RecommendedActions { get; set; } = new();
+
+    /// <summary>Gets or sets the version of the model used to produce this assessment.</summary>
     public string ModelVersion { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the correlation identifier for tracing this operation.</summary>
     public string CorrelationId { get; set; } = string.Empty;
 }
 

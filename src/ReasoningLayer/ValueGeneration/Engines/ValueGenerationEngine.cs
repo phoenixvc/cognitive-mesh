@@ -19,6 +19,12 @@ public class ValueGenerationEngine : IValueGenerationPort
     private const string OrgBlindnessModelVersion = "OrgBlindness-v1.1";
     private const string EmployabilityModelVersion = "EmployabilityPredictor-v1.0";
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ValueGenerationEngine"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance for structured logging.</param>
+    /// <param name="valueDataRepository">The repository for retrieving value diagnostic and organizational data.</param>
+    /// <param name="employabilityDataRepository">The repository for retrieving employability data.</param>
     public ValueGenerationEngine(
         ILogger<ValueGenerationEngine> logger,
         IValueDiagnosticDataRepository valueDataRepository,
