@@ -222,7 +222,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// Additional context data.
         /// </summary>
-        public Dictionary<string, object> Context { get; set; }
+        public Dictionary<string, object> Context { get; set; } = new();
 
         /// <summary>
         /// When the review was submitted.

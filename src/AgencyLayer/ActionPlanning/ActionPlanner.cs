@@ -23,6 +23,9 @@ namespace AgencyLayer.ActionPlanning
         private readonly ISemanticSearchManager _semanticSearchManager;
         private readonly IMessageBus _bus;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActionPlanner"/> class.
+        /// </summary>
         public ActionPlanner(
             ILogger<ActionPlanner> logger,
             IKnowledgeGraphManager knowledgeGraphManager,
