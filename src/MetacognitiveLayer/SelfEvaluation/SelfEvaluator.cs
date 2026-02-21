@@ -502,6 +502,10 @@ namespace MetacognitiveLayer.SelfEvaluation
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="SelfEvaluator"/> and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -514,6 +518,9 @@ namespace MetacognitiveLayer.SelfEvaluation
             }
         }
 
+        /// <summary>
+        /// Finalizer for <see cref="SelfEvaluator"/>.
+        /// </summary>
         ~SelfEvaluator()
         {
             Dispose(false);

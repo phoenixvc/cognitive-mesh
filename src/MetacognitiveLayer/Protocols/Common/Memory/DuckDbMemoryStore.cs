@@ -352,6 +352,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
     }
 
     // Stub classes for DuckDB connection when DuckDB.NET.Data is not available
+#nullable disable
     internal class DuckDBConnection : DbConnection
     {
         private string _connectionString;
@@ -398,6 +399,12 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         {
             _parameters.Add((DbParameter)value);
             return _parameters.Count - 1;
+        }
+
+        public override void AddRange(Array values)
+        {
+            foreach (var value in values)
+                _parameters.Add((DbParameter)value);
         }
 
         /// <summary>
@@ -509,4 +516,5 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         public override bool Read() => false;
         public override System.Collections.IEnumerator GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
     }
+#nullable restore
 }
