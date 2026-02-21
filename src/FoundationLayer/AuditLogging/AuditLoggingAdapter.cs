@@ -826,6 +826,30 @@ public interface IAuditLoggingAdapter : IDisposable
     /// <param name="auditEvent">The audit event to log.</param>
     /// <returns>True if the event was successfully logged; otherwise, false.</returns>
     Task<bool> LogEventAsync(AuditEvent auditEvent);
+
+    /// <summary>
+    /// Logs the outcome of a legal compliance check (e.g., GDPR, EU AI Act).
+    /// </summary>
+    /// <param name="complianceCheckId">The unique identifier for the compliance check.</param>
+    /// <param name="regulationType">The type of regulation (e.g., "GDPR", "EUAIAct").</param>
+    /// <param name="dataSubjectId">The identifier of the data subject or entity being checked.</param>
+    /// <param name="isCompliant">Whether the check found the subject to be compliant.</param>
+    /// <param name="complianceIssues">A list of compliance issues found, if any.</param>
+    /// <param name="regulationSections">The specific regulation sections that were checked.</param>
+    /// <param name="checkedBy">The identifier of the user or system that performed the check.</param>
+    /// <param name="tenantId">The tenant identifier.</param>
+    /// <param name="correlationId">Optional correlation ID for tracing related events.</param>
+    /// <returns>True if the event was successfully logged; otherwise, false.</returns>
+    Task<bool> LogLegalComplianceCheckedAsync(
+        string complianceCheckId,
+        string regulationType,
+        string dataSubjectId,
+        bool isCompliant,
+        List<string> complianceIssues,
+        List<string> regulationSections,
+        string checkedBy,
+        string tenantId,
+        string? correlationId = null);
 }
 
 /// <summary>

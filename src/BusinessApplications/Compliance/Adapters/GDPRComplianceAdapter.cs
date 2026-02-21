@@ -8,8 +8,7 @@ using CognitiveMesh.BusinessApplications.ConvenerServices.Ports;
 using CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models;
 using CognitiveMesh.BusinessApplications.Compliance.Ports;
 using CognitiveMesh.BusinessApplications.Compliance.Ports.Models;
-using CognitiveMesh.FoundationLayer.AuditLogging;
-using CognitiveMesh.FoundationLayer.AuditLogging.Models;
+using FoundationLayer.AuditLogging;
 
 namespace CognitiveMesh.BusinessApplications.Compliance.Adapters
 {
@@ -1490,27 +1489,6 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Adapters
         /// A list of compliance issues identified during the assessment.
         /// </summary>
         public List<ComplianceIssue> Issues { get; set; } = new List<ComplianceIssue>();
-    }
-
-    /// <summary>
-    /// Represents a data transfer to another country or region.
-    /// </summary>
-    public class DataTransfer
-    {
-        /// <summary>
-        /// The destination country or region.
-        /// </summary>
-        public string Destination { get; set; }
-
-        /// <summary>
-        /// The mechanism used for the transfer (e.g., adequacy decision, SCCs).
-        /// </summary>
-        public string TransferMechanism { get; set; }
-
-        /// <summary>
-        /// Indicates whether additional safeguards are in place beyond the transfer mechanism.
-        /// </summary>
-        public bool AdditionalSafeguards { get; set; }
     }
 
     /// <summary>

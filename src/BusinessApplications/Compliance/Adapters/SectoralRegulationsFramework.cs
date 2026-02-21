@@ -84,6 +84,16 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
         public string IssueCode { get; set; }
 
         /// <summary>
+        /// A unique identifier for the compliance issue instance.
+        /// </summary>
+        public string IssueId { get; set; }
+
+        /// <summary>
+        /// The regulatory framework this issue pertains to (e.g., "GDPR", "EU AI Act").
+        /// </summary>
+        public string Framework { get; set; }
+
+        /// <summary>
         /// A description of the compliance issue.
         /// </summary>
         public string Description { get; set; }
@@ -97,6 +107,16 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
         /// A reference to the specific article or section of the regulation that was violated.
         /// </summary>
         public string RegulatoryReference { get; set; }
+
+        /// <summary>
+        /// The timestamp when this compliance issue was identified.
+        /// </summary>
+        public DateTimeOffset IdentifiedAt { get; set; }
+
+        /// <summary>
+        /// Recommended steps to remediate the compliance issue.
+        /// </summary>
+        public string RemediationSteps { get; set; }
     }
 
     #endregion

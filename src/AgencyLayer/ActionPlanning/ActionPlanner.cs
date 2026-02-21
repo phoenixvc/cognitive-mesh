@@ -340,7 +340,7 @@ namespace AgencyLayer.ActionPlanning
         /// <summary>
         /// Generates an action plan for the specified goal and constraints.
         /// </summary>
-        Task<IEnumerable<ActionPlan>> GeneratePlanAsync(string goal, IEnumerable<string> constraints = null, CancellationToken cancellationToken = default);
+        Task<IEnumerable<ActionPlan>> GeneratePlanAsync(string goal, IEnumerable<string>? constraints = null, CancellationToken cancellationToken = default);
         /// <summary>
         /// Executes the action plan with the specified identifier.
         /// </summary>
@@ -352,6 +352,6 @@ namespace AgencyLayer.ActionPlanning
         /// <summary>
         /// Cancels the action plan with the specified identifier.
         /// </summary>
-        Task CancelPlanAsync(string planId, string reason = null, CancellationToken cancellationToken = default);
+        Task CancelPlanAsync(string planId, string? reason = null, CancellationToken cancellationToken = default);
     }
 }

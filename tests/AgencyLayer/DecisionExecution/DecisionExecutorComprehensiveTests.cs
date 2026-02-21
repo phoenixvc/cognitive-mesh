@@ -342,7 +342,7 @@ public class DecisionExecutorComprehensiveTests
     [Fact]
     public void DecisionResult_DefaultValues_ArePopulated()
     {
-        var result = new DecisionResult();
+        var result = new DecisionResult { RequestId = "test-default-values" };
 
         result.Results.Should().NotBeNull();
         result.Metadata.Should().NotBeNull();

@@ -60,6 +60,27 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Ports.Models
     public class DataSubjectErasureRequest : DataSubjectRightRequest { }
 
     /// <summary>
+    /// Represents a data transfer to another country or region.
+    /// </summary>
+    public class DataTransfer
+    {
+        /// <summary>
+        /// The destination country or region.
+        /// </summary>
+        public string Destination { get; set; }
+
+        /// <summary>
+        /// The mechanism used for the transfer (e.g., adequacy decision, SCCs).
+        /// </summary>
+        public string TransferMechanism { get; set; }
+
+        /// <summary>
+        /// Indicates whether additional safeguards are in place beyond the transfer mechanism.
+        /// </summary>
+        public bool AdditionalSafeguards { get; set; }
+    }
+
+    /// <summary>
     /// Represents a request for data portability (GDPR Article 20).
     /// </summary>
     public class DataSubjectPortabilityRequest : DataSubjectRightRequest

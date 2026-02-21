@@ -138,7 +138,7 @@ namespace AgencyLayer.ToolIntegration
             {
                 if (property.PropertyType == typeof(ToolDefinition))
                 {
-                    yield return (ToolDefinition)property.GetValue(null);
+                    yield return (ToolDefinition)property.GetValue(null)!;
                 }
             }
         }

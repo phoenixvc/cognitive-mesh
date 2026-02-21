@@ -8,8 +8,7 @@ using CognitiveMesh.BusinessApplications.Common.Models;
 using CognitiveMesh.BusinessApplications.Compliance.Ports;
 using CognitiveMesh.BusinessApplications.Compliance.Ports.Models;
 using CognitiveMesh.BusinessApplications.ConvenerServices.Ports;
-using CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models;
-using CognitiveMesh.FoundationLayer.AuditLogging;
+using FoundationLayer.AuditLogging;
 using Microsoft.Extensions.Logging;
 
 namespace CognitiveMesh.BusinessApplications.Compliance.Adapters
@@ -23,7 +22,9 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Adapters
     public class EUAIActComplianceAdapter : IEUAIActCompliancePort
     {
         private readonly ILogger<EUAIActComplianceAdapter> _logger;
+#pragma warning disable CS0414 // Field is assigned but its value is never used (reserved for future consent verification)
         private readonly IConsentPort _consentPort;
+#pragma warning restore CS0414
         private readonly IAuditLoggingAdapter _auditLoggingAdapter;
 
         // In-memory store for conformity assessments. In a real system, this would be a persistent database.
@@ -88,8 +89,8 @@ namespace CognitiveMesh.BusinessApplications.Compliance.Adapters
             _logger.LogInformation("System '{SystemName}' classified as {RiskLevel}. Justification: {Justification}",
                 request.SystemName, response.RiskLevel, response.Justification);
 
-            // Audit the classification event
-            _auditLoggingAdapter.LogLegalComplianceCheckedAsync(
+            // Audit the classification event (fire-and-forget; discard suppresses CS4014)
+            _ = _auditLoggingAdapter.LogLegalComplianceCheckedAsync(
                 Guid.NewGuid().ToString(),
                 "EUAIAct",
                 request.SystemName,
