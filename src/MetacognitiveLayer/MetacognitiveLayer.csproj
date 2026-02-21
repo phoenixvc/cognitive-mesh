@@ -7,6 +7,22 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- Exclude sub-project directories that are also ProjectReferences to avoid CS0436/CS0433 type conflicts -->
+  <ItemGroup>
+    <Compile Remove="AIGovernance\**" />
+    <Compile Remove="CommunityPulse\**" />
+    <Compile Remove="ContinuousLearning\**" />
+    <Compile Remove="CulturalAdaptation\**" />
+    <Compile Remove="LearningCatalyst\**" />
+    <Compile Remove="PerformanceMonitoring\**" />
+    <Compile Remove="Protocols\**" />
+    <Compile Remove="ReasoningTransparency\**" />
+    <Compile Remove="SecurityMonitoring\**" />
+    <Compile Remove="SelfEvaluation\**" />
+    <Compile Remove="Telemetry\**" />
+    <Compile Remove="UncertaintyQuantification\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Valid sub-projects within the MetacognitiveLayer -->
     <ProjectReference Include="./AIGovernance/AIGovernance.csproj" />
@@ -19,6 +35,7 @@
     <ProjectReference Include="./ReasoningTransparency/ReasoningTransparency.csproj" />
     <ProjectReference Include="./SecurityMonitoring/SecurityMonitoring.csproj" />
     <ProjectReference Include="./SelfEvaluation/SelfEvaluation.csproj" />
+    <ProjectReference Include="./Telemetry/Telemetry.csproj" />
     <ProjectReference Include="./UncertaintyQuantification/UncertaintyQuantification.csproj" />
   </ItemGroup>
 

@@ -5,6 +5,24 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
+  <!-- Exclude sub-project directories that are also ProjectReferences to avoid CS0436/CS0433 type conflicts -->
+  <ItemGroup>
+    <Compile Remove="ActionPlanning\**" />
+    <Compile Remove="AgencyRouter\**" />
+    <Compile Remove="CognitiveSandwich\**" />
+    <Compile Remove="CognitiveSovereignty\**" />
+    <Compile Remove="ConvenerAgents\**" />
+    <Compile Remove="DecisionExecution\**" />
+    <Compile Remove="HumanCollaboration\**" />
+    <Compile Remove="MultiAgentOrchestration\**" />
+    <Compile Remove="Orchestration\**" />
+    <Compile Remove="ProcessAutomation\**" />
+    <Compile Remove="RealTime\**" />
+    <Compile Remove="RefactoringAgents\**" />
+    <Compile Remove="SecurityAgents\**" />
+    <Compile Remove="ToolIntegration\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Dependencies on other architectural layers -->
     <ProjectReference Include="..\Shared\CognitiveMesh.Shared.csproj" />
@@ -23,6 +41,7 @@
     <ProjectReference Include=".\MultiAgentOrchestration\MultiAgentOrchestration.csproj" />
     <ProjectReference Include=".\Orchestration\Orchestration.csproj" />
     <ProjectReference Include=".\ProcessAutomation\ProcessAutomation.csproj" />
+    <ProjectReference Include=".\RealTime\RealTime.csproj" />
     <ProjectReference Include=".\RefactoringAgents\RefactoringAgents.csproj" />
     <ProjectReference Include=".\SecurityAgents\SecurityAgents.csproj" />
     <ProjectReference Include=".\ToolIntegration\ToolIntegration.csproj" />
