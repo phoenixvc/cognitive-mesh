@@ -288,22 +288,23 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
         private sealed class CompatibleChatSession : IChatSession
         {
             private readonly OpenAICompatibleClient _owner;
-            private readonly List<CognitiveMesh.Shared.Interfaces.ChatMessage> _history = new();
+            private readonly List<ChatMessage> _history = new();
 
             public CompatibleChatSession(OpenAICompatibleClient owner, string? systemMessage)
             {
                 _owner = owner;
                 if (systemMessage != null)
-                    _history.Add(new CognitiveMesh.Shared.Interfaces.ChatMessage("system", systemMessage));
+                    _history.Add(new ChatMessage("system", systemMessage));
             }
 
-            public IReadOnlyList<CognitiveMesh.Shared.Interfaces.ChatMessage> History => _history.AsReadOnly();
+            public IReadOnlyList<ChatMessage> History => _history.AsReadOnly();
 
             public async Task<string> SendMessageAsync(string message, CancellationToken cancellationToken = default)
             {
-                _history.Add(new CognitiveMesh.Shared.Interfaces.ChatMessage("user", message));
-                var response = await _owner.GenerateChatCompletionAsync(_history, cancellationToken: cancellationToken);
-                _history.Add(new CognitiveMesh.Shared.Interfaces.ChatMessage("assistant", response));
+                _history.Add(new ChatMessage("user", message));
+                var sharedMessages = _history.Select(m => new CognitiveMesh.Shared.Interfaces.ChatMessage(m.Role, m.Content));
+                var response = await _owner.GenerateChatCompletionAsync(sharedMessages, cancellationToken: cancellationToken);
+                _history.Add(new ChatMessage("assistant", response));
                 return response;
             }
 
