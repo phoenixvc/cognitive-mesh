@@ -13,24 +13,24 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The ID of the user giving consent.
         /// </summary>
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         /// <summary>
         /// The tenant ID to which this consent applies.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The specific type of consent being granted or denied (e.g., "NotifyOnProjectOpportunities", "AutoCreateCollaborationSpaces").
         /// This should be a well-known, documented string.
         /// </summary>
-        public string ConsentType { get; set; }
+        public string ConsentType { get; set; } = string.Empty;
 
         /// <summary>
         /// An optional identifier to narrow the scope of the consent (e.g., a specific project ID or channel ID).
         /// If null or empty, the consent is considered global for the given type.
         /// </summary>
-        public string Scope { get; set; }
+        public string Scope { get; set; } = string.Empty;
 
         /// <summary>
         /// True if consent is being granted; false if it is being denied or revoked.
@@ -40,24 +40,24 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The source of the consent action, used for auditing (e.g., "Widget:ChampionFinder", "UserProfileSettings").
         /// </summary>
-        public string Source { get; set; }
+        public string Source { get; set; } = string.Empty;
 
         /// <summary>
         /// Optional evidence, such as a link to the version of the privacy policy or terms the user agreed to.
         /// </summary>
-        public string Evidence { get; set; }
+        public string Evidence { get; set; } = string.Empty;
 
         /// <summary>
         /// The level of consent being captured (e.g., "Standard", "LegallyBinding", "ExplicitGDPRConsent").
         /// Use this to distinguish between advisory consent and those required by regulation.
         /// </summary>
-        public string ConsentLevel { get; set; }
+        public string ConsentLevel { get; set; } = string.Empty;
 
         /// <summary>
         /// (Optional) The legal framework that governs this consent (e.g., "GDPR", "EUAIAct", "HIPAA").
         /// When provided, downstream services can enforce jurisdiction-specific requirements.
         /// </summary>
-        public string LegalFramework { get; set; }
+        public string LegalFramework { get; set; } = string.Empty;
 
         /// <summary>
         /// (Optional) A timestamp indicating when this consent expires. <c>null</c> means no expiration.
@@ -71,25 +71,34 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
     /// </summary>
     public class ConsentRecord
     {
-        public string ConsentId { get; set; }
-        public string UserId { get; set; }
-        public string TenantId { get; set; }
-        public string ConsentType { get; set; }
-        public string Scope { get; set; }
+        /// <summary>Gets or sets the unique consent record identifier.</summary>
+        public string ConsentId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the user identifier.</summary>
+        public string UserId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the tenant identifier.</summary>
+        public string TenantId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the type of consent.</summary>
+        public string ConsentType { get; set; } = string.Empty;
+        /// <summary>Gets or sets the scope of the consent.</summary>
+        public string Scope { get; set; } = string.Empty;
+        /// <summary>Gets or sets whether consent was granted.</summary>
         public bool IsGranted { get; set; }
+        /// <summary>Gets or sets the timestamp of the consent decision.</summary>
         public DateTimeOffset Timestamp { get; set; }
-        public string Source { get; set; }
-        public string Evidence { get; set; }
+        /// <summary>Gets or sets the source of the consent action.</summary>
+        public string Source { get; set; } = string.Empty;
+        /// <summary>Gets or sets the consent evidence reference.</summary>
+        public string Evidence { get; set; } = string.Empty;
 
         /// <summary>
         /// The level of consent granted (mirrors <see cref="ConsentRequest.ConsentLevel"/>).
         /// </summary>
-        public string ConsentLevel { get; set; }
+        public string ConsentLevel { get; set; } = string.Empty;
 
         /// <summary>
         /// The legal framework (e.g., GDPR, EUAIAct) relevant for this consent record.
         /// </summary>
-        public string LegalFramework { get; set; }
+        public string LegalFramework { get; set; } = string.Empty;
 
         /// <summary>
         /// When the consent expires (<c>null</c> if it does not expire).
@@ -107,20 +116,24 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
     /// </summary>
     public class ValidateConsentRequest
     {
-        public string UserId { get; set; }
-        public string TenantId { get; set; }
-        public string RequiredConsentType { get; set; }
-        public string Scope { get; set; } // Optional scope to check
+        /// <summary>Gets or sets the user identifier to validate.</summary>
+        public string UserId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the tenant identifier.</summary>
+        public string TenantId { get; set; } = string.Empty;
+        /// <summary>Gets or sets the required consent type to check.</summary>
+        public string RequiredConsentType { get; set; } = string.Empty;
+        /// <summary>Gets or sets the optional scope to validate.</summary>
+        public string Scope { get; set; } = string.Empty;
 
         /// <summary>
         /// (Optional) Specifies the minimum consent level that must have been granted.
         /// </summary>
-        public string RequiredConsentLevel { get; set; }
+        public string RequiredConsentLevel { get; set; } = string.Empty;
 
         /// <summary>
         /// (Optional) Specifies the regulatory framework that the consent must satisfy.
         /// </summary>
-        public string RequiredLegalFramework { get; set; }
+        public string RequiredLegalFramework { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -141,7 +154,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         /// <summary>
         /// The ID of the relevant consent record, if one exists.
         /// </summary>
-        public string ConsentRecordId { get; set; }
+        public string ConsentRecordId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -168,14 +181,21 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models
         // ------------------------------------------------------------------
         // GDPR-specific consent types
         // ------------------------------------------------------------------
+
+        /// <summary>Consent for GDPR data processing.</summary>
         public const string GDPRDataProcessing           = "GDPRDataProcessing";
+        /// <summary>Consent for GDPR data transfer outside the EU.</summary>
         public const string GDPRDataTransferOutsideEU    = "GDPRDataTransferOutsideEU";
+        /// <summary>Consent for GDPR automated decision-making.</summary>
         public const string GDPRAutomatedDecisionMaking  = "GDPRAutomatedDecisionMaking";
 
         // ------------------------------------------------------------------
         // EU AI Act-specific consent types
         // ------------------------------------------------------------------
+
+        /// <summary>Consent for EU AI Act high-risk system usage.</summary>
         public const string EUAIActHighRiskSystem        = "EUAIActHighRiskSystem";
+        /// <summary>Consent for EU AI Act biometric identification.</summary>
         public const string EUAIActBiometricIdentification = "EUAIActBiometricIdentification";
     }
 }
@@ -238,6 +258,6 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices.Ports
         /// <param name="consentType">The type of consent to revoke.</param>
         /// <param name="scope">The optional scope of the consent to revoke.</param>
         /// <returns>A task that represents the asynchronous operation. The task result is true if the revocation was successful.</returns>
-        Task<bool> RevokeConsentAsync(string userId, string tenantId, string consentType, string scope = null);
+        Task<bool> RevokeConsentAsync(string userId, string tenantId, string consentType, string? scope = null);
     }
 }

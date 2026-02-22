@@ -3,8 +3,8 @@
 # Catches regressions introduced during the conversation.
 
 # Ensure dotnet and gh are on PATH if installed by session-start hook
-export PATH="$HOME/.dotnet:$HOME/.local/bin:$PATH"
-export DOTNET_ROOT="$HOME/.dotnet"
+export PATH="/usr/local/bin:/usr/bin:/bin:${HOME}/.dotnet:${HOME}/.local/bin:${PATH}"
+export DOTNET_ROOT="${HOME}/.dotnet"
 
 cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || cd "$(dirname "$0")/../.." 2>/dev/null || {
     echo "Failed to change to project directory" >&2

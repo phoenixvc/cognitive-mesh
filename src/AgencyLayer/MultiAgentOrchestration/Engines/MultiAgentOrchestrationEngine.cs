@@ -152,21 +152,56 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     }
 
     /// <inheritdoc />
-    public Task SetAgentAutonomyAsync(string agentIdOrType, AutonomyLevel level, string tenantId)
+    public async Task SetAgentAutonomyAsync(string agentIdOrType, AutonomyLevel level, string tenantId)
     {
-        // In a real system, this would also persist to the knowledge repository.
+        ArgumentException.ThrowIfNullOrWhiteSpace(agentIdOrType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
+
+        var previousLevel = _autonomySettings.TryGetValue(agentIdOrType, out var existing) ? existing : (AutonomyLevel?)null;
         _autonomySettings[agentIdOrType] = level;
-        _logger.LogInformation("Set autonomy for '{AgentIdOrType}' to {Level} for Tenant '{TenantId}'.", agentIdOrType, level, tenantId);
-        return Task.CompletedTask;
+
+        // Persist the autonomy change as a learning insight for audit and replay
+        await _knowledgeRepository.StoreLearningInsightAsync(new AgentLearningInsight
+        {
+            GeneratingAgentType = "Orchestrator",
+            InsightType = "AutonomyChange",
+            InsightData = new { AgentIdOrType = agentIdOrType, PreviousLevel = previousLevel?.ToString(), NewLevel = level.ToString(), TenantId = tenantId },
+            ConfidenceScore = 1.0
+        });
+
+        _logger.LogInformation(
+            "Set autonomy for '{AgentIdOrType}' from {PreviousLevel} to {Level} for Tenant '{TenantId}'.",
+            agentIdOrType, previousLevel?.ToString() ?? "unset", level, tenantId);
     }
 
     /// <inheritdoc />
-    public Task ConfigureAgentAuthorityAsync(string agentIdOrType, AuthorityScope scope, string tenantId)
+    public async Task ConfigureAgentAuthorityAsync(string agentIdOrType, AuthorityScope scope, string tenantId)
     {
-        // In a real system, this would also persist to the knowledge repository.
+        ArgumentException.ThrowIfNullOrWhiteSpace(agentIdOrType);
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
+
         _authoritySettings[agentIdOrType] = scope;
-        _logger.LogInformation("Configured authority for '{AgentIdOrType}' for Tenant '{TenantId}'.", agentIdOrType, tenantId);
-        return Task.CompletedTask;
+
+        // Persist the authority configuration change for audit and replay
+        await _knowledgeRepository.StoreLearningInsightAsync(new AgentLearningInsight
+        {
+            GeneratingAgentType = "Orchestrator",
+            InsightType = "AuthorityChange",
+            InsightData = new
+            {
+                AgentIdOrType = agentIdOrType,
+                AllowedEndpoints = scope.AllowedApiEndpoints,
+                MaxBudget = scope.MaxBudget,
+                MaxResource = scope.MaxResourceConsumption,
+                TenantId = tenantId
+            },
+            ConfidenceScore = 1.0
+        });
+
+        _logger.LogInformation(
+            "Configured authority for '{AgentIdOrType}' with {EndpointCount} allowed endpoints for Tenant '{TenantId}'.",
+            agentIdOrType, scope.AllowedApiEndpoints.Count, tenantId);
     }
 
     /// <inheritdoc />
@@ -190,7 +225,60 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     public Task<AgentTask> GetAgentTaskStatusAsync(string taskId, string tenantId)
     {
         _activeTasks.TryGetValue(taskId, out var task);
-        return Task.FromResult(task); // Returns null if not found
+        return Task.FromResult(task)!; // Returns null if not found
+    }
+
+    /// <inheritdoc />
+    public Task<AgentDefinition> GetAgentByIdAsync(Guid agentId)
+    {
+        var definition = _agentDefinitions.Values.FirstOrDefault(d => d.AgentId == agentId);
+        if (definition == null)
+        {
+            _logger.LogWarning("Agent definition not found for ID: {AgentId}", agentId);
+        }
+        return Task.FromResult(definition)!;
+    }
+
+    /// <inheritdoc />
+    public Task<IEnumerable<AgentDefinition>> ListAgentsAsync(bool includeRetired = false)
+    {
+        IEnumerable<AgentDefinition> agents = includeRetired
+            ? _agentDefinitions.Values
+            : _agentDefinitions.Values.Where(d => d.Status != AgentStatus.Retired);
+
+        _logger.LogDebug("Listing agents (includeRetired={IncludeRetired}): {Count} found", includeRetired, agents.Count());
+        return Task.FromResult(agents);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateAgentAsync(AgentDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        ArgumentException.ThrowIfNullOrWhiteSpace(definition.AgentType);
+
+        if (!_agentDefinitions.TryGetValue(definition.AgentType, out var existing))
+        {
+            throw new InvalidOperationException($"Agent type '{definition.AgentType}' is not registered. Use RegisterAgentAsync to add new agents.");
+        }
+
+        _agentDefinitions[definition.AgentType] = definition;
+        await _knowledgeRepository.StoreAgentDefinitionAsync(definition);
+        _logger.LogInformation("Updated agent definition for type: {AgentType}", definition.AgentType);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> RetireAgentAsync(Guid agentId)
+    {
+        var entry = _agentDefinitions.FirstOrDefault(kvp => kvp.Value.AgentId == agentId);
+        if (entry.Value == null)
+        {
+            _logger.LogWarning("Cannot retire agent: no definition found for ID {AgentId}", agentId);
+            return Task.FromResult(false);
+        }
+
+        entry.Value.Status = AgentStatus.Retired;
+        _logger.LogInformation("Retired agent type '{AgentType}' (ID: {AgentId})", entry.Value.AgentType, agentId);
+        return Task.FromResult(true);
     }
 
 
@@ -244,7 +332,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
             var assignedAgent = subordinates.FirstOrDefault(); // Simple assignment
             if (assignedAgent != null)
             {
-                subTaskResults.Add(await ExecuteSingleAgent(assignedAgent, task, subTaskDef.Value.ToString(), cancellationToken));
+                subTaskResults.Add(await ExecuteSingleAgent(assignedAgent, task, subTaskDef.Value?.ToString() ?? string.Empty, cancellationToken));
             }
         }
         return subTaskResults;
@@ -252,7 +340,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
 
     private async Task<object> CoordinateCompetitiveExecution(List<IAgent> agents, AgentTask task, CancellationToken cancellationToken)
     {
-        var results = await CoordinateParallelExecution(agents, task, cancellationToken) as object[];
+        var results = await CoordinateParallelExecution(agents, task, cancellationToken) as object[] ?? Array.Empty<object>();
         return ResolveConflicts(results);
     }
 
@@ -260,7 +348,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     {
         const int maxIterations = 5;
         var sharedContext = new Dictionary<string, object>(task.Context);
-        object finalResult = null;
+        object? finalResult = null;
 
         for (int i = 0; i < maxIterations; i++)
         {
@@ -279,9 +367,9 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
             sharedContext[$"Iteration_{i}_Results"] = iterationResults;
 
             // Simple convergence check.
-            if (iterationResults.Any(r => r.ToString().Contains("COMPLETE")))
+            if (iterationResults.Any(r => (r?.ToString()?.Contains("COMPLETE") == true)))
             {
-                finalResult = iterationResults.First(r => r.ToString().Contains("COMPLETE"));
+                finalResult = iterationResults.First(r => (r?.ToString()?.Contains("COMPLETE") == true));
                 break;
             }
         }
@@ -308,9 +396,9 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
         if (autonomy == AutonomyLevel.ActWithConfirmation)
         {
             var approved = await _approvalAdapter.RequestApprovalAsync(
-                parentTask.RequestingUserId,
+                parentTask.Context.GetValueOrDefault("RequestingUserId")?.ToString() ?? "system",
                 $"Agent {agent.AgentId} wants to perform action for goal: {subGoal}",
-                null);
+                null!);
 
             if (!approved)
             {
@@ -352,7 +440,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
                 var dignityRequest = new DignityAssessmentRequest
                 {
                     SubjectId      = parentTask.Context.ContainsKey("UserId")
-                        ? parentTask.Context["UserId"].ToString()
+                        ? parentTask.Context["UserId"]?.ToString() ?? "unknown"
                         : "unknown",
                     DataType       = "Behavioral",
                     ProposedAction = "Process",
@@ -382,7 +470,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
         }
 
         // 4. Execute via Runtime Adapter -----------------------------------------
-        var agentSubTask = new AgentTask { Goal = subGoal, Context = parentTask.Context };
+        var agentSubTask = new AgentTask { Goal = subGoal, Context = parentTask.Context ?? new Dictionary<string, object>() };
         return await _agentRuntimeAdapter.ExecuteAgentLogicAsync(agent.AgentId, agentSubTask);
     }
 
@@ -390,7 +478,7 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     {
         // Simple conflict resolution: pick the first non-null result.
         // A more advanced version would score each result based on confidence or other metrics.
-        return results.FirstOrDefault(r => r != null);
+        return results.FirstOrDefault(r => r != null) ?? new object();
     }
 }
 

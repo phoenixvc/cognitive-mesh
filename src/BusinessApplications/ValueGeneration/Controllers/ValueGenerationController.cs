@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +12,6 @@ using CognitiveMesh.BusinessApplications.ConvenerServices.Ports;
 using CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models;
 using CognitiveMesh.FoundationLayer.AuditLogging;
 using CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
-using CognitiveMesh.ReasoningLayer.ValueGeneration.Ports.Models;
 
 namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
 {
@@ -109,8 +109,8 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
                             EventData = JsonSerializer.Serialize(new { request.TenantId, request.TargetType })
                         });
 
-                        return Forbid(ErrorEnvelope.ConsentMissing(
-                            $"Consent '{ConsentTypes.ValueDiagnosticDataCollection}' is required for value diagnostics", 
+                        return StatusCode(StatusCodes.Status403Forbidden, ErrorEnvelope.ConsentMissing(
+                            $"Consent '{ConsentTypes.ValueDiagnosticDataCollection}' is required for value diagnostics",
                             correlationId));
                     }
                 }
@@ -302,8 +302,8 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
                         EventData = JsonSerializer.Serialize(new { request.TenantId })
                     });
 
-                    return Forbid(ErrorEnvelope.ConsentMissing(
-                        $"Consent '{ConsentTypes.EmployabilityAnalysis}' is required for employability analysis", 
+                    return StatusCode(StatusCodes.Status403Forbidden, ErrorEnvelope.ConsentMissing(
+                        $"Consent '{ConsentTypes.EmployabilityAnalysis}' is required for employability analysis",
                         correlationId));
                 }
 

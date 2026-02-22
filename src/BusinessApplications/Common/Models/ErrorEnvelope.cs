@@ -81,6 +81,59 @@ namespace CognitiveMesh.BusinessApplications.Common.Models
             AdditionalDetails = additionalDetails;
         }
 
+        #region General Factory Methods
+
+        /// <summary>
+        /// Creates a generic error envelope with the specified error code and message.
+        /// </summary>
+        /// <param name="errorCode">A machine-readable error code.</param>
+        /// <param name="message">A human-readable error message.</param>
+        /// <param name="correlationId">An optional correlation ID for tracing.</param>
+        /// <returns>A new ErrorEnvelope instance.</returns>
+        public static ErrorEnvelope Create(string errorCode, string message, string? correlationId = null)
+        {
+            return new ErrorEnvelope(
+                errorCode: errorCode,
+                errorMessage: message,
+                detailedMessage: null,
+                source: null,
+                correlationId: correlationId);
+        }
+
+        /// <summary>
+        /// Creates an error envelope for an invalid request payload.
+        /// </summary>
+        /// <param name="message">A description of the validation failure.</param>
+        /// <param name="correlationId">An optional correlation ID for tracing.</param>
+        /// <returns>A new ErrorEnvelope instance.</returns>
+        public static ErrorEnvelope InvalidPayload(string message, string? correlationId = null)
+        {
+            return new ErrorEnvelope(
+                errorCode: "INVALID_PAYLOAD",
+                errorMessage: message,
+                detailedMessage: null,
+                source: null,
+                correlationId: correlationId);
+        }
+
+        /// <summary>
+        /// Creates an error envelope for a missing consent scenario.
+        /// </summary>
+        /// <param name="message">A description of the missing consent.</param>
+        /// <param name="correlationId">An optional correlation ID for tracing.</param>
+        /// <returns>A new ErrorEnvelope instance.</returns>
+        public static ErrorEnvelope ConsentMissing(string message, string? correlationId = null)
+        {
+            return new ErrorEnvelope(
+                errorCode: "CONSENT_MISSING",
+                errorMessage: message,
+                detailedMessage: null,
+                source: null,
+                correlationId: correlationId);
+        }
+
+        #endregion
+
         #region Factory Methods for Compliance Errors
 
         /// <summary>

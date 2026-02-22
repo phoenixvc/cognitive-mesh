@@ -14,6 +14,7 @@
     <!-- Explicitly include only the files we want -->
     <Compile Include="Interfaces/*.cs" />
     <Compile Include="Models/*.cs" />
+    <Compile Include="Utilities/*.cs" />
   </ItemGroup>
 
 </Project>

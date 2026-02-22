@@ -1,19 +1,40 @@
+using Microsoft.Extensions.Logging;
 using CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 
 namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Engines;
 
 // --- Placeholder Interfaces for Outbound Adapters ---
-// Data required for Org Blindness detection
+
+/// <summary>
+/// Represents a point-in-time snapshot of organizational data used for value blindness detection.
+/// </summary>
 public class OrgDataSnapshot
 {
-    public Dictionary<string, double> PerceivedValueScores { get; set; } // e.g., from surveys
-    public Dictionary<string, double> ActualImpactScores { get; set; } // e.g., from project outcomes
-    public Dictionary<string, double> ResourceAllocation { get; set; } // e.g., budget, headcount
-    public Dictionary<string, double> RecognitionMetrics { get; set; } // e.g., awards, promotions
+    /// <summary>Gets or sets the perceived value scores by area (e.g., from surveys).</summary>
+    public Dictionary<string, double> PerceivedValueScores { get; set; } = new();
+
+    /// <summary>Gets or sets the actual impact scores by area (e.g., from project outcomes).</summary>
+    public Dictionary<string, double> ActualImpactScores { get; set; } = new();
+
+    /// <summary>Gets or sets the resource allocation by area (e.g., budget, headcount).</summary>
+    public Dictionary<string, double> ResourceAllocation { get; set; } = new();
+
+    /// <summary>Gets or sets the recognition metrics by area (e.g., awards, promotions).</summary>
+    public Dictionary<string, double> RecognitionMetrics { get; set; } = new();
 }
 
+/// <summary>
+/// Defines the contract for retrieving organizational data snapshots from an external data store.
+/// </summary>
 public interface IOrganizationalDataRepository
 {
+    /// <summary>
+    /// Retrieves an organizational data snapshot for the specified organization and department filters.
+    /// </summary>
+    /// <param name="organizationId">The unique identifier of the organization.</param>
+    /// <param name="departmentFilters">Optional department filters to scope the data.</param>
+    /// <param name="tenantId">The tenant context for the request.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the organizational data snapshot.</returns>
     Task<OrgDataSnapshot> GetOrgDataSnapshotAsync(string organizationId, string[] departmentFilters, string tenantId);
 }
 
@@ -31,6 +52,11 @@ public class OrganizationalValueBlindnessEngine : IOrgBlindnessDetectionPort
     // Model version for provenance tracking, as required by the PRD.
     private const string OrgBlindnessModelVersion = "OrgBlindness-v1.1";
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OrganizationalValueBlindnessEngine"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance for structured logging.</param>
+    /// <param name="orgDataRepository">The repository for retrieving organizational data snapshots.</param>
     public OrganizationalValueBlindnessEngine(
         ILogger<OrganizationalValueBlindnessEngine> logger,
         IOrganizationalDataRepository orgDataRepository)

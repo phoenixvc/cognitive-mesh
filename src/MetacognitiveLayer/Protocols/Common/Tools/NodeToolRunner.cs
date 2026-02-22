@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace MetacognitiveLayer.Protocols.Common.Tools
@@ -42,6 +43,11 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
         private readonly Dictionary<string, string> _toolCache = new Dictionary<string, string>();
         private bool _initialized = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NodeToolRunner"/> class.
+        /// </summary>
+        /// <param name="options">Configuration options for the Node tool runner.</param>
+        /// <param name="logger">Logger instance for diagnostic output.</param>
         public NodeToolRunner(NodeToolRunnerOptions options, ILogger<NodeToolRunner> logger)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
@@ -51,13 +57,13 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
         /// <summary>
         /// Initializes the tool runner by scanning for available tools.
         /// </summary>
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
             if (_initialized)
-                return;
-                
+                return Task.CompletedTask;
+
             _logger.LogInformation("Initializing Node tool runner");
-            
+
             try
             {
                 // Ensure tools directory exists
@@ -89,6 +95,8 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                 _logger.LogError(ex, "Error initializing Node tool runner");
                 throw;
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -144,7 +152,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                 };
 
                 // Convert input to JSON and prepare for stdin
-                var inputJson = JsonConvert.SerializeObject(toolInput);
+                var inputJson = JsonSerializer.Serialize(toolInput);
                 
                 // Start the process
                 using (var process = new Process())
@@ -204,8 +212,8 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                     try
                     {
                         // Parse the output as JSON
-                        var result = JsonConvert.DeserializeObject(output);
-                        return result;
+                        var result = JsonSerializer.Deserialize<object>(output);
+                        return result!;
                     }
                     catch (JsonException)
                     {
@@ -293,7 +301,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
         /// <summary>
         /// Gets metadata for a tool by invoking it with the --info flag.
         /// </summary>
-        private async Task<object> GetToolMetadataAsync(string toolId)
+        private Task<object> GetToolMetadataAsync(string toolId)
         {
             try
             {
@@ -303,12 +311,11 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                 }
 
                 // Prepare the process
-                var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
                 var nodeExecutable = _options.NodePath;
-                
+
                 string command;
                 var args = new List<string>();
-                
+
                 if (_options.UseTypeScript && toolPath.EndsWith(".ts"))
                 {
                     command = "npx";
@@ -320,7 +327,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                     command = nodeExecutable;
                     args.Add(toolPath);
                 }
-                
+
                 args.Add("--info");
 
                 using (var process = new Process())
@@ -354,34 +361,37 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
                     }
 
                     var output = outputBuilder.ToString().Trim();
-                    
+
                     if (process.ExitCode != 0 || string.IsNullOrEmpty(output))
                     {
                         // Default metadata if not available
-                        return new
+                        object defaultMeta = new
                         {
                             id = toolId,
                             path = toolPath,
                             type = toolPath.EndsWith(".ts") ? "typescript" : "javascript",
                             description = "No metadata available"
                         };
+                        return Task.FromResult(defaultMeta);
                     }
 
                     try
                     {
                         // Try to parse the output as JSON
-                        return JsonConvert.DeserializeObject(output);
+                        object? parsed = JsonSerializer.Deserialize<object>(output);
+                        return Task.FromResult(parsed ?? (object)new { id = toolId, description = output });
                     }
                     catch
                     {
                         // If not valid JSON, return as description
-                        return new
+                        object fallbackMeta = new
                         {
                             id = toolId,
                             path = toolPath,
                             type = toolPath.EndsWith(".ts") ? "typescript" : "javascript",
                             description = output
                         };
+                        return Task.FromResult(fallbackMeta);
                     }
                 }
             }
@@ -401,7 +411,7 @@ namespace MetacognitiveLayer.Protocols.Common.Tools
         /// <summary>
         /// Registers tool runner services with the dependency injection container.
         /// </summary>
-        public static IServiceCollection AddNodeToolRunner(this IServiceCollection services, Action<NodeToolRunnerOptions> configureOptions = null)
+        public static IServiceCollection AddNodeToolRunner(this IServiceCollection services, Action<NodeToolRunnerOptions>? configureOptions = null)
         {
             // Register options
             if (configureOptions != null)

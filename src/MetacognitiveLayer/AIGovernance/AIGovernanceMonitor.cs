@@ -16,12 +16,12 @@ public class GovernanceEvaluationRequest
     /// <summary>
     /// The type of action being performed (e.g., "DataAnalysis", "CustomerInteraction", "FinancialTransaction").
     /// </summary>
-    public string ActionType { get; set; }
+    public string ActionType { get; set; } = string.Empty;
 
     /// <summary>
     /// The ID of the agent or service performing the action.
     /// </summary>
-    public string ActorId { get; set; }
+    public string ActorId { get; set; } = string.Empty;
 
     /// <summary>
     /// A dictionary containing the contextual data for the action, which will be evaluated against policy rules.
@@ -34,7 +34,10 @@ public class GovernanceEvaluationRequest
 /// </summary>
 public class GovernanceEvaluationResponse
 {
-    public string CorrelationId { get; set; }
+    /// <summary>
+    /// The correlation ID linking this response to its originating request.
+    /// </summary>
+    public string CorrelationId { get; set; } = string.Empty;
 
     /// <summary>
     /// Indicates whether the action is compliant with all active governance policies.
@@ -55,12 +58,12 @@ public class PolicyViolation
     /// <summary>
     /// The ID of the policy that was violated.
     /// </summary>
-    public string PolicyId { get; set; }
+    public string PolicyId { get; set; } = string.Empty;
 
     /// <summary>
     /// The name of the violated policy.
     /// </summary>
-    public string PolicyName { get; set; }
+    public string PolicyName { get; set; } = string.Empty;
 
     /// <summary>
     /// The version of the policy that was active at the time of violation.
@@ -70,7 +73,7 @@ public class PolicyViolation
     /// <summary>
     /// A detailed message explaining the nature of the violation.
     /// </summary>
-    public string ViolationMessage { get; set; }
+    public string ViolationMessage { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -89,9 +92,112 @@ public interface IAIGovernanceMonitorPort
 }
 
 /// <summary>
+/// Defines the contract for accessing governance policy data, including listing and retrieving active policies.
+/// </summary>
+public interface IGovernancePort
+{
+    /// <summary>
+    /// Lists all governance policies currently stored in the system.
+    /// </summary>
+    /// <returns>An enumerable of <see cref="PolicyRecord"/> representing available policies.</returns>
+    Task<IEnumerable<PolicyRecord>> ListPoliciesAsync();
+}
+
+/// <summary>
+/// Represents a single governance policy record, including its metadata and content.
+/// </summary>
+public class PolicyRecord
+{
+    /// <summary>
+    /// The unique identifier of the policy.
+    /// </summary>
+    public string PolicyId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The human-readable name of the policy.
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The full content or rule definition of the policy.
+    /// </summary>
+    public string Content { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The version number of the policy.
+    /// </summary>
+    public int Version { get; set; }
+
+    /// <summary>
+    /// The lifecycle status of the policy (e.g., "Active", "Draft", "Retired").
+    /// </summary>
+    public string Status { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The timestamp when the policy was last updated.
+    /// </summary>
+    public DateTimeOffset LastUpdatedAt { get; set; }
+}
+
+/// <summary>
+/// Defines the contract for audit logging operations, enabling structured event recording.
+/// </summary>
+public interface IAuditLoggingPort
+{
+    /// <summary>
+    /// Logs an audit event for compliance and traceability purposes.
+    /// </summary>
+    /// <param name="auditEvent">The audit event to log.</param>
+    Task LogEventAsync(AuditEvent auditEvent);
+}
+
+/// <summary>
+/// Defines the contract for sending notifications through various channels.
+/// </summary>
+public interface INotificationPort
+{
+    /// <summary>
+    /// Sends a notification to specified recipients through configured channels.
+    /// </summary>
+    /// <param name="notification">The notification to send.</param>
+    Task SendNotificationAsync(Notification notification);
+}
+
+/// <summary>
+/// Represents a notification message to be delivered through one or more channels.
+/// </summary>
+public class Notification
+{
+    /// <summary>
+    /// The subject line of the notification.
+    /// </summary>
+    public string Subject { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The body content of the notification message.
+    /// </summary>
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The delivery channels for this notification (e.g., "Email", "Slack").
+    /// </summary>
+    public List<string> Channels { get; set; } = new();
+
+    /// <summary>
+    /// The intended recipients of the notification.
+    /// </summary>
+    public List<string> Recipients { get; set; } = new();
+
+    /// <summary>
+    /// The timestamp when the notification was created.
+    /// </summary>
+    public DateTimeOffset Timestamp { get; set; }
+}
+
+/// <summary>
 /// Implements the AI Governance Monitor, a critical metacognitive service that ensures all AI actions
 /// comply with active governance policies. It provides real-time policy evaluation, violation detection,
-/// and automated escalation, forming a key part of the Ethical & Legal Compliance Framework.
+/// and automated escalation, forming a key part of the Ethical &amp; Legal Compliance Framework.
 /// </summary>
 public class AIGovernanceMonitor : IAIGovernanceMonitorPort
 {
@@ -154,9 +260,9 @@ public class AIGovernanceMonitor : IAIGovernanceMonitorPort
                 await _auditLoggingPort.LogEventAsync(new AuditEvent
                 {
                     EventType = "GovernanceViolationDetected",
-                    SubjectId = request.ActorId,
+                    UserId = request.ActorId,
                     Timestamp = DateTimeOffset.UtcNow,
-                    Details = $"Policy '{violation.PolicyName}' (v{violation.PolicyVersion}) violated. Reason: {violation.ViolationMessage}",
+                    EventData = $"Policy '{violation.PolicyName}' (v{violation.PolicyVersion}) violated. Reason: {violation.ViolationMessage}",
                     CorrelationId = request.CorrelationId
                 });
 
@@ -223,6 +329,6 @@ public class AIGovernanceMonitor : IAIGovernanceMonitorPort
         }
 
         // No violation found for this policy.
-        return null;
+        return null!;
     }
 }

@@ -12,25 +12,25 @@ namespace MetacognitiveLayer.Protocols.MCP.Models
         /// Unique identifier for the current session
         /// </summary>
         [JsonPropertyName("sessionId")]
-        public string SessionId { get; set; }
+        public string SessionId { get; set; } = string.Empty;
         
         /// <summary>
         /// Identifier for the ongoing conversation
         /// </summary>
         [JsonPropertyName("conversationId")]
-        public string ConversationId { get; set; }
+        public string ConversationId { get; set; } = string.Empty;
         
         /// <summary>
         /// User identifier for authentication and authorization
         /// </summary>
         [JsonPropertyName("userId")]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         
         /// <summary>
         /// Role/permissions of the requesting user
         /// </summary>
         [JsonPropertyName("userRole")]
-        public string UserRole { get; set; }
+        public string UserRole { get; set; } = string.Empty;
         
         /// <summary>
         /// ISO8601 timestamp of the request
@@ -42,25 +42,25 @@ namespace MetacognitiveLayer.Protocols.MCP.Models
         /// The ACP XML template defining the task to execute
         /// </summary>
         [JsonPropertyName("taskTemplate")]
-        public string TaskTemplate { get; set; }
+        public string TaskTemplate { get; set; } = string.Empty;
         
         /// <summary>
         /// Memory references for context retrieval
         /// </summary>
         [JsonPropertyName("memory")]
-        public Dictionary<string, string> Memory { get; set; }
+        public Dictionary<string, string> Memory { get; set; } = new();
         
         /// <summary>
         /// Security token for authentication with external services
         /// </summary>
         [JsonPropertyName("securityToken")]
-        public string SecurityToken { get; set; }
+        public string SecurityToken { get; set; } = string.Empty;
         
         /// <summary>
         /// Additional parameters specific to the request
         /// </summary>
         [JsonPropertyName("parameters")]
-        public Dictionary<string, object> Parameters { get; set; }
+        public Dictionary<string, object> Parameters { get; set; } = new();
         
         /// <summary>
         /// Version of the MCP protocol being used

@@ -107,15 +107,49 @@ public class DurableWorkflowEngine : IWorkflowEngine
         return Task.FromResult(status ?? new WorkflowStatus { WorkflowId = workflowId, State = WorkflowState.Pending });
     }
 
-    public Task CancelWorkflowAsync(string workflowId, CancellationToken cancellationToken = default)
+    public async Task CancelWorkflowAsync(string workflowId, CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(workflowId);
+
+        if (!_activeWorkflows.TryGetValue(workflowId, out var status))
+        {
+            _logger.LogWarning("Cannot cancel workflow {WorkflowId}: workflow not found in active registry", workflowId);
+            return;
+        }
+
+        if (status.State is WorkflowState.Completed or WorkflowState.Failed or WorkflowState.Cancelled)
+        {
+            _logger.LogWarning(
+                "Cannot cancel workflow {WorkflowId}: workflow is already in terminal state {State}",
+                workflowId, status.State);
+            return;
+        }
+
+        // Signal the linked CancellationTokenSource so running steps observe cancellation
         if (_cancellationTokens.TryGetValue(workflowId, out var cts))
         {
             cts.Cancel();
-            UpdateWorkflowState(workflowId, WorkflowState.Cancelled);
-            _logger.LogInformation("Workflow {WorkflowId} cancelled", workflowId);
         }
-        return Task.CompletedTask;
+
+        UpdateWorkflowState(workflowId, WorkflowState.Cancelled);
+
+        // Record a cancellation checkpoint so the workflow can be inspected post-mortem
+        var cancellationCheckpoint = new ExecutionCheckpoint
+        {
+            WorkflowId = workflowId,
+            StepNumber = status.CurrentStep,
+            StepName = $"Cancelled at step {status.CurrentStep} ({status.CurrentStepName})",
+            Status = ExecutionStepStatus.Failed,
+            StateJson = "{}",
+            InputJson = "{}",
+            OutputJson = "{}",
+            ErrorMessage = "Workflow explicitly cancelled via CancelWorkflowAsync"
+        };
+        await _checkpointManager.SaveCheckpointAsync(cancellationCheckpoint, cancellationToken);
+
+        _logger.LogInformation(
+            "Workflow {WorkflowId} cancelled at step {CurrentStep}/{TotalSteps}",
+            workflowId, status.CurrentStep, status.TotalSteps);
     }
 
     private async Task<WorkflowResult> ExecuteFromStepAsync(

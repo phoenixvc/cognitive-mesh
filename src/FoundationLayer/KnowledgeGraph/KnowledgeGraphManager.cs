@@ -5,6 +5,10 @@ using FoundationLayer.KnowledgeGraph.Abstractions;
 
 namespace FoundationLayer.KnowledgeGraph
 {
+    /// <summary>
+    /// Manages knowledge graph operations including node and relationship management,
+    /// delegating to an underlying graph adapter.
+    /// </summary>
     public class KnowledgeGraphManager : IKnowledgeGraphManager, IDisposable
     {
         private readonly IKnowledgeGraphAdapter _graphAdapter;

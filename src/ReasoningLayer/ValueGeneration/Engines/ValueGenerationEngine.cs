@@ -1,44 +1,7 @@
+using Microsoft.Extensions.Logging;
 using CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 
 namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Engines;
-
-// --- Placeholder Interfaces for Outbound Adapters ---
-// These define the contracts for how the pure domain engine communicates with the outside world.
-// The concrete implementations of these adapters would reside in the Infrastructure layer.
-// Data required for the Value Diagnostic ($200 Test)
-public class ValueDiagnosticData
-{
-    public double AverageImpactScore { get; set; }
-    public int HighValueContributions { get; set; }
-    public int CreativityEvents { get; set; }
-}
-
-// Data required for Org Blindness detection
-public class OrgDataSnapshot
-{
-    public Dictionary<string, double> PerceivedValueScores { get; set; } // e.g., from surveys
-    public Dictionary<string, double> ActualImpactScores { get; set; } // e.g., from project outcomes
-}
-
-// Data required for Employability check
-public class EmployabilityData
-{
-    public List<string> UserSkills { get; set; }
-    public List<string> MarketTrendingSkills { get; set; }
-    public double UserCreativeOutputScore { get; set; }
-}
-
-public interface IValueDiagnosticDataRepository
-{
-    Task<ValueDiagnosticData> GetValueDiagnosticDataAsync(string targetId, string tenantId);
-    Task<OrgDataSnapshot> GetOrgDataSnapshotAsync(string organizationId, string[] departmentFilters, string tenantId);
-}
-
-public interface IEmployabilityDataRepository
-{
-    Task<EmployabilityData> GetEmployabilityDataAsync(string userId, string tenantId);
-}
-
 
 // --- Domain Engine Implementation ---
 /// <summary>
@@ -57,6 +20,12 @@ public class ValueGenerationEngine : IValueGenerationPort
     private const string OrgBlindnessModelVersion = "OrgBlindness-v1.1";
     private const string EmployabilityModelVersion = "EmployabilityPredictor-v1.0";
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ValueGenerationEngine"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance for structured logging.</param>
+    /// <param name="valueDataRepository">The repository for retrieving value diagnostic and organizational data.</param>
+    /// <param name="employabilityDataRepository">The repository for retrieving employability data.</param>
     public ValueGenerationEngine(
         ILogger<ValueGenerationEngine> logger,
         IValueDiagnosticDataRepository valueDataRepository,
@@ -80,18 +49,24 @@ public class ValueGenerationEngine : IValueGenerationPort
 
         // The "$200 Test" logic: a weighted score of different value indicators.
         double valueScore = (data.AverageImpactScore * 50) + (data.HighValueContributions * 10) + (data.CreativityEvents * 5);
-            
+
         string profile = "Contributor";
         if (valueScore > 150) profile = "Innovator";
         else if (valueScore > 75) profile = "Connector";
+
+        // Derive strengths from actual diagnostic data indicators
+        var strengths = DeriveStrengths(data);
+
+        // Derive development opportunities based on areas where indicators are below threshold
+        var developmentOpportunities = DeriveDevelopmentOpportunities(data, profile);
 
         return new ValueDiagnosticResponse
         {
             TargetId = request.TargetId,
             ValueScore = Math.Round(valueScore, 2),
             ValueProfile = profile,
-            Strengths = new List<string> { "High Impact Delivery" }, // Placeholder
-            DevelopmentOpportunities = new List<string> { "Increase cross-team collaboration" }, // Placeholder
+            Strengths = strengths,
+            DevelopmentOpportunities = developmentOpportunities,
             ModelVersion = ValueDiagnosticModelVersion,
             CorrelationId = request.Provenance.CorrelationId
         };
@@ -177,5 +152,88 @@ public class ValueGenerationEngine : IValueGenerationPort
             ModelVersion = EmployabilityModelVersion,
             CorrelationId = request.Provenance.CorrelationId
         };
+    }
+
+    /// <summary>
+    /// Derives a list of strengths based on actual diagnostic data indicators.
+    /// Evaluates impact scores, high-value contributions, and creativity events
+    /// against defined thresholds to identify areas of strong performance.
+    /// </summary>
+    private static List<string> DeriveStrengths(ValueDiagnosticData data)
+    {
+        var strengths = new List<string>();
+
+        // High average impact indicates strong delivery capability
+        if (data.AverageImpactScore >= 2.0)
+            strengths.Add("High Impact Delivery");
+        else if (data.AverageImpactScore >= 1.0)
+            strengths.Add("Consistent Impact Delivery");
+
+        // Multiple high-value contributions indicate sustained performance
+        if (data.HighValueContributions >= 5)
+            strengths.Add("Sustained High-Value Contributions");
+        else if (data.HighValueContributions >= 2)
+            strengths.Add("Meaningful Value Contributions");
+
+        // Creativity events indicate innovation capability
+        if (data.CreativityEvents >= 10)
+            strengths.Add("Exceptional Creative Output");
+        else if (data.CreativityEvents >= 5)
+            strengths.Add("Strong Creative Thinking");
+        else if (data.CreativityEvents >= 2)
+            strengths.Add("Emerging Creative Capability");
+
+        // Combined indicators for cross-functional strength
+        if (data.AverageImpactScore >= 1.5 && data.HighValueContributions >= 3 && data.CreativityEvents >= 3)
+            strengths.Add("Well-Rounded Value Creator");
+
+        // Ensure at least one strength is identified to provide constructive feedback
+        if (strengths.Count == 0)
+            strengths.Add("Developing Foundation for Value Generation");
+
+        return strengths;
+    }
+
+    /// <summary>
+    /// Derives development opportunities based on areas where diagnostic indicators
+    /// fall below target thresholds, tailored to the identified value profile.
+    /// </summary>
+    private static List<string> DeriveDevelopmentOpportunities(ValueDiagnosticData data, string valueProfile)
+    {
+        var opportunities = new List<string>();
+
+        // Low impact score suggests need for more strategic work
+        if (data.AverageImpactScore < 1.0)
+            opportunities.Add("Focus on higher-impact deliverables aligned with organizational priorities");
+
+        // Low high-value contributions suggest need for visibility or cross-team engagement
+        if (data.HighValueContributions < 2)
+            opportunities.Add("Increase cross-team collaboration to amplify contribution visibility");
+
+        // Low creativity events suggest need for innovation engagement
+        if (data.CreativityEvents < 2)
+            opportunities.Add("Engage in brainstorming sessions and innovation initiatives to boost creative output");
+
+        // Profile-specific development guidance
+        switch (valueProfile)
+        {
+            case "Contributor":
+                opportunities.Add("Seek mentorship opportunities to accelerate growth toward Connector or Innovator profile");
+                break;
+            case "Connector":
+                if (data.CreativityEvents < 5)
+                    opportunities.Add("Invest in creative problem-solving to progress toward Innovator profile");
+                break;
+            case "Innovator":
+                if (data.HighValueContributions < 5)
+                    opportunities.Add("Channel innovation into more sustained high-value contributions");
+                break;
+        }
+
+        // Ensure at least one opportunity is identified for continuous growth
+        if (opportunities.Count == 0)
+            opportunities.Add("Continue current trajectory and consider mentoring others to multiply impact");
+
+        return opportunities;
     }
 }

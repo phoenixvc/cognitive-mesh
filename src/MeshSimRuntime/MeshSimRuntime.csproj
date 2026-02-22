@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <!-- Microsoft Extensions -->
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
@@ -21,6 +22,7 @@
     
     <!-- Command Line -->
     <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="System.CommandLine.NamingConventionBinder" />
     
     <!-- JSON -->
     <PackageReference Include="System.Text.Json" />

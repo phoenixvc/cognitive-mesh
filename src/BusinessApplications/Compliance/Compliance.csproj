@@ -9,13 +9,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\FoundationLayer\FoundationLayer.csproj" />
+    <ProjectReference Include="..\..\FoundationLayer\AuditLogging\AuditLogging.csproj" />
+    <ProjectReference Include="..\..\ReasoningLayer\ReasoningLayer.csproj" />
     <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\ConvenerServices\ConvenerServices.csproj" />
   </ItemGroup>
 
 </Project>

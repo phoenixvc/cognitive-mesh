@@ -16,6 +16,10 @@ namespace CognitiveMesh.ReasoningLayer.EthicalReasoning.Engines
         // In-memory store for provenance records. In a real system, this would be a persistent, immutable ledger.
         private static readonly ConcurrentDictionary<string, ProvenanceRecord> _provenanceLedger = new();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InformationEthicsEngine"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
         public InformationEthicsEngine(ILogger<InformationEthicsEngine> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

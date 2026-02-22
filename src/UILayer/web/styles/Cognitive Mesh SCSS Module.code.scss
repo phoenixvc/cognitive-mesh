@@ -1,0 +1,231 @@
+// 🧠 Cognitive Mesh Extended Effects Module
+// Neo-cybernetic command HUD for modular AI ecosystems
+
+// === Color Variables ===
+$neural-primary: #58A6FF;
+$neural-secondary: #8B45FF;
+$neural-accent: #00BFFF;
+$neural-matrix: #7EE787;
+
+$color-danger: #FF5F56;
+$color-warning: #FFBD2E;
+$color-success: #7EE787;
+
+$bg-primary: #0D1117;
+$bg-secondary: #161B22;
+$bg-tertiary: #1E2139;
+$bg-surface: #1A1F3A;
+
+// === Motion Tokens ===
+$mesh-timing-fast: 150ms;
+$mesh-timing-default: 300ms;
+$mesh-timing-slow: 600ms;
+$mesh-easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+$mesh-easing-snap: cubic-bezier(0.25, 1, 0.5, 1);
+
+// === Glow Effects ===
+$mesh-glow-primary: 0 0 20px rgba(88, 166, 255, 1);
+$mesh-glow-soft: 0 0 40px rgba(88, 166, 255, 0.3);
+$mesh-glow-intense: 0 0 60px rgba(88, 166, 255, 1.5);
+
+// === Glow Mixins ===
+@mixin mesh-glow($color: $neural-primary, $intensity: 1) {
+  box-shadow: 
+    0 0 #{20px * $intensity} rgba($color, 1),
+    0 0 #{40px * $intensity} rgba($color, 0.6),
+    0 0 #{60px * $intensity} rgba($color, 0.3);
+}
+
+@mixin neural-glow-multi() {
+  box-shadow: 
+    0 0 20px $neural-primary,
+    0 0 40px $neural-secondary,
+    0 0 60px $neural-accent,
+    0 15px 40px rgba(0,0,0,0.5);
+}
+
+// === Inner Glow ===
+$mesh-inner-glow: inset 0 0 10px rgba(88, 166, 255, 0.4);
+
+// === Elevation Shadows ===
+$mesh-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.05);
+$mesh-elevation-2: 0 2px 6px rgba(0, 0, 0, 0.08);
+$mesh-elevation-3: 0 4px 12px rgba(0, 0, 0, 0.12);
+$mesh-elevation-4: 0 6px 18px rgba(0, 0, 0, 0.16);
+$mesh-elevation-5: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+// === Glassmorphism Mixin ===
+@mixin mesh-glass($blur: 40px, $opacity: 0.95) {
+  backdrop-filter: blur($blur) saturate(1.3);
+  background: rgba(22, 27, 34, $opacity);
+  border: 2px solid rgba($neural-primary, 0.4);
+}
+
+// === Interaction States Mixin ===
+@mixin mesh-interaction-states {
+  &:hover {
+    @include mesh-glow($intensity: 1.5);
+    transform: scale(1.02);
+    transition: all $mesh-timing-default $mesh-easing-default;
+  }
+
+  &:focus {
+    outline: 2px solid rgba($neural-accent, 0.6);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    box-shadow: $mesh-inner-glow;
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    box-shadow: none;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+// === Layered Effects ===
+@mixin mesh-layered-glow {
+  box-shadow:
+    $mesh-elevation-3,
+    $mesh-glow-primary;
+}
+
+@mixin mesh-layered-ripple {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    animation: meshRipple 0.6s ease-out;
+    pointer-events: none;
+  }
+}
+
+// === Keyframe Animations ===
+@keyframes meshRipple {
+  0% { transform: scale(0); opacity: 0.8; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
+@keyframes meshPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+@keyframes meshTiltPop {
+  0% { transform: scale(1) rotate(0); }
+  40% { transform: scale(1.08) rotate(1deg); }
+  70% { transform: scale(0.98) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes neuralFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+// === Component Mixins ===
+@mixin neural-button {
+  background: linear-gradient(135deg, $neural-primary, $neural-secondary);
+  border: 2px solid rgba($neural-primary, 0.5);
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #E6EDF3;
+  box-shadow: $mesh-glow-primary;
+  transition: all $mesh-timing-slow;
+  cursor: pointer;
+
+  @include mesh-interaction-states;
+}
+
+@mixin neural-panel {
+  background: linear-gradient(135deg, 
+    rgba(22,27,34,0.98) 0%, 
+    rgba(30,33,57,0.95) 50%, 
+    rgba(22,27,34,0.98) 100%);
+  backdrop-filter: blur(40px) saturate(1.3);
+  border: 2px solid rgba($neural-primary, 0.4);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 
+    0 15px 40px rgba(0,0,0,0.5), 
+    0 5px 15px rgba($neural-primary, 0.2), 
+    inset 0 2px 0 rgba(255,255,255,0.15);
+  position: relative;
+  overflow: hidden;
+  transition: all $mesh-timing-slow;
+
+  &:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba($neural-primary, 0.6);
+    box-shadow: 
+      0 25px 60px rgba(0,0,0,0.6), 
+      0 10px 25px rgba($neural-primary, 0.3), 
+      inset 0 2px 0 rgba(255,255,255,0.15);
+  }
+}
+
+// === AI State Mixins ===
+@mixin ai-state-thinking {
+  border: 2px solid $neural-primary;
+  animation: meshPulse 2s ease-in-out infinite;
+}
+
+@mixin ai-state-hallucinating {
+  border: 2px solid $neural-secondary;
+  animation: meshTiltPop 3s ease-in-out infinite;
+}
+
+@mixin ai-state-verified {
+  border: 2px solid $neural-matrix;
+  @include mesh-glow($neural-matrix);
+}
+
+@mixin ai-state-processing {
+  border: 2px solid $neural-accent;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, $neural-accent, transparent);
+    animation: neuralFlow 1.5s linear infinite;
+  }
+}
+
+@mixin ai-state-error {
+  border: 2px solid $color-danger;
+  animation: meshPulse 1s infinite;
+  @include mesh-glow($color-danger);
+}
+
+// === Utility Classes ===
+.neural-glow { @include mesh-glow(); }
+.neural-glow-soft { @include mesh-glow($intensity: 0.3); }
+.neural-glow-intense { @include mesh-glow($intensity: 1.5); }
+.neural-glass { @include mesh-glass(); }
+.neural-button { @include neural-button(); }
+.neural-panel { @include neural-panel(); }
+
+// === AI State Classes ===
+.ai-thinking { @include ai-state-thinking(); }
+.ai-hallucinating { @include ai-state-hallucinating(); }
+.ai-verified { @include ai-state-verified(); }
+.ai-processing { @include ai-state-processing(); }
+.ai-error { @include ai-state-error(); }

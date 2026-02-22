@@ -2,6 +2,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using MetacognitiveLayer.Protocols.ACP.Models;
 using MetacognitiveLayer.Protocols.Common;
+using MetacognitiveLayer.Protocols.Common.Tools;
 using Microsoft.Extensions.Logging;
 
 namespace MetacognitiveLayer.Protocols.ACP
@@ -16,6 +17,11 @@ namespace MetacognitiveLayer.Protocols.ACP
         private readonly Dictionary<string, string> _templateLibrary;
         private readonly ILogger<ACPHandler> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ACPHandler"/> class.
+        /// </summary>
+        /// <param name="validator">The ACP validator used to validate XML templates.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public ACPHandler(ACPValidator validator, ILogger<ACPHandler> logger)
         {
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
@@ -45,11 +51,11 @@ namespace MetacognitiveLayer.Protocols.ACP
                 using (var reader = new StringReader(templateXml))
                 {
                     var serializer = new XmlSerializer(typeof(ACPTask));
-                    task = (ACPTask)serializer.Deserialize(reader);
+                    task = (ACPTask)serializer.Deserialize(reader)!;
                 }
-                
-                _logger.LogDebug("Successfully parsed ACP template for task: {TaskName}", task.Name);
-                return task;
+
+                _logger.LogDebug("Successfully parsed ACP template for task: {TaskName}", task?.Name);
+                return task!;
             }
             catch (XmlException ex)
             {
@@ -146,7 +152,7 @@ namespace MetacognitiveLayer.Protocols.ACP
                 }
                 
                 _logger.LogWarning("ACP template not found: {TemplateId}", templateId);
-                return Task.FromResult<string>(null);
+                return Task.FromResult<string>(null!);
             }
             catch (Exception ex)
             {
@@ -225,23 +231,110 @@ namespace MetacognitiveLayer.Protocols.ACP
         private async Task<object> ExecuteToolsAsync(ACPTask task, IDictionary<string, object> tools, IDictionary<string, object> parameters, SessionContext session)
         {
             _logger.LogDebug("Executing tools for task: {TaskName}", task.Name);
-            
+
             // Execute primary tool
             if (string.IsNullOrEmpty(task.PrimaryTool))
             {
                 throw new InvalidOperationException("No primary tool specified in the ACP task");
             }
-            
+
             if (!tools.TryGetValue(task.PrimaryTool, out var tool))
             {
                 throw new InvalidOperationException($"Primary tool '{task.PrimaryTool}' not found in tool registry");
             }
-            
-            // TODO: Implement actual tool execution logic based on your tool interface
-            // This is a placeholder for the actual implementation
-            var result = new { Status = "Success", Message = $"Tool {task.PrimaryTool} executed successfully" };
-            
-            return result;
+
+            var toolContext = new ToolContext
+            {
+                SessionId = session.SessionId,
+                UserId = session.UserId,
+                AdditionalContext = parameters.ToDictionary(kv => kv.Key, kv => kv.Value)
+            };
+
+            object primaryResult;
+
+            // Dispatch based on tool type
+            if (tool is IToolRunner toolRunner)
+            {
+                // Direct IToolRunner implementation
+                _logger.LogDebug("Executing primary tool '{ToolName}' via IToolRunner", task.PrimaryTool);
+                var inputDict = new Dictionary<string, object>(parameters);
+                primaryResult = await toolRunner.Execute(task.PrimaryTool, inputDict, toolContext);
+            }
+            else if (tool is Func<IDictionary<string, object>, Task<object>> asyncFunc)
+            {
+                // Async function delegate
+                _logger.LogDebug("Executing primary tool '{ToolName}' via async delegate", task.PrimaryTool);
+                primaryResult = await asyncFunc(parameters);
+            }
+            else if (tool is Func<IDictionary<string, object>, object> syncFunc)
+            {
+                // Synchronous function delegate
+                _logger.LogDebug("Executing primary tool '{ToolName}' via sync delegate", task.PrimaryTool);
+                primaryResult = syncFunc(parameters);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Primary tool '{ToolName}' has unsupported type {ToolType}. Returning tool object as result.",
+                    task.PrimaryTool, tool.GetType().Name);
+                primaryResult = tool;
+            }
+
+            // Execute additional required tools if specified
+            var allResults = new Dictionary<string, object>
+            {
+                [task.PrimaryTool] = primaryResult
+            };
+
+            if (task.RequiredTools != null && task.RequiredTools.Count > 0)
+            {
+                foreach (var requiredToolName in task.RequiredTools)
+                {
+                    if (string.Equals(requiredToolName, task.PrimaryTool, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue; // Already executed as primary
+                    }
+
+                    if (!tools.TryGetValue(requiredToolName, out var requiredTool))
+                    {
+                        _logger.LogWarning("Required tool '{ToolName}' not found in tool registry; skipping", requiredToolName);
+                        continue;
+                    }
+
+                    try
+                    {
+                        object requiredResult;
+                        if (requiredTool is IToolRunner requiredRunner)
+                        {
+                            requiredResult = await requiredRunner.Execute(requiredToolName, new Dictionary<string, object>(parameters), toolContext);
+                        }
+                        else if (requiredTool is Func<IDictionary<string, object>, Task<object>> reqAsyncFunc)
+                        {
+                            requiredResult = await reqAsyncFunc(parameters);
+                        }
+                        else if (requiredTool is Func<IDictionary<string, object>, object> reqSyncFunc)
+                        {
+                            requiredResult = reqSyncFunc(parameters);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Required tool '{ToolName}' has unsupported type; skipping", requiredToolName);
+                            continue;
+                        }
+
+                        allResults[requiredToolName] = requiredResult;
+                        _logger.LogDebug("Successfully executed required tool: {ToolName}", requiredToolName);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error executing required tool '{ToolName}'; continuing with remaining tools", requiredToolName);
+                    }
+                }
+            }
+
+            // If only the primary tool was executed, return its result directly
+            // Otherwise return the combined results dictionary
+            return allResults.Count == 1 ? primaryResult : allResults;
         }
 
         #endregion

@@ -1,63 +1,120 @@
 using System.Text.Json;
+using CognitiveMesh.ReasoningLayer.SecurityReasoning.Ports;
 using MetacognitiveLayer.SecurityMonitoring;
 using Microsoft.Extensions.Logging;
 
 namespace AgencyLayer.SecurityAgents;
 
-// Conceptual ports the agent depends on. In a real system, these would be in their respective layers.
+/// <summary>
+/// Port for network security operations such as IP blocking.
+/// </summary>
 public interface INetworkSecurityPort
 {
+    /// <summary>
+    /// Blocks the specified IP address for the given reason.
+    /// </summary>
     Task BlockIpAddressAsync(string ipAddress, string reason);
 }
 
+/// <summary>
+/// Port for identity management operations such as account isolation.
+/// </summary>
 public interface IIdentityManagementPort
 {
+    /// <summary>
+    /// Isolates the specified account for the given reason.
+    /// </summary>
     Task IsolateAccountAsync(string subjectId, string reason);
 }
 
+/// <summary>
+/// Port for forensic data collection and evidence storage.
+/// </summary>
 public interface IForensicDataPort
 {
+    /// <summary>
+    /// Stores forensic evidence for the specified incident.
+    /// </summary>
     Task<string> StoreEvidenceAsync(string incidentId, object evidence);
 }
 
-// Re-defining for clarity within this file's context
+/// <summary>
+/// Represents a request to execute an agent task.
+/// </summary>
 public class AgentTaskRequest
 {
-    public string AgentId { get; set; }
-    public string TaskDescription { get; set; }
+    /// <summary>Gets or sets the unique identifier of the agent.</summary>
+    public string AgentId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the description of the task to execute.</summary>
+    public string TaskDescription { get; set; } = string.Empty;
+    /// <summary>Gets or sets the parameters for the task.</summary>
     public Dictionary<string, object> Parameters { get; set; } = new();
+    /// <summary>Gets or sets the priority of the task.</summary>
     public int Priority { get; set; }
 }
 
+/// <summary>
+/// Represents the response from an agent task execution.
+/// </summary>
 public class AgentTaskResponse
 {
+    /// <summary>Gets or sets whether the task was successful.</summary>
     public bool IsSuccess { get; set; }
-    public string Message { get; set; }
+    /// <summary>Gets or sets the result message.</summary>
+    public string Message { get; set; } = string.Empty;
+    /// <summary>Gets or sets the output data from the task.</summary>
     public Dictionary<string, object> Output { get; set; } = new();
 }
 
+/// <summary>
+/// Defines the contract for an executable agent.
+/// </summary>
 public interface IAgent
 {
+    /// <summary>Gets the unique identifier of the agent.</summary>
     string AgentId { get; }
+    /// <summary>
+    /// Executes the specified task and returns the result.
+    /// </summary>
     Task<AgentTaskResponse> ExecuteTaskAsync(AgentTaskRequest request);
 }
 
+/// <summary>
+/// Port for orchestrating agent task execution.
+/// </summary>
 public interface IAgentOrchestrationPort
 {
+    /// <summary>
+    /// Executes the specified agent task and returns the result.
+    /// </summary>
     Task<AgentTaskResponse> ExecuteTaskAsync(AgentTaskRequest request);
 }
-    
+
+/// <summary>
+/// Represents a notification to be sent through one or more channels.
+/// </summary>
 public class Notification
 {
-    public string Subject { get; set; }
-    public string Message { get; set; }
-    public List<string> Channels { get; set; }
-    public List<string> Recipients { get; set; }
+    /// <summary>Gets or sets the notification subject.</summary>
+    public string Subject { get; set; } = string.Empty;
+    /// <summary>Gets or sets the notification message body.</summary>
+    public string Message { get; set; } = string.Empty;
+    /// <summary>Gets or sets the delivery channels (e.g., email, SMS).</summary>
+    public List<string> Channels { get; set; } = new();
+    /// <summary>Gets or sets the notification recipients.</summary>
+    public List<string> Recipients { get; set; } = new();
+    /// <summary>Gets or sets the timestamp when the notification was created.</summary>
     public DateTimeOffset Timestamp { get; set; }
 }
 
+/// <summary>
+/// Port for sending notifications.
+/// </summary>
 public interface INotificationPort
 {
+    /// <summary>
+    /// Sends the specified notification asynchronously.
+    /// </summary>
     Task SendNotificationAsync(Notification notification);
 }
 
@@ -173,15 +230,18 @@ public class AutomatedResponseAgent : IAgent
         out List<SecurityEvent> events,
         out List<string> recommendedActions)
     {
-        incidentId = parameters.GetValueOrDefault("incidentId")?.ToString();
-            
+        incidentId = parameters.GetValueOrDefault("incidentId")?.ToString() ?? string.Empty;
+
         var eventsObj = parameters.GetValueOrDefault("correlatedEvents");
-        events = eventsObj is JsonElement je ? JsonSerializer.Deserialize<List<SecurityEvent>>(je.GetRawText()) : eventsObj as List<SecurityEvent>;
+        var parsedEvents = eventsObj is JsonElement je ? JsonSerializer.Deserialize<List<SecurityEvent>>(je.GetRawText()) : eventsObj as List<SecurityEvent>;
 
         var actionsObj = parameters.GetValueOrDefault("recommendedActions");
-        recommendedActions = actionsObj is JsonElement jeActions ? JsonSerializer.Deserialize<List<string>>(jeActions.GetRawText()) : actionsObj as List<string>;
+        var parsedActions = actionsObj is JsonElement jeActions ? JsonSerializer.Deserialize<List<string>>(jeActions.GetRawText()) : actionsObj as List<string>;
 
-        return !string.IsNullOrEmpty(incidentId) && events != null && recommendedActions != null;
+        events = parsedEvents ?? [];
+        recommendedActions = parsedActions ?? [];
+
+        return !string.IsNullOrEmpty(incidentId) && parsedEvents != null && parsedActions != null;
     }
 
     private async Task<string> PreserveEvidence(string incidentId, List<SecurityEvent> events, List<string> actionsTaken)

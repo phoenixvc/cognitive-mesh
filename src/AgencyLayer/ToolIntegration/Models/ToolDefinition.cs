@@ -10,23 +10,23 @@ namespace AgencyLayer.ToolIntegration.Models
         /// <summary>
         /// The display name of the tool.
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
         /// A short description of the tool's purpose.
         /// </summary>
-        public string Description { get; set; }
+        public required string Description { get; set; }
 
         /// <summary>
         /// The key for the primary input parameter expected in the ExecuteAsync dictionary.
         /// e.g., "data", "text".
         /// </summary>
-        public string ParameterKey { get; set; }
+        public required string ParameterKey { get; set; }
 
         /// <summary>
         /// The informational message to log upon execution.
         /// </summary>
-        public string LogMessage { get; set; }
+        public required string LogMessage { get; set; }
 
         /// <summary>
         /// The simulated processing delay in milliseconds.
@@ -38,6 +38,6 @@ namespace AgencyLayer.ToolIntegration.Models
         /// The parameter value can be inserted using string formatting.
         /// e.g., "Classification results for: {0}"
         /// </summary>
-        public string ResultTemplate { get; set; }
+        public required string ResultTemplate { get; set; }
     }
 }

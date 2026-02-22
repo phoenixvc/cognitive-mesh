@@ -1,0 +1,111 @@
+###############################################################################
+# Cognitive Mesh — Code Coverage Reporting
+#
+# Runs on PRs and pushes to main. Collects coverage via opencover format,
+# generates a report, uploads to Codecov, and posts a summary comment on PRs.
+#
+# Required secrets:
+#   CODECOV_TOKEN  – Upload token from https://app.codecov.io
+###############################################################################
+
+name: Code Coverage
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "*.sln"
+      - "Directory.Build.props"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "*.sln"
+      - "Directory.Build.props"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write    # For posting coverage comment
+  checks: write
+
+jobs:
+  coverage:
+    name: Collect & Report Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore packages
+        run: dotnet restore CognitiveMesh.sln
+
+      - name: Build
+        run: dotnet build CognitiveMesh.sln -c Release --no-restore
+
+      - name: Run tests with coverage
+        run: |
+          dotnet test CognitiveMesh.sln \
+            --no-build \
+            -c Release \
+            --collect:"XPlat Code Coverage;Format=opencover" \
+            --results-directory TestResults \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByFile="**/Migrations/**"
+
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate coverage report
+        run: |
+          reportgenerator \
+            -reports:"TestResults/**/coverage.opencover.xml" \
+            -targetdir:TestResults/report \
+            -reporttypes:"Html;Cobertura;MarkdownSummaryGithub;Badges" \
+            -assemblyfilters:"+CognitiveMesh.*;-*.Tests"
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: TestResults/**/coverage.opencover.xml
+          flags: unittests
+          name: cognitive-mesh-coverage
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Upload coverage report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: TestResults/report
+          retention-days: 14
+
+      - name: Post coverage summary on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: TestResults/report/SummaryGithub.md
+          header: coverage
+
+      - name: Write job summary
+        if: always()
+        run: |
+          if [ -f "TestResults/report/SummaryGithub.md" ]; then
+            echo "## Code Coverage Report" >> "$GITHUB_STEP_SUMMARY"
+            cat TestResults/report/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Code Coverage Report" >> "$GITHUB_STEP_SUMMARY"
+            echo "Coverage report generation failed. Check the test run for errors." >> "$GITHUB_STEP_SUMMARY"
+          fi

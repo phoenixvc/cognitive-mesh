@@ -283,28 +283,78 @@ This layer depends on Foundation, Reasoning, Metacognitive, and Agency layers.
 
 ---
 
+### Team 10: FRONTEND — UI/Frontend Integration & Widget PRDs
+
+**Scope:** `src/UILayer/web/`, `src/UILayer/` (C# BFF services)
+
+**Current state:**
+- 43+ React components built (design system, drag-drop, visualizations, accessibility)
+- **All API data is mocked** — zero real backend integration
+- 13 backend controllers exist but no frontend wiring
+- SignalR hub exists but frontend uses fake polling
+- No auth flow, no settings page, no multi-page routing
+- Only 1 unit test, Cypress config exists but tests use mock data
+
+**Work items (39 backlog items — FE-*, FECICD-*, FETEST-*):**
+- **P0**: Generate OpenAPI client, replace mocked APIs, add SignalR, add auth flow
+- **P1**: State management, error handling, settings/preferences, 5 widget PRD implementations
+- **P2**: Additional widget PRDs, routing, navigation, role-based UI, frontend CI/CD & deployment
+- **P2**: Frontend testing — component tests (80%), API integration tests, visual regression, Lighthouse CI
+- **P3**: Dashboard export, command palette, collaboration presence, additional locales, PWA
+
+**Claude Code session prompt:** `/team-frontend`
+
+---
+
 ## Execution Order
 
+### Backend Round (Phases 1-12 — COMPLETE)
+
 ```text
-Phase 1 (parallel — 5 teams):
+Phase 1 (parallel — 5 teams): ✅ DONE
   +-- Team 1: FOUNDATION    --- Fix stubs, implement FI-02
   +-- Team 2: REASONING     --- Complete SystemsReasoner, add temporal features
   +-- Team 6: QUALITY       --- Fix build errors, XML docs, architecture check
   +-- Team 8: CI/CD         --- Add Docker, CodeQL, Dependabot, Makefile
   +-- Team 9: INFRA         --- Create Terraform modules, Terragrunt envs
 
-Phase 2 (parallel — 3 teams, after Phase 1 stabilizes):
+Phase 2 (parallel — 3 teams): ✅ DONE
   +-- Team 3: METACOGNITIVE --- Implement 50+ stubs (SelfEvaluator, LearningManager)
   +-- Team 4: AGENCY        --- Fix TODO.md items, complete orchestration
   +-- Team 7: TESTING       --- Add missing test files, integration tests
 
-Phase 3 (parallel — 2 teams, after lower layers functional):
+Phase 3 (parallel — 2 teams): ✅ DONE
   +-- Team 5: BUSINESS APPS --- Replace all 12 fake-data stubs
   +-- Team 7: TESTING       --- Add Business layer tests
 
-Phase 4 (final sweep):
-  +-- Team 6: QUALITY       --- Full build validation, architecture check
-  +-- Team 7: TESTING       --- Full test suite with coverage report
+Phase 4-12: ✅ DONE — Quality sweep, CI/CD, integration tests, all 8 PRDs, P3-LOW enhancements
+```
+
+### Frontend Integration Round (Phases 13-17 — NEW)
+
+```text
+Phase 13 (parallel — 2 teams): API Foundation
+  +-- Team 10: FRONTEND     --- FE-001 API client gen, FE-004 auth flow, FE-005 state mgmt
+  +-- Team 8:  CI/CD        --- FECICD-001 frontend build/test/lint in CI pipeline
+
+Phase 14 (parallel — 3 teams): Core Integration
+  +-- Team 10: FRONTEND     --- FE-002 replace mocked APIs, FE-003 SignalR, FE-006 error handling
+  +-- Team 10: FRONTEND     --- FE-007 loading states, FE-008 settings page, FE-022 navigation
+  +-- Team 7:  TESTING      --- FETEST-001 component unit tests (80% target)
+
+Phase 15 (parallel — 3 teams): Widget PRDs & Deployment
+  +-- Team 10: FRONTEND     --- FE-011 to FE-015 (5 priority widget PRDs)
+  +-- Team 8:  CI/CD        --- FECICD-002 to FECICD-004 (Docker, compose, deploy pipeline)
+  +-- Team 9:  INFRA        --- FECICD-005 K8s manifests, FECICD-006 Terraform frontend
+
+Phase 16 (parallel — 2 teams): Remaining Widgets & Testing
+  +-- Team 10: FRONTEND     --- FE-016 to FE-020 (5 additional widget PRDs), FE-021 routing, FE-023 RBAC
+  +-- Team 7:  TESTING      --- FETEST-002 to FETEST-005 (API tests, E2E, visual regression, Lighthouse)
+
+Phase 17 (final sweep):
+  +-- Team 10: FRONTEND     --- FE-024 to FE-028 (P3-LOW advanced features)
+  +-- Team 6:  QUALITY      --- Full validation: backend + frontend build, architecture check
+  +-- Team 7:  TESTING      --- Full frontend test suite with coverage report
 ```
 
 ---
@@ -366,6 +416,7 @@ The orchestrator is **fully autonomous across sessions**:
 /team-metacognitive    # Team 3: MetacognitiveLayer 50+ stubs
 /team-agency           # Team 4: AgencyLayer + TODO.md items
 /team-business         # Team 5: BusinessApplications fake-data stubs
+/team-frontend         # Team 10: UI/Frontend API integration + widget PRDs
 
 # Support teams (cross-cutting):
 /team-quality          # Team 6: Build health + architecture validation
@@ -406,6 +457,7 @@ The orchestrator is **fully autonomous across sessions**:
 | `/team-testing` | Unit tests, integration tests, coverage, benchmarks | `tests/` |
 | `/team-cicd` | Pipelines, Docker, security scanning, DevEx | `.github/`, `scripts/` |
 | `/team-infra` | Terraform, Terragrunt, Docker, Kubernetes | `infra/`, `k8s/` |
+| `/team-frontend` | UI/Frontend API integration, widget PRDs, settings | `src/UILayer/web/` |
 
 ### Workflow Agents
 
@@ -469,18 +521,34 @@ The orchestrator is **fully autonomous across sessions**:
 
 ## Work Item Summary
 
-| Team | Focus | Stubs | TODOs | New Files | Priority |
-|------|-------|-------|-------|-----------|----------|
-| 1 Foundation | Layer stubs + PRDs | 3 | 0 | ~10 tests | P0 |
-| 2 Reasoning | Layer stubs + PRDs | 2 | 0 | ~8 tests | P0/P1 |
-| 3 Metacognitive | 50+ stubs | 50+ | 5 | ~15 tests | P1 |
-| 4 Agency | Stubs + TODO.md | 8 | 5 | ~12 tests | P1 |
-| 5 Business | Fake-data stubs | 14 | 12 | ~20 tests | P2 |
-| 6 Quality | Build/XML/arch | -- | -- | -- | P0 |
-| 7 Testing | Test coverage | -- | -- | ~30 test files | P1 |
-| 8 CI/CD | Pipelines/Docker | -- | -- | ~8 configs | P1 |
-| 9 Infra | Terraform/K8s | -- | -- | ~20 .tf files | P1 |
-| **Total** | | **77+** | **22** | **~120+** | |
+### Backend Round (COMPLETE)
+
+| Team | Focus | Items | Status |
+|------|-------|-------|--------|
+| 1 Foundation | Layer stubs + PRDs | 3 stubs + 2 PRDs | DONE |
+| 2 Reasoning | Layer stubs + PRDs | 4 stubs + 2 PRDs | DONE |
+| 3 Metacognitive | 50+ stubs | 6 items | DONE |
+| 4 Agency | Stubs + TODO.md | 6 items + 2 PRDs | DONE |
+| 5 Business | Fake-data stubs | 5 items + 4 PRDs | DONE |
+| 6 Quality | Build/XML/arch | 3 arch violations | DONE |
+| 7 Testing | Test coverage | 9 test suites, 33 integration | DONE |
+| 8 CI/CD | Pipelines/Docker | 8 configs | DONE |
+| 9 Infra | Terraform/K8s | 11 items | DONE |
+| **Backend** | **70 items** | **70/70** | **100% DONE** |
+
+### Frontend Integration Round (NEW — 39 items)
+
+| Team | Focus | Items | New Files | Priority |
+|------|-------|-------|-----------|----------|
+| 10 Frontend | API integration, auth, state | 4 P0 + 6 P1 | ~20 files | P0/P1 |
+| 10 Frontend | Widget PRD implementations | 10 widgets | ~30 components | P1/P2 |
+| 10 Frontend | Settings, routing, navigation | 5 items | ~15 files | P1/P2 |
+| 10 Frontend | P3-LOW advanced features | 5 items | ~10 files | P3 |
+| 8 CI/CD | Frontend build/deploy pipeline | 4 items | ~6 configs | P2 |
+| 9 Infra | Frontend K8s + Terraform | 2 items | ~8 files | P2 |
+| 7 Testing | Frontend test coverage | 5 items | ~40 test files | P2 |
+| 6 Quality | Full-stack validation | 1 item | -- | P3 |
+| **Frontend** | **39 items** | **0/39** | **~129 files** | **Phase 13-17** |
 
 ---
 
@@ -490,12 +558,18 @@ Run `/orchestrate --status` or check `.claude/state/orchestrator.json` directly.
 
 Manual verification:
 ```bash
+# Backend
 dotnet build CognitiveMesh.sln
 dotnet test CognitiveMesh.sln --no-build
+
+# Frontend
+cd src/UILayer/web && npm run build && npm test -- --ci && npm run lint
+
+# Stubs
 grep -r "// TODO" src/ --include="*.cs" | wc -l
 grep -rE "// TODO: Implement|// Placeholder|throw new NotImplementedException" src/ --include="*.cs" | wc -l
 ```
 
 ---
 
-*Generated: 2026-02-19 | 9 code teams + 5 workflow agents + autonomous state persistence*
+*Updated: 2026-02-20 | 10 code teams + 5 workflow agents + autonomous state persistence. Backend round complete (70/70). Frontend integration round: 39 new items across Phases 13-17.*

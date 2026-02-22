@@ -14,6 +14,10 @@ public class WorkflowTemplateRegistry
     private readonly ConcurrentDictionary<string, WorkflowTemplate> _templates = new();
     private readonly ILogger<WorkflowTemplateRegistry> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WorkflowTemplateRegistry"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
     public WorkflowTemplateRegistry(ILogger<WorkflowTemplateRegistry> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -70,11 +74,24 @@ public class WorkflowTemplateRegistry
 /// </summary>
 public class WorkflowTemplate
 {
+    /// <summary>Gets or sets the unique identifier for this template.</summary>
     public string TemplateId { get; set; } = Guid.NewGuid().ToString();
+
+    /// <summary>Gets or sets the human-readable name of the template.</summary>
     public string Name { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets a description of what the template does.</summary>
     public string Description { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets a value indicating whether this template is pre-approved for governance bypass.</summary>
     public bool IsPreApproved { get; set; }
+
+    /// <summary>Gets or sets the identity of the approver who pre-approved this template.</summary>
     public string ApprovedBy { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the date and time when this template was approved.</summary>
     public DateTime ApprovedAt { get; set; }
+
+    /// <summary>Gets or sets the delegate that builds a <see cref="WorkflowDefinition"/> from a parameter dictionary.</summary>
     public Func<Dictionary<string, object>, WorkflowDefinition> BuildWorkflow { get; set; } = _ => new WorkflowDefinition();
 }

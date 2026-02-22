@@ -12,6 +12,10 @@ namespace MetacognitiveLayer.Protocols.LLM
         private readonly ILogger<MockLLMProvider> _logger;
         private readonly Random _random = new Random();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MockLLMProvider"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public MockLLMProvider(ILogger<MockLLMProvider> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -20,7 +24,7 @@ namespace MetacognitiveLayer.Protocols.LLM
         /// <summary>
         /// Completes a prompt with mock data.
         /// </summary>
-        public async Task<string> CompletePromptAsync(string prompt, LLMOptions options = null)
+        public async Task<string> CompletePromptAsync(string prompt, LLMOptions? options = null)
         {
             _logger.LogInformation("Mock LLM completing prompt with {Length} characters", prompt.Length);
             
@@ -28,7 +32,7 @@ namespace MetacognitiveLayer.Protocols.LLM
             await Task.Delay(500 + _random.Next(1000));
             
             // Generate a mock response based on prompt content
-            var response = GenerateMockResponse(prompt, options);
+            var response = GenerateMockResponse(prompt, options ?? new LLMOptions());
             
             _logger.LogInformation("Mock LLM generated response with {Length} characters", response.Length);
             return response;

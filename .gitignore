@@ -37,6 +37,13 @@ orleans.codegen.cs
 # Node.js Tools
 node_modules/
 npm-debug.log
+package-lock.json
+
+# Next.js
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
 
 # Testing
 TestResults/

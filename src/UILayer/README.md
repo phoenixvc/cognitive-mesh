@@ -141,12 +141,63 @@ async function renderDashboard(userId: string, apiToken: string) {
 
 ---
 
+## Project Structure
+
+The UI Layer is organized into two main areas:
+
+### `web/` — Next.js Frontend Application
+
+The interactive dashboard UI, migrated from [CognitiveMeshUI](https://github.com/phoenixvc/CognitiveMeshUI).
+
+- **Framework:** Next.js 15 + React 19, TypeScript, Tailwind CSS, shadcn/ui
+- **Design System:** Style Dictionary with multi-platform token generation
+- **Component Docs:** Storybook 8
+- **Testing:** Jest 30 + Testing Library
+
+```bash
+# Quick start
+cd src/UILayer/web
+npm install
+npm run dev          # http://localhost:3000
+npm run storybook    # http://localhost:6006
+npm test
+```
+
+Key directories inside `web/src/`:
+| Directory | Contents |
+|:---|:---|
+| `app/` | Next.js App Router pages and layouts |
+| `components/` | React components (dashboard, drag-drop, nexus) |
+| `components/agency/` | Agent control widgets (merged from UILayer/AgencyWidgets) |
+| `components/visualizations/` | D3 charts — metrics, network graph, timeline (merged from UILayer/Visualizations) |
+| `lib/accessibility/` | WCAG 2.1 AA hooks and components (merged from UILayer/Accessibility) |
+| `lib/i18n/` | Localization with react-i18next — en-US, fr-FR, de-DE (merged from UILayer/Localization) |
+| `lib/code-splitting/` | Lazy widget loader factory with error boundaries (merged from UILayer/CodeSplitting) |
+| `lib/service-worker/` | Offline support with cache strategies (merged from UILayer/ServiceWorker) |
+| `lib/api/adapters/` | API adapter stubs for backend integration |
+
+### C# Backend-for-Frontend (BFF) Services
+
+The .NET backend services that support the frontend remain at the UILayer root:
+
+| Directory | Contents |
+|:---|:---|
+| `Core/` | WidgetRegistry — in-memory widget lifecycle management |
+| `PluginAPI/` | IWidgetRegistry port interface |
+| `Orchestration/` | PluginOrchestrator — sandwich-pattern secure API gateway |
+| `Services/` | DashboardLayoutService — user dashboard persistence |
+| `Models/` | WidgetDefinition, WidgetInstance, DashboardLayout, Marketplace |
+| `AgencyWidgets/` | C# adapters, models, and widget registrations |
+| `Components/` | DashboardLayoutManager |
+
+---
+
 ## Next Steps
 Build/Publish a Widget Definition & Lifecycle PRD
 Standardize widget security, onboarding, versioning, and deprecation requirements.
-Specify how widgets signal dependencies (e.g., “needs AgenticLayer with NIST RMF access”).
+Specify how widgets signal dependencies (e.g., "needs AgenticLayer with NIST RMF access").
 Rollout a Widget/Marketplace Governance Doc
-Codify sandbox, review, security sign-off, and publishing protocol (could be adapted from Apple’s App Store or VSCode extension governance models).
+Codify sandbox, review, security sign-off, and publishing protocol (could be adapted from Apple's App Store or VSCode extension governance models).
 Synthesize a Persona-to-Widget-to-Platform Map
 Explicitly chart how each core persona is served by current and planned widgets, which ties back to mesh value per user segment.
 Add Usage/Performance Telemetry for Widgets

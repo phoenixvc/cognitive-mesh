@@ -1,13 +1,12 @@
-using CognitiveMesh.Application.UseCases.ChampionDiscovery;
-using CognitiveMesh.MetacognitiveLayer.CommunityPulse;
-using CognitiveMesh.MetacognitiveLayer.CommunityPulse.Models;
+using CognitiveMesh.BusinessApplications.ConvenerServices.Ports;
+using CognitiveMesh.BusinessApplications.ConvenerServices.UseCases;
+using MetacognitiveLayer.CommunityPulse;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace CognitiveMesh.BusinessApplications.ConvenerServices
 {
@@ -18,21 +17,35 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices
     /// </summary>
     [ApiController]
     [Route("api/v1/convener")]
-    [Authorize] // All endpoints require authentication by default.
+    [Authorize]
     public class ConvenerController : ControllerBase
     {
         private readonly ILogger<ConvenerController> _logger;
         private readonly DiscoverChampionsUseCase _discoverChampionsUseCase;
         private readonly CommunityPulseService _communityPulseService;
+        private readonly IInnovationSpreadPort _innovationSpreadPort;
+        private readonly ILearningCatalystPort _learningCatalystPort;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConvenerController"/> class.
+        /// </summary>
+        /// <param name="logger">Logger for structured diagnostics.</param>
+        /// <param name="discoverChampionsUseCase">Use case for champion discovery.</param>
+        /// <param name="communityPulseService">Service for community health metrics.</param>
+        /// <param name="innovationSpreadPort">Port for innovation spread tracking.</param>
+        /// <param name="learningCatalystPort">Port for learning catalyst recommendations.</param>
         public ConvenerController(
             ILogger<ConvenerController> logger,
             DiscoverChampionsUseCase discoverChampionsUseCase,
-            CommunityPulseService communityPulseService)
+            CommunityPulseService communityPulseService,
+            IInnovationSpreadPort innovationSpreadPort,
+            ILearningCatalystPort learningCatalystPort)
         {
-            _logger = logger;
-            _discoverChampionsUseCase = discoverChampionsUseCase;
-            _communityPulseService = communityPulseService;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _discoverChampionsUseCase = discoverChampionsUseCase ?? throw new ArgumentNullException(nameof(discoverChampionsUseCase));
+            _communityPulseService = communityPulseService ?? throw new ArgumentNullException(nameof(communityPulseService));
+            _innovationSpreadPort = innovationSpreadPort ?? throw new ArgumentNullException(nameof(innovationSpreadPort));
+            _learningCatalystPort = learningCatalystPort ?? throw new ArgumentNullException(nameof(learningCatalystPort));
         }
 
         /// <summary>
@@ -44,7 +57,7 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices
         /// endorsements, and recent activity. All data access is strictly scoped to the
         /// authenticated user's tenant.
         ///
-        /// Conforms to NFRs: Security (1), Telemetry & Audit (2), Performance (6).
+        /// Conforms to NFRs: Security (1), Telemetry &amp; Audit (2), Performance (6).
         /// </remarks>
         /// <param name="skill" example="MLOps">An optional skill to filter champions by.</param>
         /// <param name="maxResults" example="10">The maximum number of champions to return.</param>
@@ -145,28 +158,112 @@ namespace CognitiveMesh.BusinessApplications.ConvenerServices
             }
         }
 
-        // --- Placeholder Endpoints for Future Implementation ---
-
+        /// <summary>
+        /// Tracks how an innovation (idea) has spread through the organization.
+        /// </summary>
+        /// <remarks>
+        /// Returns adoption lineage, virality metrics, and current diffusion phase for a specific idea.
+        /// Implements the Innovation Spread Engine from the Convener PRD.
+        ///
+        /// Conforms to NFRs: Security (1), Telemetry &amp; Audit (2), Performance (6).
+        /// </remarks>
+        /// <param name="ideaId">The unique identifier for the innovation/idea to track.</param>
+        /// <returns>Innovation spread analysis including adoption lineage and metrics.</returns>
         [HttpGet("innovation/spread/{ideaId}")]
-        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-        public IActionResult GetInnovationSpread(string ideaId)
+        [ProducesResponseType(typeof(InnovationSpreadResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetInnovationSpread(string ideaId)
         {
-            return StatusCode(StatusCodes.Status501NotImplemented, "Innovation Spread tracking is not yet implemented.");
+            try
+            {
+                var tenantId = GetTenantIdFromClaims();
+                if (tenantId == null)
+                {
+                    return Unauthorized("Tenant ID is missing from the authentication token.");
+                }
+
+                if (string.IsNullOrWhiteSpace(ideaId))
+                {
+                    return BadRequest("The 'ideaId' path parameter is required.");
+                }
+
+                _logger.LogInformation(
+                    "Tracking innovation spread for Idea '{IdeaId}' in Tenant '{TenantId}'.",
+                    Sanitize(ideaId), Sanitize(tenantId));
+
+                var result = await _innovationSpreadPort.GetInnovationSpreadAsync(ideaId, tenantId);
+                if (result == null)
+                {
+                    return NotFound($"No innovation data found for idea '{ideaId}'.");
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unhandled exception occurred during innovation spread tracking for Idea '{IdeaId}'.", Sanitize(ideaId));
+                return StatusCode(StatusCodes.Status500InternalServerError, "An internal error occurred while processing your request.");
+            }
         }
 
+        /// <summary>
+        /// Generates personalized learning catalyst recommendations for the authenticated user.
+        /// </summary>
+        /// <remarks>
+        /// Analyzes the user's skill profile, identifies gaps, and recommends targeted learning
+        /// activities sourced from champions and curated content. Links contributions to outcomes.
+        ///
+        /// Conforms to NFRs: Security (1), Privacy (4), Telemetry &amp; Audit (2).
+        /// </remarks>
+        /// <param name="request">Optional request body with focus areas and result limits.</param>
+        /// <returns>Curated learning recommendations with identified skill gaps.</returns>
         [HttpPost("learning/catalysts/recommend")]
-        [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-        public IActionResult GetLearningRecommendations()
+        [ProducesResponseType(typeof(LearningCatalystResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetLearningRecommendations([FromBody] LearningCatalystRequest? request)
         {
-            return StatusCode(StatusCodes.Status501NotImplemented, "Learning Catalyst recommendations are not yet implemented.");
+            try
+            {
+                var tenantId = GetTenantIdFromClaims();
+                if (tenantId == null)
+                {
+                    return Unauthorized("Tenant ID is missing from the authentication token.");
+                }
+
+                var userId = User.FindFirstValue("sub") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    return Unauthorized("User ID is missing from the authentication token.");
+                }
+
+                request ??= new LearningCatalystRequest();
+                request.TenantId = tenantId;
+                request.UserId = userId;
+
+                _logger.LogInformation(
+                    "Generating learning catalyst recommendations for User '{UserId}' in Tenant '{TenantId}'.",
+                    userId, tenantId);
+
+                var response = await _learningCatalystPort.GetRecommendationsAsync(request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unhandled exception occurred during learning catalyst recommendation.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An internal error occurred while processing your request.");
+            }
         }
 
         /// <summary>
         /// Helper method to securely retrieve the Tenant ID from the user's claims.
         /// </summary>
-        private string GetTenantIdFromClaims()
+        private string? GetTenantIdFromClaims()
         {
-            // In a real application, the claim type would be a constant.
             return User.FindFirstValue("tenant_id");
         }
     }

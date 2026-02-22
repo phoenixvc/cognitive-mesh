@@ -12,31 +12,31 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Name of the task
         /// </summary>
         [XmlAttribute("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         
         /// <summary>
         /// Domain this task belongs to
         /// </summary>
         [XmlAttribute("domain")]
-        public string Domain { get; set; }
+        public string Domain { get; set; } = string.Empty;
         
         /// <summary>
         /// Version of the task template
         /// </summary>
         [XmlAttribute("version")]
-        public string Version { get; set; }
+        public string Version { get; set; } = string.Empty;
         
         /// <summary>
         /// Description of the task
         /// </summary>
         [XmlElement("Description")]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         
         /// <summary>
         /// Primary tool to execute for this task
         /// </summary>
         [XmlElement("PrimaryTool")]
-        public string PrimaryTool { get; set; }
+        public string PrimaryTool { get; set; } = string.Empty;
         
         /// <summary>
         /// List of parameters for the task
@@ -63,12 +63,12 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Fallback behavior in case of failure
         /// </summary>
         [XmlElement("Fallback")]
-        public ACPFallback Fallback { get; set; }
+        public ACPFallback Fallback { get; set; } = null!;
         
         /// <summary>
         /// Metadata associated with this task
         /// </summary>
         [XmlElement("Metadata")]
-        public ACPMetadata Metadata { get; set; }
+        public ACPMetadata Metadata { get; set; } = null!;
     }
 }

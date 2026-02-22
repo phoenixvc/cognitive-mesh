@@ -3,24 +3,36 @@ using CognitiveMesh.ReasoningLayer.AgencyRouter.Ports;
 
 namespace CognitiveMesh.ReasoningLayer.AgencyRouter.Engines;
 
-// --- Placeholder Interfaces for Outbound Adapters ---
-// These define the contracts for how the pure domain engine communicates with the outside world (e.g., databases, event buses).
-// The concrete implementations of these adapters would reside in the Infrastructure layer.
+/// <summary>
+/// Defines the contract for policy persistence operations in the agency router.
+/// </summary>
 public interface IPolicyRepository
 {
+    /// <summary>Gets the policy configuration for the specified tenant.</summary>
     Task<PolicyConfiguration> GetPolicyForTenantAsync(string tenantId);
+    /// <summary>Saves the policy configuration for a tenant.</summary>
     Task<bool> SavePolicyForTenantAsync(PolicyConfiguration policy);
 }
 
+/// <summary>
+/// Defines the contract for task context persistence operations.
+/// </summary>
 public interface ITaskContextRepository
 {
+    /// <summary>Saves the task context.</summary>
     Task SaveTaskContextAsync(TaskContext context);
+    /// <summary>Retrieves the task context by task and tenant identifiers.</summary>
     Task<TaskContext> GetTaskContextAsync(string taskId, string tenantId);
+    /// <summary>Updates the autonomy level for the specified task.</summary>
     Task UpdateTaskAutonomyAsync(string taskId, string tenantId, AutonomyLevel newLevel, ProvenanceContext overrideProvenance);
 }
 
+/// <summary>
+/// Defines the contract for audit logging in the agency router.
+/// </summary>
 public interface IAuditLoggingAdapter
 {
+    /// <summary>Logs an audit event with its associated provenance context.</summary>
     Task LogAuditEventAsync(string eventType, object eventData, ProvenanceContext provenance);
 }
 
@@ -41,6 +53,13 @@ public class ContextualAdaptiveAgencyEngine : IAgencyRouterPort
     // In-memory cache for tenant policies to improve performance, as per the PRD.
     private static readonly ConcurrentDictionary<string, PolicyConfiguration> _policyCache = new();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ContextualAdaptiveAgencyEngine"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance for structured logging.</param>
+    /// <param name="policyRepository">The repository for persisting and retrieving policy configurations.</param>
+    /// <param name="taskContextRepository">The repository for persisting and retrieving task contexts.</param>
+    /// <param name="auditLoggingAdapter">The adapter for immutable audit logging.</param>
     public ContextualAdaptiveAgencyEngine(
         ILogger<ContextualAdaptiveAgencyEngine> logger,
         IPolicyRepository policyRepository,
@@ -72,7 +91,7 @@ public class ContextualAdaptiveAgencyEngine : IAgencyRouterPort
             decision.PolicyVersionApplied = policy?.PolicyVersion ?? "N/A";
 
             // Evaluate policy rules to determine the autonomy level.
-            var chosenLevel = EvaluatePolicy(context, policy);
+            var chosenLevel = EvaluatePolicy(context, policy!);
             decision.ChosenAutonomyLevel = chosenLevel;
             decision.Justification = $"Autonomy level set to '{chosenLevel}' based on policy '{decision.PolicyVersionApplied}'.";
 
@@ -133,7 +152,7 @@ public class ContextualAdaptiveAgencyEngine : IAgencyRouterPort
             _policyCache[tenantId] = policy;
         }
 
-        return policy;
+        return policy ?? new PolicyConfiguration { TenantId = tenantId, PolicyVersion = "default" };
     }
 
     /// <inheritdoc />

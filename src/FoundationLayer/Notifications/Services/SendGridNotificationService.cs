@@ -35,7 +35,9 @@ namespace FoundationLayer.Notifications.Services
         private readonly SemaphoreSlim _processingSemaphore = new SemaphoreSlim(1, 1);
         private readonly Timer _processingTimer;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+#pragma warning disable CS0414 // Field is assigned but its value is never used
         private bool _isProcessing = false;
+#pragma warning restore CS0414
         private bool _disposed = false;
 
         /// <summary>
@@ -150,6 +152,7 @@ namespace FoundationLayer.Notifications.Services
         /// <inheritdoc />
         public async Task<DeliveryStatus> CheckDeliveryStatusAsync(string notificationId)
         {
+            await Task.CompletedTask;
             if (string.IsNullOrEmpty(notificationId))
             {
                 throw new ArgumentException("Notification ID cannot be empty", nameof(notificationId));
@@ -211,6 +214,7 @@ namespace FoundationLayer.Notifications.Services
         /// <inheritdoc />
         public async Task<bool> CancelNotificationAsync(string notificationId)
         {
+            await Task.CompletedTask;
             if (string.IsNullOrEmpty(notificationId))
             {
                 throw new ArgumentException("Notification ID cannot be empty", nameof(notificationId));
@@ -240,6 +244,7 @@ namespace FoundationLayer.Notifications.Services
         /// <inheritdoc />
         public async Task<IEnumerable<DeliveryStatus>> GetFailedNotificationsAsync()
         {
+            await Task.CompletedTask;
             var failedNotifications = new List<DeliveryStatus>();
             
             // Get all notifications from the dead letter queue
@@ -253,7 +258,7 @@ namespace FoundationLayer.Notifications.Services
                     ErrorMessage = "Notification failed to send and was moved to dead letter queue",
                     Metadata = new Dictionary<string, string>
                     {
-                        { "Subject", notification.Subject },
+                        { "Subject", notification.Subject ?? string.Empty },
                         { "Priority", notification.Priority.ToString() },
                         { "RecipientCount", notification.Recipients.Count.ToString() }
                     }
@@ -487,6 +492,7 @@ namespace FoundationLayer.Notifications.Services
         /// <returns>HTML content</returns>
         private async Task<string> CreateHtmlContentAsync(NotificationMessage notification)
         {
+            await Task.CompletedTask;
             // Start with basic HTML template
             var htmlBuilder = new StringBuilder();
             htmlBuilder.AppendLine("<!DOCTYPE html>");
@@ -611,8 +617,9 @@ namespace FoundationLayer.Notifications.Services
             var textBuilder = new StringBuilder();
             
             // Add subject as header
-            textBuilder.AppendLine(notification.Subject);
-            textBuilder.AppendLine(new string('-', notification.Subject.Length));
+            var subject = notification.Subject ?? string.Empty;
+            textBuilder.AppendLine(subject);
+            textBuilder.AppendLine(new string('-', subject.Length));
             textBuilder.AppendLine();
             
             // Add the message body
@@ -651,7 +658,7 @@ namespace FoundationLayer.Notifications.Services
         /// <summary>
         /// Timer callback to process the notification queues.
         /// </summary>
-        private async void ProcessQueuesCallback(object state)
+        private async void ProcessQueuesCallback(object? state)
         {
             if (_disposed)
             {

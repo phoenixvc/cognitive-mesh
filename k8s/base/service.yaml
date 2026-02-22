@@ -1,0 +1,24 @@
+###############################################################################
+# Cognitive Mesh — Base Service
+###############################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: cognitive-mesh-api
+  labels:
+    app: cognitive-mesh
+    component: api
+spec:
+  type: ClusterIP
+  selector:
+    app: cognitive-mesh
+    component: api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+    - name: health
+      port: 8081
+      targetPort: health
+      protocol: TCP

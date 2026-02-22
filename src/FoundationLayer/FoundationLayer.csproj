@@ -3,6 +3,9 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net9.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +24,8 @@
     <ProjectReference Include=".\VectorDatabase\VectorDatabase.csproj" />
     <ProjectReference Include=".\OneLakeIntegration\OneLakeIntegration.csproj" />
     <ProjectReference Include=".\Security\Security.csproj" />
+    <ProjectReference Include=".\NISTEvidence\NISTEvidence.csproj" />
+    <ProjectReference Include=".\EvidenceArtifacts\EvidenceArtifacts.csproj" />
   </ItemGroup>
 
 </Project>

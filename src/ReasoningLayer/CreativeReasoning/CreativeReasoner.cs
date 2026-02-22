@@ -10,6 +10,10 @@ namespace CognitiveMesh.ReasoningLayer.CreativeReasoning
         private readonly ILLMClient _llmClient;
         private bool _disposed = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreativeReasoner"/> class.
+        /// </summary>
+        /// <param name="llmClient">The LLM client for generating creative content.</param>
         public CreativeReasoner(ILLMClient llmClient)
         {
             _llmClient = llmClient ?? throw new ArgumentNullException(nameof(llmClient));
@@ -82,6 +86,10 @@ namespace CognitiveMesh.ReasoningLayer.CreativeReasoning
             }
         }
 
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="CreativeReasoner"/> and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -95,6 +103,7 @@ namespace CognitiveMesh.ReasoningLayer.CreativeReasoning
             }
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
