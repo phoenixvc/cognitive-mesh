@@ -7,7 +7,7 @@ jobs:
   migrate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check if migration tool exists
         id: check_migration
         run: |
@@ -17,7 +17,7 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
             echo "Migration tool not yet implemented, skipping checks."
           fi
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         if: steps.check_migration.outputs.exists == 'true'
         with: { python-version: "3.14.3" }
       - run: pip install poetry
