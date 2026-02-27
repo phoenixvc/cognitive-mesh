@@ -35,7 +35,7 @@
     <PackageVersion Include="System.Xml.XmlSerializer" Version="[4.3.0]" />
     <PackageVersion Include="System.Threading.Tasks.Extensions" Version="[4.6.3]" />
     <!-- Redis -->
-    <PackageVersion Include="StackExchange.Redis" Version="[2.11.3]" />
+    <PackageVersion Include="StackExchange.Redis" Version="[2.11.8]" />
     <!-- Geospatial -->
     <PackageVersion Include="NetTopologySuite" Version="[2.6.0]" />
     <!-- Command Line -->
@@ -53,7 +53,7 @@
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="[3.57.1]" />
     <PackageVersion Include="Qdrant.Client" Version="[1.17.0]" />
     <!-- Testing -->
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="[18.0.1]" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="[18.3.0]" />
     <PackageVersion Include="xunit" Version="[2.9.2]" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="[3.1.5]" />
     <PackageVersion Include="coverlet.collector" Version="[8.0.0]" />
