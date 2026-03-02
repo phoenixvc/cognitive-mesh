@@ -10,17 +10,17 @@ public class SafetyMetricsRequest
     /// <summary>
     /// The tenant ID to scope the query.
     /// </summary>
-    public string TenantId { get; set; }
+    public string TenantId { get; set; } = string.Empty;
 
     /// <summary>
     /// The specific scope ID (e.g., a channel ID, team ID, or organization unit ID).
     /// </summary>
-    public string ScopeId { get; set; }
+    public string ScopeId { get; set; } = string.Empty;
 
     /// <summary>
     /// The type of scope being queried (e.g., "Channel", "Team").
     /// </summary>
-    public string ScopeType { get; set; }
+    public string ScopeType { get; set; } = string.Empty;
 
     /// <summary>
     /// The number of days of historical data to include in the calculation.
@@ -41,7 +41,7 @@ public class SafetyMetrics
     /// <summary>
     /// The assessed risk level ("Low", "Medium", "High").
     /// </summary>
-    public string RiskLevel { get; set; }
+    public string RiskLevel { get; set; } = string.Empty;
 
     /// <summary>
     /// A dictionary of factors that contributed to the score (e.g., "PositiveSentimentRatio", "EngagementTrend").
@@ -54,10 +54,10 @@ public class SafetyMetrics
 /// </summary>
 public class SafetyMetricsResponse
 {
-    public string TenantId { get; set; }
-    public string ScopeId { get; set; }
+    public string TenantId { get; set; } = string.Empty;
+    public string ScopeId { get; set; } = string.Empty;
     public DateTimeOffset AsOfTimestamp { get; set; }
-    public SafetyMetrics Metrics { get; set; }
+    public SafetyMetrics Metrics { get; set; } = null!;
 }
 
 /// <summary>
@@ -65,9 +65,9 @@ public class SafetyMetricsResponse
 /// </summary>
 public class TrendAnalysisRequest
 {
-    public string TenantId { get; set; }
-    public string ScopeId { get; set; }
-    public string ScopeType { get; set; }
+    public string TenantId { get; set; } = string.Empty;
+    public string ScopeId { get; set; } = string.Empty;
+    public string ScopeType { get; set; } = string.Empty;
     public DateTimeOffset StartTime { get; set; }
     public DateTimeOffset EndTime { get; set; }
 }
@@ -79,9 +79,9 @@ public class SafetyAlert
 {
     public string AlertId { get; set; } = Guid.NewGuid().ToString();
     public DateTimeOffset Timestamp { get; set; }
-    public string AlertType { get; set; } // e.g., "NegativeSentimentSpike", "SustainedEngagementDrop"
-    public string Description { get; set; }
-    public string Severity { get; set; } // "High", "Medium", "Low"
+    public string AlertType { get; set; } = string.Empty; // e.g., "NegativeSentimentSpike", "SustainedEngagementDrop"
+    public string Description { get; set; } = string.Empty;
+    public string Severity { get; set; } = string.Empty; // "High", "Medium", "Low"
 }
 
 /// <summary>

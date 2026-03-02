@@ -3,47 +3,53 @@ using Microsoft.Extensions.Logging;
 namespace MetacognitiveLayer.Protocols.Common.Memory
 {
     /// <summary>
-    /// Hybrid implementation of the mesh memory store that combines DuckDB and Redis.
-    /// Uses Redis for fast, in-memory operations and DuckDB for persistence and complex queries.
+    /// Hybrid implementation of the mesh memory store that combines a persistent store
+    /// (SQLite or DuckDB) with a fast cache layer (Redis). Uses the cache for
+    /// low-latency reads and dual-writes to both stores for durability.
     /// </summary>
     public class HybridMemoryStore : IMeshMemoryStore
     {
-        private readonly DuckDbMemoryStore _duckDbStore;
-        private readonly RedisVectorMemoryStore _redisStore;
+        private readonly IMeshMemoryStore _persistentStore;
+        private readonly IMeshMemoryStore _cacheStore;
         private readonly ILogger<HybridMemoryStore> _logger;
-        private readonly bool _preferRedisForRetrieval;
-        private bool _initialized = false;
+        private readonly bool _preferCacheForRetrieval;
+        private bool _initialized;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HybridMemoryStore"/> class.
+        /// </summary>
+        /// <param name="persistentStore">The durable store (SQLite, DuckDB).</param>
+        /// <param name="cacheStore">The fast cache store (Redis).</param>
+        /// <param name="logger">Logger instance.</param>
+        /// <param name="preferCacheForRetrieval">When true, reads try cache first.</param>
         public HybridMemoryStore(
-            DuckDbMemoryStore duckDbStore, 
-            RedisVectorMemoryStore redisStore, 
+            IMeshMemoryStore persistentStore,
+            IMeshMemoryStore cacheStore,
             ILogger<HybridMemoryStore> logger,
-            bool preferRedisForRetrieval = true)
+            bool preferCacheForRetrieval = true)
         {
-            _duckDbStore = duckDbStore ?? throw new ArgumentNullException(nameof(duckDbStore));
-            _redisStore = redisStore ?? throw new ArgumentNullException(nameof(redisStore));
+            _persistentStore = persistentStore ?? throw new ArgumentNullException(nameof(persistentStore));
+            _cacheStore = cacheStore ?? throw new ArgumentNullException(nameof(cacheStore));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _preferRedisForRetrieval = preferRedisForRetrieval;
+            _preferCacheForRetrieval = preferCacheForRetrieval;
         }
 
         /// <summary>
-        /// Initializes both storage systems.
+        /// Initializes both storage systems in parallel.
         /// </summary>
         public async Task InitializeAsync()
         {
+            if (_initialized) return;
+
             try
             {
-                if (_initialized)
-                    return;
-
                 _logger.LogInformation("Initializing hybrid memory store");
-                
-                // Initialize both stores
+
                 await Task.WhenAll(
-                    _duckDbStore.InitializeAsync(),
-                    _redisStore.InitializeAsync()
+                    _persistentStore.InitializeAsync(),
+                    _cacheStore.InitializeAsync()
                 );
-                
+
                 _initialized = true;
                 _logger.LogInformation("Hybrid memory store initialized successfully");
             }
@@ -55,23 +61,21 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         }
 
         /// <summary>
-        /// Saves context data to both stores.
+        /// Saves context data to both stores concurrently.
         /// </summary>
         public async Task SaveContextAsync(string sessionId, string key, string value)
         {
-            if (!_initialized)
-                await InitializeAsync();
+            if (!_initialized) await InitializeAsync();
 
             try
             {
                 _logger.LogDebug("Saving context to hybrid store for session {SessionId}, key {Key}", sessionId, key);
-                
-                // Save to both stores concurrently
+
                 await Task.WhenAll(
-                    _redisStore.SaveContextAsync(sessionId, key, value),
-                    _duckDbStore.SaveContextAsync(sessionId, key, value)
+                    _cacheStore.SaveContextAsync(sessionId, key, value),
+                    _persistentStore.SaveContextAsync(sessionId, key, value)
                 );
-                
+
                 _logger.LogDebug("Context saved successfully to hybrid store");
             }
             catch (Exception ex)
@@ -82,43 +86,33 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         }
 
         /// <summary>
-        /// Retrieves context data, preferring Redis for speed if configured.
+        /// Retrieves context data, trying the preferred store first then falling back.
         /// </summary>
         public async Task<string> GetContextAsync(string sessionId, string key)
         {
-            if (!_initialized)
-                await InitializeAsync();
+            if (!_initialized) await InitializeAsync();
 
             try
             {
                 _logger.LogDebug("Retrieving context from hybrid store for session {SessionId}, key {Key}", sessionId, key);
-                
-                string value = null;
-                
-                // Try primary store first
-                if (_preferRedisForRetrieval)
+
+                if (_preferCacheForRetrieval)
                 {
-                    value = await _redisStore.GetContextAsync(sessionId, key);
-                    if (value != null)
-                    {
+                    var value = await _cacheStore.GetContextAsync(sessionId, key);
+                    if (!string.IsNullOrEmpty(value))
                         return value;
-    }
-                    
-                    // Fall back to DuckDB if not found in Redis
-                    _logger.LogDebug("Context not found in Redis, falling back to DuckDB");
-                    return await _duckDbStore.GetContextAsync(sessionId, key);
-}
+
+                    _logger.LogDebug("Context not found in cache, falling back to persistent store");
+                    return await _persistentStore.GetContextAsync(sessionId, key);
+                }
                 else
                 {
-                    value = await _duckDbStore.GetContextAsync(sessionId, key);
-                    if (value != null)
-                    {
+                    var value = await _persistentStore.GetContextAsync(sessionId, key);
+                    if (!string.IsNullOrEmpty(value))
                         return value;
-                    }
-                    
-                    // Fall back to Redis if not found in DuckDB
-                    _logger.LogDebug("Context not found in DuckDB, falling back to Redis");
-                    return await _redisStore.GetContextAsync(sessionId, key);
+
+                    _logger.LogDebug("Context not found in persistent store, falling back to cache");
+                    return await _cacheStore.GetContextAsync(sessionId, key);
                 }
             }
             catch (Exception ex)
@@ -129,27 +123,25 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         }
 
         /// <summary>
-        /// Finds context values similar to the provided embedding, preferring Redis for vector search.
+        /// Queries for similar embeddings, preferring the cache store for speed
+        /// and falling back to the persistent store if needed.
         /// </summary>
         public async Task<IEnumerable<string>> QuerySimilarAsync(string embedding, float threshold)
         {
-            if (!_initialized)
-                await InitializeAsync();
+            if (!_initialized) await InitializeAsync();
 
             try
             {
                 _logger.LogDebug("Querying similar embeddings from hybrid store with threshold {Threshold}", threshold);
-                
-                // Prefer Redis for vector similarity search as it's typically faster for this operation
-                IEnumerable<string> results = await _redisStore.QuerySimilarAsync(embedding, threshold);
-                
-                // If no results from Redis or insufficient results, supplement with DuckDB
+
+                var results = await _cacheStore.QuerySimilarAsync(embedding, threshold);
+
                 if (results == null || !results.Any())
                 {
-                    _logger.LogDebug("No similar embeddings found in Redis, falling back to DuckDB");
-                    results = await _duckDbStore.QuerySimilarAsync(embedding, threshold);
+                    _logger.LogDebug("No similar embeddings found in cache, falling back to persistent store");
+                    results = await _persistentStore.QuerySimilarAsync(embedding, threshold);
                 }
-                
+
                 return results;
             }
             catch (Exception ex)

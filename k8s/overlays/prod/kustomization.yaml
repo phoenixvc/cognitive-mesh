@@ -1,0 +1,87 @@
+###############################################################################
+# Cognitive Mesh — Production Overlay
+###############################################################################
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: cognitive-mesh-prod
+
+namespace: cognitive-mesh-prod
+
+commonLabels:
+  app.kubernetes.io/instance: prod
+  environment: prod
+
+resources:
+  - ../../base
+
+patches:
+  # Production: higher replicas and resources
+  - target:
+      kind: Deployment
+      name: cognitive-mesh-api
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 3
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 500m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 1Gi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "2"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 2Gi
+
+  # Production environment config
+  - target:
+      kind: ConfigMap
+      name: cognitive-mesh-config
+    patch: |
+      - op: replace
+        path: /data/ASPNETCORE_ENVIRONMENT
+        value: Production
+      - op: replace
+        path: /data/KEY_VAULT_URI
+        value: "https://cognitive-mesh-kv-prod.vault.azure.net/"
+      - op: replace
+        path: /data/COSMOSDB_ENDPOINT
+        value: "https://cognitive-mesh-cosmos-prod.documents.azure.com:443/"
+      - op: replace
+        path: /data/REDIS_HOSTNAME
+        value: "cognitive-mesh-redis-prod.redis.cache.windows.net"
+      - op: replace
+        path: /data/QDRANT_ENDPOINT
+        value: "http://cognitive-mesh-qdrant-prod:6333"
+      - op: replace
+        path: /data/OPENAI_ENDPOINT
+        value: "https://cognitive-mesh-openai-prod.openai.azure.com/"
+      - op: replace
+        path: /data/SEARCH_ENDPOINT
+        value: "https://cognitive-mesh-search-prod.search.windows.net"
+      - op: replace
+        path: /data/LOG_LEVEL
+        value: Warning
+
+  # Add pod disruption budget for production
+  - target:
+      kind: Deployment
+      name: cognitive-mesh-api
+    patch: |
+      - op: add
+        path: /spec/strategy
+        value:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+
+images:
+  - name: cognitive-mesh-api
+    newName: cognitivemeshacr.azurecr.io/cognitive-mesh-api
+    newTag: prod-latest

@@ -1,0 +1,70 @@
+{
+  "mesh": {
+    "color": {
+      "neural": {
+        "primary": {
+          "value": "#58A6FF",
+          "type": "color"
+        },
+        "secondary": {
+          "value": "#8B45FF",
+          "type": "color"
+        },
+        "accent": {
+          "value": "#00BFFF",
+          "type": "color"
+        },
+        "matrix": {
+          "value": "#7EE787",
+          "type": "color"
+        }
+      },
+      "semantic": {
+        "danger": {
+          "value": "#FF5F56",
+          "type": "color"
+        },
+        "warning": {
+          "value": "#FFBD2E",
+          "type": "color"
+        },
+        "success": {
+          "value": "#7EE787",
+          "type": "color"
+        }
+      },
+      "theme": {
+        "background-dark": {
+          "value": "#0D1117",
+          "type": "color"
+        },
+        "background-light": {
+          "value": "#F9FBFD",
+          "type": "color"
+        }
+      }
+    },
+    "font": {
+      "sans": {
+        "value": "Inter",
+        "type": "fontFamily"
+      },
+      "mono": {
+        "value": "JetBrains Mono",
+        "type": "fontFamily"
+      }
+    },
+    "effect": {
+      "glow": {
+        "primary": {
+          "value": "0 0 20px #58A6FF",
+          "type": "boxShadow"
+        },
+        "soft": {
+          "value": "0 0 40px rgba(88, 166, 255, 0.3)",
+          "type": "boxShadow"
+        }
+      }
+    }
+  }
+}

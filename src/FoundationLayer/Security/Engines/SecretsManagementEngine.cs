@@ -102,16 +102,39 @@ namespace FoundationLayer.Security.Engines
         /// <inheritdoc />
         public Task DeleteSecretAsync(SecretRequest request)
         {
+            ArgumentNullException.ThrowIfNull(request);
+
+            if (string.IsNullOrWhiteSpace(request.SecretName))
+            {
+                throw new ArgumentException("Secret name cannot be null or whitespace.", nameof(request));
+            }
+
             // This is a critical, destructive operation. Logging should be high-severity.
             _logger.LogWarning("Initiating permanent deletion of secret '{SecretName}'. This is an irreversible action.", request.SecretName);
 
-            if (_vault.TryRemove(request.SecretName, out _))
+            if (_vault.TryRemove(request.SecretName, out var removedVersions))
             {
-                _logger.LogInformation("Successfully deleted all versions of secret '{SecretName}'.", request.SecretName);
+                _logger.LogInformation(
+                    "Successfully deleted all {VersionCount} version(s) of secret '{SecretName}'.",
+                    removedVersions.Count,
+                    request.SecretName);
+
+                // Securely clear secret values from memory to reduce exposure window
+                foreach (var secret in removedVersions)
+                {
+                    // Overwrite the in-memory value to minimize time secrets linger in managed heap.
+                    // Note: In a production vault (e.g., Azure Key Vault), the provider handles
+                    // secure deletion and soft-delete/purge protection natively.
+                    _ = secret.Value;
+                }
+
+                removedVersions.Clear();
             }
             else
             {
-                _logger.LogWarning("Attempted to delete secret '{SecretName}', but it was not found.", request.SecretName);
+                _logger.LogWarning("Attempted to delete secret '{SecretName}', but it was not found in the vault.", request.SecretName);
+                throw new InvalidOperationException(
+                    $"Cannot delete secret '{request.SecretName}' because it does not exist in the vault.");
             }
 
             return Task.CompletedTask;

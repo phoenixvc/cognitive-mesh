@@ -3,6 +3,10 @@ using System.Text.Json;
 using MetacognitiveLayer.Protocols.Integration;
 using MetacognitiveLayer.Protocols.LLM;
 using Microsoft.Extensions.Logging;
+using IContextTemplateResolver = MetacognitiveLayer.Protocols.Common.Templates.IContextTemplateResolver;
+using IMeshMemoryStore = MetacognitiveLayer.Protocols.Common.Memory.IMeshMemoryStore;
+using IToolRunner = MetacognitiveLayer.Protocols.Common.Tools.IToolRunner;
+using ToolContext = MetacognitiveLayer.Protocols.Common.Tools.ToolContext;
 
 namespace MetacognitiveLayer.Protocols.Common.Orchestration
 {
@@ -18,6 +22,14 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
         private readonly ILogger<AgentOrchestrator> _logger;
         private readonly Dictionary<string, AgentRegistration> _agents = new Dictionary<string, AgentRegistration>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AgentOrchestrator"/> class.
+        /// </summary>
+        /// <param name="templateResolver">The context template resolver for resolving agent prompts.</param>
+        /// <param name="memoryStore">The memory store for persisting agent state.</param>
+        /// <param name="llmProvider">The LLM provider for generating agent responses.</param>
+        /// <param name="toolRunner">The tool runner for executing agent tools.</param>
+        /// <param name="logger">The logger instance.</param>
         public AgentOrchestrator(
             IContextTemplateResolver templateResolver,
             IMeshMemoryStore memoryStore,
@@ -64,7 +76,7 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
 
                 // Store request in memory
                 await _memoryStore.SaveContextAsync(
-                    sessionId,
+                    sessionId!,
                     $"request:{DateTime.UtcNow.Ticks}",
                     JsonSerializer.Serialize(request)
                 );
@@ -74,7 +86,7 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
 
                 // Save prompt to memory
                 await _memoryStore.SaveContextAsync(
-                    sessionId,
+                    sessionId!,
                     $"prompt:{DateTime.UtcNow.Ticks}",
                     prompt
                 );
@@ -90,27 +102,27 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
                         Temperature = agent.Configuration.ContainsKey("temperature") 
                             ? Convert.ToSingle(agent.Configuration["temperature"]) 
                             : 0.7f,
-                        Model = agent.Configuration.ContainsKey("model") 
-                            ? agent.Configuration["model"].ToString() 
+                        Model = agent.Configuration.ContainsKey("model")
+                            ? agent.Configuration["model"].ToString()!
                             : "default"
                     }
                 );
 
                 // Save LLM response to memory
                 await _memoryStore.SaveContextAsync(
-                    sessionId,
+                    sessionId!,
                     $"llm_response:{DateTime.UtcNow.Ticks}",
                     llmResponse
                 );
 
                 // Process tool invocations if any
-                var processedResponse = await ProcessToolInvocations(llmResponse, sessionId, request.Parameters);
+                var processedResponse = await ProcessToolInvocations(llmResponse, sessionId!, request.Parameters);
 
                 // Set result
                 result.Success = true;
                 result.Output = processedResponse;
                 result.Data["raw_llm_response"] = llmResponse;
-                result.Data["session_id"] = sessionId;
+                result.Data["session_id"] = sessionId ?? string.Empty;
             }
             catch (Exception ex)
             {
@@ -170,13 +182,14 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
         /// </summary>
         public async Task<Dictionary<string, string>> GetAvailableAgentsAsync()
         {
+            await Task.CompletedTask;
             var agents = new Dictionary<string, string>();
-            
+
             foreach (var agent in _agents)
             {
                 agents[agent.Key] = agent.Value.AgentType;
             }
-            
+
             return agents;
         }
 
@@ -212,17 +225,17 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
                     try
                     {
                         // Parse tool input
-                        var toolInput = JsonSerializer.Deserialize<Dictionary<string, object>>(toolInputJson);
+                        var toolInput = JsonSerializer.Deserialize<Dictionary<string, object>>(toolInputJson)!;
                         
                         // Execute tool
                         var toolContext = new ToolContext
                         {
                             SessionId = sessionId,
-                            UserId = parameters.ContainsKey("user_id") ? parameters["user_id"].ToString() : "system",
+                            UserId = parameters.ContainsKey("user_id") ? parameters["user_id"].ToString()! : "system",
                             AdditionalContext = parameters
                         };
 
-                        var toolResult = await _toolRunner.Execute(toolId, toolInput, toolContext);
+                        var toolResult = await _toolRunner.Execute(toolId, toolInput!, toolContext);
                         
                         // Replace tool invocation with result
                         var toolResultJson = JsonSerializer.Serialize(toolResult);
@@ -252,9 +265,9 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
         /// </summary>
         private class AgentRegistration
         {
-            public string AgentId { get; set; }
-            public string AgentType { get; set; }
-            public Dictionary<string, object> Configuration { get; set; }
+            public string AgentId { get; set; } = string.Empty;
+            public string AgentType { get; set; } = string.Empty;
+            public Dictionary<string, object> Configuration { get; set; } = new();
             public DateTimeOffset RegisteredAt { get; set; }
         }
     }

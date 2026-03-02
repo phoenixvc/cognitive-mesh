@@ -12,6 +12,11 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
         private readonly ILogger<RedisVectorMemoryStore> _logger;
         private readonly Lazy<Task> _lazyInit;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisVectorMemoryStore"/> class.
+        /// </summary>
+        /// <param name="vectorSearch">The vector search provider used for storage and retrieval.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public RedisVectorMemoryStore(IVectorSearchProvider vectorSearch, ILogger<RedisVectorMemoryStore> logger)
         {
             _vectorSearch = vectorSearch ?? throw new ArgumentNullException(nameof(vectorSearch));
@@ -19,8 +24,10 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             _lazyInit = new Lazy<Task>(() => _vectorSearch.InitializeAsync());
         }
 
+        /// <inheritdoc />
         public async Task InitializeAsync() => await _lazyInit.Value;
 
+        /// <inheritdoc />
         public async Task SaveContextAsync(string sessionId, string key, string value)
         {
             await InitializeAsync();
@@ -45,6 +52,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             _logger.LogDebug("Saved context to Redis for key {Key}", redisKey);
         }
 
+        /// <inheritdoc />
         public async Task<string> GetContextAsync(string sessionId, string key)
         {
             await InitializeAsync();
@@ -52,6 +60,7 @@ namespace MetacognitiveLayer.Protocols.Common.Memory
             return await _vectorSearch.GetDocumentValueAsync(redisKey, "$.value");
         }
 
+        /// <inheritdoc />
         public async Task<IEnumerable<string>> QuerySimilarAsync(string embedding, float threshold)
         {
             await InitializeAsync();

@@ -28,7 +28,7 @@ namespace MetacognitiveLayer.Protocols.LLM
         /// <summary>
         /// System message for chat-based models
         /// </summary>
-        public string SystemMessage { get; set; }
+        public string SystemMessage { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ namespace MetacognitiveLayer.Protocols.LLM
         /// <param name="prompt">The prompt to complete</param>
         /// <param name="options">Options for the completion</param>
         /// <returns>The completed text</returns>
-        Task<string> CompletePromptAsync(string prompt, LLMOptions options = null);
+        Task<string> CompletePromptAsync(string prompt, LLMOptions? options = null);
 
         /// <summary>
         /// Embeds text into a vector representation.

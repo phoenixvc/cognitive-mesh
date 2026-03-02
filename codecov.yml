@@ -1,0 +1,65 @@
+# Codecov configuration — https://docs.codecov.io/docs/codecov-yaml
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "60...90"
+
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 2%     # Allow up to 2% drop without failing
+        if_ci_failed: error
+    patch:
+      default:
+        target: 80%       # New code should have >= 80% coverage
+        threshold: 5%
+
+comment:
+  layout: "header, diff, flags, components"
+  behavior: default
+  require_changes: true
+  require_base: false
+  require_head: true
+
+ignore:
+  - "tests/**"
+  - "docs/**"
+  - "infra/**"
+  - "k8s/**"
+  - "tools/**"
+  - "**/Migrations/**"
+  - "**/obj/**"
+  - "**/bin/**"
+
+flags:
+  unittests:
+    paths:
+      - src/
+    carryforward: true
+
+component_management:
+  individual_components:
+    - component_id: foundation
+      name: FoundationLayer
+      paths:
+        - src/FoundationLayer/**
+    - component_id: reasoning
+      name: ReasoningLayer
+      paths:
+        - src/ReasoningLayer/**
+    - component_id: metacognitive
+      name: MetacognitiveLayer
+      paths:
+        - src/MetacognitiveLayer/**
+    - component_id: agency
+      name: AgencyLayer
+      paths:
+        - src/AgencyLayer/**
+    - component_id: business
+      name: BusinessApplications
+      paths:
+        - src/BusinessApplications/**

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
+    <ProjectReference Include="..\..\MetacognitiveLayer\UncertaintyQuantification\UncertaintyQuantification.csproj" />
   </ItemGroup>
 
   <ItemGroup>

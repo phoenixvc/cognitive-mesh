@@ -4,7 +4,7 @@ using CognitiveMesh.ReasoningLayer.StructuredReasoning.Models;
 namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Ports
 {
     /// <summary>
-    /// Defines the contract for Debate & Vote reasoning.
+    /// Defines the contract for Debate &amp; Vote reasoning.
     /// This orchestrates multiple perspectives to surface diverse angles,
     /// compare arguments, select the best ideas, and synthesize a conclusion.
     /// </summary>

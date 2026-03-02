@@ -1,3 +1,4 @@
+using MetacognitiveLayer.UncertaintyQuantification;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AgencyLayer.HumanCollaboration
@@ -19,6 +20,7 @@ namespace AgencyLayer.HumanCollaboration
             });
 
             services.AddScoped<ICollaborationManager, CollaborationManager>();
+            services.AddScoped<ICollaborationPort, CollaborationPortAdapter>();
 
             return services;
         }

@@ -1,0 +1,140 @@
+/* Design tokens are imported globally in globals.css */
+
+.cognitive-mesh-button {
+  /* Base styles using design tokens */
+  font-family: var(--typography-font-family-primary);
+  font-weight: var(--typography-font-weight-medium);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  outline: none;
+}
+
+/* Size variants */
+.cognitive-mesh-button--sm {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--typography-font-size-sm);
+  min-height: 32px;
+}
+
+.cognitive-mesh-button--md {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--typography-font-size-base);
+  min-height: 40px;
+}
+
+.cognitive-mesh-button--lg {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--typography-font-size-lg);
+  min-height: 48px;
+}
+
+/* Primary variant */
+.cognitive-mesh-button--primary {
+  background: var(--color-cognitive-gradient-neural);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+}
+
+.cognitive-mesh-button--primary:hover:not(.cognitive-mesh-button--disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+}
+
+.cognitive-mesh-button--primary:active:not(.cognitive-mesh-button--disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+}
+
+/* Secondary variant */
+.cognitive-mesh-button--secondary {
+  background: var(--color-cognitive-gradient-synaptic);
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.cognitive-mesh-button--secondary:hover:not(.cognitive-mesh-button--disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+}
+
+.cognitive-mesh-button--secondary:active:not(.cognitive-mesh-button--disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+/* Neutral variant */
+.cognitive-mesh-button--neutral {
+  background: var(--color-cognitive-gradient-cortical);
+  color: white;
+  box-shadow: 0 4px 12px rgba(26, 26, 46, 0.3);
+}
+
+.cognitive-mesh-button--neutral:hover:not(.cognitive-mesh-button--disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26, 26, 46, 0.4);
+}
+
+.cognitive-mesh-button--neutral:active:not(.cognitive-mesh-button--disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(26, 26, 46, 0.3);
+}
+
+/* Semantic variant */
+.cognitive-mesh-button--semantic {
+  background: var(--color-cognitive-semantic-info);
+  color: white;
+  box-shadow: 0 4px 12px rgba(55, 66, 250, 0.3);
+}
+
+.cognitive-mesh-button--semantic:hover:not(.cognitive-mesh-button--disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(55, 66, 250, 0.4);
+}
+
+.cognitive-mesh-button--semantic:active:not(.cognitive-mesh-button--disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(55, 66, 250, 0.3);
+}
+
+/* Disabled state */
+.cognitive-mesh-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Focus state for accessibility */
+.cognitive-mesh-button:focus-visible {
+  outline: 2px solid var(--color-cognitive-primary-neural);
+  outline-offset: 2px;
+}
+
+/* Glow effect */
+.cognitive-mesh-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.cognitive-mesh-button:hover::before {
+  left: 100%;
+} 

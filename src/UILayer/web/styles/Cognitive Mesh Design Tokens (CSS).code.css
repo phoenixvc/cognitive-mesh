@@ -1,0 +1,210 @@
+/* 🧠 Cognitive Mesh Design System - CSS Tokens */
+/* Neo-cybernetic command HUD for modular AI ecosystems */
+
+:root {
+  /* === Neural Color Palette === */
+  --neural-primary: #58A6FF;
+  --neural-secondary: #8B45FF;
+  --neural-accent: #00BFFF;
+  --neural-matrix: #7EE787;
+
+  /* === Semantic Colors === */
+  --color-primary-light: #CDE7FF;
+  --color-primary-base: #58A6FF;
+  --color-primary-dark: #1B2940;
+  
+  --color-secondary-light: #E2CCFF;
+  --color-secondary-base: #8B45FF;
+  --color-secondary-dark: #2E1A47;
+  
+  --color-matrix-light: #CFF5D7;
+  --color-matrix-base: #7EE787;
+  --color-matrix-dark: #183E29;
+  
+  --color-danger-light: #FFD6D6;
+  --color-danger-base: #FF5F56;
+  --color-danger-dark: #4D1A1A;
+  
+  --color-warning-light: #FFF2CC;
+  --color-warning-base: #FFBD2E;
+  --color-warning-dark: #4D3A0F;
+
+  /* === Backgrounds === */
+  --bg-primary: #0D1117;
+  --bg-secondary: #161B22;
+  --bg-tertiary: #1E2139;
+  --bg-surface: #1A1F3A;
+
+  /* === Typography === */
+  --font-mono: 'JetBrains Mono', Monaco, Consolas, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  --text-hero: 64px;
+  --text-title: 30px;
+  --text-label: 16px;
+  --text-body: 16px;
+  --text-code: 14px;
+  --text-caption: 12px;
+
+  /* === Glow Effects === */
+  --glow-primary: 0 0 20px rgba(88,166,255,1);
+  --glow-soft: 0 0 40px rgba(88,166,255,0.3);
+  --glow-intense: 0 0 60px rgba(88,166,255,1.5);
+  --glow-multi: 0 0 20px var(--neural-primary), 0 0 40px var(--neural-secondary), 0 0 60px var(--neural-accent), 0 15px 40px rgba(0,0,0,0.5);
+
+  /* === Spacing === */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 32px;
+  --spacing-xl: 48px;
+  --spacing-2xl: 64px;
+
+  /* === Border Radius === */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* === Animation Timing === */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-neural: 600ms;
+  --duration-ambient: 10s;
+  --easing-neural: cubic-bezier(0.4,0,0.2,1);
+
+  /* === Z-Index Layers === */
+  --z-background: 0;
+  --z-content: 1;
+  --z-elevated: 10;
+  --z-navigation: 50;
+  --z-tooltips: 100;
+  --z-overlays: 200;
+  --z-critical: 999;
+}
+
+/* === Text Effects === */
+.text-terminal {
+  color: var(--neural-matrix);
+  text-shadow: 0 0 2px var(--neural-matrix), 0 0 10px var(--neural-matrix);
+  font-family: var(--font-mono);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, var(--neural-secondary), var(--neural-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradientShift 6s ease-in-out infinite;
+}
+
+.text-neural {
+  color: var(--neural-primary);
+  text-shadow: 0 0 12px rgba(88,166,255,0.6);
+}
+
+/* === Typography Classes === */
+.text-hero {
+  font-size: var(--text-hero);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.text-title {
+  font-size: var(--text-title);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.text-label {
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.text-body {
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.text-code {
+  font-size: var(--text-code);
+  font-weight: 400;
+  line-height: 1.6;
+  font-family: var(--font-mono);
+}
+
+.text-caption {
+  font-size: var(--text-caption);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* === Animations === */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes thinkingPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes glitchShimmer {
+  0%, 100% { opacity: 1; }
+  25% { opacity: 0.8; transform: translateX(1px); }
+  50% { opacity: 0.9; transform: translateX(-1px); }
+  75% { opacity: 0.85; transform: translateX(0.5px); }
+}
+
+@keyframes dataFlow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes errorPulse {
+  0%, 100% { border-color: var(--color-danger-base); opacity: 1; }
+  50% { border-color: var(--color-danger-light); opacity: 0.7; }
+}
+
+/* === AI State Overlays === */
+.ai-thinking {
+  border: 2px solid var(--neural-primary);
+  animation: thinkingPulse 2s infinite;
+}
+
+.ai-hallucinating {
+  border: 2px solid var(--neural-secondary);
+  animation: glitchShimmer 3s infinite;
+}
+
+.ai-verified {
+  border: 2px solid var(--neural-matrix);
+  box-shadow: 0 0 20px rgba(126,231,135,1);
+}
+
+.ai-processing {
+  border: 2px solid var(--neural-accent);
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-processing::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neural-accent), transparent);
+  animation: dataFlow 1.5s linear infinite;
+}
+
+.ai-error {
+  border: 2px solid var(--color-danger-base);
+  animation: errorPulse 1s infinite;
+}

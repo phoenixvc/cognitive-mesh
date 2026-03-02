@@ -115,7 +115,7 @@ namespace FoundationLayer.AuditLogging.Services
                     .WithParameter("@eventId", eventId);
 
                 var results = await ExecuteQueryAsync(query);
-                return results.FirstOrDefault();
+                return results.FirstOrDefault()!;
             }
             catch (Exception ex)
             {
@@ -157,19 +157,19 @@ namespace FoundationLayer.AuditLogging.Services
             try
             {
                 var queryBuilder = new System.Text.StringBuilder("SELECT * FROM c WHERE 1=1");
-                var queryDefinition = new QueryDefinition(queryBuilder.ToString());
+                var parameters = new List<(string Name, object Value)>();
 
                 // Add time range filters
                 if (criteria.StartTime.HasValue)
                 {
                     queryBuilder.Append(" AND c.timestamp >= @startTime");
-                    queryDefinition = queryDefinition.WithParameter("@startTime", criteria.StartTime.Value.ToString("o"));
+                    parameters.Add(("@startTime", criteria.StartTime.Value.ToString("o")));
                 }
 
                 if (criteria.EndTime.HasValue)
                 {
                     queryBuilder.Append(" AND c.timestamp <= @endTime");
-                    queryDefinition = queryDefinition.WithParameter("@endTime", criteria.EndTime.Value.ToString("o"));
+                    parameters.Add(("@endTime", criteria.EndTime.Value.ToString("o")));
                 }
 
                 // Add event type filters
@@ -180,7 +180,7 @@ namespace FoundationLayer.AuditLogging.Services
                     {
                         var paramName = $"@eventType{i}";
                         queryBuilder.Append(i > 0 ? ", " : "").Append(paramName);
-                        queryDefinition = queryDefinition.WithParameter(paramName, criteria.EventTypes[i]);
+                        parameters.Add((paramName, criteria.EventTypes[i]));
                     }
                     queryBuilder.Append(")");
                 }
@@ -193,7 +193,7 @@ namespace FoundationLayer.AuditLogging.Services
                     {
                         var paramName = $"@eventCategory{i}";
                         queryBuilder.Append(i > 0 ? ", " : "").Append(paramName);
-                        queryDefinition = queryDefinition.WithParameter(paramName, criteria.EventCategories[i]);
+                        parameters.Add((paramName, criteria.EventCategories[i]));
                     }
                     queryBuilder.Append(")");
                 }
@@ -202,7 +202,7 @@ namespace FoundationLayer.AuditLogging.Services
                 if (!string.IsNullOrWhiteSpace(criteria.SearchText))
                 {
                     queryBuilder.Append(" AND (CONTAINS(c.eventData, @searchText, true) OR CONTAINS(c.eventType, @searchText, true))");
-                    queryDefinition = queryDefinition.WithParameter("@searchText", criteria.SearchText);
+                    parameters.Add(("@searchText", criteria.SearchText));
                 }
 
                 // Add event data contains filters
@@ -214,18 +214,22 @@ namespace FoundationLayer.AuditLogging.Services
                         // a more sophisticated way to search within JSON data
                         var paramName = $"@{kvp.Key}";
                         queryBuilder.Append($" AND CONTAINS(c.eventData, {paramName}, true)");
-                        queryDefinition = queryDefinition.WithParameter(paramName, JsonSerializer.Serialize(kvp.Value, _jsonOptions));
+                        parameters.Add((paramName, JsonSerializer.Serialize(kvp.Value, _jsonOptions)));
                     }
                 }
 
                 // Add sorting, pagination
                 queryBuilder.Append(" ORDER BY c.timestamp DESC OFFSET @skip LIMIT @limit");
-                queryDefinition = queryDefinition
-                    .WithParameter("@skip", criteria.Skip)
-                    .WithParameter("@limit", criteria.MaxResults);
+                parameters.Add(("@skip", criteria.Skip));
+                parameters.Add(("@limit", criteria.MaxResults));
 
-                // Execute the final query
-                queryDefinition = new QueryDefinition(queryBuilder.ToString());
+                // Build the final query with all parameters
+                var queryDefinition = new QueryDefinition(queryBuilder.ToString());
+                foreach (var (name, value) in parameters)
+                {
+                    queryDefinition = queryDefinition.WithParameter(name, value);
+                }
+
                 return await ExecuteQueryAsync(queryDefinition);
             }
             catch (Exception ex)
@@ -331,16 +335,16 @@ namespace FoundationLayer.AuditLogging.Services
         /// <summary>
         /// The Cosmos DB connection string.
         /// </summary>
-        public string ConnectionString { get; set; }
+        public string ConnectionString { get; set; } = string.Empty;
 
         /// <summary>
         /// The name of the Cosmos DB database.
         /// </summary>
-        public string DatabaseName { get; set; }
+        public string DatabaseName { get; set; } = string.Empty;
 
         /// <summary>
         /// The name of the container for audit events.
         /// </summary>
-        public string AuditContainerName { get; set; }
+        public string AuditContainerName { get; set; } = string.Empty;
     }
 }

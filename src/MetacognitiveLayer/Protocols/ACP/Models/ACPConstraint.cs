@@ -11,25 +11,25 @@ namespace MetacognitiveLayer.Protocols.ACP.Models
         /// Type of constraint (e.g., range, regex, enum)
         /// </summary>
         [XmlAttribute("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         
         /// <summary>
         /// Name of the parameter this constraint applies to
         /// </summary>
         [XmlAttribute("parameterName")]
-        public string ParameterName { get; set; }
+        public string ParameterName { get; set; } = string.Empty;
         
         /// <summary>
         /// Value or expression for the constraint
         /// </summary>
         [XmlElement("Value")]
-        public string Value { get; set; }
+        public string Value { get; set; } = string.Empty;
         
         /// <summary>
         /// Error message to display when constraint is violated
         /// </summary>
         [XmlElement("ErrorMessage")]
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
         
         /// <summary>
         /// Severity of the constraint (e.g., error, warning)

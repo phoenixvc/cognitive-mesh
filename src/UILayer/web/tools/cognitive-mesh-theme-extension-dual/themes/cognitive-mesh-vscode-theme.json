@@ -1,0 +1,100 @@
+{
+  "name": "Cognitive Mesh - Neural Space Opera",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#0D1117",
+    "editor.foreground": "#E6EDF3",
+    "editorLineNumber.foreground": "#484f58",
+    "editorLineNumber.activeForeground": "#58A6FF",
+    "editorCursor.foreground": "#00BFFF",
+    "editor.selectionBackground": "#1E2139",
+    "editor.inactiveSelectionBackground": "#161B22",
+    "editorIndentGuide.background": "#32383f",
+    "editorIndentGuide.activeBackground": "#58A6FF",
+    "editorWhitespace.foreground": "#24292f",
+    "editorBracketMatch.border": "#8B45FF",
+    "editorBracketHighlight.foreground1": "#58A6FF",
+    "editorBracketHighlight.foreground2": "#8B45FF",
+    "editorBracketHighlight.foreground3": "#00BFFF",
+    "editorBracketHighlight.foreground4": "#7EE787",
+    "sideBar.background": "#0D1117",
+    "sideBar.foreground": "#A5B3C1",
+    "activityBar.background": "#161B22",
+    "activityBar.foreground": "#58A6FF",
+    "statusBar.background": "#1A1F3A",
+    "statusBar.foreground": "#E6EDF3",
+    "tab.activeBackground": "#1E2139",
+    "tab.inactiveBackground": "#161B22",
+    "tab.activeForeground": "#58A6FF",
+    "tab.inactiveForeground": "#7d8590",
+    "titleBar.activeBackground": "#0D1117",
+    "titleBar.activeForeground": "#58A6FF"
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "punctuation.definition.comment"
+      ],
+      "settings": {
+        "foreground": "#7D8590",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "scope": [
+        "keyword",
+        "storage"
+      ],
+      "settings": {
+        "foreground": "#8B45FF"
+      }
+    },
+    {
+      "scope": [
+        "variable",
+        "identifier"
+      ],
+      "settings": {
+        "foreground": "#58A6FF"
+      }
+    },
+    {
+      "scope": [
+        "string",
+        "constant.other.symbol"
+      ],
+      "settings": {
+        "foreground": "#7EE787"
+      }
+    },
+    {
+      "scope": [
+        "constant.numeric",
+        "constant.language"
+      ],
+      "settings": {
+        "foreground": "#FFBD2E"
+      }
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "settings": {
+        "foreground": "#00BFFF"
+      }
+    },
+    {
+      "scope": [
+        "invalid",
+        "invalid.deprecated"
+      ],
+      "settings": {
+        "foreground": "#FF5F56",
+        "fontStyle": "underline"
+      }
+    }
+  ]
+}

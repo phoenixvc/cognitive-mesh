@@ -1,19 +1,34 @@
+using Microsoft.Extensions.Logging;
 using CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 
 namespace CognitiveMesh.ReasoningLayer.ValueGeneration.Engines;
 
 // --- Placeholder Interfaces for Outbound Adapters ---
-// Data required for the Value Diagnostic ($200 Test)
+
+/// <summary>
+/// Holds the raw data required for the value diagnostic assessment (the "$200 Test").
+/// </summary>
 public class ValueDiagnosticData
 {
+    /// <summary>Gets or sets the average impact score across the target's contributions.</summary>
     public double AverageImpactScore { get; set; }
+
+    /// <summary>Gets or sets the count of high-value contributions made by the target.</summary>
     public int HighValueContributions { get; set; }
+
+    /// <summary>Gets or sets the number of creativity events attributed to the target.</summary>
     public int CreativityEvents { get; set; }
 }
 
+/// <summary>
+/// Defines the contract for retrieving value diagnostic and organizational data from an external data store.
+/// </summary>
 public interface IValueDiagnosticDataRepository
 {
+    /// <summary>Retrieves diagnostic data for the specified target.</summary>
     Task<ValueDiagnosticData> GetValueDiagnosticDataAsync(string targetId, string tenantId);
+    /// <summary>Retrieves an organizational data snapshot for blindness detection.</summary>
+    Task<OrgDataSnapshot> GetOrgDataSnapshotAsync(string organizationId, string[] departmentFilters, string tenantId);
 }
 
 // --- Domain Engine Implementation ---
@@ -30,6 +45,11 @@ public class ValueGenerationDiagnosticEngine : IValueDiagnosticPort
     // Model version for provenance tracking, as required by the PRD.
     private const string ValueDiagnosticModelVersion = "ValueDiagnostic-v1.0";
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ValueGenerationDiagnosticEngine"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance for structured logging.</param>
+    /// <param name="valueDataRepository">The repository for retrieving value diagnostic data.</param>
     public ValueGenerationDiagnosticEngine(
         ILogger<ValueGenerationDiagnosticEngine> logger,
         IValueDiagnosticDataRepository valueDataRepository)

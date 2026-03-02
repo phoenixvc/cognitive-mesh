@@ -58,7 +58,7 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Models
     public enum ReasoningRecipeType
     {
         /// <summary>
-        /// Debate & Vote: Surface diverse angles, compare, select, and synthesize.
+        /// Debate &amp; Vote: Surface diverse angles, compare, select, and synthesize.
         /// </summary>
         DebateAndVote,
 
