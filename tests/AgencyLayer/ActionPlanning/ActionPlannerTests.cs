@@ -18,12 +18,6 @@ namespace CognitiveMesh.Tests.AgencyLayer.ActionPlanning
         private readonly Mock<IKnowledgeGraphManager> _mockKnowledgeGraphManager;
         private readonly Mock<ILLMClient> _mockLlmClient;
         private readonly Mock<ISemanticSearchManager> _mockSemanticSearchManager;
-        private readonly ActionPlanner _planner;
-
-        private readonly Mock<ILogger<ActionPlanner>> _mockLogger;
-        private readonly Mock<IKnowledgeGraphManager> _mockKnowledgeGraphManager;
-        private readonly Mock<ILLMClient> _mockLlmClient;
-        private readonly Mock<ISemanticSearchManager> _mockSemanticSearchManager;
         private readonly Mock<IMessageBus> _mockBus;
         private readonly ActionPlanner _planner;
 

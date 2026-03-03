@@ -100,7 +100,7 @@ namespace AgencyLayer.ActionPlanning
                     if (plan.Status != ActionPlanStatus.Failed)
                     {
                         await _knowledgeGraphManager.AddNodeAsync(plan.Id, plan, NodeLabels.ActionPlan, cancellationToken);
-                        await _bus.PublishAsync(new PlanGeneratedNotification(plan), cancellationToken);
+                        await _bus.PublishAsync(new PlanGeneratedNotification(plan));
                     }
                 }
 
@@ -227,7 +227,7 @@ namespace AgencyLayer.ActionPlanning
                 }
 
                 // 5. Notify subscribers
-                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan));
 
                 return plan;
             }
@@ -249,7 +249,7 @@ namespace AgencyLayer.ActionPlanning
             {
                 _logger.LogInformation("Updating action plan: {PlanId}", plan.Id);
                 await _knowledgeGraphManager.UpdateNodeAsync(plan.Id, plan, cancellationToken);
-                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan));
             }
             catch (Exception ex)
             {
@@ -283,7 +283,7 @@ namespace AgencyLayer.ActionPlanning
                 plan.CompletedAt = DateTime.UtcNow;
 
                 await _knowledgeGraphManager.UpdateNodeAsync(planId, plan, cancellationToken);
-                await _bus.PublishAsync(new PlanUpdatedNotification(plan), cancellationToken);
+                await _bus.PublishAsync(new PlanUpdatedNotification(plan));
             }
             catch (Exception ex)
             {
