@@ -30,7 +30,7 @@
     <PackageVersion Include="Newtonsoft.Json" Version="[13.0.4]" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="[8.16.0]" />
     <!-- SQLite -->
-    <PackageVersion Include="Microsoft.Data.Sqlite" Version="[9.0.13]" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="[10.0.3]" />
     <!-- Entity Framework Core -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="[10.0.3]" />
     <!-- JSON / XML / Tasks -->
