@@ -38,7 +38,7 @@
     <PackageVersion Include="System.Xml.XmlSerializer" Version="[4.3.0]" />
     <PackageVersion Include="System.Threading.Tasks.Extensions" Version="[4.6.3]" />
     <!-- PostgreSQL -->
-    <PackageVersion Include="Npgsql" Version="[9.0.4]" />
+    <PackageVersion Include="Npgsql" Version="[10.0.1]" />
     <!-- LiteDB -->
     <PackageVersion Include="LiteDB" Version="[5.0.21]" />
     <!-- Redis -->
