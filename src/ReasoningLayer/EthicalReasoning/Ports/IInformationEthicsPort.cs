@@ -9,19 +9,19 @@ public class DignityAssessmentRequest
     /// <summary>
     /// The unique identifier of the subject whose information is being processed.
     /// </summary>
-    public string SubjectId { get; set; }
+    public string SubjectId { get; set; } = string.Empty;
     /// <summary>
     /// The type of data being processed (e.g., "Profile", "Behavioral", "Inferred").
     /// </summary>
-    public string DataType { get; set; }
+    public string DataType { get; set; } = string.Empty;
     /// <summary>
     /// The action being performed on the data (e.g., "Store", "Analyze", "Share", "Delete").
     /// </summary>
-    public string ProposedAction { get; set; }
+    public string ProposedAction { get; set; } = string.Empty;
     /// <summary>
     /// The context or justification for the proposed action.
     /// </summary>
-    public string ActionContext { get; set; }
+    public string ActionContext { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -48,15 +48,15 @@ public class DataStewardshipValidationRequest
     /// <summary>
     /// The data handling action being performed (e.g., "Collect", "Process", "Share", "Delete").
     /// </summary>
-    public string DataAction { get; set; }
+    public string DataAction { get; set; } = string.Empty;
     /// <summary>
     /// The type of data involved (e.g., "PII", "Anonymized", "Aggregated").
     /// </summary>
-    public string DataType { get; set; }
+    public string DataType { get; set; } = string.Empty;
     /// <summary>
     /// The unique identifier of the data subject, if applicable.
     /// </summary>
-    public string DataSubjectId { get; set; }
+    public string DataSubjectId { get; set; } = string.Empty;
     /// <summary>
     /// A list of policy identifiers to validate the action against.
     /// </summary>
@@ -87,15 +87,15 @@ public class EpistemicResponsibilityCheckRequest
     /// <summary>
     /// The information or content to be evaluated.
     /// </summary>
-    public string Content { get; set; }
+    public string Content { get; set; } = string.Empty;
     /// <summary>
     /// The source of the information (e.g., a URL, a document ID, an agent ID).
     /// </summary>
-    public string Source { get; set; }
+    public string Source { get; set; } = string.Empty;
     /// <summary>
     /// The type of content being checked (e.g., "FactualClaim", "Opinion", "Prediction").
     /// </summary>
-    public string ContentType { get; set; }
+    public string ContentType { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -119,12 +119,18 @@ public class EpistemicResponsibilityCheckResponse
 /// </summary>
 public class ProvenanceRecord
 {
-    public string ContentId { get; set; }
+    /// <summary>Gets or sets the unique identifier of the content this record describes.</summary>
+    public string ContentId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the UTC timestamp when the provenance action occurred.</summary>
     public DateTimeOffset Timestamp { get; set; }
-    public string Action { get; set; } // e.g., "Created", "DerivedFrom", "Modified"
+    /// <summary>Gets or sets the action performed on the content (e.g., "Created", "DerivedFrom", "Modified").</summary>
+    public string Action { get; set; } = string.Empty;
+    /// <summary>Gets or sets the identifiers of source content from which this content was derived.</summary>
     public List<string> SourceContentIds { get; set; } = new();
-    public string AgentId { get; set; }
-    public string Justification { get; set; }
+    /// <summary>Gets or sets the identifier of the agent that performed the action.</summary>
+    public string AgentId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the justification or description of why the action was taken.</summary>
+    public string Justification { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -132,11 +138,16 @@ public class ProvenanceRecord
 /// </summary>
 public class RegisterAttributionRequest
 {
-    public string ContentId { get; set; }
-    public string GeneratedContent { get; set; }
-    public string GenerationProcessDescription { get; set; }
+    /// <summary>Gets or sets the unique identifier assigned to the generated content.</summary>
+    public string ContentId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the actual generated content being registered.</summary>
+    public string GeneratedContent { get; set; } = string.Empty;
+    /// <summary>Gets or sets a description of the process used to generate the content.</summary>
+    public string GenerationProcessDescription { get; set; } = string.Empty;
+    /// <summary>Gets or sets the identifiers of source content used during generation.</summary>
     public List<string> SourceContentIds { get; set; } = new();
-    public string AgentId { get; set; }
+    /// <summary>Gets or sets the identifier of the agent that generated the content.</summary>
+    public string AgentId { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -144,9 +155,12 @@ public class RegisterAttributionRequest
 /// </summary>
 public class RegisterAttributionResponse
 {
+    /// <summary>Gets or sets a value indicating whether the attribution registration succeeded.</summary>
     public bool IsSuccess { get; set; }
-    public string ProvenanceRecordId { get; set; }
-    public string ErrorMessage { get; set; }
+    /// <summary>Gets or sets the identifier of the created provenance record.</summary>
+    public string ProvenanceRecordId { get; set; } = string.Empty;
+    /// <summary>Gets or sets the error message if the registration failed.</summary>
+    public string ErrorMessage { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -154,7 +168,8 @@ public class RegisterAttributionResponse
 /// </summary>
 public class GetProvenanceRequest
 {
-    public string ContentId { get; set; }
+    /// <summary>Gets or sets the identifier of the content whose provenance chain is requested.</summary>
+    public string ContentId { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -162,9 +177,12 @@ public class GetProvenanceRequest
 /// </summary>
 public class GetProvenanceResponse
 {
+    /// <summary>Gets or sets a value indicating whether the provenance retrieval succeeded.</summary>
     public bool IsSuccess { get; set; }
+    /// <summary>Gets or sets the ordered chain of provenance records tracing the content's history.</summary>
     public List<ProvenanceRecord> ProvenanceChain { get; set; } = new();
-    public string ErrorMessage { get; set; }
+    /// <summary>Gets or sets the error message if the provenance retrieval failed.</summary>
+    public string ErrorMessage { get; set; } = string.Empty;
 }
 
 /// <summary>

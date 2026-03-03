@@ -580,7 +580,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
     /// <summary>
     /// Processes the retry queue.
     /// </summary>
-    private async void ProcessRetryQueue(object state)
+    private async void ProcessRetryQueue(object? state)
     {
         if (_processingRetryQueue)
         {
@@ -657,7 +657,28 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to serialize event data. Using ToString() instead.");
-            return eventData.ToString();
+            return eventData.ToString() ?? string.Empty;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> LogEventAsync(AuditEvent auditEvent)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(auditEvent.EventId))
+                auditEvent.EventId = Guid.NewGuid().ToString();
+            if (auditEvent.Timestamp == default)
+                auditEvent.Timestamp = DateTimeOffset.UtcNow;
+
+            await _repository.SaveEventAsync(auditEvent);
+            _logger.LogInformation("Audit event logged: {EventType} with ID {EventId}", auditEvent.EventType, auditEvent.EventId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to log audit event: {EventType}", auditEvent.EventType);
+            return false;
         }
     }
 
@@ -798,6 +819,37 @@ public interface IAuditLoggingAdapter : IDisposable
     /// <param name="endTime">Optional end time for filtering</param>
     /// <returns>A collection of audit events for the specified agent</returns>
     Task<IEnumerable<AuditEvent>> GetAgentEventsAsync(Guid agentId, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null);
+
+    /// <summary>
+    /// Logs a generic audit event. Use this for event types that do not have a dedicated typed method.
+    /// </summary>
+    /// <param name="auditEvent">The audit event to log.</param>
+    /// <returns>True if the event was successfully logged; otherwise, false.</returns>
+    Task<bool> LogEventAsync(AuditEvent auditEvent);
+
+    /// <summary>
+    /// Logs the outcome of a legal compliance check (e.g., GDPR, EU AI Act).
+    /// </summary>
+    /// <param name="complianceCheckId">The unique identifier for the compliance check.</param>
+    /// <param name="regulationType">The type of regulation (e.g., "GDPR", "EUAIAct").</param>
+    /// <param name="dataSubjectId">The identifier of the data subject or entity being checked.</param>
+    /// <param name="isCompliant">Whether the check found the subject to be compliant.</param>
+    /// <param name="complianceIssues">A list of compliance issues found, if any.</param>
+    /// <param name="regulationSections">The specific regulation sections that were checked.</param>
+    /// <param name="checkedBy">The identifier of the user or system that performed the check.</param>
+    /// <param name="tenantId">The tenant identifier.</param>
+    /// <param name="correlationId">Optional correlation ID for tracing related events.</param>
+    /// <returns>True if the event was successfully logged; otherwise, false.</returns>
+    Task<bool> LogLegalComplianceCheckedAsync(
+        string complianceCheckId,
+        string regulationType,
+        string dataSubjectId,
+        bool isCompliant,
+        List<string> complianceIssues,
+        List<string> regulationSections,
+        string checkedBy,
+        string tenantId,
+        string? correlationId = null);
 }
 
 /// <summary>

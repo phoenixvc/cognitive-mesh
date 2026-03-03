@@ -1,12 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
@@ -15,7 +19,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\FoundationLayer\FoundationLayer.csproj" />
+    <ProjectReference Include="..\..\FoundationLayer\AuditLogging\AuditLogging.csproj" />
+    <ProjectReference Include="..\..\ReasoningLayer\ReasoningLayer.csproj" />
     <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\ConvenerServices\ConvenerServices.csproj" />
   </ItemGroup>
 
 </Project>

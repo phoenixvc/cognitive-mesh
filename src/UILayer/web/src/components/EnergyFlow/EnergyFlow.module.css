@@ -1,0 +1,10 @@
+.energyFlow {
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.energyFlow svg {
+  width: 100%;
+  height: 100%;
+}

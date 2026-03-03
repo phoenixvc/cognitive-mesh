@@ -1,6 +1,9 @@
 # Cognitive Mesh: Enterprise AI Transformation Framework
 
-[![.NET Build & Test](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/dotnet.yml/badge.svg)](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/dotnet.yml)
+[![Build and Analyze](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/build.yml/badge.svg)](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/build.yml)
+[![Deploy](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/deploy.yml/badge.svg)](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/deploy.yml)
+[![Code Coverage](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/coverage.yml/badge.svg)](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/coverage.yml)
+[![codecov](https://codecov.io/gh/phoenixvc/cognitive-mesh/graph/badge.svg)](https://codecov.io/gh/phoenixvc/cognitive-mesh)
 [![PRD Status](https://img.shields.io/badge/PRD%20Status-Tracked-blue?link=./docs/prds/PRD-PRIORITY-STATUS.md)](./docs/prds/PRD-PRIORITY-STATUS.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

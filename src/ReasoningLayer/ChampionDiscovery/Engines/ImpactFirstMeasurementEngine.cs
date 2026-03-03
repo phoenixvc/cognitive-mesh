@@ -12,6 +12,10 @@ namespace CognitiveMesh.ReasoningLayer.ChampionDiscovery.Engines
         private readonly ILogger<ImpactFirstMeasurementEngine> _logger;
         private const string ModelVersion = "ImpactModel-v1.1.0";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImpactFirstMeasurementEngine"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
         public ImpactFirstMeasurementEngine(ILogger<ImpactFirstMeasurementEngine> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

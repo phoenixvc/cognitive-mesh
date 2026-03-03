@@ -1,0 +1,74 @@
+###############################################################################
+# Cognitive Mesh — Dev Overlay
+###############################################################################
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: cognitive-mesh-dev
+
+namespace: cognitive-mesh-dev
+
+commonLabels:
+  app.kubernetes.io/instance: dev
+  environment: dev
+
+resources:
+  - ../../base
+
+patches:
+  # Scale down for dev
+  - target:
+      kind: Deployment
+      name: cognitive-mesh-api
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 100m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 256Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 500m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 512Mi
+
+  # Dev environment config
+  - target:
+      kind: ConfigMap
+      name: cognitive-mesh-config
+    patch: |
+      - op: replace
+        path: /data/ASPNETCORE_ENVIRONMENT
+        value: Development
+      - op: replace
+        path: /data/KEY_VAULT_URI
+        value: "https://cognitive-mesh-kv-dev.vault.azure.net/"
+      - op: replace
+        path: /data/COSMOSDB_ENDPOINT
+        value: "https://cognitive-mesh-cosmos-dev.documents.azure.com:443/"
+      - op: replace
+        path: /data/REDIS_HOSTNAME
+        value: "cognitive-mesh-redis-dev.redis.cache.windows.net"
+      - op: replace
+        path: /data/QDRANT_ENDPOINT
+        value: "http://cognitive-mesh-qdrant-dev:6333"
+      - op: replace
+        path: /data/OPENAI_ENDPOINT
+        value: "https://cognitive-mesh-openai-dev.openai.azure.com/"
+      - op: replace
+        path: /data/SEARCH_ENDPOINT
+        value: "https://cognitive-mesh-search-dev.search.windows.net"
+      - op: replace
+        path: /data/LOG_LEVEL
+        value: Debug
+
+images:
+  - name: cognitive-mesh-api
+    newName: cognitivemeshacr.azurecr.io/cognitive-mesh-api
+    newTag: dev-latest

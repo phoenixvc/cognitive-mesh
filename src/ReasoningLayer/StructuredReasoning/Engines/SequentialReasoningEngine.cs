@@ -31,6 +31,11 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
             RegexOptions.Compiled
         );
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SequentialReasoningEngine"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
+        /// <param name="llmClient">The LLM client used for phase decomposition and reasoning.</param>
         public SequentialReasoningEngine(
             ILogger<SequentialReasoningEngine> logger,
             ILLMClient llmClient)

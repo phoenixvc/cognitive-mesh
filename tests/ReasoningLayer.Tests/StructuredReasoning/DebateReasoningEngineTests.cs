@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Moq;
@@ -36,7 +37,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("Position: Companies should prioritize profit\nSupporting Points:\n- Shareholder value\n- Economic growth");
 
             // Act
@@ -61,7 +62,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("Position: Test position\nSupporting Points:\n- Point 1\nConfidence: 75");
 
             // Act
@@ -85,7 +86,7 @@ namespace CognitiveMesh.ReasoningLayer.Tests.StructuredReasoning
             };
 
             _llmClientMock
-                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>()))
+                .Setup(x => x.GenerateCompletionAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<float>(), It.IsAny<IEnumerable<string>?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync("Position: Test\nSupporting Points:\n- Point 1");
 
             // Act

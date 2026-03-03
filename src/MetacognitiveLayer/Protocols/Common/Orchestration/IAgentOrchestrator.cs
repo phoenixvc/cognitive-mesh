@@ -43,12 +43,12 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
         /// <summary>
         /// Agent ID that produced this result
         /// </summary>
-        public string AgentId { get; set; }
+        public string AgentId { get; set; } = string.Empty;
 
         /// <summary>
         /// Task name that was executed
         /// </summary>
-        public string TaskName { get; set; }
+        public string TaskName { get; set; } = string.Empty;
 
         /// <summary>
         /// Whether the execution was successful
@@ -58,7 +58,7 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
         /// <summary>
         /// Primary output of the agent (could be text, JSON, etc.)
         /// </summary>
-        public string Output { get; set; }
+        public string Output { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional structured output data
@@ -68,7 +68,7 @@ namespace MetacognitiveLayer.Protocols.Common.Orchestration
         /// <summary>
         /// Error message if execution failed
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
 
         /// <summary>
         /// Timestamp when execution completed

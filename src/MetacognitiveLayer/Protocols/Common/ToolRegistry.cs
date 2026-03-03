@@ -11,6 +11,10 @@ namespace MetacognitiveLayer.Protocols.Common
         private readonly Dictionary<string, object> _tools;
         private readonly ILogger<ToolRegistry> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ToolRegistry"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance.</param>
         public ToolRegistry(ILogger<ToolRegistry> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -40,7 +44,7 @@ namespace MetacognitiveLayer.Protocols.Common
                 }
                 
                 // Parse and validate tool definition
-                var toolObject = JsonConvert.DeserializeObject(toolDefinition);
+                var toolObject = JsonSerializer.Deserialize<object>(toolDefinition);
                 if (toolObject == null)
                 {
                     _logger.LogError("Invalid tool definition JSON for tool {ToolId}", toolId);

@@ -1,0 +1,46 @@
+{
+  "name": "cognitive-mesh-theme",
+  "displayName": "Cognitive Mesh Theme",
+  "description": "A dark neural space opera theme for VS Code inspired by Cognitive Mesh UI design system",
+  "version": "1.0.0",
+  "publisher": "cognitive-mesh",
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "dark",
+    "neural",
+    "cyberpunk",
+    "blue",
+    "purple",
+    "ai",
+    "cognitive",
+    "mesh"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Cognitive Mesh - Neural Space Opera",
+        "uiTheme": "vs-dark",
+        "path": "./themes/cognitive-mesh-dark.json"
+      },
+      {
+        "label": "Cognitive Mesh - Light Variant",
+        "uiTheme": "vs",
+        "path": "./themes/cognitive-mesh-light.json"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cognitive-mesh/vscode-theme"
+  },
+  "bugs": {
+    "url": "https://github.com/cognitive-mesh/vscode-theme/issues"
+  },
+  "homepage": "https://github.com/cognitive-mesh/vscode-theme#readme",
+  "license": "MIT"
+}

@@ -18,6 +18,14 @@ namespace MetacognitiveLayer.Protocols
         private readonly SessionManager _sessionManager;
         private readonly ILogger<ProtocolOrchestrator> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProtocolOrchestrator"/> class.
+        /// </summary>
+        /// <param name="mcpHandler">The MCP handler for parsing and creating MCP messages.</param>
+        /// <param name="acpHandler">The ACP handler for parsing and executing ACP templates.</param>
+        /// <param name="toolRegistry">The tool registry for resolving required tools.</param>
+        /// <param name="sessionManager">The session manager for managing agent sessions.</param>
+        /// <param name="logger">The logger instance for diagnostic output.</param>
         public ProtocolOrchestrator(
             MCPHandler mcpHandler,
             ACPHandler acpHandler,

@@ -10,27 +10,27 @@ public class ImpactScoringRequest
     /// <summary>
     /// A unique identifier for the event being scored.
     /// </summary>
-    public string EventId { get; set; }
+    public string EventId { get; set; } = string.Empty;
 
     /// <summary>
     /// The type of the event (e.g., "MessageSent", "FileShared", "EndorsementGiven").
     /// </summary>
-    public string EventType { get; set; }
+    public string EventType { get; set; } = string.Empty;
 
     /// <summary>
     /// The ID of the user or system that initiated the event.
     /// </summary>
-    public string ActorId { get; set; }
+    public string ActorId { get; set; } = string.Empty;
 
     /// <summary>
     /// The tenant ID, used for scoping and applying tenant-specific scoring models.
     /// </summary>
-    public string TenantId { get; set; }
+    public string TenantId { get; set; } = string.Empty;
 
     /// <summary>
     /// A flexible dictionary containing the payload or context of the event.
     /// </summary>
-    public Dictionary<string, object> Context { get; set; }
+    public Dictionary<string, object> Context { get; set; } = new();
 }
 
 /// <summary>
@@ -41,7 +41,7 @@ public class ImpactScore
     /// <summary>
     /// The identifier of the event that was scored, used for correlation.
     /// </summary>
-    public string EventId { get; set; }
+    public string EventId { get; set; } = string.Empty;
 
     /// <summary>
     /// The calculated impact score, typically a normalized value.
@@ -51,12 +51,12 @@ public class ImpactScore
     /// <summary>
     /// An optional explanation of how the score was derived.
     /// </summary>
-    public string Explanation { get; set; }
+    public string Explanation { get; set; } = string.Empty;
 
     /// <summary>
     /// The version of the scoring model that was used.
     /// </summary>
-    public string ModelVersion { get; set; }
+    public string ModelVersion { get; set; } = string.Empty;
 }
 
 /// <summary>
@@ -67,7 +67,7 @@ public class BulkImpactScoringRequest
     /// <summary>
     /// A collection of individual scoring requests to be processed in a single batch.
     /// </summary>
-    public IEnumerable<ImpactScoringRequest> Requests { get; set; }
+    public IEnumerable<ImpactScoringRequest> Requests { get; set; } = [];
 }
 
 /// <summary>
@@ -78,7 +78,7 @@ public class BulkImpactScoringResponse
     /// <summary>
     /// A collection of impact scores corresponding to the batch request.
     /// </summary>
-    public IEnumerable<ImpactScore> Scores { get; set; }
+    public IEnumerable<ImpactScore> Scores { get; set; } = [];
 }
 
 

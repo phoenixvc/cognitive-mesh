@@ -31,6 +31,11 @@ namespace CognitiveMesh.ReasoningLayer.StructuredReasoning.Engines
             RegexOptions.Compiled
         );
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StrategicSimulationEngine"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for structured logging.</param>
+        /// <param name="llmClient">The LLM client used for pattern analysis and scenario generation.</param>
         public StrategicSimulationEngine(
             ILogger<StrategicSimulationEngine> logger,
             ILLMClient llmClient)

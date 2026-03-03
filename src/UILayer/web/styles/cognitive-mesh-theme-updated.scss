@@ -1,0 +1,24 @@
+
+// =============================================================================
+// EXTENDED VISUAL TOKENS FROM DESIGN GUIDE
+// =============================================================================
+
+$accent-terminal-glow: #00FF9D;
+$metric-gradient: linear-gradient(90deg, #B06CFF, #3DE4FF);
+
+$terminal-shadow: 0 0 2px $accent-terminal-glow, 0 0 10px $accent-terminal-glow;
+$panel-glow-soft: 0 0 8px rgba(61, 228, 255, 0.12);
+
+// Terminal Glow Utility
+@mixin terminal-glow {
+  color: $accent-terminal-glow;
+  text-shadow: $terminal-shadow;
+}
+
+// Metric Text Utility
+.text-metric {
+  background: $metric-gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
