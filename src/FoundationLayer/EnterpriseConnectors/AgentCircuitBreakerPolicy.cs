@@ -37,7 +37,7 @@ namespace CognitiveMesh.FoundationLayer.EnterpriseConnectors
             int failureThreshold = 3, 
             int resetTimeoutMs = 5000, 
             int successThreshold = 3,
-            ILogger logger = null)
+            ILogger? logger = null)
         {
             _failureThreshold = failureThreshold;
             _resetTimeoutMs = resetTimeoutMs;

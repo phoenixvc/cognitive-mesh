@@ -2,7 +2,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace CognitiveMesh.FoundationLayer.EnterpriseConnectors;
 
-public class FeatureFlagManager
+public interface IFeatureFlagManager
+{
+    bool UseOneLake { get; }
+    bool EnableADK { get; }
+    // Add other feature flags as needed
+}
+
+public class FeatureFlagManager : IFeatureFlagManager
 {
     private readonly IConfiguration _configuration;
 

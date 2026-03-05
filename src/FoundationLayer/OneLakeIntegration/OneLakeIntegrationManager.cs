@@ -11,9 +11,9 @@ public class OneLakeIntegrationManager
 {
     private readonly DataLakeServiceClient _dataLakeServiceClient;
     private readonly ILogger<OneLakeIntegrationManager> _logger;
-    private readonly FeatureFlagManager _featureFlagManager;
+    private readonly IFeatureFlagManager _featureFlagManager;
 
-    public OneLakeIntegrationManager(string connectionString, ILogger<OneLakeIntegrationManager> logger, FeatureFlagManager featureFlagManager)
+    public OneLakeIntegrationManager(string connectionString, ILogger<OneLakeIntegrationManager> logger, IFeatureFlagManager featureFlagManager)
     {
         _dataLakeServiceClient = new DataLakeServiceClient(connectionString);
         _logger = logger;

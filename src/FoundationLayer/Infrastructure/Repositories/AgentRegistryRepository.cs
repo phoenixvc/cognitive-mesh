@@ -38,13 +38,13 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Persistence
             builder.Property(a => a.Capabilities)
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, jsonSerializerOptions),
-                    v => JsonSerializer.Deserialize<List<string>>(v, jsonSerializerOptions)
+                    v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, jsonSerializerOptions) ?? new Dictionary<string, string>()
                 );
 
             builder.Property(a => a.DefaultAuthorityScope)
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, jsonSerializerOptions),
-                    v => JsonSerializer.Deserialize<AuthorityScope>(v, jsonSerializerOptions)
+                    v => JsonSerializer.Deserialize<AuthorityScope>(v, jsonSerializerOptions) ?? new AuthorityScope()
                 );
 
             // Store enums as strings for readability in the database.
@@ -116,9 +116,10 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
         {
             try
             {
-                return await _context.Set<AgentDefinition>().FindAsync(agentId);
+                return await _context.Set<AgentDefinition>().FindAsync(agentId) 
+                       ?? throw new KeyNotFoundException($"Agent with ID {agentId} not found.");
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not KeyNotFoundException)
             {
                 _logger.LogError(ex, "Error retrieving agent definition by ID '{AgentId}'.", agentId);
                 throw;
@@ -130,11 +131,18 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
         {
             try
             {
-                return await _context.Set<AgentDefinition>()
+                var agent = await _context.Set<AgentDefinition>()
                     .AsNoTracking()
                     .FirstOrDefaultAsync(a => a.AgentType == agentType && a.Version == version);
+                
+                if (agent == null)
+                {
+                    throw new KeyNotFoundException($"Agent with type '{agentType}' and version '{version}' not found.");
+                }
+                
+                return agent;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not KeyNotFoundException)
             {
                 _logger.LogError(ex, "Error retrieving agent definition for AgentType '{AgentType}' and Version '{Version}'.", agentType, version);
                 throw;
@@ -147,13 +155,17 @@ namespace CognitiveMesh.FoundationLayer.Infrastructure.Repositories
             try
             {
                 var query = _context.Set<AgentDefinition>().AsNoTracking();
-
+                
                 if (!includeRetired)
                 {
-                    query = query.Where(a => a.Status != ValueObjects.AgentStatus.Retired);
+                    query = query.Where(a => a.Status != CognitiveMesh.FoundationLayer.ConvenerData.Entities.AgentStatus.Retired);
                 }
+                
 
-                return await query.OrderBy(a => a.AgentType).ThenByDescending(a => a.Version).ToListAsync();
+                return await query
+                    .OrderBy(a => a.AgentType)
+                    .ThenByDescending(a => a.Version)
+                    .ToListAsync();
             }
             catch (Exception ex)
             {

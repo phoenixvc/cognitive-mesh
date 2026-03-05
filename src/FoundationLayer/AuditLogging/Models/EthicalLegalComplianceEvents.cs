@@ -11,22 +11,22 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging.Models
         /// <summary>
         /// The unique identifier of the approved policy.
         /// </summary>
-        public string PolicyId { get; set; }
+        public string PolicyId { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of policy (e.g., "Legal", "Ethical", "Cultural").
         /// </summary>
-        public string PolicyType { get; set; }
+        public string PolicyType { get; set; } = string.Empty;
 
         /// <summary>
         /// The version of the policy that was approved.
         /// </summary>
-        public string PolicyVersion { get; set; }
+        public string PolicyVersion { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the user who approved the policy.
         /// </summary>
-        public string ApprovedBy { get; set; }
+        public string ApprovedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when the policy was approved.
@@ -36,7 +36,7 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging.Models
         /// <summary>
         /// A description of the policy.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// The list of stakeholders who participated in the approval process.
@@ -46,7 +46,7 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging.Models
         /// <summary>
         /// The tenant ID to which this policy applies.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -57,27 +57,27 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging.Models
         /// <summary>
         /// The unique identifier of the policy.
         /// </summary>
-        public string PolicyId { get; set; }
+        public string PolicyId { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of policy (e.g., "Legal", "Ethical", "Cultural").
         /// </summary>
-        public string PolicyType { get; set; }
+        public string PolicyType { get; set; } = string.Empty;
 
         /// <summary>
         /// The version of the policy before the rollback.
         /// </summary>
-        public string PreviousVersion { get; set; }
+        public string PreviousVersion { get; set; } = string.Empty;
 
         /// <summary>
         /// The version of the policy after the rollback (the version being rolled back to).
         /// </summary>
-        public string NewVersion { get; set; }
+        public string NewVersion { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the user who initiated the rollback.
         /// </summary>
-        public string RolledBackBy { get; set; }
+        public string RolledBackBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when the rollback occurred.
@@ -87,12 +87,12 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging.Models
         /// <summary>
         /// The reason for the rollback.
         /// </summary>
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
 
         /// <summary>
         /// The tenant ID to which this policy applies.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ namespace CognitiveMesh.FoundationLayer.AuditLogging.Models
         /// <summary>
         /// The ID of the system or user that detected the violation.
         /// </summary>
-        public string DetectedBy { get; set; }
+        public string DetectedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The context in which the violation occurred.
