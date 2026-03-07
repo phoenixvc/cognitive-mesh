@@ -18,7 +18,7 @@ Enterprise-grade managed platforms from the Big 3 cloud providers. All offer mod
 |-----------|-----------------|-------------------|-----------------|
 | **Best for** | Microsoft stack enterprises | AWS-native, framework-flexible | GCP + Gemini users |
 | **Agent framework** | Semantic Kernel + MS Agent Framework | Strands + any framework | ADK + any framework |
-| **.NET support** | Excellent (native) | Good (SDK available) | None (Python/Java/Go only) |
+| **.NET support** | Excellent (`Azure.AI.Projects` v2.x) | Strong (`AWSSDK.BedrockAgent` v4.x GA) | Weak (models only via `Google.GenAI`, no ADK) |
 | **Enterprise connectors** | M365, Dynamics, Copilot Studio | Lambda, Step Functions, SQS | Apigee (100+ connectors) |
 | **Durable execution** | No (needs external) | No (needs external) | No (needs external) |
 | **Unique strength** | Compliance certifications | Modular AgentCore services | Visual Agent Designer |
@@ -46,10 +46,10 @@ Enterprise-grade managed platforms from the Big 3 cloud providers. All offer mod
 
 Standards that shape how agents and tools integrate, independent of any single platform.
 
-| Protocol | What It Connects | Backed By | Adoption | Detailed Doc |
-|----------|-----------------|-----------|----------|:------------:|
-| **A2A** (Agent-to-Agent) | Agent ↔ Agent | Google | Early | [Details](agent-protocols.md) |
-| **MCP** (Model Context Protocol) | Agent ↔ Tools/Data | Anthropic | Production-ready | [Details](agent-protocols.md) |
+| Protocol | What It Connects | Backed By | Adoption | .NET SDK | Detailed Doc |
+|----------|-----------------|-----------|----------|----------|:------------:|
+| **A2A** (Agent-to-Agent) | Agent ↔ Agent | Google (21.6K stars) | 50+ partners | `a2aproject/a2a-dotnet` (official) | [Details](agent-protocols.md) |
+| **MCP** (Model Context Protocol) | Agent ↔ Tools/Data | Anthropic (97M downloads/mo) | 10K+ servers | `ModelContextProtocol` NuGet (co-maintained w/ Microsoft) | [Details](agent-protocols.md) |
 
 **Recommendation**: Adopt MCP now (production-ready, immediate integration benefits). Evaluate A2A as it matures.
 

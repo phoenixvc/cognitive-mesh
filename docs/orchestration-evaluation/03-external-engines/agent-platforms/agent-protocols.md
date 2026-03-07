@@ -44,11 +44,14 @@ Agent A (any framework)           Agent B (any framework)
 
 ### Maturity Signals
 
-- **Backed by**: Google (primary), with participation from multiple vendors
-- **Status**: Open specification, early adoption phase
-- **Implementations**: Vertex AI Agent Builder supports A2A natively; community implementations emerging
+- **Backed by**: Google (creator, announced April 2025 at Cloud Next). Now under Linux Foundation governance (Apache 2.0)
+- **GitHub stars**: 21.6K (a2aproject/A2A)
+- **Status**: Open specification with rapid adoption. **50+ technology partners** at launch (Salesforce, PayPal, Atlassian, SAP, Adobe, ServiceNow, Zoom, Microsoft)
+- **Implementations**: Vertex AI Agent Builder (native), Microsoft Semantic Kernel, community implementations
+- **.NET/C# SDK**: Official `a2aproject/a2a-dotnet` with ASP.NET Core integration (`MapA2A()`, `MapHttpA2A()`). Requires .NET 8.0+. Community implementation (neuroglia-io/a2a-net) with Redis persistence also available
+- **Transport**: JSON-RPC 2.0 over HTTPS + gRPC (added July 2025). Discovery via Agent Cards at `/.well-known/agent.json`
 - **Risk**: Competing with informal patterns (direct API calls, function-based delegation) that are simpler but less interoperable
-- **Adoption**: Still early; most production systems use direct integration rather than A2A
+- **Adoption**: Accelerating; three spec versions in first year (v0.1, v0.2, v0.2.6)
 
 ### When It Matters
 
@@ -102,11 +105,12 @@ MCP is an open protocol from Anthropic that standardizes how AI agents and model
 
 ### Maturity Signals
 
-- **Backed by**: Anthropic (primary), with broad industry adoption
-- **Status**: Production-ready; widely adopted across frameworks
-- **Implementations**: Claude (native), OpenAI Agents SDK (adopted), Inngest AgentKit, Cursor, Windsurf, many IDEs and tools
-- **Ecosystem**: Hundreds of community-built MCP servers covering major APIs and services
-- **Adoption**: Strong — becoming the de facto standard for tool integration
+- **Backed by**: Anthropic (created Nov 2024), donated to Linux Foundation (Agentic AI Foundation, Dec 2025). Co-founded by Anthropic, Block, OpenAI; supported by Google, Microsoft, AWS, Cloudflare, Bloomberg
+- **Status**: Production-ready; universal adoption. **97M+ monthly SDK downloads**
+- **Implementations**: Claude (native), OpenAI ChatGPT, Google Gemini, Microsoft Copilot/VS Code, Cursor, Windsurf, and many more
+- **Ecosystem**: **10,000+ active MCP servers** covering major APIs and services
+- **.NET/C# SDK**: Official `ModelContextProtocol` NuGet package (co-maintained with Microsoft, approaching v1.0). `ModelContextProtocol.AspNetCore` for HTTP-hosted servers. Visual Studio 2026 includes built-in NuGet MCP server
+- **Adoption**: Won the "USB for AI" standard war — de facto standard for tool integration
 
 ### When It Matters
 

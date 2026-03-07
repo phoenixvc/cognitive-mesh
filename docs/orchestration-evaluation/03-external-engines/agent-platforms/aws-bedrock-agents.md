@@ -77,7 +77,7 @@ Amazon Bedrock Agents is a managed agent orchestration service within AWS Bedroc
 
 ## Integration / Plugin Architecture
 
-- **SDKs**: Python (Boto3), JavaScript, Java, .NET, Go, CLI
+- **SDKs**: .NET (`AWSSDK.BedrockAgent` + `AWSSDK.BedrockAgentRuntime`, v4.x GA since April 2025), Python (Boto3), JavaScript, Java, Go, CLI
 - **Framework support**: Strands Agents (AWS-native), LangGraph, LlamaIndex, CrewAI
 - **AWS service integration**: Lambda, Step Functions, S3, DynamoDB, SQS, EventBridge, Bedrock Knowledge Bases
 - **AgentCore Gateway**: Centralized tool access management
@@ -144,8 +144,10 @@ Amazon Bedrock Agents is a managed agent orchestration service within AWS Bedroc
 - **No durable execution**: No event-sourcing or replay-based crash recovery
 - **Complexity**: Multiple overlapping services (Bedrock Agents, AgentCore, Strands Agents, Step Functions) create confusion about which to use when
 - **Vendor lock-in**: Deep AWS integration; multi-cloud portability is limited
-- **Documentation**: Rapidly evolving feature set means docs can lag behind capabilities
-- **Pricing opacity**: Multiple service charges (model tokens + AgentCore services + compute + storage) make cost prediction difficult
+- **Hidden token costs**: A single query can consume 5-10x expected tokens due to internal reasoning/scratchpad traces
+- **Output token burndown**: 5x multiplier for Anthropic Claude 3.7+ output tokens makes cost estimation difficult
+- **No visual builder**: No visual agent designer comparable to Azure or Google
+- **Quota complexity**: Managing quotas across models, regions, and 4 pricing tiers (Standard, Priority, Flex, Batch) is complex
 - **Newer platform**: AgentCore is newer than Azure AI Foundry; fewer production case studies
 
 ## Pricing Model
