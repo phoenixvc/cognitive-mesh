@@ -36,7 +36,7 @@ n8n is a visual workflow automation platform with 400+ integrations and AI capab
 | Efficiency | 3.0 | 60.0% | Medium | Node.js runtime is efficient. But large workflows with many nodes consume memory. |
 | Fault Tolerance | 3.0 | 60.0% | Medium | Per-node retry. Error handling nodes. But no durable execution or replay. |
 | Throughput | 3.0 | 60.0% | Medium | Sequential node execution. Queue mode adds parallelism. But not designed for high-throughput batch. |
-| Maintainability | 3.5 | 70.0% | High | Visual workflows are intuitive. But complex workflows become hard to navigate. ~947 open PRs (very high churn). |
+| Maintainability | 3.5 | 70.0% | High | Visual workflows are intuitive. But complex workflows become "spaghetti diagrams." ~947 open PRs (very high churn). Linear memory growth (2GB+ for complex workflows). |
 | Determinism | 2.5 | 50.0% | Medium | Execution history. But visual workflows are harder to version/diff. No replay mechanism. |
 | Integration Ease | 4.5 | 90.0% | High | 400+ integrations. REST API. Community nodes. Self-hostable. |
 
@@ -65,4 +65,5 @@ n8n is a visual workflow automation platform with 400+ integrations and AI capab
 - Durable long-running workflows (no replay/checkpoint)
 - Version-controlled, code-first orchestration (visual workflows are hard to diff)
 - Teams requiring deterministic execution guarantees
-- Stability-critical environments (~947 open PRs indicate very high churn)
+- Stability-critical environments (~947 open PRs; ~178k GitHub stars but fair-code license, not truly open source)
+- Memory-intensive workloads (single-process limitation; 2GB+ for complex workflows)

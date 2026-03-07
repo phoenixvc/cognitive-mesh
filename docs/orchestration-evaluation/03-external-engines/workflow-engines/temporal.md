@@ -35,12 +35,12 @@ Temporal is a durable execution platform for building reliable, long-running wor
 
 | Metric | Score | % | Confidence | Justification |
 |--------|:-----:|:-:|:----------:|---------------|
-| Latency | 3.5 | 70.0% | Medium | gRPC overhead for task dispatch. Worker polling adds latency. Not optimized for sub-10ms use cases. |
+| Latency | 4.0 | 80.0% | Medium | gRPC is efficient. Worker task queue polling is optimized. Not sub-10ms but well-suited for workflow coordination. Recent `activity_as_tool` helper for AI agent support. |
 | Scalability | 5.0 | 100.0% | High | Horizontally scalable workers, partitioned namespaces, multi-cluster replication. Proven at Uber/Netflix scale. |
 | Efficiency | 4.0 | 80.0% | Medium | Event history grows per workflow. Worker polling consumes resources. But efficient at scale due to task queue partitioning. |
 | Fault Tolerance | 5.0 | 100.0% | High | Deterministic replay from event history. Configurable retry policies per activity. Heartbeating for long activities. Workflow-level timeouts. |
 | Throughput | 5.0 | 100.0% | High | Worker-based parallelism with task queue routing. Configurable max concurrent activities per worker. Proven high-throughput at scale. |
-| Maintainability | 4.0 | 80.0% | Medium | Clean SDK design across Go/Java/Python/TypeScript/.NET. Determinism constraints require learning curve. Versioning for workflow updates. |
+| Maintainability | 3.5 | 70.0% | Medium | Clean SDK design across Go/Java/Python/TypeScript/.NET/PHP. Determinism constraints require learning curve. Workflow versioning via if/else creates tech debt. Non-determinism errors are a common footgun. |
 | Determinism | 5.0 | 100.0% | High | Core design principle: workflows must be deterministic. Full event history replay. Complete audit trail. |
 | Integration Ease | 4.0 | 80.0% | Medium | Multi-language SDKs. Namespace isolation. ~158 open PRs (high activity but mature project). Strong documentation. |
 
@@ -81,10 +81,12 @@ Temporal is a durable execution platform for building reliable, long-running wor
 | Workflow task timeout | 10 seconds | Yes |
 | Worker max concurrent activities | 200 | Yes |
 | Worker max concurrent workflow tasks | 200 | Yes |
+| History limit | 50K events / 50MB per execution | Use ContinueAsNew |
+| Minimum memory footprint | ~832MB | — |
 
 ## Maturity Signals
 
-- **GitHub stars**: 12k+
+- **GitHub stars**: ~18.7k
 - **Open PRs**: ~158
 - **Release cadence**: Regular releases; server + SDKs versioned independently
 - **Corporate backing**: Temporal Technologies (venture-funded)

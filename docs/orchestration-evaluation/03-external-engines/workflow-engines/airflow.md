@@ -38,7 +38,7 @@ Apache Airflow is the most widely-adopted open-source workflow orchestration pla
 | Scalability | 4.0 | 80.0% | High | Celery/Kubernetes executors scale horizontally. But scheduler can be a bottleneck. |
 | Efficiency | 3.0 | 60.0% | Medium | Scheduler overhead. XCom metadata. DAG parsing on every scheduler loop. |
 | Fault Tolerance | 3.5 | 70.0% | High | Task retries configurable. `execution_timeout`. But no durable execution — failed tasks restart from scratch. |
-| Throughput | 3.5 | 70.0% | Medium | `max_active_runs`, `max_active_tasks_per_dag`. Executor-dependent parallelism. |
+| Throughput | 3.5 | 70.0% | Medium | `parallelism=32` (global), `max_active_tasks_per_dag=16`, `max_active_tis_per_dag=8`. Executor-dependent. |
 | Maintainability | 3.0 | 60.0% | High | Complex setup. DAG serialization issues. Python dependency management challenges. Large operator surface. |
 | Determinism | 3.5 | 70.0% | Medium | Task instance tracking by `execution_date`. Audit log. But no replay mechanism. |
 | Integration Ease | 4.0 | 80.0% | High | Massive operator ecosystem (600+ providers). REST API. Well-documented. But complex setup. ~200+ open PRs. |

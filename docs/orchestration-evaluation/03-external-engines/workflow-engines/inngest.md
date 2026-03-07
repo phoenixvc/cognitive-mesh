@@ -32,7 +32,8 @@ Inngest is an event-driven workflow engine optimized for serverless and edge env
 - **Functions**: Defined inline in your app with triggers and step logic
 - **Steps**: Each `step.run()` is durably stored; function resumes from last step on retry
 - **Events**: Typed payloads that trigger function execution
-- **Concurrency**: Configurable per-function concurrency keys and limits
+- **Concurrency**: Configurable per-function concurrency keys, throttling, debouncing, rate limiting
+- **AgentKit**: Multi-agent networks in TypeScript with deterministic routing and MCP integration
 
 ## Per-Metric Scores
 
@@ -78,17 +79,19 @@ Inngest is an event-driven workflow engine optimized for serverless and edge env
 
 | Setting | Default | Configurable |
 |---------|---------|:------------:|
-| Function retries | 3 (configurable per function) | Yes |
-| Step timeout | 30 minutes (cloud) | Yes |
+| Step retries | 4 per step (5 total attempts) | Yes |
+| Step timeout | Up to 2 hours max | Yes |
 | Concurrency limit | Unlimited (configurable per function) | Yes |
 | Event batch size | 1 (configurable) | Yes |
 | Debounce | None (configurable) | Yes |
 
 ## Maturity Signals
 
-- **GitHub stars**: 5k+
+- **GitHub stars**: ~4.8k
 - **Open PRs**: ~77
 - **Release cadence**: Regular; self-hosting available since 1.0
 - **Corporate backing**: Inngest Inc. (venture-funded)
+- **License**: SSPL with delayed Apache 2.0 (SSPL is restrictive for some use cases)
 - **Production users**: Growing; strong Next.js/Vercel ecosystem adoption
+- **AI support**: AgentKit for multi-agent networks with MCP integration
 - **Community**: Active Discord, good documentation
