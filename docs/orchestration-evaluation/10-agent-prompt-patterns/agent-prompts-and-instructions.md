@@ -179,18 +179,37 @@ When a handoff occurs:
 4. The conversation history is preserved
 5. The loop restarts with the new agent
 
-#### Recommended Prompt Structure for Multi-Agent Systems
+#### RECOMMENDED_PROMPT_PREFIX (Exact Source Code)
 
+The SDK provides an official prompt prefix for multi-agent systems at `agents.extensions.handoff_prompt`:
+
+```python
+RECOMMENDED_PROMPT_PREFIX = """# System context
+You are part of a multi-agent system called the Agents SDK,
+designed to make agent coordination and execution easy. Agents
+uses two primary abstraction: **Agents** and **Handoffs**. An
+agent encompasses instructions and tools and can hand off a
+conversation to another agent when appropriate. Handoffs are
+achieved by calling a handoff function, generally named
+`transfer_to_<agent_name>`. Transfers between agents are handled
+seamlessly in the background; do not mention or draw attention
+to these transfers in your conversation with the user."""
 ```
-You are a {role} agent. Your responsibilities:
-1. {specific task 1}
-2. {specific task 2}
 
-When you need help with {domain}, use the transfer_to_{specialist}
-tool to hand off to the appropriate specialist.
+Usage:
 
-Always explain to the user what you're doing before transferring.
+```python
+from agents import Agent
+from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
+
+billing_agent = Agent(
+    name="Billing agent",
+    instructions=f"""{RECOMMENDED_PROMPT_PREFIX}
+    You handle billing inquiries and refund requests.""",
+)
 ```
+
+*Source: [OpenAI Agents SDK Handoff Prompt Reference](https://openai.github.io/openai-agents-python/ref/extensions/handoff_prompt/)*
 
 ### 1.4 OpenAI Assistants API
 
@@ -528,9 +547,34 @@ instruction: You are an agent to help answer users' various questions.
 
 The `instruction` field maps directly to the model's system prompt. Google's approach is notably more minimal than other platforms — the framework relies on the model's capabilities rather than elaborate prompt engineering.
 
-### 4.2 Multi-Agent Orchestration
+### 4.2 Multi-Agent Orchestration (AutoFlow)
 
-ADK supports hierarchical agent structures where a `root_agent` delegates to sub-agents:
+ADK uses **AutoFlow** for automatic agent delegation. When sub-agents are present, the root agent's LLM considers each sub-agent's `description` and generates `transfer_to_agent(agent_name='target')` calls when appropriate.
+
+```python
+# Source: adk-python/src/google/adk/flows/llm_flows/auto_flow.py
+class AutoFlow(SingleFlow):
+    """AutoFlow is SingleFlow with agent transfer capability.
+
+    Agent transfer is allowed in the following direction:
+    1. from parent to sub-agent;
+    2. from sub-agent to parent;
+    3. from sub-agent to its peer agents;
+
+    For peer-agent transfers, it's only enabled when all below
+    conditions are met:
+    - The parent agent is also an LlmAgent.
+    - `disallow_transfer_to_peers` option of this agent is
+      False (default).
+    """
+```
+
+#### How Transfer Works
+
+1. The root agent's LLM reads its own `instruction` plus all sub-agents' `description` fields
+2. If a query matches a sub-agent's capability, the LLM generates: `transfer_to_agent(agent_name='target_agent_name')`
+3. AutoFlow intercepts this, calls `root_agent.find_agent()`, and switches `InvocationContext`
+4. The target agent takes over with its own instruction/tools
 
 ```python
 root_agent = Agent(
@@ -545,6 +589,10 @@ root_agent = Agent(
     sub_agents=[research_agent, analysis_agent],
 )
 ```
+
+**Known issue**: The LLM sometimes hallucinates extra arguments for `transfer_to_agent()` (e.g., `prompt=`, `user_request=`, `message=`), causing runtime errors.
+
+*Source: [Google ADK Multi-Agent Systems](https://google.github.io/adk-docs/agents/multi-agents/), [ADK Python Source](https://github.com/google/adk-python)*
 
 ### 4.3 Agent Cards (A2A Protocol)
 
