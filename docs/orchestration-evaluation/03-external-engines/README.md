@@ -1,6 +1,6 @@
 # External Engines Evaluation
 
-Evaluation of 19 external orchestration engines across three categories: workflow engines, agent runtimes, and coding-agent fleet orchestration. Scores updated with research-backed data (March 2026).
+Evaluation of 22+ external orchestration engines across five categories: workflow engines, agent runtimes, managed agent platforms, interoperability protocols, and coding-agent fleet orchestration. Scores updated with research-backed data (March 2026).
 
 ## Categories
 
@@ -31,6 +31,24 @@ Frameworks specifically designed for AI agent coordination and multi-model orche
 | [LlamaIndex Workflows](agent-runtimes/llamaindex-workflows.md) | 68.0% | 62.0% | 58.4% | 64.0% | 64.0% |
 | [Haystack](agent-runtimes/haystack-pipelines.md) | 66.4% | 64.0% | 56.0% | 60.0% | 60.0% |
 | [Flowise](agent-runtimes/flowise.md) | 70.0% | 54.0% | 48.0% | 62.0% | 58.0% |
+
+### [Managed Agent Platforms](agent-platforms/)
+Cloud-provider managed platforms and emerging stateful agent frameworks that bundle model hosting, tool integration, and orchestration.
+
+| Platform | Interactive | Batch | Durable | Event-Driven | Multi-Agent |
+|----------|:----------:|:-----:|:-------:|:------------:|:-----------:|
+| [Azure AI Foundry](agent-platforms/azure-ai-foundry.md) | **76.6%** | **77.8%** | **74.6%** | **75.4%** | **76.2%** |
+| [AWS Bedrock Agents](agent-platforms/aws-bedrock-agents.md) | 72.6% | 75.6% | 71.6% | 73.2% | 72.0% |
+| [Google Vertex AI](agent-platforms/google-vertex-agent-builder.md) | 72.6% | 73.2% | 68.8% | 71.2% | 70.8% |
+| [Letta (MemGPT)](agent-platforms/letta.md) | 63.0% | 61.8% | 65.6% | 61.2% | 64.4% |
+
+### [Interoperability Protocols](agent-platforms/agent-protocols.md)
+Standards for agent-to-agent communication and tool integration.
+
+| Protocol | What It Connects | Backed By | Adoption Stage |
+|----------|-----------------|-----------|:-------------:|
+| A2A (Agent-to-Agent) | Agent ↔ Agent | Google | Early |
+| MCP (Model Context Protocol) | Agent ↔ Tools/Data | Anthropic | Production-ready |
 
 ### [Coding-Agent Fleet Orchestration](coding-agent-orchestration/)
 Multi-worktree orchestrators for parallel coding agents and PR automation.
