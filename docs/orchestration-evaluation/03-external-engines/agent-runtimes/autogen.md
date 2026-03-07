@@ -1,75 +1,88 @@
-# Microsoft AutoGen
+# Microsoft AutoGen / Agent Framework
 
 ## What It Is
 
-AutoGen is Microsoft's multi-agent conversation framework. Agents interact through chat-based message passing in group conversations managed by a GroupChatManager. Originally positioned as the primary multi-agent framework from Microsoft, recent guidance directs new users toward the Microsoft Agent Framework, while AutoGen continues to receive maintenance.
+AutoGen is Microsoft Research's pioneering multi-agent framework that popularized conversational agent orchestration. In October 2025, it merged with Semantic Kernel into the unified **Microsoft Agent Framework**, which is in Release Candidate status targeting GA by end of Q1 2026. It supports Python and .NET with native Azure integration.
+
+The framework has evolved from simple chat-based group conversations to a full event-driven, graph-based orchestration platform with durable state, A2A interoperability, and enterprise governance.
 
 ## Architecture & Orchestration Pattern
 
-**Pattern**: Chat-based multi-agent conversation with group management
+**Pattern**: Event-driven, graph-based workflow orchestration with multiple coordination modes
 
 ```
-┌────────────────────────────────────┐
-│        GroupChat                   │
-│  ┌──────────┐  ┌──────────┐      │
-│  │  Agent 1 │  │  Agent 2 │      │
-│  │(Converse)│  │(Converse)│      │
-│  └──────────┘  └──────────┘      │
-│  ┌──────────────────────────┐    │
-│  │  GroupChatManager        │    │
-│  │  max_round=10            │    │
-│  │  speaker selection       │    │
-│  └──────────────────────────┘    │
-└────────────────────────────────────┘
+┌────────────────────────────────────────────┐
+│      Microsoft Agent Framework             │
+│  ┌──────────────────────────────────────┐ │
+│  │      Agent Runtime                   │ │
+│  │  ┌────────┐  ┌────────┐  ┌───────┐ │ │
+│  │  │Agent 1 │  │Agent 2 │  │Agent N│ │ │
+│  │  └────────┘  └────────┘  └───────┘ │ │
+│  └──────────────────────────────────────┘ │
+│  Orchestration Patterns:                  │
+│  ├── Sequential                           │
+│  ├── Concurrent (parallel)                │
+│  ├── Group Chat                           │
+│  ├── Handoff                              │
+│  └── Magentic (dynamic)                   │
+│                                            │
+│  ┌──────────────────────────────────────┐ │
+│  │  State + Checkpoint + Observability  │ │
+│  │  (Azure Monitor, OpenTelemetry)      │ │
+│  └──────────────────────────────────────┘ │
+└────────────────────────────────────────────┘
 ```
 
-- **ConversableAgent**: Base agent with chat + tool execution
-- **GroupChat**: Multi-agent conversation with speaker selection
-- **GroupChatManager**: Manages turn order and termination
-- **Code execution**: Built-in sandboxed code execution
+- **Agents**: Communicate via message-passing with centralized runtime
+- **Orchestration**: Sequential, concurrent, group chat, handoff, and "magentic" (dynamic) patterns
+- **State**: Session-based management for long-running and human-in-the-loop workflows
+- **Governance**: Prompt shields, PII detection, task adherence (Responsible AI)
+- **Interoperability**: A2A (Agent-to-Agent) and MCP (Model Context Protocol)
+- **YAML/JSON**: Declarative agent definitions supported
 
 ## Per-Metric Scores
 
 | Metric | Score | % | Confidence | Justification |
 |--------|:-----:|:-:|:----------:|---------------|
-| Latency | 3.0 | 60.0% | Medium | Chat-based coordination adds message round-trips. LLM calls per turn. |
-| Scalability | 2.8 | 56.0% | Medium | In-memory conversation. No distributed coordination. Group size limited by context. |
-| Efficiency | 2.8 | 56.0% | Medium | Token-heavy due to full conversation history per agent call. Multiple LLM calls per round. |
-| Fault Tolerance | 2.5 | 50.0% | Medium | No built-in retry. No checkpointing. Conversation state is in-memory. `max_round` prevents infinite loops. |
-| Throughput | 2.5 | 50.0% | Medium | Sequential conversation turns. Async messaging support added. But fundamentally turn-based. |
-| Maintainability | 3.2 | 64.0% | Medium | Clean agent API. But ~190 open PRs + transition to MS Agent Framework creates uncertainty. |
-| Determinism | 3.2 | 64.0% | Medium | Conversation history is complete. Speaker selection is deterministic. But LLM outputs vary. |
-| Integration Ease | 3.0 | 60.0% | Medium | Python-native. Tool integration. But transition to MS Agent Framework adds uncertainty. |
+| Latency | 3.8 | 76.0% | Medium | Event-driven architecture reduces polling. Message-passing adds some overhead. Azure optimization helps. |
+| Scalability | 4.7 | 94.0% | High | Enterprise-scale via Azure AI Foundry. 70,000+ organizations using it. Cross-language distributed runtimes. |
+| Efficiency | 3.2 | 64.0% | Medium | Full conversation history per agent adds token overhead. Framework abstractions add memory usage. |
+| Fault Tolerance | 4.5 | 90.0% | High | Checkpoint-based state persistence at critical nodes. Sub-workflow nesting. Crash recovery via durable state. Enterprise-grade. |
+| Throughput | 4.2 | 84.0% | Medium | Concurrent orchestration pattern runs agents in parallel. Cross-language runtime enables distributed processing. |
+| Maintainability | 3.0 | 60.0% | Medium | Large API surface. Merger creates migration complexity. Framework is pre-GA and evolving. Steep learning curve. |
+| Determinism | 4.3 | 86.0% | High | Graph-based workflows with explicit execution paths. Azure Monitor + OpenTelemetry observability. Checkpoint-based audit trail. |
+| Integration Ease | 4.0 | 80.0% | High | OpenAPI, MCP, A2A. Azure ecosystem. Multi-language (C#, Python, Java). ~55k GitHub stars. But merger churn. |
 
 ### Weighted Totals
 
 | Profile | Score | Percentage |
 |---------|:-----:|:----------:|
-| Interactive | 3.12 | 62.4% |
-| Batch | 2.90 | 58.0% |
-| Long-Running Durable | 2.62 | 52.4% |
-| Event-Driven Serverless | 2.80 | 56.0% |
-| Multi-Agent Reasoning | 3.40 | 68.0% |
+| Interactive | 3.70 | 74.0% |
+| Batch | 4.20 | 84.0% |
+| Long-Running Durable | 4.18 | 83.6% |
+| Event-Driven Serverless | 3.58 | 71.6% |
+| Multi-Agent Reasoning | 3.82 | 76.4% |
 
 ## When to Use (Ranked by Use Case)
 
 | Use Case | Rank | Fit |
 |----------|:----:|-----|
-| Chat-based multi-agent conversations | **2nd** | Purpose-built for this; but LangGraph offers more control. |
-| Research/prototyping multi-agent systems | **2nd** | Good for exploration. CrewAI simpler for quick prototypes. |
-| Code generation with validation | 3rd | Built-in code execution is unique. |
+| Enterprise multi-agent (Azure/.NET) | **1st** | Purpose-built. Azure backing. .NET/C# primary language. Enterprise governance. |
+| Complex multi-agent with durability | **2nd** | Checkpoint-based state. Behind Temporal for workflow durability but ahead of all other agent runtimes. |
+| Batch agent automation | **2nd** | Strong scalability + fault tolerance. Good for unattended agent workflows. |
 
 ## When NOT to Use
 
-- New projects (Microsoft recommends MS Agent Framework for new work)
-- Production systems requiring durability or fault tolerance
-- Non-chat agent coordination patterns (use LangGraph)
-- Long-term investments given transition uncertainty
+- Quick prototyping (API surface too large; use OpenAI Agents SDK or CrewAI)
+- Teams wanting lightweight/minimal dependencies
+- Non-Microsoft ecosystems where Azure lock-in is a concern
+- Pre-GA status means API may still shift — risk for production systems built today
 
 ## Maturity Signals
 
-- **GitHub stars**: 35k+ (high visibility)
-- **Open PRs**: ~190 (high churn)
-- **Corporate backing**: Microsoft Research
-- **Direction**: Maintenance mode; new features directed to MS Agent Framework
-- **Risk**: Long-term direction uncertain
+- **GitHub stars**: ~55k (AutoGen repo), ~27k (Semantic Kernel repo)
+- **Contributors**: 559
+- **Status**: Release Candidate (March 2026), GA targeted Q1 2026
+- **Corporate backing**: Microsoft (direct investment, Azure AI Foundry)
+- **Production users**: 70,000+ organizations on Azure AI Foundry
+- **Risk**: Merger creates migration complexity for existing AutoGen or SK users

@@ -2,11 +2,11 @@
 
 ## What It Is
 
-The OpenAI Agents SDK (formerly Swarm) is OpenAI's official framework for building multi-agent applications. It provides lightweight agent definitions with handoff mechanics, tool use, and guardrails. Designed for tight integration with OpenAI models and emphasizes simplicity over infrastructure complexity.
+The OpenAI Agents SDK (evolved from the experimental Swarm project, March 2025) is OpenAI's lightweight, minimalist framework for multi-agent workflows. Built on four core primitives: Agents, Handoffs, Tools, and Guardrails. Available in Python and TypeScript with feature parity. Designed for tight integration with OpenAI models while supporting 100+ LLMs via Chat Completions API.
 
 ## Architecture & Orchestration Pattern
 
-**Pattern**: Lightweight agent handoff with tool-use orchestration
+**Pattern**: Minimalist agent loop with handoff-based delegation
 
 ```
 ┌────────────────────────────────────┐
@@ -18,62 +18,67 @@ The OpenAI Agents SDK (formerly Swarm) is OpenAI's official framework for buildi
 │  └──────────┘  └──────────┘      │
 │  ┌──────────────────────────┐    │
 │  │      Runner              │    │
-│  │  (manages agent loop)    │    │
+│  │  reasoning → tool call → │    │
+│  │  validation → next step  │    │
 │  └──────────────────────────┘    │
 │  ┌──────────────────────────┐    │
-│  │    Guardrails + Tracing  │    │
+│  │  Guardrails + Tracing    │    │
 │  └──────────────────────────┘    │
 └────────────────────────────────────┘
 ```
 
 - **Agent**: Defined by instructions, tools, and handoff targets
-- **Runner**: Executes the agent loop (call model → execute tools → check handoff → repeat)
+- **Runner**: Executes the agent loop (LLM drives control flow)
 - **Handoffs**: Agents delegate to other agents via handoff tools
-- **Guardrails**: Input/output validation hooks
-- **Tracing**: Built-in execution tracing for observability
+- **Guardrails**: Input/output validation hooks for governance
+- **Tracing**: Built-in execution tracing and visualization
+- **Realtime Agents**: Voice agent support
 
 ## Per-Metric Scores
 
 | Metric | Score | % | Confidence | Justification |
 |--------|:-----:|:-:|:----------:|---------------|
-| Latency | 3.8 | 76.0% | Medium | Direct OpenAI API calls. Minimal framework overhead. But handoff chains add round-trips. |
-| Scalability | 2.8 | 56.0% | Low | In-process execution. No distributed coordination. Scales with API rate limits. |
-| Efficiency | 3.2 | 64.0% | Medium | Lightweight framework. But handoff chains multiply API calls. Token usage depends on agent instructions. |
-| Fault Tolerance | 2.5 | 50.0% | Medium | No built-in retry. No checkpointing. Runner loop handles tool errors. But no durable state. |
-| Throughput | 2.5 | 50.0% | Medium | Sequential agent loop. No built-in parallelism for multi-agent execution. |
-| Maintainability | 4.0 | 80.0% | High | Very simple API. Easy to understand. Small codebase. Good documentation. |
-| Determinism | 3.5 | 70.0% | Medium | Built-in tracing provides execution history. Guardrails add predictability. But LLM non-determinism. |
-| Integration Ease | 4.0 | 80.0% | Medium | OpenAI-native. Simple Python API. But vendor-locked to OpenAI models. |
+| Latency | 4.3 | 86.0% | Medium | Direct OpenAI API calls. Minimal framework overhead. Lightweight footprint. But handoff chains add round-trips. |
+| Scalability | 2.5 | 50.0% | Medium | Stateless and lightweight SDK. No built-in distributed execution. Scales only with developer infrastructure. |
+| Efficiency | 4.5 | 90.0% | Medium | Minimal dependency footprint. Low overhead per agent. No heavyweight abstractions. |
+| Fault Tolerance | 1.5 | 30.0% | High | **Intentionally minimal.** No durable execution, no checkpoint/resume, no crash recovery. Short-term session history only. Developers must layer in their own resilience. |
+| Throughput | 3.2 | 64.0% | Medium | Multi-agent parallel workflows supported. No concurrency primitives beyond async/await. LLM-bound. |
+| Maintainability | 4.5 | 90.0% | High | Very simple API. Four primitives. Minimal boilerplate. Easy to understand. Small codebase. |
+| Determinism | 2.5 | 50.0% | Medium | Built-in tracing. Guardrails add predictability. But LLM-driven control flow reduces determinism fundamentally. |
+| Integration Ease | 3.8 | 76.0% | Medium | MCP tool support. Provider-agnostic claim. Python + TypeScript. But optimized for OpenAI models. Pre-1.0 (v0.10.2). |
 
 ### Weighted Totals
 
 | Profile | Score | Percentage |
 |---------|:-----:|:----------:|
-| Interactive | 3.70 | 74.0% |
-| Batch | 2.90 | 58.0% |
-| Long-Running Durable | 2.60 | 52.0% |
-| Event-Driven Serverless | 3.30 | 66.0% |
-| Multi-Agent Reasoning | 3.50 | 70.0% |
+| Interactive | 3.82 | 76.4% |
+| Batch | 2.62 | 52.4% |
+| Long-Running Durable | 2.18 | 43.6% |
+| Event-Driven Serverless | 3.56 | 71.2% |
+| Multi-Agent Reasoning | 3.14 | 62.8% |
 
 ## When to Use (Ranked by Use Case)
 
 | Use Case | Rank | Fit |
 |----------|:----:|-----|
-| Simple multi-agent with OpenAI models | **1st** | Lightest-weight option for OpenAI-native development. |
-| Interactive AI assistants | **2nd** | Low latency, simple handoff. Good DX. |
-| Agent prototyping | **2nd** | Fast to get started. Minimal boilerplate. |
+| Rapid agent prototyping | **1st** | Fastest path to a working multi-agent system. Four primitives. Minimal boilerplate. |
+| Simple multi-agent handoff | **1st** | Lightest-weight option for handoff patterns. |
+| Interactive AI assistants | **2nd** | Lowest latency. Simple integration. Good DX. |
+| Voice/realtime agents | **1st** | Built-in Realtime Agent support. |
 
 ## When NOT to Use
 
-- Non-OpenAI model providers (vendor-locked)
-- Production systems requiring durability or fault tolerance
-- Complex graph-based agent workflows (use LangGraph)
+- Production systems needing fault tolerance (score: 1.5/5 = 30%)
+- Long-running or durable workflows
+- Complex stateful agent workflows requiring checkpointing
+- When vendor independence from OpenAI matters (despite provider-agnostic claims, optimized for OpenAI)
 - High-throughput batch agent execution
-- Teams needing model provider flexibility
+- Pre-1.0 API creates instability risk
 
 ## Maturity Signals
 
-- **Corporate backing**: OpenAI (direct investment)
-- **Maturity**: Relatively new; evolved from Swarm (research prototype)
-- **Risk**: Vendor lock-in to OpenAI models and API
-- **Community**: Growing; backed by OpenAI documentation
+- **GitHub stars**: ~19k (Python), ~2.4k (TypeScript)
+- **Version**: v0.10.2 (Feb 2026) — still pre-1.0
+- **Release cadence**: Active bi-weekly releases
+- **Corporate backing**: OpenAI
+- **Risk**: Pre-1.0 API instability; LLM-driven control flow limits determinism
