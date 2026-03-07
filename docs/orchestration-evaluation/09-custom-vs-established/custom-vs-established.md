@@ -49,9 +49,12 @@ A structured analysis of whether our internal implementations (agentkit-forge, c
 - ContinueAsNew for unbounded execution
 - Idempotent operation guarantees
 
+**Codebase detail**: cognitive-mesh's `InMemoryCheckpointManager` (`src/AgencyLayer/Orchestration/Checkpointing/InMemoryCheckpointManager.cs`) explicitly states: *"For distributed workflows, replace with DuckDB or CosmosDB-backed implementation"* — but even a persistent store would not replicate Temporal's deterministic replay model.
+
 **Can internals close this gap?**
-- **Partially** — adding retry policies and timeouts is straightforward (codeflow-engine already has this)
-- **Not fully** — event-sourced replay is Temporal's core innovation and requires fundamental architectural investment
+- **Partially** — adding retry policies and timeouts is straightforward (codeflow-engine already has this). Replacing in-memory stores with durable persistence (CosmosDB/DuckDB) closes ~40% of the durability gap. Effort: 3-6 months.
+- **Not fully** — event-sourced replay requires an architectural rewrite. Effort: 12-18 months. True deterministic replay is Temporal's core innovation.
+- **Alternative**: Consider **Restate** (emerging durable execution engine with simpler developer model than Temporal) as a lighter-weight option.
 - **Recommended approach**: Don't build replay. Instead, adopt Temporal as the durability layer and run internal logic as activities/workers
 
 ### 2. Scalability (Large Gap for File-Based)
@@ -95,6 +98,8 @@ A structured analysis of whether our internal implementations (agentkit-forge, c
 
 **agentkit-forge matches Temporal** on determinism with its explicit state machine and JSONL event log. This is the strongest evidence that focused custom implementations can match established players in specific dimensions.
 
+**Note on LangGraph weaknesses** (research-validated, 2026): LangGraph's multi-agent score (80.4%) is lower than agentkit-forge's (84.0%) in part due to discovered limitations — debugging difficulty at scale, memory leaks under sustained load, and API instability from LangChain upstream churn. agentkit-forge's simple mental model is a genuine competitive advantage here.
+
 ### 5. Maintainability / Integration (Competitive)
 
 Internal implementations are generally competitive on maintainability (3.0-4.0) and integration ease (2.0-4.0), though they lag on ecosystem breadth.
@@ -119,10 +124,19 @@ The question isn't "can custom beat Temporal at being Temporal?" — it's "what 
 
 **Opportunity**: cognitive-mesh's governance layer is genuinely unique. No established player addresses EU AI Act / GDPR agent compliance out of the box. This is a defensible niche.
 
+**Market validation (Gartner, Feb 2026)**:
+- AI governance platform market projected to reach **$492M in 2026** and **$1B+ by 2030**
+- **40%+ of agentic AI projects** will be canceled by 2027 due to "escalating costs, unclear business value, or inadequate risk controls"
+- Only **21% of organizations** maintain a real-time inventory of active agents
+- Nearly **80% cannot demonstrate real-time control** over autonomous systems
+- Less than half feel confident they could pass a **compliance review focused on agent behavior**
+- EU AI Act enforcement begins in **2026**; NIST announced the **AI Agent Standards Initiative** in Feb 2026
+
 **How to exploit it:**
 - Package governance as a middleware/interceptor that plugs into Temporal activities or LangGraph nodes
 - Don't compete on orchestration infrastructure; compete on policy enforcement
 - Target regulated industries (healthcare, finance, government) where governance is mandatory
+- Position cognitive-mesh's `CognitiveSovereignty` engine (autonomy levels, authority scopes, authorship trails) as a "guardian agent" layer
 
 ### 2. Deterministic Lifecycle Orchestration (agentkit-forge's Niche)
 
@@ -276,6 +290,20 @@ Don't build infrastructure. Build domain logic on top of proven infrastructure.
 | **Time to market** | Established engines save months of engineering | MVP, prototype, PoC |
 | **Compliance certification** | Managed platforms come pre-certified | HIPAA, SOC 2, FedRAMP requirements |
 
+### Total Cost of Ownership Comparison
+
+| Item | Build from Scratch | Hybrid (Buy infra + Build domain) | Buy Everything |
+|------|-------------------|----------------------------------|---------------|
+| Initial development | $150K–$400K+ | $40K–$100K | $10K–$50K (integration) |
+| Time to production | 12–18 months | 3–6 months | 1–3 months |
+| Monthly operations | $3.2K–$13K | $2K–$8K | $1K–$5K + vendor fees |
+| Maintenance burden | 1–2 FTEs ongoing | 0.5–1 FTE | 0.25 FTE |
+| Differentiation potential | Maximum | High (domain layer) | Low (same as competitors) |
+| Vendor lock-in risk | None | Low–Medium | High |
+| Governance customization | Full | Full | Limited to vendor features |
+
+**The consensus**: The hybrid approach offers the best TCO for organizations where agent orchestration is strategically important but not their core product.
+
 ### Decision Tree
 
 ```
@@ -302,9 +330,10 @@ Need durable execution / crash recovery?
 
 ### 1. Protocol Convergence (MCP + A2A)
 
-As MCP and A2A mature, **orchestration engines become more interchangeable**. If agents communicate via standard protocols, switching engines becomes cheaper. This favors:
+MCP has reached **97M monthly SDK downloads** with **5,800+ community servers**. A2A launched with **50+ partners** (Salesforce, PayPal, Atlassian). As these mature, **orchestration engines become more interchangeable**. If agents communicate via standard protocols, switching engines becomes cheaper. This favors:
 - Building domain-specific custom logic (portable across engines)
 - Investing less in custom infrastructure (more easily replaced)
+- cognitive-mesh's `AgentDefinition` and `AuthorityScope` models map naturally to A2A's Agent Cards concept
 
 ### 2. Cloud Provider Bundling
 
@@ -321,12 +350,24 @@ The AutoGen + Semantic Kernel merger into the Microsoft Agent Framework creates 
 - cognitive-mesh should differentiate on governance (MS Agent Framework lacks this)
 - Consider building cognitive-mesh governance as an MS Agent Framework extension
 
-### 4. Agent Evaluation Maturity
+### 4. The Governance Imperative
+
+Gartner's prediction that **40%+ of agentic AI projects will be canceled by 2027** due to inadequate risk controls is the most significant trend for custom implementations:
+- **Governance is not optional** — it is a survival requirement for production agent deployments
+- **No established player adequately addresses this** — the largest market gap in agent orchestration
+- The emerging **"guardian agent" pattern** (agents that govern other agents) maps directly to cognitive-mesh's CognitiveSovereignty engine
+- **Linux Foundation's Agentic AI Foundation** (with Anthropic, OpenAI, AWS, Google, Microsoft as founding members) suggests protocol-level convergence, but governance remains implementation-specific
+
+### 5. Agent Evaluation Maturity
 
 As agent evaluation frameworks mature (Letta Evals, MAKER benchmark, AgentCore Evaluations), the ability to **prove** your orchestration is better becomes table stakes. Internal implementations should:
 - Invest in benchmarking (MAKER benchmark already exists in cognitive-mesh)
 - Publish reproducible performance metrics
 - Compare against established baselines
+
+### 6. Inngest Checkpointing (Dec 2025)
+
+Inngest released checkpointing that reduces inter-step latency by **50%**. HouseOfVeritas should adopt this immediately — it directly improves the durability and performance scores with minimal effort.
 
 ---
 
