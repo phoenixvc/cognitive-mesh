@@ -1,7 +1,9 @@
 # Agentic Antipattern Analysis
 
-> **Source catalog**: [awesome-agentic-patterns](https://github.com/nibzard/awesome-agentic-patterns) (108 patterns)
+> **Source catalog**: [awesome-agentic-patterns](https://github.com/nibzard/awesome-agentic-patterns) (147 patterns as of 2026-03-07)
+> **Catalog version**: Main branch commit f3628c5 (3.5k stars)
 > **Analysis scope**: Patterns that can become antipatterns in production systems
+> **Related**: See also [Pattern Coverage Analysis](./agentic-pattern-coverage.md) for full coverage
 > **Date**: 2026-03-07
 
 ## Overview
