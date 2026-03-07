@@ -11,7 +11,7 @@ Template runbooks for common orchestration operations. Adapt per system.
 
 ### Diagnostic Steps
 
-```
+```text
 Step 1: Identify the execution
 ─────────────────────────────
 - Find the execution ID / workflow ID / task ID
@@ -70,7 +70,7 @@ Step 5: Resolution
 
 ### Steps
 
-```
+```text
 Step 1: Reconstruct inputs
 ──────────────────────────
 - Retrieve the original task/workflow input
@@ -120,7 +120,7 @@ Step 4: Compare outputs
 
 ### Correlation ID Patterns
 
-```
+```text
 agentkit-forge
 ──────────────
 - Session ID: unique per orchestration session

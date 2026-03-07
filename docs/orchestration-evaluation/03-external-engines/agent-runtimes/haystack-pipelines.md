@@ -8,7 +8,7 @@ Haystack by deepset is an open-source framework for building NLP/LLM application
 
 **Pattern**: Component pipeline with directed graph execution
 
-```
+```text
 Pipeline:
   Component A → Component B → Component C
                      ↘ Component D (branching)

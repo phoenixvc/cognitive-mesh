@@ -346,7 +346,9 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
 
     private async Task<object> CoordinateCollaborativeSwarmExecution(List<IAgent> agents, AgentTask task, CancellationToken cancellationToken)
     {
-        const int maxIterations = 5;
+        var config = task.SwarmConfig ?? new SwarmConfig();
+        var maxIterations = config.MaxIterations;
+        var convergencePredicate = config.ConvergencePredicate;
         var sharedContext = new Dictionary<string, object>(task.Context);
         object? finalResult = null;
 
@@ -366,10 +368,11 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
             // Update shared context with new results for the next iteration.
             sharedContext[$"Iteration_{i}_Results"] = iterationResults;
 
-            // Simple convergence check.
-            if (iterationResults.Any(r => (r?.ToString()?.Contains("COMPLETE") == true)))
+            // Convergence check using configurable predicate (default: string contains "COMPLETE").
+            var convergedResult = iterationResults.FirstOrDefault(r => convergencePredicate(r));
+            if (convergedResult is not null)
             {
-                finalResult = iterationResults.First(r => (r?.ToString()?.Contains("COMPLETE") == true));
+                finalResult = convergedResult;
                 break;
             }
         }

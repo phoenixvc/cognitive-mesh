@@ -8,7 +8,7 @@ Dagster is a data orchestration platform built around the concept of "software-d
 
 **Pattern**: Asset-centric DAG orchestration with software-defined assets
 
-```
+```text
 ┌──────────────────────────────────┐
 │        Dagster Instance         │
 │  ┌─────────┐  ┌──────────────┐ │

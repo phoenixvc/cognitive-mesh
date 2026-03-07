@@ -8,7 +8,7 @@ Prefect is a Python-native workflow orchestration framework focused on data pipe
 
 **Pattern**: Decorator-based Python workflow orchestration with optional server coordination
 
-```
+```text
 ┌──────────────────────────────────┐
 │       Prefect Server / Cloud    │
 │  ┌─────────┐  ┌──────────────┐ │

@@ -44,7 +44,8 @@ Unified comparison of orchestration configuration defaults across all evaluated 
 | Gap | Affected Systems | Risk |
 |-----|-----------------|------|
 | No centralized retry defaults | agentkit-forge | Silent failures on external calls |
-| Concurrency enforcement unclear | codeflow-engine, cognitive-mesh | Potential resource exhaustion |
+| Concurrency enforcement unclear | cognitive-mesh | Potential resource exhaustion |
+| Concurrency configured but runtime enforcement unverified | codeflow-engine | Configured limit exists (`max_concurrent=10`) but runtime enforcement mechanism is unverified |
 | No measured latency baselines | All internal repos | Cannot validate latency scores |
 | Timeout defaults not documented | cognitive-mesh, HouseOfVeritas | Unpredictable behavior under load |
 | No circuit breaker config | All internal repos | Cascading failures possible |
@@ -54,7 +55,7 @@ Unified comparison of orchestration configuration defaults across all evaluated 
 
 Every orchestration system should define these defaults explicitly:
 
-```
+```yaml
 orchestration:
   timeout_seconds: <value>           # Max time per task/workflow
   retry_attempts: <value>            # Max retries before failure

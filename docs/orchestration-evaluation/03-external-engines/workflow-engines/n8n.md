@@ -8,7 +8,7 @@ n8n is a visual workflow automation platform with 400+ integrations and AI capab
 
 **Pattern**: Visual node-based workflow automation with webhook/schedule triggers
 
-```
+```text
 ┌──────────────────────────────┐
 │         n8n Instance         │
 │  ┌────────┐  ┌────────────┐ │
@@ -65,5 +65,5 @@ n8n is a visual workflow automation platform with 400+ integrations and AI capab
 - Durable long-running workflows (no replay/checkpoint)
 - Version-controlled, code-first orchestration (visual workflows are hard to diff)
 - Teams requiring deterministic execution guarantees
-- Stability-critical environments (~947 open PRs; ~178k GitHub stars but fair-code license, not truly open source)
+- Stability-critical environments (~947 open PRs; ~48k GitHub stars but fair-code license, not truly open source)
 - Memory-intensive workloads (single-process limitation; 2GB+ for complex workflows)

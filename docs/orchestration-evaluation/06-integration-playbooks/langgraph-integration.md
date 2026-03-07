@@ -124,18 +124,22 @@ This is the **highest-value integration**. cognitive-mesh's 4 coordination patte
 ### Parallel Coordination
 
 ```python
-from langgraph.graph import StateGraph, Send
+from langgraph.graph import StateGraph, Send, START
 
 def parallel_dispatch(state):
-    """Fan-out to multiple agents."""
+    """Fan-out to multiple agents via Send() routing."""
     return [Send(f"agent_{i}", task)
             for i, task in enumerate(state["sub_tasks"])]
 
 graph = StateGraph(ParallelState)
-graph.add_node("dispatch", parallel_dispatch)
 for i in range(MAX_AGENTS):
     graph.add_node(f"agent_{i}", run_agent)
 graph.add_node("aggregate", aggregate_results)
+
+# Use conditional edges so Send() objects are interpreted as fan-out routing
+graph.add_conditional_edges(START, parallel_dispatch)
+for i in range(MAX_AGENTS):
+    graph.add_edge(f"agent_{i}", "aggregate")
 ```
 
 ### Hierarchical Coordination
@@ -180,17 +184,17 @@ graph.add_conditional_edges("check_convergence",
 ### Governance Gates as Interrupt Points
 
 ```python
-# Ethics + approval as interrupt_before
-graph = graph.compile(
-    checkpointer=PostgresSaver(...),
-    interrupt_before=["execute_action"]  # Human approval gate
-)
-
-# Ethics check as a node before action
+# Ethics check as a node before action — add nodes BEFORE compiling
 graph.add_node("ethics_check", check_ethics)
 graph.add_conditional_edges("ethics_check",
     lambda s: "execute" if s["ethics_passed"] else "reject",
     {"execute": "execute_action", "reject": "reject_action"})
+
+# Compile AFTER all nodes and edges are defined
+compiled = graph.compile(
+    checkpointer=PostgresSaver(...),
+    interrupt_before=["execute_action"]  # Human approval gate
+)
 ```
 
 ### Migration Steps

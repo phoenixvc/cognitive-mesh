@@ -174,11 +174,17 @@ const parallelCoordination = inngest.createFunction(
       );
     });
 
-    // Fan-in: wait for all completions
-    const results = await step.waitForEvent("mesh/agent.completed", {
-      timeout: "30m",
-      match: "data.orchestrationId"
-    });
+    // Fan-in: wait for all agent completions (one waitForEvent per sub-task)
+    const results = await Promise.all(
+      event.data.subTasks.map((task, index) =>
+        step.waitForEvent(`agent-completed-${index}`, {
+          event: "mesh/agent.completed",
+          timeout: "30m",
+          match: "data.orchestrationId",
+          if: `async.data.taskId == '${task.taskId}'`
+        })
+      )
+    );
 
     return aggregate(results);
   }

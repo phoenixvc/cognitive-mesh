@@ -2,15 +2,15 @@
 
 ## What It Is
 
-AutoGen is Microsoft Research's pioneering multi-agent framework that popularized conversational agent orchestration. In October 2025, it merged with Semantic Kernel into the unified **Microsoft Agent Framework**, which is in Release Candidate status targeting GA by end of Q1 2026. It supports Python and .NET with native Azure integration.
+AutoGen is Microsoft Research's pioneering multi-agent framework that popularized conversational agent orchestration. In October 2025, it merged with Semantic Kernel into the unified **Microsoft Agent Framework**, which is in public preview (as of March 2026). Legacy AutoGen is in maintenance mode (critical fixes only). It supports Python and .NET with native Azure integration.
 
-The framework has evolved from simple chat-based group conversations to a full event-driven, graph-based orchestration platform with durable state, A2A interoperability, and enterprise governance.
+The **merged Microsoft Agent Framework** provides event-driven, graph-based orchestration with durable state, A2A interoperability, and enterprise governance. These capabilities (durability, A2A, enterprise governance) are attributes of the merged framework, not legacy AutoGen. Legacy AutoGen's in-memory group chat remains available but is not recommended for new projects.
 
 ## Architecture & Orchestration Pattern
 
 **Pattern**: Event-driven, graph-based workflow orchestration with multiple coordination modes
 
-```
+```text
 ┌────────────────────────────────────────────┐
 │      Microsoft Agent Framework             │
 │  ┌──────────────────────────────────────┐ │
@@ -51,7 +51,7 @@ The framework has evolved from simple chat-based group conversations to a full e
 | Throughput | 4.2 | 84.0% | Medium | Concurrent orchestration pattern runs agents in parallel. Cross-language runtime enables distributed processing. |
 | Maintainability | 3.0 | 60.0% | Medium | Large API surface. Merger creates migration complexity. Framework is pre-GA and evolving. Steep learning curve. |
 | Determinism | 4.3 | 86.0% | High | Graph-based workflows with explicit execution paths. Azure Monitor + OpenTelemetry observability. Checkpoint-based audit trail. |
-| Integration Ease | 4.0 | 80.0% | High | OpenAPI, MCP, A2A. Azure ecosystem. Multi-language (C#, Python, Java). ~55k GitHub stars. But merger churn. |
+| Integration Ease | 4.0 | 80.0% | High | OpenAPI, MCP, A2A. Azure ecosystem. Multi-language (C#, Python). ~55k GitHub stars. But merger churn. |
 
 ### Weighted Totals
 
@@ -82,7 +82,7 @@ The framework has evolved from simple chat-based group conversations to a full e
 
 - **GitHub stars**: ~55k (AutoGen repo), ~27k (Semantic Kernel repo)
 - **Contributors**: 559
-- **Status**: Release Candidate (March 2026), GA targeted Q1 2026
+- **Status**: Public preview (March 2026); legacy AutoGen in maintenance mode (critical fixes only)
 - **Corporate backing**: Microsoft (direct investment, Azure AI Foundry)
 - **Production users**: 70,000+ organizations on Azure AI Foundry
 - **Risk**: Merger creates migration complexity for existing AutoGen or SK users

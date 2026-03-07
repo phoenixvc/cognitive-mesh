@@ -122,6 +122,32 @@ public class AgentDefinition
 }
 
 /// <summary>
+/// Configuration for the CollaborativeSwarm coordination pattern.
+/// Controls convergence detection and iteration limits.
+/// </summary>
+public class SwarmConfig
+{
+    /// <summary>
+    /// Maximum number of swarm iterations before returning the best result.
+    /// Default: 5.
+    /// </summary>
+    public int MaxIterations { get; set; } = 5;
+
+    /// <summary>
+    /// Predicate that determines whether a swarm iteration result indicates convergence.
+    /// Default: checks whether the result string contains "COMPLETE".
+    /// </summary>
+    /// <remarks>
+    /// This property is not serialization-safe. If <see cref="AgentTask"/> is persisted
+    /// (e.g., CosmosDB, checkpointing, message bus), the delegate will be lost.
+    /// Callers that require serializable configuration should use
+    /// <see cref="MaxIterations"/> and implement convergence detection in the agent logic itself.
+    /// </remarks>
+    public Func<object, bool> ConvergencePredicate { get; set; } =
+        result => result?.ToString()?.Contains("COMPLETE") == true;
+}
+
+/// <summary>
 /// Represents a task assigned to a team of agents.
 /// </summary>
 public class AgentTask
@@ -132,6 +158,12 @@ public class AgentTask
     public List<string> Constraints { get; set; } = new();
     public CoordinationPattern CoordinationPattern { get; set; } = CoordinationPattern.CollaborativeSwarm;
     public List<string> RequiredAgentTypes { get; set; } = new();
+
+    /// <summary>
+    /// Configuration for the CollaborativeSwarm coordination pattern.
+    /// When null, default settings are used (maxIterations=5, convergence checks for "COMPLETE" string).
+    /// </summary>
+    public SwarmConfig? SwarmConfig { get; set; }
 }
 
 /// <summary>
