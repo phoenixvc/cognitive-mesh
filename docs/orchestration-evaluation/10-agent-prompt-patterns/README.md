@@ -11,25 +11,22 @@ Agent behavior is fundamentally shaped by system prompts and instructions. Under
 - **Prompt engineering best practices** — What works at scale across millions of users
 - **Design trade-offs** — Minimal prompts (Google ADK: ~20 words) vs. maximal prompts (Claude Code: ~5000+ words)
 
-## Contents
+## Documents
 
-| Document | Description |
-|----------|-------------|
-| [Agent Prompts & Instructions](agent-prompts-and-instructions.md) | Comprehensive catalog of prompts across 9 platforms with cross-platform analysis |
+| # | File | Lines | Platform | Key Content |
+|---|------|-------|----------|-------------|
+| 1 | [01-openai.md](01-openai.md) | 419 | OpenAI | ChatGPT system prompts (GPT-4.5 to GPT-5), Swarm, Agents SDK, Codex, Deep Research |
+| 2 | [02-anthropic.md](02-anthropic.md) | 170 | Anthropic | Claude system prompt, Claude Code, tool use template |
+| 3 | [03-aws-bedrock.md](03-aws-bedrock.md) | 146 | AWS Bedrock | ReAct orchestration, pre-processing classifier, Messages API template |
+| 4 | [04-google-adk.md](04-google-adk.md) | 146 | Google ADK / Vertex AI | Identity prompt (exact source), transfer instructions, AutoFlow, A2A |
+| 5 | [05-microsoft.md](05-microsoft.md) | 237 | Microsoft | AutoGen GroupChat, MagenticOne ledger, Semantic Kernel planners |
+| 6 | [06-langchain.md](06-langchain.md) | 89 | LangChain / LangGraph | Supervisor agent, ReAct prompt, Plan-and-Execute |
+| 7 | [07-crewai.md](07-crewai.md) | 115 | CrewAI | Role-Goal-Backstory, assembled prompt, hierarchical manager |
+| 8 | [08-huggingface-smolagents.md](08-huggingface-smolagents.md) | 72 | HuggingFace smolagents | CodeAgent, ToolCallingAgent, planning prompts |
+| 9 | [09-letta.md](09-letta.md) | 186 | Letta (MemGPT) | Self-editing memory blocks, inner thoughts, memory tools |
+| 10 | [10-cross-platform-analysis.md](10-cross-platform-analysis.md) | 134 | Cross-Platform | Pattern comparison, orchestration taxonomy, prompt complexity spectrum |
 
-## Platforms Covered
-
-| Platform | What's Documented |
-|----------|------------------|
-| **OpenAI** | ChatGPT system prompt (GPT-4.5/5), Swarm defaults, Agents SDK handoff pattern, Assistants API, GPT-5 Agent Mode |
-| **Anthropic** | Claude 4 system prompt (official), Claude Code prompt structure, tool use format |
-| **AWS Bedrock** | Default orchestration prompt, pre-processing classifier, scratchpad format, 4-stage pipeline |
-| **Google ADK** | Agent definition structure, YAML config, multi-agent orchestration, A2A Agent Cards |
-| **Microsoft** | AutoGen GroupChat speaker selection prompt, SelectorGroupChat, AssistantAgent defaults, Semantic Kernel planner |
-| **LangGraph** | Supervisor prompt, ReAct agent format, Plan-and-Execute pattern |
-| **CrewAI** | Role-Goal-Backstory pattern, hierarchical manager, delegation control, prompt templates |
-| **smolagents** | CodeAgent prompt (Thought-Code-Observation), ToolCallingAgent, planning prompts |
-| **Letta (MemGPT)** | Self-editing memory blocks, inner thoughts pattern, memory management tools |
+> The original combined document is preserved in [agent-prompts-and-instructions.md](agent-prompts-and-instructions.md) (1,735 lines).
 
 ## Key Findings
 
