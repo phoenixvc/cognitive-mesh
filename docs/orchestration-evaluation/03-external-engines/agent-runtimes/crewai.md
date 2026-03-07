@@ -8,7 +8,7 @@ CrewAI is a Python framework for orchestrating role-based AI agents. Agents are 
 
 **Pattern**: Role-based agent coordination with crew-level task execution
 
-```
+```text
 ┌──────────────────────────────┐
 │           Crew              │
 │  ┌────────┐  ┌────────┐   │

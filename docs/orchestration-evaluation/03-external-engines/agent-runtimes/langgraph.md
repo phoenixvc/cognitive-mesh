@@ -8,7 +8,7 @@ LangGraph is a graph-based agent runtime by LangChain for building stateful, mul
 
 **Pattern**: Stateful graph execution with checkpointing and human-in-the-loop
 
-```
+```text
 ┌────────────────────────────────────┐
 │         LangGraph Runtime         │
 │  ┌──────────────────────────────┐ │

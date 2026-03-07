@@ -89,7 +89,7 @@ Factors evaluated:
 
 ## Weighted Total Calculation
 
-```
+```text
 weighted_total = Σ(metric_score × weight)
 percentage = (weighted_total / 5) × 100
 ```

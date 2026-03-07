@@ -100,7 +100,7 @@ Multi-worktree orchestrators for parallel coding agents and PR automation.
 The October 2025 merger of AutoGen and Semantic Kernel into the Microsoft Agent Framework significantly changes the landscape. The combined framework scores:
 - **84.0% Batch** — highest among agent runtimes, competitive with workflow engines
 - **83.6% Durable** — checkpoint-based state persistence closes the gap with Temporal
-- **76.4% Multi-Agent** — strong orchestration patterns (sequential, concurrent, group chat, handoff, magentic)
+- **76.4% Multi-Agent** — strong orchestration patterns (sequential, concurrent, group chat, handoff, magnetic)
 
 This makes it the strongest agent runtime for production use, especially in .NET/Azure environments. See the [detailed evaluation](agent-runtimes/autogen.md).
 

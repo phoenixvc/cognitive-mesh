@@ -10,7 +10,7 @@ Terms used throughout the orchestration evaluation documentation.
 
 **Circuit Breaker** — A pattern that detects repeated failures and temporarily stops sending requests to a failing service, allowing it to recover. States: Closed (normal) → Open (blocking) → Half-Open (testing).
 
-**Convergence** — In multi-agent systems, the point at which iterating agents reach a stable consensus or outcome. Can be assessed by heuristic (string match), scoring threshold, or state machine.
+**Convergence** — In multi-agent systems, the point at which iterating agents reach a stable consensus or outcome. It can be assessed by heuristics (e.g., string matching), by meeting a scoring threshold, or by reaching a terminal state in a state machine.
 
 **Coordination Pattern** — The strategy for how multiple agents or tasks interact. Common patterns: parallel, hierarchical, competitive, collaborative swarm.
 

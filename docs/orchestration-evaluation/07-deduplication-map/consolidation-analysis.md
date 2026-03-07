@@ -132,6 +132,31 @@ Temporal or Inngest (external orchestration core)
 
 **Best for**: Teams prioritizing production-grade reliability, scalability, and reduced maintenance burden.
 
+## Temporal/Inngest Ownership Boundary
+
+Under Option C, clear ownership boundaries between Temporal and Inngest prevent ambiguity:
+
+| Responsibility | Owner | Rationale |
+|---------------|-------|-----------|
+| **Routing (short-lived)** | Inngest | Event-driven dispatch, webhook triggers, lightweight function routing |
+| **Routing (durable)** | Temporal | Long-running task assignment, saga coordination, multi-step routing |
+| **Audit semantics** | Temporal (authoritative) | Temporal's event history provides the canonical audit trail; Inngest function runs supplement for event-driven paths |
+| **Retry policies** | Engine-owned | Each engine applies its own retry policies; cross-system retries are NOT cascaded |
+| **Cross-system handoff** | Temporal (control plane) | Temporal is the authoritative control plane for handoffs between engines |
+
+### Decision Rules
+
+- **Short-lived, event-reactive work** → Inngest owns routing and execution
+- **Long-running, stateful, or durable work** → Temporal owns the workflow
+- **Cross-engine handoff**: Inngest functions trigger Temporal workflows via `start_workflow`; Temporal workflows emit events to Inngest via activity-based `inngest.send()`
+- **Audit trail**: Temporal workflow ID is the primary correlation key; Inngest event IDs are linked as secondary references
+
+### Handoff Protocol
+
+1. **Inngest → Temporal**: Inngest step calls a Temporal activity to start a durable workflow (e.g., saga, approval chain). Inngest function completes; Temporal takes ownership.
+2. **Temporal → Inngest**: Temporal activity emits an Inngest event for lightweight follow-up (e.g., notification, webhook). Temporal continues or completes; Inngest handles the event independently.
+3. **Orchestrator → Team Agent**: The orchestrator (on Temporal) decomposes work and starts child workflows or activities per team agent. Team agents report results back via activity return values or Temporal signals.
+
 ## Recommended Path
 
 **Option C (External Engine as Core)** is recommended for production deployments, with Temporal for durable/batch workloads and Inngest for event-driven/serverless workloads.
@@ -142,10 +167,10 @@ Temporal or Inngest (external orchestration core)
 - HouseOfVeritas is already on Inngest, reducing migration scope.
 - Temporal's replay + durability addresses the biggest scoring gaps across all internal repos.
 
-**Phase 1**: Migrate HouseOfVeritas event patterns to a shared Inngest instance (low effort — already on Inngest).
-**Phase 2**: Wrap cognitive-mesh's multi-agent patterns as Temporal activities with governance checks.
-**Phase 3**: Convert agentkit-forge's lifecycle phases into Temporal workflow steps.
-**Phase 4**: Integrate codeflow-engine's LLM provider management as a shared service (not orchestration-bound).
+**Phase 1** (Inngest-owned): Migrate HouseOfVeritas event patterns to a shared Inngest instance (low effort — already on Inngest). Inngest owns routing and event dispatch.
+**Phase 2** (Temporal-owned): Wrap cognitive-mesh's multi-agent patterns as Temporal workflows with governance checks as activities. Temporal owns durable orchestration and audit trail.
+**Phase 3** (Temporal-owned): Convert agentkit-forge's lifecycle phases into Temporal workflow steps. Temporal owns lifecycle durability.
+**Phase 4** (Shared service): Integrate codeflow-engine's LLM provider management as a shared service (not orchestration-bound). Accessed by both Temporal activities and Inngest steps.
 
 ## Overlap Risk Summary
 

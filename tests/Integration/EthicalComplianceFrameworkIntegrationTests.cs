@@ -133,7 +133,17 @@ namespace CognitiveMesh.Tests.Integration
 
             var request = new AgentExecutionRequest
             {
-                Task = new AgentTask { Goal = "Analyze sales data", RequiredAgentTypes = new List<string> { "TestAgent" } },
+                Task = new AgentTask
+                {
+                    Goal = "Analyze sales data",
+                    RequiredAgentTypes = new List<string> { "TestAgent" },
+                    CoordinationPattern = CoordinationPattern.CollaborativeSwarm,
+                    SwarmConfig = new SwarmConfig
+                    {
+                        MaxIterations = 5,
+                        ConvergencePredicate = result => result?.ToString()?.Contains("COMPLETE") == true
+                    }
+                },
                 RequestingUserId = "test-user"
             };
 
@@ -315,7 +325,17 @@ namespace CognitiveMesh.Tests.Integration
 
             var request = new AgentExecutionRequest
             {
-                Task = new AgentTask { Goal = "Performance Test", RequiredAgentTypes = new List<string> { "PerfAgent" } },
+                Task = new AgentTask
+                {
+                    Goal = "Performance Test",
+                    RequiredAgentTypes = new List<string> { "PerfAgent" },
+                    CoordinationPattern = CoordinationPattern.CollaborativeSwarm,
+                    SwarmConfig = new SwarmConfig
+                    {
+                        MaxIterations = 5,
+                        ConvergencePredicate = result => result?.ToString()?.Contains("COMPLETE") == true
+                    }
+                },
                 RequestingUserId = "perf-test-user"
             };
 

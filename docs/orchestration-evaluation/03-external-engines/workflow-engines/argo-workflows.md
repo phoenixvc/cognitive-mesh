@@ -8,7 +8,7 @@ Argo Workflows is a Kubernetes-native workflow orchestration engine that defines
 
 **Pattern**: Kubernetes-native DAG/step orchestration with container-based execution
 
-```
+```text
 ┌─────────────────────────────────────┐
 │        Kubernetes Cluster          │
 │  ┌──────────────────────────┐     │

@@ -8,7 +8,7 @@ Microsoft Semantic Kernel is an open-source SDK for building AI agents and integ
 
 **Pattern**: Kernel-based plugin orchestration with planners and function calling
 
-```
+```text
 ┌────────────────────────────────────┐
 │         Semantic Kernel           │
 │  ┌──────────────────────────────┐ │
@@ -77,8 +77,15 @@ Microsoft Semantic Kernel is an open-source SDK for building AI agents and integ
 
 ## Maturity Signals
 
-- **GitHub stars**: 22k+
+- **GitHub stars**: ~27k ([GitHub: microsoft/semantic-kernel](https://github.com/microsoft/semantic-kernel))
 - **Corporate backing**: Microsoft (direct investment)
 - **Multi-language**: C# (primary), Python, Java
 - **Release cadence**: Regular; following Microsoft release practices
 - **Community**: Active; Microsoft-backed documentation and samples
+
+## Sources
+
+- [Semantic Kernel GitHub Repository](https://github.com/microsoft/semantic-kernel) — star count, contributors, release cadence
+- [Semantic Kernel Documentation](https://learn.microsoft.com/en-us/semantic-kernel/) — plugin model, planner, AI connectors, filters
+- [Azure AI Integration](https://learn.microsoft.com/en-us/azure/ai-services/) — Azure OpenAI, Azure AI Search connectors
+- [Semantic Kernel Process Framework](https://learn.microsoft.com/en-us/semantic-kernel/frameworks/process/process-framework) — multi-step workflow / state machine support (newer feature, experimental)

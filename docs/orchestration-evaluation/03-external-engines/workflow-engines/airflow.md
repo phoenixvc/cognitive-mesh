@@ -8,7 +8,7 @@ Apache Airflow is the most widely-adopted open-source workflow orchestration pla
 
 **Pattern**: DAG-based task scheduling with pluggable executors
 
-```
+```text
 ┌──────────────────────────────────┐
 │         Airflow Cluster         │
 │  ┌───────────┐  ┌────────────┐ │

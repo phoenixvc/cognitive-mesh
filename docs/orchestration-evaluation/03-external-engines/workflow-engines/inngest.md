@@ -8,7 +8,7 @@ Inngest is an event-driven workflow engine optimized for serverless and edge env
 
 **Pattern**: Event-driven step functions with durable execution
 
-```
+```text
 ┌─────────────────────────────────────┐
 │          Inngest Platform           │
 │  ┌──────────┐  ┌────────────────┐  │

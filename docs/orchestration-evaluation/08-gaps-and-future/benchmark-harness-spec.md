@@ -8,7 +8,7 @@ Three standard workflows designed to be implemented across all evaluated systems
 
 ### Workflow Definition
 
-```
+```text
 Input: { taskId, agentCount: 3, payload: "classify" }
 
 Steps:
@@ -45,7 +45,7 @@ Measurements:
 
 ### Workflow Definition
 
-```
+```text
 Input: { batchSize: N, taskTemplate: { type: "transform", payload: "..." } }
 
 Steps:
@@ -87,7 +87,7 @@ Measurements:
 
 ### Workflow Definition
 
-```
+```text
 Input: { taskCount: 10, failureRate: 0.3, failureType: "transient" }
 
 Steps:

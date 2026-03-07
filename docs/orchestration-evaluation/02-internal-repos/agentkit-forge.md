@@ -12,7 +12,7 @@ Agents are implemented as teams and handlers routed via spec-defined IDs. Team I
 
 ## Orchestration Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │              Orchestrator Engine            │
 │  ┌─────────┐  ┌──────────┐  ┌───────────┐  │

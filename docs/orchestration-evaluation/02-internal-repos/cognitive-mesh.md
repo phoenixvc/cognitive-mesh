@@ -8,7 +8,7 @@ Hexagonal "ports and adapters" multi-agent orchestrator with multiple coordinati
 
 ## Orchestration Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │        MultiAgentOrchestrationEngine                │
 │                                                     │
@@ -55,7 +55,9 @@ Hexagonal "ports and adapters" multi-agent orchestrator with multiple coordinati
 
 ### Convergence
 
-Swarm mode uses a simple convergence heuristic (string contains `"COMPLETE"`). This is a known limitation.
+Swarm mode uses a simple convergence heuristic: the loop checks whether any agent result contains the string `"COMPLETE"` (via `string.Contains("COMPLETE")`). The iteration loop is bounded to a hardcoded `maxIterations = 5`. Both the convergence predicate and the maximum iteration count are configurable via `SwarmConfig` on the `AgentTask` (see `SwarmConfig.ConvergencePredicate` and `SwarmConfig.MaxIterations`), with the defaults being the string-contains heuristic and 5 iterations respectively. If no `SwarmConfig` is provided, the engine falls back to these defaults.
+
+**Note:** `CollaborativeSwarm` is the default `CoordinationPattern` on the `AgentTask` DTO, so any task submitted without an explicit pattern will use swarm coordination with these default settings.
 
 ## Per-Metric Scores
 

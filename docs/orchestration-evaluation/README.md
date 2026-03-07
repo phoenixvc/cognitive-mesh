@@ -36,6 +36,8 @@ Weighted evaluation of agent orchestration approaches across **4 internal reposi
 
 ## Quick Reference: Internal Repo Rankings
 
+> **Note:** Rankings below are scoped to internal repositories only (4 repos). For global rankings including external engines, see [04 — Use-Case Rankings](04-use-case-rankings/).
+
 | Profile | 1st | 2nd | 3rd | 4th |
 |---------|-----|-----|-----|-----|
 | Interactive | agentkit-forge (78.6%) | codeflow-engine (64.4%) | HouseOfVeritas (64.2%) | cognitive-mesh (62.0%) |

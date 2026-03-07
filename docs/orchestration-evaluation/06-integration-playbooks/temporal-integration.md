@@ -171,21 +171,23 @@ public class ParallelCoordinationWorkflow
     }
 }
 
-// Swarm → loop with continue-as-new
+// Swarm → continue-as-new pattern (clears history each iteration)
 [Workflow]
 public class SwarmCoordinationWorkflow
 {
     [WorkflowRun]
     public async Task<OrchestrationResult> RunAsync(SwarmInput input)
     {
-        for (int i = 0; i < 5; i++)
-        {
-            var result = await Workflow.ExecuteActivityAsync(
-                RunSwarmIteration, input);
-            if (result.Converged) return result;
-            input = result.NextInput;
-        }
-        return input.BestResult;
+        var result = await Workflow.ExecuteActivityAsync(
+            RunSwarmIteration, input);
+
+        if (result.Converged || input.Iteration >= 5)
+            return result;
+
+        // Continue-as-new restarts the workflow with fresh history,
+        // preventing unbounded event history growth.
+        throw Workflow.CreateContinueAsNewException<SwarmCoordinationWorkflow>(
+            result.NextInput with { Iteration = input.Iteration + 1 });
     }
 }
 ```

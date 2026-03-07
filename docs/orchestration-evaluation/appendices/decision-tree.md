@@ -4,7 +4,7 @@ Use this flowchart to narrow down the best orchestration approach for your workl
 
 ## Primary Decision Flow
 
-```
+```text
 START: What is your primary workload type?
 │
 ├── Interactive (human-in-the-loop, developer tools, CLIs)

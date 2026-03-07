@@ -22,6 +22,8 @@ Open PR count serves as a proxy for integration stability — not quality. High 
 | cognitive-mesh | 14 | Active churn; integration surfaces evolving |
 | HouseOfVeritas | 0 | Stable or pre-active phase |
 
+> Data as of 2026-03-07 — see [Evidence Index](../appendices/evidence-index.md) for source references.
+
 ### External Engine Snapshot
 
 | Engine | Open PRs (approx.) | Interpretation |
@@ -32,6 +34,8 @@ Open PR count serves as a proxy for integration stability — not quality. High 
 | CrewAI | ~330 | High churn; API changes likely |
 | AutoGen | ~190 | High churn; transition to MS Agent Framework underway |
 | LangGraph | ~206 | High churn; evolving API surface |
+
+> Data as of 2026-03-07 — see [Evidence Index](../appendices/evidence-index.md) for source references.
 
 ## Additional Maturity Factors
 
@@ -54,4 +58,4 @@ Maturity signals primarily affect the **Integration Ease** metric:
 - Missing or outdated docs reduce score by 0.2–0.3
 - Strong backward compatibility guarantees add 0.2–0.3
 
-These adjustments are applied on top of the base architecture/feature score.
+These adjustments modify the Integration Ease raw score prior to applying workload weightings and the final weighted total. After applying all additive adjustments, the resulting Integration Ease score must be clamped to the 1.0–5.0 range and rounded to the nearest 0.1 (with 0.05 ties rounding up) to produce the final raw metric value used in weighted calculations.

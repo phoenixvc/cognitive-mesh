@@ -8,7 +8,7 @@ Event-driven workflow orchestration via Inngest with typed event contracts, cron
 
 ## Orchestration Architecture
 
-```
+```text
 ┌────────────────────────────────────────────────────┐
 │                 HouseOfVeritas                     │
 │                                                    │
@@ -53,7 +53,7 @@ Event-driven workflow orchestration via Inngest with typed event contracts, cron
 | Latency | 3.0 | 60.0% | Medium | Event-driven is inherently async. Queue latency (event ingestion → handler start) is Inngest-runtime-dependent and not measured. |
 | Scalability | 4.0 | 80.0% | Medium | Inngest handles scaling; the app delegates orchestration complexity to the platform. |
 | Efficiency | 3.0 | 60.0% | Low | Pay-per-invocation model (Inngest cloud) is efficient. Self-hosted efficiency depends on deployment. Not measured. |
-| Fault Tolerance | 4.0 | 80.0% | High | Many functions specify `retries: 2`. Inngest provides built-in retry mechanics. But `routeToInngest` swallows errors. |
+| Fault Tolerance | 4.0 | 80.0% | Medium | Many functions specify `retries: 2`. Inngest provides built-in retry mechanics. However, `routeToInngest` swallows producer-side delivery errors (logs but does not propagate), meaning event dispatch failures are silently lost. Confidence lowered from High to Medium to reflect this unobserved failure path. The score is maintained because fault tolerance is evaluated at the workflow execution layer (where Inngest retries apply), not the event emission layer. |
 | Throughput | 4.0 | 80.0% | Medium | Workflows run out-of-band from user interactions. Inngest handles concurrency. Cron-based periodic scans for batch operations. |
 | Maintainability | 3.0 | 60.0% | High | Typed events are clear. But very large function registry in a single route file is a maintainability risk. |
 | Determinism | 4.0 | 80.0% | Medium | Typed event schema provides contract clarity. Inngest step functions provide replay semantics. |

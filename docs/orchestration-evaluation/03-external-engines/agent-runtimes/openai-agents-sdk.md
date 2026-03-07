@@ -2,7 +2,7 @@
 
 ## What It Is
 
-The OpenAI Agents SDK (evolved from the experimental Swarm project, March 2025) is OpenAI's lightweight, minimalist framework for multi-agent workflows. Built on four core primitives: Agents, Handoffs, Tools, and Guardrails. Available in Python and TypeScript with feature parity. Designed for tight integration with OpenAI models while supporting 100+ LLMs via Chat Completions API.
+The OpenAI Agents SDK (evolved from the experimental Swarm project, March 2025) is OpenAI's lightweight, minimalist framework for multi-agent workflows. Built on four core primitives: Agents, Handoffs, Tools, and Guardrails. Available in Python and TypeScript with feature parity. The SDK defaults to the Responses API (preferred) and can also run in a Chat Completions compatibility mode. Interoperability with non-OpenAI models is conditional — possible when a provider exposes a Chat Completions–compatible endpoint or when a custom model provider implementation is supplied — rather than native out-of-the-box support.
 
 ## Architecture & Orchestration Pattern
 
