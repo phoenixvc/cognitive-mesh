@@ -4,7 +4,13 @@
 > **Catalog version**: Main branch as of 2026-03-07 (commit f3628c5, 3.5k stars)
 > **Evaluated codebase**: cognitive-mesh (216 C# files, 5-layer hexagonal architecture)
 > **Date**: 2026-03-07
-> **Related**: See also [Antipattern Analysis](./agentic-antipattern-analysis.md) for risk classification
+>
+> **Related Documents**:
+> - [Index](./agentic-patterns-index.md) — Overview and roadmap
+> - [High Priority](./agentic-patterns-high-priority.md) — 30 critical patterns for production
+> - [Medium Priority](./agentic-patterns-medium-priority.md) — 42 beneficial patterns
+> - [Low Priority](./agentic-patterns-low-priority.md) — 35 nice-to-have or not aligned
+> - [Antipatterns](./agentic-antipattern-analysis.md) — 19 patterns classified by risk
 
 ## Executive Summary
 
