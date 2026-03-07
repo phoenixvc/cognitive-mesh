@@ -555,7 +555,35 @@ Each sub-agent has its own tool access restrictions. For example, the Explore ag
 
 *Source: Extracted from Claude Code npm package, documented at [claude-code-system-prompts](https://github.com/Piebald-AI/claude-code-system-prompts)*
 
-### 2.3 Claude Tool Use Format
+### 2.3 Claude Tool Use System Prompt Template
+
+When the API receives a `tools` parameter, it automatically constructs a system prompt from this template:
+
+```
+In this environment you have access to a set of tools you can
+use to answer the user's question.
+{{ FORMATTING INSTRUCTIONS }}
+String and scalar parameters should be specified as is, while
+lists and objects should use JSON format.
+Note that spaces for string values are not stripped.
+The output is not expected to be valid XML and is parsed with
+regular expressions.
+Here are the functions available in JSONSchema format:
+{{ TOOL DEFINITIONS IN JSON SCHEMA }}
+{{ USER SYSTEM PROMPT }}
+{{ TOOL CONFIGURATION }}
+```
+
+The five components are assembled in order:
+1. **Opening line**: Always "In this environment you have access to a set of tools..."
+2. **Formatting instructions**: How to format tool invocations
+3. **Tool definitions**: Each tool rendered in JSON Schema with name, description, input_schema
+4. **User system prompt**: Custom system prompt from the developer
+5. **Tool configuration**: Settings from `tool_choice` parameter
+
+*Source: [Anthropic Tool Use Docs](https://platform.claude.com/docs/en/agents-and-tools/tool-use/implement-tool-use)*
+
+### 2.4 Claude Tool Use Format
 
 When tools are provided via the API, Claude receives them in a structured JSON schema format:
 
@@ -728,9 +756,18 @@ to me to answer this question. To answer this question, I will:
 
 ## 4. Google (ADK / Vertex AI)
 
-### 4.1 Agent Development Kit (ADK) Agent Definition
+### 4.1 Agent Development Kit (ADK) — Default Identity Prompt
 
-Google's ADK uses a minimal but opinionated agent definition structure:
+Google's ADK auto-injects a minimal identity prompt for every agent. This is the **only** default system instruction:
+
+```python
+# Source: adk-python/src/google/adk/flows/llm_flows/identity.py
+si = f'You are an agent. Your internal name is "{agent.name}".'
+if agent.description:
+    si += f' The description about you is "{agent.description}".'
+```
+
+The developer-provided `instruction` field is appended after this identity block:
 
 ```python
 from google.adk.agents import Agent
@@ -745,6 +782,40 @@ root_agent = Agent(
 )
 ```
 
+#### Agent Transfer Instructions (Exact Source Code)
+
+When sub-agents are present, ADK injects transfer instructions:
+
+```python
+# Source: adk-python/src/google/adk/flows/llm_flows/agent_transfer.py
+f"""
+You have a list of other agents to transfer to:
+
+{agent_descriptions}
+
+If you are the best to answer the question according to your
+description, you can answer it.
+
+If another agent is better for answering the question according
+to its description, call `{tool_name}` function to transfer the
+question to that agent. When transferring, do not generate any
+text other than the function call.
+
+**NOTE**: the only available agents for `{tool_name}` function
+are {formatted_agent_names}.
+"""
+```
+
+If parent transfer is enabled:
+```python
+f"""
+If neither you nor the other agents are best for the question,
+transfer to your parent agent {agent.parent_agent.name}.
+"""
+```
+
+*Source: [google/adk-python identity.py](https://github.com/google/adk-python/blob/main/src/google/adk/flows/llm_flows/identity.py), [agent_transfer.py](https://github.com/google/adk-python/blob/main/src/google/adk/flows/llm_flows/agent_transfer.py)*
+
 #### YAML-Based Configuration (No-Code)
 
 ```yaml
@@ -753,8 +824,6 @@ model: gemini-2.5-flash
 description: A helper agent that can answer users' questions.
 instruction: You are an agent to help answer users' various questions.
 ```
-
-The `instruction` field maps directly to the model's system prompt. Google's approach is notably more minimal than other platforms — the framework relies on the model's capabilities rather than elaborate prompt engineering.
 
 ### 4.2 Multi-Agent Orchestration (AutoFlow)
 
