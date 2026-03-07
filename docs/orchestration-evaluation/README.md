@@ -23,6 +23,7 @@ Weighted evaluation of agent orchestration approaches across **4 internal reposi
 | [07 — Deduplication Map](07-deduplication-map/) | Overlap analysis and consolidation paths |
 | [08 — Gaps & Future](08-gaps-and-future/) | Missing evidence, benchmark spec, operational runbooks |
 | [09 — Custom vs Established](09-custom-vs-established/) | Gap analysis, niche opportunities, hybrid strategies, build vs buy framework |
+| [10 — Agent Prompt Patterns](10-agent-prompt-patterns/) | Actual prompts, system instructions, and behavioral rules used by major platforms |
 | [Appendices](appendices/) | Evidence index, glossary, decision tree, migration risk matrix |
 
 ## How to Read This Documentation
