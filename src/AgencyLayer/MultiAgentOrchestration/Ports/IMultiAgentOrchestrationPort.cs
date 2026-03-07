@@ -137,6 +137,12 @@ public class SwarmConfig
     /// Predicate that determines whether a swarm iteration result indicates convergence.
     /// Default: checks whether the result string contains "COMPLETE".
     /// </summary>
+    /// <remarks>
+    /// This property is not serialization-safe. If <see cref="AgentTask"/> is persisted
+    /// (e.g., CosmosDB, checkpointing, message bus), the delegate will be lost.
+    /// Callers that require serializable configuration should use
+    /// <see cref="MaxIterations"/> and implement convergence detection in the agent logic itself.
+    /// </remarks>
     public Func<object, bool> ConvergencePredicate { get; set; } =
         result => result?.ToString()?.Contains("COMPLETE") == true;
 }

@@ -22,13 +22,13 @@
 | 12th | Semantic Kernel | 66.0% | Agent Runtime |
 | 13th | cognitive-mesh | 63.2% | Internal Repo |
 | 14th | LlamaIndex Workflows | 58.4% | Agent Runtime |
-| 15th | Fleet Orchestration | 54.4% | Coding-Agent |
-| 16th | n8n | 56.8% | Workflow Engine |
-| 17th | Haystack | 56.0% | Agent Runtime |
-| 18th | CrewAI | 54.4% | Agent Runtime |
+| 15th | n8n | 56.8% | Workflow Engine |
+| 16th | Haystack | 56.0% | Agent Runtime |
+| 17th | Fleet Orchestration | 54.4% | Coding-Agent |
+| 17th | CrewAI | 54.4% | Agent Runtime |
 | 19th | AutoGen | 52.4% | Agent Runtime |
-| 20th | OpenAI Agents SDK | 43.6% | Agent Runtime |
-| 21st | Flowise | 48.0% | Agent Runtime |
+| 20th | Flowise | 48.0% | Agent Runtime |
+| 21st | OpenAI Agents SDK | 43.6% | Agent Runtime |
 
 ## Top 3 Analysis
 

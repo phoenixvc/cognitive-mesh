@@ -369,9 +369,10 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
             sharedContext[$"Iteration_{i}_Results"] = iterationResults;
 
             // Convergence check using configurable predicate (default: string contains "COMPLETE").
-            if (iterationResults.Any(r => convergencePredicate(r)))
+            var convergedResult = iterationResults.FirstOrDefault(r => convergencePredicate(r));
+            if (convergedResult is not null)
             {
-                finalResult = iterationResults.First(r => convergencePredicate(r));
+                finalResult = convergedResult;
                 break;
             }
         }
