@@ -348,7 +348,8 @@ public class MultiAgentOrchestrationEngine : IMultiAgentOrchestrationPort
     {
         var config = task.SwarmConfig ?? new SwarmConfig();
         var maxIterations = config.MaxIterations;
-        var convergencePredicate = config.ConvergencePredicate;
+        var convergencePredicate = config.ConvergencePredicate
+            ?? (result => result?.ToString()?.Contains("COMPLETE") == true);
         var sharedContext = new Dictionary<string, object>(task.Context);
         object? finalResult = null;
 
