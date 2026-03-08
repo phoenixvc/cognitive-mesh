@@ -168,8 +168,8 @@ public class ComponentSummary
 }
 
 /// <summary>
-/// Port for agent-powered codebase Q&A and onboarding.
-/// Implements the "Agent-Powered Codebase Q&A / Onboarding" pattern.
+/// Port for agent-powered codebase QA and onboarding.
+/// Implements the "Agent-Powered Codebase QA / Onboarding" pattern.
 /// </summary>
 /// <remarks>
 /// This port provides intelligent codebase exploration and question
