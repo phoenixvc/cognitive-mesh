@@ -1,5 +1,7 @@
 // --- DTOs and Models for the Multi-Agent Orchestration Port ---
 
+using System.Text.Json.Serialization;
+
 namespace AgencyLayer.MultiAgentOrchestration.Ports;
 
 /// <summary>
@@ -127,11 +129,22 @@ public class AgentDefinition
 /// </summary>
 public class SwarmConfig
 {
+    private int _maxIterations = 5;
+
     /// <summary>
     /// Maximum number of swarm iterations before returning the best result.
-    /// Default: 5.
+    /// Default: 5. Must be at least 1.
     /// </summary>
-    public int MaxIterations { get; set; } = 5;
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when value is less than 1.</exception>
+    public int MaxIterations
+    {
+        get => _maxIterations;
+        set
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+            _maxIterations = value;
+        }
+    }
 
     /// <summary>
     /// Predicate that determines whether a swarm iteration result indicates convergence.
@@ -143,6 +156,7 @@ public class SwarmConfig
     /// Callers that require serializable configuration should use
     /// <see cref="MaxIterations"/> and implement convergence detection in the agent logic itself.
     /// </remarks>
+    [JsonIgnore]
     public Func<object, bool> ConvergencePredicate { get; set; } =
         result => result?.ToString()?.Contains("COMPLETE") == true;
 }
