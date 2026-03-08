@@ -212,8 +212,15 @@ public interface IRAGPort
 /// </summary>
 public class RAGStatistics
 {
+    /// <summary>Total documents indexed.</summary>
     public int TotalDocuments { get; init; }
+
+    /// <summary>Total chunks created.</summary>
     public int TotalChunks { get; init; }
+
+    /// <summary>Average chunks per document.</summary>
     public double AverageChunksPerDocument { get; init; }
+
+    /// <summary>Last indexing timestamp.</summary>
     public DateTimeOffset LastIndexedAt { get; init; }
 }

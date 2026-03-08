@@ -171,7 +171,7 @@ public class RefinementResult
 
 /// <summary>
 /// Port for iterative skill refinement.
-/// Implements the "Iterative Prompt & Skill Refinement" pattern.
+/// Implements the "Iterative Prompt and Skill Refinement" pattern.
 /// </summary>
 /// <remarks>
 /// This port enables continuous improvement of agent skills based on
