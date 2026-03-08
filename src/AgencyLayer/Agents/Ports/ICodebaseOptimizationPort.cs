@@ -67,9 +67,13 @@ public enum OptimizationCategory
 /// </summary>
 public enum ImpactLevel
 {
+    /// <summary>Low.</summary>
     Low,
+    /// <summary>Medium.</summary>
     Medium,
+    /// <summary>High.</summary>
     High,
+    /// <summary>Critical.</summary>
     Critical
 }
 
@@ -78,10 +82,15 @@ public enum ImpactLevel
 /// </summary>
 public enum EffortLevel
 {
+    /// <summary>Trivial.</summary>
     Trivial,
+    /// <summary>Small.</summary>
     Small,
+    /// <summary>Medium.</summary>
     Medium,
+    /// <summary>Large.</summary>
     Large,
+    /// <summary>Extensive.</summary>
     Extensive
 }
 
@@ -114,9 +123,13 @@ public class CodebaseHealthScore
 /// </summary>
 public enum TrendDirection
 {
+    /// <summary>Improving.</summary>
     Improving,
+    /// <summary>Stable.</summary>
     Stable,
+    /// <summary>Declining.</summary>
     Declining,
+    /// <summary>Unknown.</summary>
     Unknown
 }
 

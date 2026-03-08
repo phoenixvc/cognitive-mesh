@@ -26,9 +26,13 @@ public enum CommunicationPlatform
 /// </summary>
 public enum MessagePriority
 {
+    /// <summary>Low.</summary>
     Low,
+    /// <summary>Normal.</summary>
     Normal,
+    /// <summary>High.</summary>
     High,
+    /// <summary>Urgent.</summary>
     Urgent
 }
 

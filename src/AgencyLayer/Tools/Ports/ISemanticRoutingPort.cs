@@ -155,10 +155,16 @@ public interface ISemanticRoutingPort
 /// </summary>
 public class RoutingStatistics
 {
+    /// <summary>Total routes.</summary>
     public int TotalRoutes { get; init; }
+    /// <summary>Total routing requests.</summary>
     public int TotalRoutingRequests { get; init; }
+    /// <summary>Successful matches.</summary>
     public int SuccessfulMatches { get; init; }
+    /// <summary>Fallback used count.</summary>
     public int FallbackUsed { get; init; }
+    /// <summary>Average confidence.</summary>
     public double AverageConfidence { get; init; }
+    /// <summary>Route counts.</summary>
     public Dictionary<string, int> RouteCounts { get; init; } = new();
 }

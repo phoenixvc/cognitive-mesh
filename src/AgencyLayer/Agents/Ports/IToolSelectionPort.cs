@@ -186,9 +186,14 @@ public interface IToolSelectionPort
 /// </summary>
 public class ToolSelectionStatistics
 {
+    /// <summary>Total selections.</summary>
     public int TotalSelections { get; init; }
+    /// <summary>Successful selections.</summary>
     public int SuccessfulSelections { get; init; }
+    /// <summary>Average confidence.</summary>
     public double AverageConfidence { get; init; }
+    /// <summary>Tool usage counts.</summary>
     public Dictionary<string, int> ToolUsageCounts { get; init; } = new();
+    /// <summary>Tool success rates.</summary>
     public Dictionary<string, double> ToolSuccessRates { get; init; } = new();
 }

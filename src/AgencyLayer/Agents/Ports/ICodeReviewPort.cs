@@ -266,10 +266,16 @@ public interface ICodeReviewPort
 /// </summary>
 public class ReviewStatistics
 {
+    /// <summary>Total reviews.</summary>
     public int TotalReviews { get; init; }
+    /// <summary>Total findings.</summary>
     public int TotalFindings { get; init; }
+    /// <summary>Average findings per review.</summary>
     public double AverageFindingsPerReview { get; init; }
+    /// <summary>Findings by severity.</summary>
     public Dictionary<ReviewSeverity, int> FindingsBySeverity { get; init; } = new();
+    /// <summary>Findings by category.</summary>
     public Dictionary<ReviewCategory, int> FindingsByCategory { get; init; } = new();
+    /// <summary>Most common issues.</summary>
     public IReadOnlyList<string> MostCommonIssues { get; init; } = Array.Empty<string>();
 }

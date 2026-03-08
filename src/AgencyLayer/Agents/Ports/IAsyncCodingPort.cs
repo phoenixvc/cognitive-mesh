@@ -60,12 +60,19 @@ public enum CodingTaskType
 /// </summary>
 public enum CodingTaskStatus
 {
+    /// <summary>Queued.</summary>
     Queued,
+    /// <summary>InProgress.</summary>
     InProgress,
+    /// <summary>Review.</summary>
     Review,
+    /// <summary>Testing.</summary>
     Testing,
+    /// <summary>Completed.</summary>
     Completed,
+    /// <summary>Failed.</summary>
     Failed,
+    /// <summary>Cancelled.</summary>
     Cancelled
 }
 
@@ -137,9 +144,13 @@ public class FileChange
 /// </summary>
 public enum FileChangeType
 {
+    /// <summary>Added.</summary>
     Added,
+    /// <summary>Modified.</summary>
     Modified,
+    /// <summary>Deleted.</summary>
     Deleted,
+    /// <summary>Renamed.</summary>
     Renamed
 }
 

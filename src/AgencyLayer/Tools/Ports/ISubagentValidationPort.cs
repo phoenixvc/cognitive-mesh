@@ -244,13 +244,22 @@ public interface ISubagentValidationPort
 /// </summary>
 public class ValidationStatistics
 {
+    /// <summary>Total validations.</summary>
     public int TotalValidations { get; init; }
+    /// <summary>Passed count.</summary>
     public int Passed { get; init; }
+    /// <summary>Failed count.</summary>
     public int Failed { get; init; }
+    /// <summary>Corrected count.</summary>
     public int Corrected { get; init; }
+    /// <summary>Pass rate.</summary>
     public double PassRate { get; init; }
+    /// <summary>Correction rate.</summary>
     public double CorrectionRate { get; init; }
+    /// <summary>By output type.</summary>
     public Dictionary<string, int> ByOutputType { get; init; } = new();
+    /// <summary>Pass rate by subagent.</summary>
     public Dictionary<string, double> PassRateBySubagent { get; init; } = new();
+    /// <summary>Common issues.</summary>
     public IReadOnlyList<string> CommonIssues { get; init; } = Array.Empty<string>();
 }

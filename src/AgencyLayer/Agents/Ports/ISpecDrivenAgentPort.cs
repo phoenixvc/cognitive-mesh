@@ -6,6 +6,7 @@ namespace AgencyLayer.Agents.Ports;
 public class AgentSpecification
 {
     /// <summary>Specification identifier.</summary>
+    /// <summary>Spec identifier.</summary>
     public string SpecId { get; init; } = Guid.NewGuid().ToString();
 
     /// <summary>Agent name.</summary>
@@ -83,6 +84,7 @@ public class ModelPreferences
 /// </summary>
 public class GeneratedAgent
 {
+    /// <summary>Agent identifier.</summary>
     /// <summary>Agent identifier.</summary>
     public required string AgentId { get; init; }
 
@@ -187,9 +189,14 @@ public class SpecTestResult
 {
     public required string AgentId { get; init; }
     public required string SpecId { get; init; }
+    /// <summary>Whether passed.</summary>
     public bool Passed { get; init; }
+    /// <summary>Examples passed.</summary>
     public int ExamplesPassed { get; init; }
+    /// <summary>Examples failed.</summary>
     public int ExamplesFailed { get; init; }
+    /// <summary>Failure reasons.</summary>
     public IReadOnlyList<string> FailureReasons { get; init; } = Array.Empty<string>();
+    /// <summary>Tested at.</summary>
     public DateTimeOffset TestedAt { get; init; }
 }

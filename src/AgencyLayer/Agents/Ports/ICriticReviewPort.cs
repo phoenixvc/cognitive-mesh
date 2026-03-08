@@ -118,9 +118,13 @@ public class CriticReviewConfiguration
 /// </summary>
 public enum ReviewDepth
 {
+    /// <summary>Quick.</summary>
     Quick,
+    /// <summary>Standard.</summary>
     Standard,
+    /// <summary>Thorough.</summary>
     Thorough,
+    /// <summary>Exhaustive.</summary>
     Exhaustive
 }
 

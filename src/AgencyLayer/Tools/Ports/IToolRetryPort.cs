@@ -242,12 +242,20 @@ public interface IToolRetryPort
 /// </summary>
 public class ToolRetryStatistics
 {
+    /// <summary>Total invocations.</summary>
     public int TotalInvocations { get; init; }
+    /// <summary>Successful first attempt.</summary>
     public int SuccessfulFirstAttempt { get; init; }
+    /// <summary>Successful after retry.</summary>
     public int SuccessfulAfterRetry { get; init; }
+    /// <summary>Failed after retries.</summary>
     public int FailedAfterRetries { get; init; }
+    /// <summary>First attempt success rate.</summary>
     public double FirstAttemptSuccessRate { get; init; }
+    /// <summary>Overall success rate.</summary>
     public double OverallSuccessRate { get; init; }
+    /// <summary>Average retries per success.</summary>
     public double AverageRetriesPerSuccess { get; init; }
+    /// <summary>Errors by type.</summary>
     public Dictionary<ToolErrorType, int> ErrorsByType { get; init; } = new();
 }

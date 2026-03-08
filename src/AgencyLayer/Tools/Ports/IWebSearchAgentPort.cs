@@ -56,10 +56,15 @@ public class SearchFilters
 /// </summary>
 public enum SearchTimeRange
 {
+    /// <summary>Any.</summary>
     Any,
+    /// <summary>PastDay.</summary>
     PastDay,
+    /// <summary>PastWeek.</summary>
     PastWeek,
+    /// <summary>PastMonth.</summary>
     PastMonth,
+    /// <summary>PastYear.</summary>
     PastYear
 }
 
@@ -143,9 +148,13 @@ public class ResearchTask
 /// </summary>
 public enum ResearchDepth
 {
+    /// <summary>Quick.</summary>
     Quick,
+    /// <summary>Standard.</summary>
     Standard,
+    /// <summary>Deep.</summary>
     Deep,
+    /// <summary>Comprehensive.</summary>
     Comprehensive
 }
 
