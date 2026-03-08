@@ -187,8 +187,12 @@ public interface ISpecDrivenAgentPort
 /// </summary>
 public class SpecTestResult
 {
+    /// <summary>Agent identifier.</summary>
     public required string AgentId { get; init; }
+
+    /// <summary>Spec identifier.</summary>
     public required string SpecId { get; init; }
+
     /// <summary>Whether passed.</summary>
     public bool Passed { get; init; }
     /// <summary>Examples passed.</summary>
