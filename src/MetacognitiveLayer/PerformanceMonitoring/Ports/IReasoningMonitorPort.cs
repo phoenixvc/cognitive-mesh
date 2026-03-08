@@ -136,7 +136,7 @@ public enum InterruptionType
 
 /// <summary>
 /// Port for chain-of-thought monitoring and interruption.
-/// Implements the "Chain-of-Thought Monitoring & Interruption" pattern.
+/// Implements the "Chain-of-Thought Monitoring and Interruption" pattern.
 /// </summary>
 public interface IReasoningMonitorPort
 {

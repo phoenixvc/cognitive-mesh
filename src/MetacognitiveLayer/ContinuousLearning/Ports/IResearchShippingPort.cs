@@ -41,13 +41,28 @@ public class ResearchExperiment
 /// </summary>
 public enum ExperimentStatus
 {
+    /// <summary>Proposed.</summary>
     Proposed,
+
+    /// <summary>Approved.</summary>
     Approved,
+
+    /// <summary>In development.</summary>
     InDevelopment,
+
+    /// <summary>Shipped.</summary>
     Shipped,
+
+    /// <summary>Measuring.</summary>
     Measuring,
+
+    /// <summary>Completed.</summary>
     Completed,
+
+    /// <summary>Failed.</summary>
     Failed,
+
+    /// <summary>Abandoned.</summary>
     Abandoned
 }
 

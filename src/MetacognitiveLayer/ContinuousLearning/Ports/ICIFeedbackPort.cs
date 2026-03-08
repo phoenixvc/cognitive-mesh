@@ -50,11 +50,17 @@ public class CIResult
 /// </summary>
 public enum CIStatus
 {
+    /// <summary>Pending.</summary>
     Pending,
+    /// <summary>Running.</summary>
     Running,
+    /// <summary>Passed.</summary>
     Passed,
+    /// <summary>Failed.</summary>
     Failed,
+    /// <summary>Cancelled.</summary>
     Cancelled,
+    /// <summary>Skipped.</summary>
     Skipped
 }
 
@@ -269,10 +275,21 @@ public interface ICIFeedbackPort
 /// </summary>
 public class CIHealthMetrics
 {
+    /// <summary>Total runs.</summary>
     public int TotalRuns { get; init; }
+
+    /// <summary>Passed runs.</summary>
     public int PassedRuns { get; init; }
+
+    /// <summary>Failed runs.</summary>
     public int FailedRuns { get; init; }
+
+    /// <summary>Pass rate.</summary>
     public double PassRate { get; init; }
+
+    /// <summary>Average duration.</summary>
     public TimeSpan AverageDuration { get; init; }
+
+    /// <summary>Common failures.</summary>
     public IReadOnlyList<string> CommonFailures { get; init; } = Array.Empty<string>();
 }

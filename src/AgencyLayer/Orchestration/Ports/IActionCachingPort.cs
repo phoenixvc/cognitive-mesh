@@ -147,7 +147,7 @@ public class ReplaySession
 
 /// <summary>
 /// Port for action caching and replay.
-/// Implements the "Action Caching & Replay Pattern".
+/// Implements the "Action Caching and Replay Pattern".
 /// </summary>
 /// <remarks>
 /// This port provides deterministic caching and replay of agent actions

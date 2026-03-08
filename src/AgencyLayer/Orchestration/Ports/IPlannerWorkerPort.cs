@@ -3,7 +3,7 @@ namespace AgencyLayer.Orchestration.Ports;
 /// <summary>
 /// Status of a worker.
 /// </summary>
-public enum WorkerStatus
+public enum PlannerWorkerStatus
 {
     /// <summary>Worker is idle and available.</summary>
     Idle,
@@ -32,7 +32,7 @@ public class Worker
     public IReadOnlyList<string> Capabilities { get; init; } = Array.Empty<string>();
 
     /// <summary>Current status.</summary>
-    public WorkerStatus Status { get; init; }
+    public PlannerWorkerStatus Status { get; init; }
 
     /// <summary>Current task ID if busy.</summary>
     public string? CurrentTaskId { get; init; }

@@ -198,10 +198,19 @@ public class SpecTestResult
 /// </summary>
 public class StepResult
 {
+    /// <summary>Step number.</summary>
     public int StepNumber { get; init; }
+
+    /// <summary>Whether step succeeded.</summary>
     public bool Success { get; init; }
+
+    /// <summary>Actual result.</summary>
     public string? ActualResult { get; init; }
+
+    /// <summary>Error message if failed.</summary>
     public string? ErrorMessage { get; init; }
+
+    /// <summary>Duration in milliseconds.</summary>
     public double DurationMs { get; init; }
 }
 
@@ -210,9 +219,16 @@ public class StepResult
 /// </summary>
 public class OutcomeResult
 {
+    /// <summary>The assertion.</summary>
     public required string Assertion { get; init; }
+
+    /// <summary>Whether assertion passed.</summary>
     public bool Passed { get; init; }
+
+    /// <summary>Actual value.</summary>
     public string? ActualValue { get; init; }
+
+    /// <summary>Expected value.</summary>
     public string? ExpectedValue { get; init; }
 }
 
@@ -325,12 +341,27 @@ public interface ISpecTestFeedbackPort
 /// </summary>
 public class SpecCoverageReport
 {
+    /// <summary>Total specs.</summary>
     public int TotalSpecs { get; init; }
+
+    /// <summary>Specs with tests.</summary>
     public int SpecsWithTests { get; init; }
+
+    /// <summary>Total tests.</summary>
     public int TotalTests { get; init; }
+
+    /// <summary>Overall pass rate.</summary>
     public double OverallPassRate { get; init; }
+
+    /// <summary>Specs by type.</summary>
     public Dictionary<SpecificationType, int> SpecsByType { get; init; } = new();
+
+    /// <summary>Pass rate by type.</summary>
     public Dictionary<SpecificationType, double> PassRateByType { get; init; } = new();
+
+    /// <summary>Specs without tests.</summary>
     public IReadOnlyList<string> SpecsWithoutTests { get; init; } = Array.Empty<string>();
+
+    /// <summary>Failing specs.</summary>
     public IReadOnlyList<string> FailingSpecs { get; init; } = Array.Empty<string>();
 }

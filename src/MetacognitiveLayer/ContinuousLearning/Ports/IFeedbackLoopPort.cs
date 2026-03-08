@@ -102,9 +102,16 @@ public class FeedbackMetrics
 /// </summary>
 public enum FeedbackTrend
 {
+    /// <summary>Improving.</summary>
     Improving,
+
+    /// <summary>Stable.</summary>
     Stable,
+
+    /// <summary>Declining.</summary>
     Declining,
+
+    /// <summary>Insufficient data.</summary>
     Insufficient
 }
 

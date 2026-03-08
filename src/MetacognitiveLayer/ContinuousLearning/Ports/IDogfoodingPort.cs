@@ -53,10 +53,19 @@ public enum DogfoodingType
 /// </summary>
 public enum DogfoodingStatus
 {
+    /// <summary>Planned.</summary>
     Planned,
+
+    /// <summary>Active.</summary>
     Active,
+
+    /// <summary>Paused.</summary>
     Paused,
+
+    /// <summary>Completed.</summary>
     Completed,
+
+    /// <summary>Cancelled.</summary>
     Cancelled
 }
 
@@ -104,11 +113,22 @@ public class DogfoodingFinding
 /// </summary>
 public enum FindingType
 {
+    /// <summary>Bug.</summary>
     Bug,
+
+    /// <summary>UX issue.</summary>
     UXIssue,
+
+    /// <summary>Performance.</summary>
     Performance,
+
+    /// <summary>Feature request.</summary>
     FeatureRequest,
+
+    /// <summary>Documentation.</summary>
     Documentation,
+
+    /// <summary>Security.</summary>
     Security
 }
 
@@ -117,9 +137,16 @@ public enum FindingType
 /// </summary>
 public enum FindingSeverity
 {
+    /// <summary>Low.</summary>
     Low,
+
+    /// <summary>Medium.</summary>
     Medium,
+
+    /// <summary>High.</summary>
     High,
+
+    /// <summary>Critical.</summary>
     Critical
 }
 
@@ -128,11 +155,22 @@ public enum FindingSeverity
 /// </summary>
 public enum FindingStatus
 {
+    /// <summary>New.</summary>
     New,
+
+    /// <summary>Acknowledged.</summary>
     Acknowledged,
+
+    /// <summary>In progress.</summary>
     InProgress,
+
+    /// <summary>Resolved.</summary>
     Resolved,
+
+    /// <summary>Won't fix.</summary>
     WontFix,
+
+    /// <summary>Duplicate.</summary>
     Duplicate
 }
 

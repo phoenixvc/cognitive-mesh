@@ -100,8 +100,10 @@ public class EpisodicQuery
     /// <summary>Filter by type.</summary>
     public EpisodeType? Type { get; init; }
 
-    /// <summary>Filter by time range.</summary>
+    /// <summary>Filter by time range start.</summary>
     public DateTimeOffset? Since { get; init; }
+
+    /// <summary>Filter by time range end.</summary>
     public DateTimeOffset? Until { get; init; }
 
     /// <summary>Filter by success.</summary>
@@ -203,11 +205,24 @@ public interface IEpisodicMemoryPort
 /// </summary>
 public class EpisodicMemoryStatistics
 {
+    /// <summary>Total episodes.</summary>
     public int TotalEpisodes { get; init; }
+
+    /// <summary>Recent episodes.</summary>
     public int RecentEpisodes { get; init; }
+
+    /// <summary>Average importance.</summary>
     public double AverageImportance { get; init; }
+
+    /// <summary>Episodes by type.</summary>
     public Dictionary<EpisodeType, int> ByType { get; init; } = new();
+
+    /// <summary>Consolidated episodes.</summary>
     public int ConsolidatedEpisodes { get; init; }
+
+    /// <summary>Oldest episode.</summary>
     public DateTimeOffset OldestEpisode { get; init; }
+
+    /// <summary>Newest episode.</summary>
     public DateTimeOffset NewestEpisode { get; init; }
 }

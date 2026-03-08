@@ -65,7 +65,7 @@ public class HandoffCriteria
 /// <summary>
 /// State passed during handoff.
 /// </summary>
-public class HandoffState
+public class DualAgentHandoffContext
 {
     /// <summary>State identifier.</summary>
     public string StateId { get; init; } = Guid.NewGuid().ToString();
@@ -113,7 +113,7 @@ public class DualAgentRequest
     public string? InitialContext { get; init; }
 
     /// <summary>Existing handoff state (for resuming).</summary>
-    public HandoffState? ExistingState { get; init; }
+    public DualAgentHandoffContext? ExistingState { get; init; }
 }
 
 /// <summary>
@@ -134,7 +134,7 @@ public class DualAgentResult
     public AgentRole FinalAgent { get; init; }
 
     /// <summary>Handoff state (if operation is ongoing).</summary>
-    public HandoffState? HandoffState { get; init; }
+    public DualAgentHandoffContext? HandoffState { get; init; }
 
     /// <summary>Initializer steps taken.</summary>
     public int InitializerSteps { get; init; }
@@ -180,7 +180,7 @@ public interface IDualAgentPort
     /// <param name="configuration">Configuration.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Handoff state for maintainer.</returns>
-    Task<HandoffState> InitializeAsync(
+    Task<DualAgentHandoffContext> InitializeAsync(
         string task,
         DualAgentConfiguration configuration,
         CancellationToken cancellationToken = default);
@@ -194,7 +194,7 @@ public interface IDualAgentPort
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The result.</returns>
     Task<DualAgentResult> MaintainAsync(
-        HandoffState state,
+        DualAgentHandoffContext state,
         string task,
         DualAgentConfiguration configuration,
         CancellationToken cancellationToken = default);
@@ -220,7 +220,7 @@ public interface IDualAgentPort
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Whether state is valid and any issues.</returns>
     Task<(bool IsValid, IReadOnlyList<string> Issues)> ValidateHandoffAsync(
-        HandoffState state,
+        DualAgentHandoffContext state,
         CancellationToken cancellationToken = default);
 
     /// <summary>

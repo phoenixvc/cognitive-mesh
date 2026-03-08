@@ -130,8 +130,10 @@ public class SynthesisResult
     /// <summary>Total log entries analyzed.</summary>
     public int LogsAnalyzed { get; init; }
 
-    /// <summary>Time window covered.</summary>
+    /// <summary>Analysis start time.</summary>
     public DateTimeOffset AnalysisStart { get; init; }
+
+    /// <summary>Analysis end time.</summary>
     public DateTimeOffset AnalysisEnd { get; init; }
 
     /// <summary>New insights discovered in this run.</summary>
@@ -149,16 +151,37 @@ public class SynthesisResult
 /// </summary>
 public class ExecutionLogEntry
 {
+    /// <summary>Log identifier.</summary>
     public required string LogId { get; init; }
+
+    /// <summary>Agent identifier.</summary>
     public required string AgentId { get; init; }
+
+    /// <summary>Session identifier.</summary>
     public string? SessionId { get; init; }
+
+    /// <summary>Event type.</summary>
     public required string EventType { get; init; }
+
+    /// <summary>Event data.</summary>
     public required string EventData { get; init; }
+
+    /// <summary>Whether successful.</summary>
     public bool Success { get; init; }
+
+    /// <summary>Error message if failed.</summary>
     public string? ErrorMessage { get; init; }
+
+    /// <summary>Duration in milliseconds.</summary>
     public double? DurationMs { get; init; }
+
+    /// <summary>Tool identifier.</summary>
     public string? ToolId { get; init; }
+
+    /// <summary>Timestamp.</summary>
     public DateTimeOffset Timestamp { get; init; }
+
+    /// <summary>Additional metadata.</summary>
     public Dictionary<string, string> Metadata { get; init; } = new();
 }
 
