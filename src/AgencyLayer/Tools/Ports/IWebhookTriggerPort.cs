@@ -1,7 +1,7 @@
 namespace AgencyLayer.Tools.Ports;
 
 /// <summary>
-/// A webhook trigger configuration.
+/// A webhook trigger configuration (read model - never contains secrets).
 /// </summary>
 public class WebhookTrigger
 {
@@ -26,14 +26,80 @@ public class WebhookTrigger
     /// <summary>Whether active.</summary>
     public bool IsActive { get; init; } = true;
 
-    /// <summary>Secret for validation.</summary>
-    public string? Secret { get; init; }
+    /// <summary>
+    /// Reference to the secret in secure storage (Key Vault URI or secret name).
+    /// The actual secret value is never exposed in this read model.
+    /// </summary>
+    public string? SecretReference { get; init; }
+
+    /// <summary>Whether a secret is configured for this trigger.</summary>
+    public bool HasSecret { get; init; }
 
     /// <summary>Created at.</summary>
     public DateTimeOffset CreatedAt { get; init; }
 
     /// <summary>Last triggered.</summary>
     public DateTimeOffset? LastTriggered { get; init; }
+}
+
+/// <summary>
+/// Write model for creating a webhook trigger (accepts secrets).
+/// </summary>
+public class WebhookTriggerCreateRequest
+{
+    /// <summary>Trigger name.</summary>
+    public required string Name { get; init; }
+
+    /// <summary>Platform (GitHub, Slack, etc.).</summary>
+    public required string Platform { get; init; }
+
+    /// <summary>Event type to trigger on.</summary>
+    public required string EventType { get; init; }
+
+    /// <summary>Filter conditions (JSON).</summary>
+    public string? FilterConditions { get; init; }
+
+    /// <summary>Action to execute.</summary>
+    public required TriggerAction Action { get; init; }
+
+    /// <summary>Whether active.</summary>
+    public bool IsActive { get; init; } = true;
+
+    /// <summary>
+    /// Secret for webhook signature validation.
+    /// Will be stored in secure storage and only a reference returned.
+    /// </summary>
+    public string? Secret { get; init; }
+}
+
+/// <summary>
+/// Write model for updating a webhook trigger.
+/// </summary>
+public class WebhookTriggerUpdateRequest
+{
+    /// <summary>Trigger identifier.</summary>
+    public required string TriggerId { get; init; }
+
+    /// <summary>Trigger name.</summary>
+    public string? Name { get; init; }
+
+    /// <summary>Filter conditions (JSON).</summary>
+    public string? FilterConditions { get; init; }
+
+    /// <summary>Action to execute.</summary>
+    public TriggerAction? Action { get; init; }
+
+    /// <summary>Whether active.</summary>
+    public bool? IsActive { get; init; }
+
+    /// <summary>
+    /// New secret (if provided, replaces existing secret in secure storage).
+    /// Pass null to keep existing, empty string to remove.
+    /// </summary>
+    public string? Secret { get; init; }
+
+    /// <summary>Whether the secret field was explicitly set.</summary>
+    public bool SecretProvided { get; init; }
 }
 
 /// <summary>
@@ -139,16 +205,18 @@ public interface IWebhookTriggerPort
 {
     /// <summary>
     /// Registers a webhook trigger.
+    /// Secrets are stored in secure storage; only a reference is returned.
     /// </summary>
     Task<WebhookTrigger> RegisterTriggerAsync(
-        WebhookTrigger trigger,
+        WebhookTriggerCreateRequest request,
         CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates a trigger.
+    /// If a new secret is provided, it replaces the existing one in secure storage.
     /// </summary>
     Task<WebhookTrigger> UpdateTriggerAsync(
-        WebhookTrigger trigger,
+        WebhookTriggerUpdateRequest request,
         CancellationToken cancellationToken = default);
 
     /// <summary>
