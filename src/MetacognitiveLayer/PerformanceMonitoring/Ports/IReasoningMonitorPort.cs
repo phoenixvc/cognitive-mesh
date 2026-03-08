@@ -94,10 +94,19 @@ public class ReasoningSessionSummary
 /// </summary>
 public enum ReasoningSessionStatus
 {
+    /// <summary>Active.</summary>
     Active,
+
+    /// <summary>Paused.</summary>
     Paused,
+
+    /// <summary>Completed.</summary>
     Completed,
+
+    /// <summary>Interrupted.</summary>
     Interrupted,
+
+    /// <summary>Failed.</summary>
     Failed
 }
 
