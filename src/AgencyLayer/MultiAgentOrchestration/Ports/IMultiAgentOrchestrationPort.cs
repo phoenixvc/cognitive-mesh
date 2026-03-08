@@ -1,5 +1,7 @@
 // --- DTOs and Models for the Multi-Agent Orchestration Port ---
 
+using System.Text.Json.Serialization;
+
 namespace AgencyLayer.MultiAgentOrchestration.Ports;
 
 /// <summary>
@@ -122,6 +124,44 @@ public class AgentDefinition
 }
 
 /// <summary>
+/// Configuration for the CollaborativeSwarm coordination pattern.
+/// Controls convergence detection and iteration limits.
+/// </summary>
+public class SwarmConfig
+{
+    private int _maxIterations = 5;
+
+    /// <summary>
+    /// Maximum number of swarm iterations before returning the best result.
+    /// Default: 5. Must be at least 1.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when value is less than 1.</exception>
+    public int MaxIterations
+    {
+        get => _maxIterations;
+        set
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+            _maxIterations = value;
+        }
+    }
+
+    /// <summary>
+    /// Predicate that determines whether a swarm iteration result indicates convergence.
+    /// Default: checks whether the result string contains "COMPLETE".
+    /// </summary>
+    /// <remarks>
+    /// This property is not serialization-safe. If <see cref="AgentTask"/> is persisted
+    /// (e.g., CosmosDB, checkpointing, message bus), the delegate will be lost.
+    /// Callers that require serializable configuration should use
+    /// <see cref="MaxIterations"/> and implement convergence detection in the agent logic itself.
+    /// </remarks>
+    [JsonIgnore]
+    public Func<object, bool> ConvergencePredicate { get; set; } =
+        result => result?.ToString()?.Contains("COMPLETE") == true;
+}
+
+/// <summary>
 /// Represents a task assigned to a team of agents.
 /// </summary>
 public class AgentTask
@@ -132,6 +172,12 @@ public class AgentTask
     public List<string> Constraints { get; set; } = new();
     public CoordinationPattern CoordinationPattern { get; set; } = CoordinationPattern.CollaborativeSwarm;
     public List<string> RequiredAgentTypes { get; set; } = new();
+
+    /// <summary>
+    /// Configuration for the CollaborativeSwarm coordination pattern.
+    /// When null, default settings are used (maxIterations=5, convergence checks for "COMPLETE" string).
+    /// </summary>
+    public SwarmConfig? SwarmConfig { get; set; }
 }
 
 /// <summary>
