@@ -305,6 +305,38 @@ namespace CognitiveMesh.Tests.Integration
         }
 
         [Fact]
+        public async Task EndToEnd_NullSwarmConfig_UsesDefaultConvergenceBehavior()
+        {
+            // Arrange — SwarmConfig is null; engine should fall back to defaults
+            // (maxIterations=5, convergence on "COMPLETE" substring)
+            var agentDefinition = new AgentDefinition { AgentType = "DefaultSwarmAgent", DefaultAutonomyLevel = AutonomyLevel.FullyAutonomous };
+            await _orchestrationEngine.RegisterAgentAsync(agentDefinition);
+
+            var request = new AgentExecutionRequest
+            {
+                Task = new AgentTask
+                {
+                    Goal = "Verify default convergence",
+                    RequiredAgentTypes = new List<string> { "DefaultSwarmAgent" },
+                    CoordinationPattern = CoordinationPattern.CollaborativeSwarm,
+                    SwarmConfig = null // explicitly null — uses default behavior
+                },
+                RequestingUserId = "test-user"
+            };
+
+            _fixture.MockAgentRuntimeAdapter
+                .Setup(x => x.ExecuteAgentLogicAsync(It.IsAny<string>(), It.IsAny<AgentTask>()))
+                .ReturnsAsync("Default convergence result. COMPLETE");
+
+            // Act
+            var response = await _orchestrationEngine.ExecuteTaskAsync(request);
+
+            // Assert — should converge on first iteration via default predicate
+            Assert.True(response.IsSuccess);
+            Assert.Contains("COMPLETE", response.Result?.ToString() ?? "");
+        }
+
+        [Fact]
         public async Task Performance_OrchestrationEngine_MeetsSla()
         {
             // Arrange
