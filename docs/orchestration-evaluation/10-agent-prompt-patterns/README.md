@@ -26,7 +26,6 @@ Agent behavior is fundamentally shaped by system prompts and instructions. Under
 | 9 | [09-letta.md](09-letta.md) | 186 | Letta (MemGPT) | Self-editing memory blocks, inner thoughts, memory tools |
 | 10 | [10-cross-platform-analysis.md](10-cross-platform-analysis.md) | 134 | Cross-Platform | Pattern comparison, orchestration taxonomy, prompt complexity spectrum |
 
-> The original combined document is preserved in [agent-prompts-and-instructions.md](agent-prompts-and-instructions.md) (1,735 lines).
 
 ## Key Findings
 
