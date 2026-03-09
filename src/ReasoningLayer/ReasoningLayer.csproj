@@ -8,8 +8,14 @@
     <RootNamespace>CognitiveMesh.ReasoningLayer</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- Exclude nested sub-project obj/bin directories to prevent duplicate assembly attributes -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/obj/**;**/bin/**</DefaultItemExcludes>
+  </PropertyGroup>
+
   <!-- Exclude sub-project directories that are also ProjectReferences to avoid CS0436/CS0433 type conflicts -->
   <ItemGroup>
+    <Compile Remove="AgencyRouter\**" />
     <Compile Remove="TemporalDecisionCore\**" />
     <Compile Remove="MemoryStrategy\**" />
     <Compile Remove="ValueGeneration\**" />

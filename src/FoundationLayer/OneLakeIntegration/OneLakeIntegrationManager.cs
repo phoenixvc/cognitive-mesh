@@ -12,7 +12,7 @@ public class OneLakeIntegrationManager
 {
     private readonly DataLakeServiceClient _dataLakeServiceClient;
     private readonly ILogger<OneLakeIntegrationManager> _logger;
-    private readonly FeatureFlagManager _featureFlagManager;
+    private readonly IFeatureFlagManager _featureFlagManager;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="OneLakeIntegrationManager"/> class.
@@ -20,7 +20,7 @@ public class OneLakeIntegrationManager
     /// <param name="connectionString">The Data Lake connection string.</param>
     /// <param name="logger">The logger instance.</param>
     /// <param name="featureFlagManager">The feature flag manager for controlling OneLake features.</param>
-    public OneLakeIntegrationManager(string connectionString, ILogger<OneLakeIntegrationManager> logger, FeatureFlagManager featureFlagManager)
+    public OneLakeIntegrationManager(string connectionString, ILogger<OneLakeIntegrationManager> logger, IFeatureFlagManager featureFlagManager)
     {
         _dataLakeServiceClient = new DataLakeServiceClient(connectionString);
         _logger = logger;
