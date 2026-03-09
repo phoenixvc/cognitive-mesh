@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FoundationLayer.EnterpriseConnectors;
+using global::FoundationLayer.EnterpriseConnectors;
 
 namespace CognitiveMesh.FoundationLayer.EnterpriseConnectors;
 
