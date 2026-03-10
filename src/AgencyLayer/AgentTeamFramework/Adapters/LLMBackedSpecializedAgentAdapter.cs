@@ -114,7 +114,7 @@ public sealed class LLMBackedSpecializedAgentAdapter : ISpecializedAgentPort
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {
             stopwatch.Stop();
             _logger.LogError(ex, "Agent {AgentId} failed on task {TaskId}", agentId, task.TaskId);
@@ -141,15 +141,9 @@ public sealed class LLMBackedSpecializedAgentAdapter : ISpecializedAgentPort
 
         foreach (var agent in _agents.Values)
         {
-            var score = 0;
-            foreach (var required in task.RequiredCapabilities)
-            {
-                if (agent.Capabilities.Contains(required, StringComparer.OrdinalIgnoreCase) ||
-                    agent.Domains.Contains(required, StringComparer.OrdinalIgnoreCase))
-                {
-                    score++;
-                }
-            }
+            var score = task.RequiredCapabilities.Count(required =>
+                agent.Capabilities.Contains(required, StringComparer.OrdinalIgnoreCase) ||
+                agent.Domains.Contains(required, StringComparer.OrdinalIgnoreCase));
 
             if (score > bestScore)
             {
