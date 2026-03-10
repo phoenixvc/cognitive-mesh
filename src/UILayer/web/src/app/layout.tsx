@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import React from "react"
 import { ThemeProvider } from "../../components/theme-provider"
+import { AuthProvider } from "@/contexts/AuthContext"
 import ParticleField from "../components/ParticleField"
 import "./globals.css"
 
@@ -55,7 +56,9 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
