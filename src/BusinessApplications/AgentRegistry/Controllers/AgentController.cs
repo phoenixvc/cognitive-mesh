@@ -66,7 +66,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         [ProducesResponseType(typeof(AgentRegistrationRequest), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> RegisterAgent([FromBody] AgentRegistrationRequest request)
+        public async Task<IActionResult> RegisterAgent([FromBody] AgentRegistrationRequest request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         [ProducesResponseType(typeof(Agent), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAgentDetails(Guid agentId)
+        public async Task<IActionResult> GetAgentDetails(Guid agentId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -140,7 +140,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeactivateAgent(Guid agentId, [FromQuery] string? reason = null)
+        public async Task<IActionResult> DeactivateAgent(Guid agentId, [FromQuery] string? reason = null, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -177,7 +177,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         /// </summary>
         [HttpPost("orchestrate")]
         [ProducesResponseType(typeof(AgentExecutionResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> ExecuteTask([FromBody] AgentExecutionRequest request)
+        public async Task<IActionResult> ExecuteTask([FromBody] AgentExecutionRequest request, CancellationToken cancellationToken = default)
         {
             var (tenantId, userId) = GetAuthContextFromClaims();
             if (tenantId == null) return Unauthorized("Tenant ID is missing.");
@@ -197,7 +197,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         [HttpPut("authority/{agentType}")]
         [Authorize(Policy = "AdminAccess")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> ConfigureAuthority(string agentType, [FromBody] RegistryAuthorityScope scope)
+        public async Task<IActionResult> ConfigureAuthority(string agentType, [FromBody] RegistryAuthorityScope scope, CancellationToken cancellationToken = default)
         {
             var (tenantId, userId) = GetAuthContextFromClaims();
             if (tenantId == null) return Unauthorized("Tenant ID is missing.");

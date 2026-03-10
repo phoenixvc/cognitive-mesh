@@ -552,7 +552,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
             var definition = await _dbContext.AgentDefinitions.FindAsync(agentId);
             if (definition == null)
             {
-                return null!;
+                throw new KeyNotFoundException($"Agent with ID '{agentId}' was not found.");
             }
 
             return MapToPortAgent(definition, tenantId);

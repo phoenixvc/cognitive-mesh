@@ -128,7 +128,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const msUntilExpiry = payload.exp * 1000 - Date.now()
     const refreshIn = Math.max(msUntilExpiry - 60_000, 0)
     const timer = setTimeout(() => {
-      refreshToken()
+      refreshToken().then((ok) => {
+        if (!ok) {
+          logout()
+        }
+      })
     }, refreshIn)
     return () => clearTimeout(timer)
   }, [state.isAuthenticated, state.user, refreshToken])

@@ -698,12 +698,11 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            _ = await GetAgentAuthorityAsync(request.AgentId, request.TenantId);
-            return new AuthorityValidationResult
-            {
-                IsAuthorized = true,
-                ValidatedAt = DateTimeOffset.UtcNow
-            };
+            return await ValidateActionAuthorityAsync(
+                request.AgentId,
+                request.Action,
+                request.Context ?? new Dictionary<string, object>(),
+                request.TenantId);
         }
 
         /// <inheritdoc />
@@ -821,7 +820,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         {
             if (!Guid.TryParse(auditId, out var id))
             {
-                return null!;
+                throw new ArgumentException($"Invalid audit ID format: {auditId}", nameof(auditId));
             }
 
             var record = await _dbContext.AuthorityAuditRecords
@@ -830,7 +829,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
 
             if (record == null)
             {
-                return null!;
+                throw new KeyNotFoundException($"Audit record with ID '{auditId}' not found.");
             }
 
             return new Ports.Models.AuthorityAuditRecord
