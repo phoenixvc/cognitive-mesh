@@ -63,7 +63,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         /// </summary>
         [HttpPost("registry")]
         [Authorize(Policy = "AdminAccess")]
-        [ProducesResponseType(typeof(AgentRegistrationRequest), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Agent), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegisterAgent([FromBody] AgentRegistrationRequest request, CancellationToken cancellationToken = default)
@@ -77,7 +77,11 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
 
                 var agent = await _registryPort.RegisterAgentAsync(request);
 
-                // audit + notify (best-effort, exceptions logged but not propagated)
+                // Audit + notify (best-effort, fire-and-forget).
+                // NOTE: Task.Run is used here as a lightweight fire-and-forget mechanism.
+                // These operations are non-critical; failures are logged but do not affect the
+                // response. A background queue (e.g., IBackgroundTaskQueue / Channels) would be
+                // more robust but is not warranted at this stage.
                 var actorName = User?.Identity?.Name ?? "system";
                 _ = Task.Run(async () =>
                 {
@@ -114,7 +118,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
             try
             {
                 var (tenantId, _) = GetAuthContextFromClaims();
-                if (tenantId == null) return Unauthorized("Tenant ID is missing.");
+                if (tenantId == null) return Unauthorized(ErrorEnvelope.Create("UNAUTHORIZED", "Tenant ID is missing."));
 
                 var agent = await _registryPort.GetAgentByIdAsync(agentId, tenantId);
                 if (agent == null)
@@ -145,7 +149,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
             try
             {
                 var (tenantId, userId) = GetAuthContextFromClaims();
-                if (tenantId == null) return Unauthorized("Tenant ID is missing.");
+                if (tenantId == null) return Unauthorized(ErrorEnvelope.Create("UNAUTHORIZED", "Tenant ID is missing."));
 
                 var success = await _registryPort.DeactivateAgentAsync(agentId, tenantId, userId ?? "system", reason ?? "Manual deactivation");
                 if (!success)
@@ -153,6 +157,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
                     return NotFound(ErrorEnvelope.Create("AGENT_NOT_FOUND", $"Agent with ID '{agentId}' was not found."));
                 }
 
+                // Fire-and-forget audit (see RegisterAgent for rationale on Task.Run usage).
                 _ = Task.Run(async () =>
                 {
                     try { await _audit.LogAgentRetiredAsync(agentId, User?.Identity?.Name ?? "system", reason ?? "Manual deactivation"); }
@@ -179,14 +184,23 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         [ProducesResponseType(typeof(AgentExecutionResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> ExecuteTask([FromBody] AgentExecutionRequest request, CancellationToken cancellationToken = default)
         {
-            var (tenantId, userId) = GetAuthContextFromClaims();
-            if (tenantId == null) return Unauthorized("Tenant ID is missing.");
+            try
+            {
+                var (tenantId, userId) = GetAuthContextFromClaims();
+                if (tenantId == null) return Unauthorized(ErrorEnvelope.Create("UNAUTHORIZED", "Tenant ID is missing."));
 
-            request.TenantId = tenantId;
-            request.RequestingUserId = userId ?? string.Empty;
+                request.TenantId = tenantId;
+                request.RequestingUserId = userId ?? string.Empty;
 
-            var response = await _orchestrationPort.ExecuteTaskAsync(request);
-            return Ok(response);
+                var response = await _orchestrationPort.ExecuteTaskAsync(request, cancellationToken);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing orchestrated task.");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    ErrorEnvelope.Create("SERVICE_UNAVAILABLE", "Orchestration service is unavailable."));
+            }
         }
 
         // --- Authority & Consent Endpoints ---
@@ -200,7 +214,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         public async Task<IActionResult> ConfigureAuthority(string agentType, [FromBody] RegistryAuthorityScope scope, CancellationToken cancellationToken = default)
         {
             var (tenantId, userId) = GetAuthContextFromClaims();
-            if (tenantId == null) return Unauthorized("Tenant ID is missing.");
+            if (tenantId == null) return Unauthorized(ErrorEnvelope.Create("UNAUTHORIZED", "Tenant ID is missing."));
 
             // Look up agent by type to resolve the agentId
             var agents = await _registryPort.GetAgentsByTypeAsync(agentType, tenantId);

@@ -25,5 +25,17 @@ export function groupBySections(items: NavItem[]): Map<string, NavItem[]> {
       groups.set(section, sectionItems)
     }
   }
+
+  // Collect items with unknown sections into a fallback group
+  const knownSections = new Set(sectionOrder)
+  const unknownItems = items.filter((i) => !knownSections.has(i.section))
+  if (unknownItems.length > 0) {
+    if (process.env.NODE_ENV === "development") {
+      const sections = [...new Set(unknownItems.map((i) => i.section))]
+      console.warn(`[navItems] Unknown sections: ${sections.join(", ")}`)
+    }
+    groups.set("Other", unknownItems)
+  }
+
   return groups
 }

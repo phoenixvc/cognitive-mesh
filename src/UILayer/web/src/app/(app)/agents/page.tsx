@@ -30,7 +30,7 @@ export default function AgentsPage() {
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" role="grid">
           <thead>
             <tr className="border-b border-white/10 text-left text-xs text-gray-400">
               <th className="px-4 py-3">Name</th>
@@ -45,6 +45,15 @@ export default function AgentsPage() {
               <tr
                 key={agent.agentId}
                 onClick={() => selectAgent(agent.agentId)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    selectAgent(agent.agentId)
+                  }
+                }}
+                tabIndex={0}
+                role="row"
+                aria-selected={selectedAgentId === agent.agentId}
                 className={`cursor-pointer border-b border-white/5 transition-colors hover:bg-white/5 ${
                   selectedAgentId === agent.agentId ? "bg-cyan-500/10" : ""
                 }`}

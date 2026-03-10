@@ -23,6 +23,16 @@ export function MobileMenu() {
     }
   }, [open])
 
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false)
+    }
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [open])
+
   return (
     <div className="md:hidden">
       <button
@@ -39,6 +49,7 @@ export function MobileMenu() {
           <div
             className="fixed inset-0 z-40 bg-black/60"
             onClick={() => setOpen(false)}
+            aria-hidden="true"
           />
 
           {/* Drawer */}
@@ -59,8 +70,10 @@ export function MobileMenu() {
             <div className="flex flex-col gap-1">
               {navItems.map((item) => {
                 const isActive =
-                  pathname === item.href ||
-                  pathname.startsWith(`${item.href}/`)
+                  item.href === "/"
+                    ? pathname === "/"
+                    : pathname === item.href ||
+                      pathname.startsWith(`${item.href}/`)
                 return (
                   <Link
                     key={item.href}

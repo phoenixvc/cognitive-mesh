@@ -96,7 +96,10 @@ public class AdaptiveBalanceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<SpectrumHistoryResponse>> GetSpectrumHistoryAsync(string dimension, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(dimension);
+        if (string.IsNullOrWhiteSpace(dimension))
+        {
+            return BadRequest("Dimension is required and cannot be empty or whitespace.");
+        }
 
         _logger.LogInformation("Retrieving spectrum history for dimension {Dimension}", dimension);
 

@@ -55,11 +55,11 @@ export const useAgentStore = create<AgentStoreState & AgentStoreActions>(
             return {
               agentId: String(d.agentId ?? ""),
               agentType: String(d.agentType ?? ""),
-              name: String(d.agentType ?? ""),
+              name: String(d.name ?? d.agentType ?? ""),
               status: mapStatus(String(d.status ?? "Active")),
               capabilities: (d.capabilities as string[]) ?? [],
-              currentTasks: 0,
-              registeredAt: new Date().toISOString(),
+              currentTasks: Number(d.currentTasks ?? 0),
+              registeredAt: String(d.registeredAt ?? new Date().toISOString()),
             }
           }
         )

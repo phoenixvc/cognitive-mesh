@@ -10,26 +10,25 @@ export function ExtensionErrorSuppressor() {
   useEffect(() => {
     function handleError(e: ErrorEvent) {
       if (
-        e.message.includes("Could not establish connection") ||
-        e.message.includes("Receiving end does not exist") ||
-        e.message.includes("requestStorageAccessFor") ||
+        (typeof e.message === "string" &&
+          (e.message.includes("Could not establish connection") ||
+            e.message.includes("Receiving end does not exist") ||
+            e.message.includes("requestStorageAccessFor"))) ||
         (e.filename && e.filename.includes("content.js"))
       ) {
         e.preventDefault()
-        return false
       }
     }
 
     function handleRejection(e: PromiseRejectionEvent) {
       if (
         e.reason &&
-        ((e.reason.message &&
+        ((typeof e.reason.message === "string" &&
           (e.reason.message.includes("Could not establish connection") ||
             e.reason.message.includes("Receiving end does not exist"))) ||
           e.reason.toString().includes("content.js"))
       ) {
         e.preventDefault()
-        return false
       }
     }
 

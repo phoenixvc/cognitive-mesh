@@ -33,8 +33,8 @@ export default function RootLayout({
         >
           <AuthProvider>
             <ToastProvider>
-              <ApiBootstrap />
               <ErrorBoundary>
+                <ApiBootstrap />
                 {children}
               </ErrorBoundary>
             </ToastProvider>

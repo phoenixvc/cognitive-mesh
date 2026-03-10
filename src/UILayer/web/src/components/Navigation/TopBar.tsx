@@ -19,6 +19,7 @@ export function TopBar() {
       <div className="flex items-center gap-3">
         <ConnectionIndicator />
 
+        {/* TODO: implement notification panel onClick handler */}
         <button
           className="relative rounded p-2 text-gray-400 hover:bg-white/10 hover:text-white"
           aria-label="Notifications"

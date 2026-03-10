@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { usePreferencesStore } from "@/stores"
 
 export default function SettingsPage() {
@@ -25,11 +26,12 @@ export default function SettingsPage() {
         <h2 className="mb-4 text-sm font-semibold text-white">Appearance</h2>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <label className="text-sm text-gray-400">Theme</label>
+            <label htmlFor="theme-select" className="text-sm text-gray-400">Theme</label>
             <select
+              id="theme-select"
               value={theme}
               onChange={(e) => setTheme(e.target.value as "dark" | "light" | "system")}
-              className="rounded bg-white/10 px-3 py-1.5 text-sm text-white outline-none"
+              className="rounded bg-white/10 px-3 py-1.5 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
             >
               <option value="dark">Dark</option>
               <option value="light">Light</option>
@@ -38,11 +40,12 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex items-center justify-between">
-            <label className="text-sm text-gray-400">Font size</label>
+            <label htmlFor="font-size-select" className="text-sm text-gray-400">Font size</label>
             <select
+              id="font-size-select"
               value={fontSize}
               onChange={(e) => setFontSize(e.target.value as "small" | "medium" | "large")}
-              className="rounded bg-white/10 px-3 py-1.5 text-sm text-white outline-none"
+              className="rounded bg-white/10 px-3 py-1.5 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
             >
               <option value="small">Small</option>
               <option value="medium">Medium</option>
@@ -83,6 +86,8 @@ export default function SettingsPage() {
   )
 }
 
+let toggleId = 0
+
 function ToggleRow({
   label,
   checked,
@@ -92,14 +97,17 @@ function ToggleRow({
   checked: boolean
   onChange: (v: boolean) => void
 }) {
+  const [labelId] = useState(() => `toggle-label-${++toggleId}`)
+
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-gray-400">{label}</span>
+      <span id={labelId} className="text-sm text-gray-400">{label}</span>
       <button
         role="switch"
         aria-checked={checked}
+        aria-labelledby={labelId}
         onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 rounded-full transition-colors ${
+        className={`relative h-6 w-11 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 ${
           checked ? "bg-cyan-600" : "bg-white/20"
         }`}
       >

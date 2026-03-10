@@ -549,12 +549,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <inheritdoc />
         async Task<Ports.Models.Agent> IAgentRegistryPort.GetAgentByIdAsync(Guid agentId, string tenantId)
         {
-            var definition = await _dbContext.AgentDefinitions.FindAsync(agentId);
-            if (definition == null)
-            {
-                throw new KeyNotFoundException($"Agent with ID '{agentId}' was not found.");
-            }
-
+            var definition = await GetAgentByIdAsync(agentId);
             return MapToPortAgent(definition, tenantId);
         }
 
@@ -563,21 +558,14 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         {
             ArgumentNullException.ThrowIfNull(agent);
 
-            var definition = await _dbContext.AgentDefinitions.FindAsync(agent.AgentId);
-            if (definition == null)
-            {
-                throw new KeyNotFoundException($"Agent with ID '{agent.AgentId}' was not found.");
-            }
-
+            var definition = await GetAgentByIdAsync(agent.AgentId); // uses circuit breaker
             definition.AgentType = agent.AgentType;
             definition.Description = agent.Description;
             definition.Capabilities = agent.Capabilities ?? new List<string>();
             definition.Status = agent.IsActive ? AgentStatus.Active : AgentStatus.Retired;
 
-            await _dbContext.SaveChangesAsync();
-            _logger.LogInformation("Agent {AgentId} updated by {UpdatedBy}", agent.AgentId, updatedBy);
-
-            return MapToPortAgent(definition, agent.TenantId, updatedBy: updatedBy);
+            var updated = await UpdateAgentAsync(definition); // uses circuit breaker, validation, version tracking
+            return MapToPortAgent(updated, agent.TenantId, updatedBy: updatedBy);
         }
 
         /// <inheritdoc />
@@ -613,6 +601,8 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         async Task<IEnumerable<Ports.Models.Agent>> IAgentRegistryPort.GetAgentsByComplianceStatusAsync(string framework, bool isCompliant, string tenantId)
         {
             // Return all active agents — compliance filtering requires dedicated compliance store (future work)
+            _logger.LogWarning("GetAgentsByComplianceStatusAsync: framework={Framework} and isCompliant={IsCompliant} parameters are not yet implemented; returning all active agents", framework, isCompliant);
+
             var definitions = await _dbContext.AgentDefinitions
                 .Where(a => a.Status == AgentStatus.Active)
                 .ToListAsync();

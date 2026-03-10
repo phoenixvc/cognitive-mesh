@@ -59,6 +59,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Layers */}
+      {layers.length === 0 && !loading && (
+        <div className="rounded-lg border border-white/10 bg-white/5 p-8 text-center text-gray-500">
+          No layers available
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {layers.map((layer) => (
           <div
@@ -68,7 +73,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-white">{layer.name}</h3>
               <span className="text-xs text-cyan-400">
-                {layer.uptime.toFixed(1)}% uptime
+                {typeof layer.uptime === 'number' ? layer.uptime.toFixed(1) : '\u2014'}% uptime
               </span>
             </div>
             <p className="mt-2 text-xs text-gray-400">{layer.description}</p>

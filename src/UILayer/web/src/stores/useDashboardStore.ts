@@ -69,19 +69,17 @@ interface DashboardStoreActions {
   clearError: () => void
 }
 
-async function fetchJson<T>(path: string): Promise<T | null> {
-  try {
-    const token = typeof localStorage !== "undefined"
-      ? localStorage.getItem("cm_access_token")
-      : null
-    const res = await fetch(`${API_BASE}${path}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-    if (!res.ok) return null
-    return (await res.json()) as T
-  } catch {
-    return null
+async function fetchJson<T>(path: string): Promise<T> {
+  const token = typeof localStorage !== "undefined"
+    ? localStorage.getItem("cm_access_token")
+    : null
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!res.ok) {
+    throw new Error(`${res.status} ${res.statusText}: ${path}`)
   }
+  return (await res.json()) as T
 }
 
 export const useDashboardStore = create<
@@ -99,17 +97,24 @@ export const useDashboardStore = create<
   fetchAll: async () => {
     set({ loading: true, error: null })
     try {
-      const [layers, metrics, status] = await Promise.all([
+      const results = await Promise.allSettled([
         fetchJson<Layer[]>("/api/v1/dashboard/layers"),
         fetchJson<Metric[]>("/api/v1/dashboard/metrics"),
         fetchJson<SystemStatus>("/api/v1/dashboard/status"),
       ])
 
+      const layers = results[0].status === "fulfilled" ? results[0].value : get().layers
+      const metrics = results[1].status === "fulfilled" ? results[1].value : get().metrics
+      const status = results[2].status === "fulfilled" ? results[2].value : get().systemStatus
+
+      const failures = results.filter(r => r.status === "rejected")
+
       set({
-        layers: layers ?? get().layers,
-        metrics: metrics ?? get().metrics,
-        systemStatus: status ?? get().systemStatus,
+        layers,
+        metrics,
+        systemStatus: status,
         loading: false,
+        error: failures.length > 0 ? "Some dashboard data failed to load" : null,
         lastFetchedAt: Date.now(),
       })
     } catch (err) {
@@ -122,13 +127,21 @@ export const useDashboardStore = create<
   },
 
   refreshMetrics: async () => {
-    const metrics = await fetchJson<Metric[]>("/api/v1/dashboard/metrics")
-    if (metrics) set({ metrics })
+    try {
+      const metrics = await fetchJson<Metric[]>("/api/v1/dashboard/metrics")
+      set({ metrics, error: null })
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : "Failed to refresh metrics" })
+    }
   },
 
   refreshActivities: async () => {
-    const activities = await fetchJson<Activity[]>("/api/v1/dashboard/activities")
-    if (activities) set({ activities })
+    try {
+      const activities = await fetchJson<Activity[]>("/api/v1/dashboard/activities")
+      set({ activities, error: null })
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : "Failed to refresh activities" })
+    }
   },
 
   patchSystemStatus: (patch) =>

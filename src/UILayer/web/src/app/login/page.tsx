@@ -4,6 +4,13 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useRouter, useSearchParams } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
 
+function sanitizeReturnTo(value: string | null): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("://")) {
+    return "/"
+  }
+  return value
+}
+
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
@@ -13,7 +20,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
-  const returnTo = searchParams.get("returnTo") || "/"
+  const returnTo = sanitizeReturnTo(searchParams.get("returnTo"))
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {

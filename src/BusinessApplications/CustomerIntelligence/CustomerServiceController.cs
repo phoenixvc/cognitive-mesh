@@ -40,6 +40,7 @@ public class CustomerServiceController : ControllerBase
     /// <response code="404">If the customer is not found.</response>
     [HttpGet("profiles/{customerId}")]
     [ProducesResponseType(typeof(CustomerProfile), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CustomerProfile>> GetProfileAsync(string customerId, CancellationToken cancellationToken = default)
     {
@@ -101,6 +102,7 @@ public class CustomerServiceController : ControllerBase
     [HttpGet("insights/{customerId}")]
     [ProducesResponseType(typeof(IEnumerable<CustomerInsight>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<CustomerInsight>>> GenerateInsightsAsync(
         string customerId,
         [FromQuery] InsightType insightType = InsightType.All,
@@ -111,13 +113,20 @@ public class CustomerServiceController : ControllerBase
             return BadRequest("Customer ID is required.");
         }
 
-        _logger.LogInformation("Generating insights for customer {CustomerId}, type: {InsightType}",
-            customerId, insightType);
+        try
+        {
+            _logger.LogInformation("Generating insights for customer {CustomerId}, type: {InsightType}",
+                customerId, insightType);
 
-        var insights = await _intelligenceManager.GenerateCustomerInsightsAsync(customerId, insightType, cancellationToken)
-            .ConfigureAwait(false);
+            var insights = await _intelligenceManager.GenerateCustomerInsightsAsync(customerId, insightType, cancellationToken)
+                .ConfigureAwait(false);
 
-        return Ok(insights);
+            return Ok(insights);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound($"Customer not found: {customerId}");
+        }
     }
 
     /// <summary>
@@ -132,6 +141,7 @@ public class CustomerServiceController : ControllerBase
     [HttpGet("predictions/{customerId}")]
     [ProducesResponseType(typeof(CustomerPrediction), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CustomerPrediction>> PredictBehaviorAsync(
         string customerId,
         [FromQuery] PredictionType predictionType = PredictionType.Churn,
@@ -142,12 +152,19 @@ public class CustomerServiceController : ControllerBase
             return BadRequest("Customer ID is required.");
         }
 
-        _logger.LogInformation("Predicting behavior for customer {CustomerId}, type: {PredictionType}",
-            customerId, predictionType);
+        try
+        {
+            _logger.LogInformation("Predicting behavior for customer {CustomerId}, type: {PredictionType}",
+                customerId, predictionType);
 
-        var prediction = await _intelligenceManager.PredictCustomerBehaviorAsync(customerId, predictionType, cancellationToken)
-            .ConfigureAwait(false);
+            var prediction = await _intelligenceManager.PredictCustomerBehaviorAsync(customerId, predictionType, cancellationToken)
+                .ConfigureAwait(false);
 
-        return Ok(prediction);
+            return Ok(prediction);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound($"Customer not found: {customerId}");
+        }
     }
 }
