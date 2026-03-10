@@ -317,12 +317,37 @@
 
 **Also completed:** PR review fixes — NotImplementedException stubs replaced in AgentRegistryService (10 methods) and AuthorityService (17 methods), fire-and-forget safety, Guid.Empty fix, SSR-safe ApiBootstrap, middleware JWT validation, Toast memory leak fix, returnTo flow, dependency cleanup.
 
-#### Gate → Phase 14
+#### Gate → Phase 14a
 
 - [x] All CI checks green (frontend job, CodeQL, .NET build)
 - [x] All P1 PR review comments resolved
 - [x] CodeQL findings addressed (structured logging — safe pattern)
 - [x] package-lock.json committed, dependency issues fixed
+
+---
+
+### Phase 14a — Dependency Automation
+
+**Items:** CICD-REN-001, CICD-REN-002, CICD-REN-003
+**Goal:** Automate dependency management — automerge minor/patch, auto-assign Codex for major migrations.
+
+| Item | Description | Key Work |
+| ---- | ----------- | -------- |
+| CICD-REN-001 | Renovate automerge for minor/patch | Extend existing patch-only rule to minor+patch. Add `platformAutomerge: true` for GitHub-native merge. Covers both NuGet and npm deps. |
+| CICD-REN-002 | Codex auto-assignment for majors | Add `assignees: ["codex[bot]"]` rule for major updates. Gate via `dependencyDashboardApproval`. Codex reads changelog, updates call sites, fixes breaking changes. |
+| CICD-REN-003 | agentkit-forge template update | Create issue on agentkit-forge to include Renovate+Codex pattern in bootstrap template for all PhoenixVC repos. |
+
+**Prerequisites:**
+
+- Enable Codex coding agent in Copilot settings for target repos
+- Verify Codex bot username after first assignment (`gh api repos/{owner}/{repo}/pulls/{n} --jq '.assignees[].login'`)
+- No branch protection on main (verified — automerge will work without bypass config)
+
+#### Gate → Phase 14
+
+- [ ] Renovate minor/patch PRs auto-merging after CI passes
+- [ ] Major version PRs assigned to Codex, Codex producing migration diffs
+- [ ] agentkit-forge ticket created for template propagation
 
 ---
 
