@@ -2,6 +2,9 @@ import type { Metadata } from "next"
 import React from "react"
 import { ThemeProvider } from "../../components/theme-provider"
 import { AuthProvider } from "@/contexts/AuthContext"
+import { ErrorBoundary } from "@/components/ErrorBoundary/ErrorBoundary"
+import { ToastProvider } from "@/components/Toast"
+import { ApiBootstrap } from "@/components/ApiBootstrap"
 import ParticleField from "../components/ParticleField"
 import "./globals.css"
 
@@ -57,7 +60,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
+            <ToastProvider>
+              <ApiBootstrap />
+              <ErrorBoundary>
+                {children}
+              </ErrorBoundary>
+            </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
