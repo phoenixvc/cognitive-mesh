@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Ports.Models;
+using CognitiveMesh.BusinessApplications.AgentRegistry.Data;
 using CognitiveMesh.BusinessApplications.AgentRegistry.Ports;
 using CognitiveMesh.BusinessApplications.Common.Models;
-using CognitiveMesh.BusinessApplications.AgentRegistry.Data;
+using FoundationLayer.EnterpriseConnectors;
 
 namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
 {
@@ -35,7 +35,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             
             // Initialize circuit breaker for database operations
-            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000, 50);
+            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000);
         }
 
         /// <inheritdoc />
@@ -114,6 +114,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                     if (agent == null)
                     {
                         _logger.LogWarning("Agent not found: {AgentId}", agentId);
+                        throw new AgentNotFoundException($"Agent with ID {agentId} not found");
                     }
 
                     return agent;
@@ -523,6 +524,81 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
 
             return string.Join(".", parts);
         }
+
+        // --- Explicit IAgentRegistryPort interface implementations ---
+        // These methods bridge between the local data model and the port interface.
+
+        /// <inheritdoc />
+        Task<Ports.Models.Agent> IAgentRegistryPort.RegisterAgentAsync(Ports.Models.AgentRegistrationRequest request)
+        {
+            _logger.LogInformation("RegisterAgentAsync called via IAgentRegistryPort for type {AgentType}", request?.AgentType);
+            throw new NotImplementedException("Registration via AgentRegistrationRequest is not yet implemented. Use the internal RegisterAgentAsync(AgentDefinition) method.");
+        }
+
+        /// <inheritdoc />
+        Task<Ports.Models.Agent> IAgentRegistryPort.GetAgentByIdAsync(Guid agentId, string tenantId)
+        {
+            _logger.LogInformation("GetAgentByIdAsync called via IAgentRegistryPort for agent {AgentId}", agentId);
+            throw new NotImplementedException("GetAgentByIdAsync with tenantId is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<Ports.Models.Agent> IAgentRegistryPort.UpdateAgentAsync(Ports.Models.Agent agent, string updatedBy)
+        {
+            _logger.LogInformation("UpdateAgentAsync called via IAgentRegistryPort for agent {AgentId}", agent?.AgentId);
+            throw new NotImplementedException("UpdateAgentAsync via Agent model is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<bool> IAgentRegistryPort.DeactivateAgentAsync(Guid agentId, string tenantId, string deactivatedBy, string reason)
+        {
+            _logger.LogInformation("DeactivateAgentAsync called for agent {AgentId}", agentId);
+            throw new NotImplementedException("DeactivateAgentAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<IEnumerable<Ports.Models.Agent>> IAgentRegistryPort.GetAgentsByTypeAsync(string agentType, string tenantId, bool includeInactive)
+        {
+            _logger.LogInformation("GetAgentsByTypeAsync called for type {AgentType}", agentType);
+            throw new NotImplementedException("GetAgentsByTypeAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<IEnumerable<Ports.Models.Agent>> IAgentRegistryPort.GetAgentsByComplianceStatusAsync(string framework, bool isCompliant, string tenantId)
+        {
+            _logger.LogInformation("GetAgentsByComplianceStatusAsync called for framework {Framework}", framework);
+            throw new NotImplementedException("GetAgentsByComplianceStatusAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<IEnumerable<Ports.Models.Agent>> IAgentRegistryPort.SearchAgentsAsync(Ports.Models.AgentSearchCriteria criteria)
+        {
+            _logger.LogInformation("SearchAgentsAsync called via IAgentRegistryPort");
+            throw new NotImplementedException("SearchAgentsAsync via Ports.Models.AgentSearchCriteria is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<Ports.Models.Agent> IAgentRegistryPort.VerifyAgentComplianceAsync(Ports.Models.ComplianceVerificationRequest request)
+        {
+            _logger.LogInformation("VerifyAgentComplianceAsync called for agent {AgentId}", request?.AgentId);
+            throw new NotImplementedException("VerifyAgentComplianceAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<IEnumerable<Ports.Models.AgentComplianceStatus>> IAgentRegistryPort.GetAgentComplianceHistoryAsync(
+            Guid agentId, string tenantId, string? framework, DateTimeOffset? startTime, DateTimeOffset? endTime)
+        {
+            _logger.LogInformation("GetAgentComplianceHistoryAsync called for agent {AgentId}", agentId);
+            throw new NotImplementedException("GetAgentComplianceHistoryAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<Ports.Models.ComplianceCertification> IAgentRegistryPort.RequestComplianceCertificationAsync(
+            Guid agentId, string tenantId, string framework, string requestedBy)
+        {
+            _logger.LogInformation("RequestComplianceCertificationAsync called for agent {AgentId}", agentId);
+            throw new NotImplementedException("RequestComplianceCertificationAsync is not yet implemented.");
+        }
     }
 
     /// <summary>
@@ -559,7 +635,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.Property(e => e.DefaultAuthorityScope)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions()));
+                        v => System.Text.Json.JsonSerializer.Deserialize<CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models.AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions())!);
             });
 
             // Configure AgentVersionRecord entity

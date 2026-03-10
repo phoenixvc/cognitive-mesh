@@ -1,5 +1,4 @@
 using CognitiveMesh.ReasoningLayer.AgencyRouter.Ports;
-using CognitiveMesh.ReasoningLayer.AgencyRouter.Ports.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +38,7 @@ namespace CognitiveMesh.BusinessApplications.AgencyRouter.Controllers
         /// This endpoint triggers the ContextualAdaptiveAgencyEngine to analyze the task's
         /// Cognitive Impact Assessment (CIA) and Cognitive Sovereignty Index (CSI) scores
         /// against organizational policies to determine the optimal level of agent autonomy.
-        /// Conforms to NFRs: Security (1), Telemetry & Audit (2), Performance (6).
+        /// Conforms to NFRs: Security (1), Telemetry &amp; Audit (2), Performance (6).
         /// </remarks>
         /// <param name="context">The context of the task to be routed.</param>
         /// <returns>A decision specifying the autonomy level and authority scope for the task.</returns>
@@ -56,7 +55,7 @@ namespace CognitiveMesh.BusinessApplications.AgencyRouter.Controllers
                 var (tenantId, actorId) = GetAuthContextFromClaims();
                 if (tenantId == null) return Unauthorized(new { error_code = "UNAUTHORIZED", message = "Tenant ID is missing or invalid.", correlationID = correlationId });
 
-                context.Provenance = new ProvenanceContext { TenantId = tenantId, ActorId = actorId, CorrelationId = correlationId };
+                context.Provenance = new ProvenanceContext { TenantId = tenantId!, ActorId = actorId ?? string.Empty, CorrelationId = correlationId };
 
                 _logger.LogInformation("Initiating agency routing for Task '{TaskId}' with CorrelationId '{CorrelationId}'.", context.TaskId, correlationId);
                 var response = await _agencyRouterPort.RouteTaskAsync(context);
@@ -98,7 +97,7 @@ namespace CognitiveMesh.BusinessApplications.AgencyRouter.Controllers
                 var (tenantId, actorId) = GetAuthContextFromClaims();
                 if (tenantId == null) return Unauthorized(new { error_code = "UNAUTHORIZED", message = "Tenant ID is missing or invalid.", correlationID = correlationId });
 
-                request.Provenance = new ProvenanceContext { TenantId = tenantId, ActorId = actorId, CorrelationId = correlationId };
+                request.Provenance = new ProvenanceContext { TenantId = tenantId!, ActorId = actorId ?? string.Empty, CorrelationId = correlationId };
 
                 _logger.LogInformation("Applying agency override for Task '{TaskId}' with CorrelationId '{CorrelationId}'.", request.TaskId, correlationId);
                 var success = await _agencyRouterPort.ApplyOverrideAsync(request);
@@ -143,7 +142,7 @@ namespace CognitiveMesh.BusinessApplications.AgencyRouter.Controllers
         [ProducesResponseType(typeof(TaskContext), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetIntrospectionData(string taskId)
         {
-            var tenantId = GetTenantIdFromClaims().TenantId;
+            var tenantId = GetAuthContextFromClaims().TenantId;
             if (tenantId == null) return Unauthorized();
 
             var context = await _agencyRouterPort.GetIntrospectionDataAsync(taskId, tenantId);
@@ -153,7 +152,7 @@ namespace CognitiveMesh.BusinessApplications.AgencyRouter.Controllers
         /// <summary>
         /// Helper method to securely retrieve the Tenant and Actor IDs from the user's claims.
         /// </summary>
-        private (string TenantId, string ActorId) GetAuthContextFromClaims()
+        private (string? TenantId, string? ActorId) GetAuthContextFromClaims()
         {
             var tenantId = User.FindFirstValue("tenant_id");
             var actorId = User.FindFirstValue(ClaimTypes.NameIdentifier);

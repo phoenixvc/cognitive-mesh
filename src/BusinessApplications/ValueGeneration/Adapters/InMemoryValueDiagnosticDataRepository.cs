@@ -42,6 +42,24 @@ public class InMemoryValueDiagnosticDataRepository : IValueDiagnosticDataReposit
         return Task.FromResult(data);
     }
 
+    /// <inheritdoc />
+    public Task<OrgDataSnapshot> GetOrgDataSnapshotAsync(string organizationId, string[] departmentFilters, string tenantId)
+    {
+        _logger.LogDebug(
+            "Retrieving org data snapshot for organization '{OrganizationId}' in tenant '{TenantId}'.",
+            organizationId, tenantId);
+
+        var snapshot = new OrgDataSnapshot
+        {
+            PerceivedValueScores = new Dictionary<string, double> { { "Engineering", 0.8 }, { "Marketing", 0.6 } },
+            ActualImpactScores = new Dictionary<string, double> { { "Engineering", 0.7 }, { "Marketing", 0.75 } },
+            ResourceAllocation = new Dictionary<string, double> { { "Engineering", 0.5 }, { "Marketing", 0.3 } },
+            RecognitionMetrics = new Dictionary<string, double> { { "Engineering", 0.9 }, { "Marketing", 0.4 } }
+        };
+
+        return Task.FromResult(snapshot);
+    }
+
     /// <summary>
     /// Seeds the in-memory store with diagnostic data for the given target.
     /// </summary>

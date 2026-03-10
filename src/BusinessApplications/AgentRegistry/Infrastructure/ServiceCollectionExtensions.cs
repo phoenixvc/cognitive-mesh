@@ -2,18 +2,16 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SendGrid;
-using SendGrid.Extensions.DependencyInjection;
-using CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Ports;
+using AgencyLayer.MultiAgentOrchestration.Ports;
 using CognitiveMesh.BusinessApplications.AgentRegistry.Ports;
 using CognitiveMesh.BusinessApplications.AgentRegistry.Services;
 using CognitiveMesh.BusinessApplications.ConvenerServices.Ports;
-using CognitiveMesh.FoundationLayer.AuditLogging;
-using CognitiveMesh.FoundationLayer.AuditLogging.Services;
 using CognitiveMesh.FoundationLayer.EnterpriseConnectors;
-using CognitiveMesh.FoundationLayer.Notifications;
-using CognitiveMesh.FoundationLayer.Notifications.Services;
 using CognitiveMesh.FoundationLayer.OneLakeIntegration;
+using FoundationLayer.AuditLogging;
+using FoundationLayer.AuditLogging.Services;
+using FoundationLayer.Notifications;
+using FoundationLayer.Notifications.Services;
 
 namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
 {
@@ -32,18 +30,18 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
         {
             // Add database contexts
             services.AddAgenticDbContexts(configuration);
-            
+
             // Add ports and services
             services.AddAgentRegistryServices();
-            
+
             // Add foundation layer services
             services.AddAuditLoggingServices(configuration);
             services.AddNotificationServices(configuration);
-            
+
             // Add Enterprise Connectors and OneLake Integration
             services.AddEnterpriseConnectors(configuration);
             services.AddOneLakeIntegration(configuration);
-            
+
             return services;
         }
 
@@ -59,21 +57,17 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
             var agentDbConnection = configuration.GetConnectionString("AgentDb");
             var authorityDbConnection = configuration.GetConnectionString("AuthorityDb");
             var consentDbConnection = configuration.GetConnectionString("ConsentDb");
-            var auditDbConnection = configuration.GetConnectionString("AuditDb");
-            
+
             // Validate connection strings
             if (string.IsNullOrEmpty(agentDbConnection))
                 throw new InvalidOperationException("AgentDb connection string is not configured.");
-            
+
             if (string.IsNullOrEmpty(authorityDbConnection))
                 throw new InvalidOperationException("AuthorityDb connection string is not configured.");
-            
+
             if (string.IsNullOrEmpty(consentDbConnection))
                 throw new InvalidOperationException("ConsentDb connection string is not configured.");
-            
-            if (string.IsNullOrEmpty(auditDbConnection))
-                throw new InvalidOperationException("AuditDb connection string is not configured.");
-            
+
             // Add DbContexts with scoped lifetime (per request)
             services.AddDbContext<AgentDbContext>(options =>
             {
@@ -83,7 +77,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
                     sqlOptions.CommandTimeout(30);
                 });
             });
-            
+
             services.AddDbContext<AuthorityDbContext>(options =>
             {
                 options.UseSqlServer(authorityDbConnection, sqlOptions =>
@@ -92,7 +86,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
                     sqlOptions.CommandTimeout(30);
                 });
             });
-            
+
             services.AddDbContext<ConsentDbContext>(options =>
             {
                 options.UseSqlServer(consentDbConnection, sqlOptions =>
@@ -101,16 +95,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
                     sqlOptions.CommandTimeout(30);
                 });
             });
-            
-            services.AddDbContext<AuditDbContext>(options =>
-            {
-                options.UseSqlServer(auditDbConnection, sqlOptions =>
-                {
-                    sqlOptions.EnableRetryOnFailure(3);
-                    sqlOptions.CommandTimeout(30);
-                });
-            });
-            
+
             return services;
         }
 
@@ -125,7 +110,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
             services.AddScoped<IAgentRegistryPort, AgentRegistryService>();
             services.AddScoped<IAuthorityPort, AuthorityService>();
             services.AddScoped<IAgentConsentPort, AgentConsentService>();
-            
+
             return services;
         }
 
@@ -139,24 +124,16 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
         {
             // Register audit repository with singleton lifetime
             services.AddSingleton<IAuditEventRepository, AuditEventRepository>();
-            
+
             // Register audit logging adapter with singleton lifetime
             services.AddSingleton<IAuditLoggingAdapter, AuditLoggingAdapter>(sp =>
             {
                 var repository = sp.GetRequiredService<IAuditEventRepository>();
                 var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<AuditLoggingAdapter>>();
-                
-                // Configure adapter options
-                var options = new AuditLoggingOptions
-                {
-                    QueueCapacity = configuration.GetValue<int>("AuditLogging:QueueCapacity", 10000),
-                    RetryIntervalMs = configuration.GetValue<int>("AuditLogging:RetryIntervalMs", 5000),
-                    MaxRetryAttempts = configuration.GetValue<int>("AuditLogging:MaxRetryAttempts", 5)
-                };
-                
-                return new AuditLoggingAdapter(repository, options, logger);
+
+                return new AuditLoggingAdapter(repository, logger);
             });
-            
+
             return services;
         }
 
@@ -170,33 +147,19 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
         {
             // Configure SendGrid options
             services.Configure<SendGridOptions>(configuration.GetSection("SendGrid"));
-            
-            // Add SendGrid client
-            services.AddSendGrid(options =>
-            {
-                options.ApiKey = configuration["SendGrid:ApiKey"];
-            });
-            
+
             // Register notification delivery service with singleton lifetime
             services.AddSingleton<INotificationDeliveryService, SendGridNotificationService>();
-            
+
             // Register notification adapter with singleton lifetime
             services.AddSingleton<INotificationAdapter, NotificationAdapter>(sp =>
             {
                 var deliveryService = sp.GetRequiredService<INotificationDeliveryService>();
                 var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<NotificationAdapter>>();
-                
-                // Configure adapter options
-                var options = new NotificationAdapterOptions
-                {
-                    QueueCapacity = configuration.GetValue<int>("Notifications:QueueCapacity", 10000),
-                    RetryIntervalMs = configuration.GetValue<int>("Notifications:RetryIntervalMs", 5000),
-                    MaxRetryAttempts = configuration.GetValue<int>("Notifications:MaxRetryAttempts", 5)
-                };
-                
-                return new NotificationAdapter(deliveryService, options, logger);
+
+                return new NotificationAdapter(deliveryService, logger);
             });
-            
+
             return services;
         }
 
@@ -211,10 +174,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
             // Register orchestration port and implementation
             // Note: The actual implementation should be provided by the Agency Layer
             // This is just a placeholder to ensure the dependency is registered
-            
-            // Example:
-            // services.AddScoped<IMultiAgentOrchestrationPort, MultiAgentOrchestrationEngine>();
-            
+
             return services;
         }
 
@@ -229,52 +189,9 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
             services.AddHealthChecks()
                 .AddDbContextCheck<AgentDbContext>("agent_db_health")
                 .AddDbContextCheck<AuthorityDbContext>("authority_db_health")
-                .AddDbContextCheck<ConsentDbContext>("consent_db_health")
-                .AddDbContextCheck<AuditDbContext>("audit_db_health");
-            
+                .AddDbContextCheck<ConsentDbContext>("consent_db_health");
+
             return services;
         }
-    }
-
-    /// <summary>
-    /// Options for configuring the audit logging adapter.
-    /// </summary>
-    public class AuditLoggingOptions
-    {
-        /// <summary>
-        /// Maximum capacity of the audit event queue.
-        /// </summary>
-        public int QueueCapacity { get; set; } = 10000;
-        
-        /// <summary>
-        /// Interval in milliseconds between retry attempts.
-        /// </summary>
-        public int RetryIntervalMs { get; set; } = 5000;
-        
-        /// <summary>
-        /// Maximum number of retry attempts.
-        /// </summary>
-        public int MaxRetryAttempts { get; set; } = 5;
-    }
-
-    /// <summary>
-    /// Options for configuring the notification adapter.
-    /// </summary>
-    public class NotificationAdapterOptions
-    {
-        /// <summary>
-        /// Maximum capacity of the notification queue.
-        /// </summary>
-        public int QueueCapacity { get; set; } = 10000;
-        
-        /// <summary>
-        /// Interval in milliseconds between retry attempts.
-        /// </summary>
-        public int RetryIntervalMs { get; set; } = 5000;
-        
-        /// <summary>
-        /// Maximum number of retry attempts.
-        /// </summary>
-        public int MaxRetryAttempts { get; set; } = 5;
     }
 }

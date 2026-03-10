@@ -122,12 +122,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports
         /// <summary>
         /// The specific action the agent was requesting consent for.
         /// </summary>
-        public string AgentAction { get; set; }
+        public string AgentAction { get; set; } = string.Empty;
 
         /// <summary>
         /// The authority level at the time consent was requested.
         /// </summary>
-        public string AuthorityLevel { get; set; }
+        public string AuthorityLevel { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional context about the agent operation.
@@ -143,12 +143,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports
         /// <summary>
         /// The ID of the user.
         /// </summary>
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the tenant.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// Whether to automatically grant consent for low-risk operations.

@@ -1,429 +1,153 @@
+using CognitiveMesh.BusinessApplications.CustomerIntelligence;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
+namespace CognitiveMesh.BusinessApplications.CustomerIntelligence.Controllers;
+
+/// <summary>
+/// Controller for customer intelligence operations, providing endpoints for
+/// customer profile retrieval, segment queries, insight generation,
+/// and behavioral prediction.
+/// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/customer-intelligence")]
 public class CustomerServiceController : ControllerBase
 {
-    private readonly CognitiveMeshCoordinator _coordinator;
     private readonly ILogger<CustomerServiceController> _logger;
-    private readonly CustomerDataService _customerService;
-    private readonly ProductDataService _productService;
-    private readonly FeatureFlagManager _featureFlagManager;
-    
+    private readonly ICustomerIntelligenceManager _intelligenceManager;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CustomerServiceController"/> class.
+    /// </summary>
+    /// <param name="logger">Logger instance for structured logging.</param>
+    /// <param name="intelligenceManager">The customer intelligence manager.</param>
     public CustomerServiceController(
-        CognitiveMeshCoordinator coordinator,
-        CustomerDataService customerService,
-        ProductDataService productService,
         ILogger<CustomerServiceController> logger,
-        FeatureFlagManager featureFlagManager)
+        ICustomerIntelligenceManager intelligenceManager)
     {
-        _coordinator = coordinator;
-        _customerService = customerService;
-        _productService = productService;
-        _logger = logger;
-        _featureFlagManager = featureFlagManager;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _intelligenceManager = intelligenceManager ?? throw new ArgumentNullException(nameof(intelligenceManager));
     }
-    
-    [HttpPost("inquiry")]
-    [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> HandleCustomerInquiry([FromBody] CustomerInquiryRequest request)
+
+    /// <summary>
+    /// Retrieves a customer profile by identifier.
+    /// </summary>
+    /// <param name="customerId">The unique customer identifier.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>The customer profile.</returns>
+    /// <response code="200">Returns the customer profile.</response>
+    /// <response code="404">If the customer is not found.</response>
+    [HttpGet("profiles/{customerId}")]
+    [ProducesResponseType(typeof(CustomerProfile), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CustomerProfile>> GetProfileAsync(string customerId, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(customerId))
+        {
+            return BadRequest("Customer ID is required.");
+        }
+
         try
         {
-            if (!_featureFlagManager.EnableADK)
-            {
-                return BadRequest("Feature not enabled.");
-            }
+            _logger.LogInformation("Retrieving profile for customer {CustomerId}", customerId);
 
-            // Get customer context if available
-            CustomerContext customerContext = null;
-            if (!string.IsNullOrEmpty(request.CustomerId))
-            {
-                customerContext = await _customerService.GetCustomerContextAsync(request.CustomerId);
-            }
-            
-            // Categorize inquiry
-            var categorizationQuery = $"Categorize this customer inquiry: {request.Inquiry}";
-            var categorizationResponse = await _coordinator.ProcessQueryAsync(categorizationQuery);
-            
-            // Extract inquiry category
-            var category = ExtractCategory(categorizationResponse.Response);
-            
-            // Get relevant product information if applicable
-            List<ProductInfo> productInfo = new List<ProductInfo>();
-            if (!string.IsNullOrEmpty(request.ProductId))
-            {
-                productInfo.Add(await _productService.GetProductInfoAsync(request.ProductId));
-            }
-            else if (category.Contains("product"))
-            {
-                // Try to identify product from inquiry
-                var productQuery = $"Identify the product mentioned in this inquiry: {request.Inquiry}";
-                var productResponse = await _coordinator.ProcessQueryAsync(productQuery);
-                var productId = ExtractProductId(productResponse.Response);
-                
-                if (!string.IsNullOrEmpty(productId))
-                {
-                    productInfo.Add(await _productService.GetProductInfoAsync(productId));
-                }
-            }
-            
-            // Generate response options
-            var responseQuery = $"Generate a helpful response to this customer inquiry: {request.Inquiry}";
-            
-            // Add context to query if available
-            if (customerContext != null)
-            {
-                responseQuery += $"\nCustomer context: {JsonSerializer.Serialize(customerContext)}";
-            }
-            
-            if (productInfo.Any())
-            {
-                responseQuery += $"\nProduct information: {JsonSerializer.Serialize(productInfo)}";
-            }
-            
-            var options = new QueryOptions
-            {
-                Perspectives = new List<string> { "empathetic", "practical", "analytical" }
-            };
-            
-            var responseOptions = await _coordinator.ProcessQueryAsync(responseQuery, options);
-            
-            // Check if this requires escalation
-            var escalationQuery = $"Determine if this customer inquiry requires escalation: {request.Inquiry}";
-            var escalationResponse = await _coordinator.ProcessQueryAsync(escalationQuery);
-            var requiresEscalation = DetermineIfEscalationRequired(escalationResponse.Response);
-            
-            // Generate next steps
-            var nextStepsQuery = $"What are the recommended next steps for this customer inquiry: {request.Inquiry}";
-            var nextStepsResponse = await _coordinator.ProcessQueryAsync(nextStepsQuery);
-            
-            // Compile result
-            var result = new CustomerInquiryResponse
-            {
-                InquiryId = Guid.NewGuid().ToString(),
-                Category = category,
-                ResponseOptions = responseOptions.Response,
-                RequiresEscalation = requiresEscalation,
-                NextSteps = nextStepsResponse.Response,
-                RelevantKnowledge = responseOptions.KnowledgeResults
-                    .Select(k => new KnowledgeReference
-                    {
-                        Title = k.Title,
-                        Source = k.Source,
-                        Snippet = TruncateContent(k.Content, 200)
-                    })
-                    .ToList()
-            };
-            
-            return Ok(result);
+            var profile = await _intelligenceManager.GetCustomerProfileAsync(customerId, cancellationToken)
+                .ConfigureAwait(false);
+
+            return Ok(profile);
         }
-        catch (Exception ex)
+        catch (KeyNotFoundException)
         {
-            _logger.LogError(ex, "Error processing customer inquiry");
-            return StatusCode(500, "An error occurred while processing your request");
+            return NotFound($"Customer not found: {customerId}");
         }
     }
-    
-    [HttpPost("troubleshoot")]
-    [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> TroubleshootIssue([FromBody] TroubleshootingRequest request)
+
+    /// <summary>
+    /// Queries customer segments based on filter criteria.
+    /// </summary>
+    /// <param name="request">The segment query parameters.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>A collection of matching customer segments.</returns>
+    /// <response code="200">Returns the matching segments.</response>
+    /// <response code="400">If the request is invalid.</response>
+    [HttpPost("segments/query")]
+    [ProducesResponseType(typeof(IEnumerable<CustomerSegment>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<CustomerSegment>>> QuerySegmentsAsync(
+        [FromBody] CustomerSegmentQuery request,
+        CancellationToken cancellationToken = default)
     {
-        try
+        ArgumentNullException.ThrowIfNull(request);
+
+        _logger.LogInformation("Querying customer segments with filter: {NameFilter}, limit: {Limit}",
+            request.NameContains ?? "(none)", request.Limit);
+
+        var segments = await _intelligenceManager.GetCustomerSegmentsAsync(request, cancellationToken)
+            .ConfigureAwait(false);
+
+        return Ok(segments);
+    }
+
+    /// <summary>
+    /// Generates insights for a specific customer.
+    /// </summary>
+    /// <param name="customerId">The unique customer identifier.</param>
+    /// <param name="insightType">The type of insights to generate (defaults to All).</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>A collection of generated customer insights.</returns>
+    /// <response code="200">Returns the generated insights.</response>
+    /// <response code="400">If the customer ID is invalid.</response>
+    [HttpGet("insights/{customerId}")]
+    [ProducesResponseType(typeof(IEnumerable<CustomerInsight>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<CustomerInsight>>> GenerateInsightsAsync(
+        string customerId,
+        [FromQuery] InsightType insightType = InsightType.All,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(customerId))
         {
-            if (!_featureFlagManager.EnableLangGraph)
-            {
-                return BadRequest("Feature not enabled.");
-            }
-
-            // Get product information
-            var productInfo = await _productService.GetProductInfoAsync(request.ProductId);
-            
-            // Create troubleshooting context
-            var troubleshootingContext = new
-            {
-                Product = productInfo,
-                IssueDescription = request.IssueDescription,
-                PreviousStepsTaken = request.PreviousStepsTaken
-            };
-            
-            // Diagnose issue
-            var diagnosticQuery = $"Diagnose this issue: {request.IssueDescription} " +
-                                $"for product: {productInfo.Name}. " +
-                                $"Previous steps taken: {request.PreviousStepsTaken}";
-            
-            var options = new QueryOptions
-            {
-                EnableAgentExecution = true,
-                Perspectives = new List<string> { "analytical", "practical", "critical" }
-            };
-            
-            var diagnosticResponse = await _coordinator.ProcessQueryAsync(diagnosticQuery, options);
-            
-            // Generate solution steps
-            var solutionQuery = $"Provide step-by-step solution for: {request.IssueDescription} " +
-                               $"with product: {productInfo.Name}. " +
-                               $"Based on diagnosis: {diagnosticResponse.Response}";
-            
-            var solutionResponse = await _coordinator.ProcessQueryAsync(solutionQuery);
-            
-            // Perform causal analysis
-            var causalQuery = $"What are the likely root causes of this issue: {request.IssueDescription} " +
-                             $"with product: {productInfo.Name}?";
-            
-            var causalResponse = await _coordinator.ProcessQueryAsync(causalQuery);
-            
-            // Compile result
-            var result = new TroubleshootingResponse
-            {
-                ProductId = request.ProductId,
-                ProductName = productInfo.Name,
-                Diagnosis = diagnosticResponse.Response,
-                SolutionSteps = solutionResponse.Response,
-                RootCauseAnalysis = causalResponse.Response,
-                RelatedKnowledgeBase = diagnosticResponse.KnowledgeResults
-                    .Select(k => new KnowledgeReference
-                    {
-                        Title = k.Title,
-                        Source = k.Source,
-                        Snippet = TruncateContent(k.Content, 200)
-                    })
-                    .ToList()
-            };
-            
-            return Ok(result);
+            return BadRequest("Customer ID is required.");
         }
-        catch (Exception ex)
+
+        _logger.LogInformation("Generating insights for customer {CustomerId}, type: {InsightType}",
+            customerId, insightType);
+
+        var insights = await _intelligenceManager.GenerateCustomerInsightsAsync(customerId, insightType, cancellationToken)
+            .ConfigureAwait(false);
+
+        return Ok(insights);
+    }
+
+    /// <summary>
+    /// Predicts customer behavior for a specific prediction type.
+    /// </summary>
+    /// <param name="customerId">The unique customer identifier.</param>
+    /// <param name="predictionType">The type of behavior to predict.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>The behavior prediction result.</returns>
+    /// <response code="200">Returns the prediction.</response>
+    /// <response code="400">If the customer ID is invalid.</response>
+    [HttpGet("predictions/{customerId}")]
+    [ProducesResponseType(typeof(CustomerPrediction), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<CustomerPrediction>> PredictBehaviorAsync(
+        string customerId,
+        [FromQuery] PredictionType predictionType = PredictionType.Churn,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(customerId))
         {
-            _logger.LogError(ex, "Error processing troubleshooting request");
-            return StatusCode(500, "An error occurred while processing your request");
+            return BadRequest("Customer ID is required.");
         }
+
+        _logger.LogInformation("Predicting behavior for customer {CustomerId}, type: {PredictionType}",
+            customerId, predictionType);
+
+        var prediction = await _intelligenceManager.PredictCustomerBehaviorAsync(customerId, predictionType, cancellationToken)
+            .ConfigureAwait(false);
+
+        return Ok(prediction);
     }
-    
-    [HttpPost("conversation")]
-    [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> HandleConversation([FromBody] ConversationRequest request)
-    {
-        try
-        {
-            if (!_featureFlagManager.EnableCrewAI)
-            {
-                return BadRequest("Feature not enabled.");
-            }
-
-            // Get customer context if available
-            CustomerContext customerContext = null;
-            if (!string.IsNullOrEmpty(request.CustomerId))
-            {
-                customerContext = await _customerService.GetCustomerContextAsync(request.CustomerId);
-            }
-            
-            // Format conversation history
-            var conversationHistory = new StringBuilder();
-            foreach (var message in request.ConversationHistory)
-            {
-                conversationHistory.AppendLine($"{message.Role}: {message.Content}");
-            }
-            
-            // Generate response
-            var responseQuery = $"Generate a helpful response to the latest message in this conversation:\n\n" +
-                               $"Conversation history:\n{conversationHistory}\n\n" +
-                               $"Latest message: {request.CurrentMessage}";
-            
-            // Add context to query if available
-            if (customerContext != null)
-            {
-                responseQuery += $"\nCustomer context: {JsonSerializer.Serialize(customerContext)}";
-            }
-            
-            var options = new QueryOptions
-            {
-                Perspectives = new List<string> { "empathetic", "practical" }
-            };
-            
-            var responseResult = await _coordinator.ProcessQueryAsync(responseQuery, options);
-            
-            // Analyze customer sentiment
-            var sentimentQuery = $"Analyze the customer sentiment in this conversation:\n{conversationHistory}\n\n" +
-                                $"Latest message: {request.CurrentMessage}";
-            
-            var sentimentResponse = await _coordinator.ProcessQueryAsync(sentimentQuery);
-            
-            // Compile result
-            var result = new ConversationResponse
-            {
-                Response = responseResult.Response,
-                SentimentAnalysis = sentimentResponse.Response,
-                SuggestedActions = ExtractSuggestedActions(responseResult.Response)
-            };
-            
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error processing conversation request");
-            return StatusCode(500, "An error occurred while processing your request");
-        }
-    }
-    
-    private string ExtractCategory(string categorizationText)
-    {
-        // In a real implementation, this would use more sophisticated parsing
-        // For now, use simple keyword matching
-        
-        if (categorizationText.Contains("billing", StringComparison.OrdinalIgnoreCase))
-            return "Billing";
-            
-        if (categorizationText.Contains("technical", StringComparison.OrdinalIgnoreCase))
-            return "Technical Support";
-            
-        if (categorizationText.Contains("account", StringComparison.OrdinalIgnoreCase))
-            return "Account Management";
-            
-        if (categorizationText.Contains("product", StringComparison.OrdinalIgnoreCase))
-            return "Product Information";
-            
-        return "General Inquiry";
-    }
-    
-    private string ExtractProductId(string productText)
-    {
-        // In a real implementation, this would use more sophisticated parsing
-        // For now, return a dummy product ID if a product is detected
-        
-        if (productText.Contains("product", StringComparison.OrdinalIgnoreCase))
-            return "PROD-001";
-            
-        return null;
-    }
-    
-    private bool DetermineIfEscalationRequired(string escalationText)
-    {
-        // In a real implementation, this would use more sophisticated parsing
-        // For now, check for keywords
-        
-        return escalationText.Contains("escalate", StringComparison.OrdinalIgnoreCase) ||
-               escalationText.Contains("supervisor", StringComparison.OrdinalIgnoreCase) ||
-               escalationText.Contains("manager", StringComparison.OrdinalIgnoreCase);
-    }
-    
-    private List<string> ExtractSuggestedActions(string responseText)
-    {
-        // In a real implementation, this would use more sophisticated parsing
-        // For now, look for numbered steps or bullet points
-        
-        var actions = new List<string>();
-        var lines = responseText.Split('\n');
-        
-        foreach (var line in lines)
-        {
-            var trimmedLine = line.trim();
-            
-            if (Regex.IsMatch(trimmedLine, @"^\d+\.\s") || 
-                trimmedLine.StartsWith("- ") || 
-                trimmedLine.StartsWith("* "))
-            {
-                actions.Add(trimmedLine);
-            }
-        }
-        
-        return actions;
-    }
-    
-    private string TruncateContent(string content, int maxLength)
-    {
-        if (content.Length <= maxLength)
-            return content;
-            
-        return content.Substring(0, maxLength - 3) + "...";
-    }
-}
-
-public class CustomerInquiryRequest
-{
-    public string Inquiry { get; set; }
-    public string CustomerId { get; set; }
-    public string ProductId { get; set; }
-}
-
-public class CustomerInquiryResponse
-{
-    public string InquiryId { get; set; }
-    public string Category { get; set; }
-    public string ResponseOptions { get; set; }
-    public bool RequiresEscalation { get; set; }
-    public string NextSteps { get; set; }
-    public List<KnowledgeReference> RelevantKnowledge { get; set; } = new List<KnowledgeReference>();
-}
-
-public class TroubleshootingRequest
-{
-    public string ProductId { get; set; }
-    public string IssueDescription { get; set; }
-    public string PreviousStepsTaken { get; set; }
-}
-
-public class TroubleshootingResponse
-{
-    public string ProductId { get; set; }
-    public string ProductName { get; set; }
-    public string Diagnosis { get; set; }
-    public string SolutionSteps { get; set; }
-    public string RootCauseAnalysis { get; set; }
-    public List<KnowledgeReference> RelatedKnowledgeBase { get; set; } = new List<KnowledgeReference>();
-}
-
-public class ConversationRequest
-{
-    public string CustomerId { get; set; }
-    public List<ConversationMessage> ConversationHistory { get; set; } = new List<ConversationMessage>();
-    public string CurrentMessage { get; set; }
-}
-
-public class ConversationMessage
-{
-    public string Role { get; set; } // "Customer" or "Agent"
-    public string Content { get; set; }
-    public DateTime Timestamp { get; set; }
-}
-
-public class ConversationResponse
-{
-    public string Response { get; set; }
-    public string SentimentAnalysis { get; set; }
-    public List<string> SuggestedActions { get; set; } = new List<string>();
-}
-
-public class KnowledgeReference
-{
-    public string Title { get; set; }
-    public string Source { get; set; }
-    public string Snippet { get; set; }
-}
-
-public class CustomerContext
-{
-    public string CustomerId { get; set; }
-    public string Name { get; set; }
-    public string AccountType { get; set; }
-    public List<string> PurchasedProducts { get; set; } = new List<string>();
-    public List<string> RecentInteractions { get; set; } = new List<string>();
-}
-
-public class ProductInfo
-{
-    public string ProductId { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string Category { get; set; }
-    public Dictionary<string, string> Specifications { get; set; } = new Dictionary<string, string>();
-    public List<string> CommonIssues { get; set; } = new List<string>();
 }

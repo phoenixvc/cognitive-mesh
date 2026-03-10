@@ -1,9 +1,10 @@
-using CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Ports;
-using CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Ports.Models;
+using AgencyLayer.MultiAgentOrchestration.Ports;
 using CognitiveMesh.BusinessApplications.AgentRegistry.Ports;
+using CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models;
 using CognitiveMesh.BusinessApplications.Common.Models;
-using CognitiveMesh.FoundationLayer.AuditLogging;
-using CognitiveMesh.FoundationLayer.Notifications;
+using RegistryAuthorityScope = CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models.AuthorityScope;
+using FoundationLayer.AuditLogging;
+using FoundationLayer.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,9 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         private readonly INotificationAdapter _notify;
         private readonly ILogger<AgentController> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the AgentController class.
+        /// </summary>
         public AgentController(
             IMultiAgentOrchestrationPort orchestrationPort,
             IAgentRegistryPort registryPort,
@@ -58,53 +62,32 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         /// </summary>
         [HttpPost("registry")]
         [Authorize(Policy = "AdminAccess")]
-        [ProducesResponseType(typeof(AgentDefinition), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(AgentRegistrationRequest), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> RegisterAgent([FromBody] AgentDefinition definition)
+        public async Task<IActionResult> RegisterAgent([FromBody] AgentRegistrationRequest request)
         {
             try
             {
-                if (definition == null || string.IsNullOrWhiteSpace(definition.AgentType))
+                if (request == null || string.IsNullOrWhiteSpace(request.AgentType))
                 {
-                    return BadRequest(ErrorEnvelope.InvalidPayload());
+                    return BadRequest(ErrorEnvelope.InvalidPayload("Agent type is required."));
                 }
 
-                await _registryPort.RegisterAgentAsync(definition);
+                var agent = await _registryPort.RegisterAgentAsync(request);
 
                 // audit + notify (best-effort)
-                _ = _audit.LogAgentRegisteredAsync(definition.AgentId, definition.AgentType, User?.Identity?.Name ?? "system");
-                _ = _notify.SendAgentRegistrationNotificationAsync(definition.AgentId, definition.AgentType, User?.Identity?.Name ?? "system", new[] { User?.Identity?.Name });
+                var actorName = User?.Identity?.Name ?? "system";
+                _ = _audit.LogAgentRegisteredAsync(agent.AgentId, agent.AgentType, actorName);
+                _ = _notify.SendAgentRegistrationNotificationAsync(agent.AgentId, agent.AgentType, actorName, new[] { actorName });
 
-                // Assuming AgentId is set within the RegisterAgentAsync or its underlying logic
-                return CreatedAtAction(nameof(GetAgentDetails), new { agentId = definition.AgentId }, definition);
+                return CreatedAtAction(nameof(GetAgentDetails), new { agentId = agent.AgentId }, agent);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registering agent type '{AgentType}'.", definition?.AgentType);
+                _logger.LogError(ex, "Error registering agent type '{AgentType}'.", request?.AgentType);
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    ErrorEnvelope.ServiceUnavailable("AgentRegistry"));
-            }
-        }
-
-        /// <summary>
-        /// Retrieves a list of all registered agents.
-        /// </summary>
-        [HttpGet("registry")]
-        [ProducesResponseType(typeof(IEnumerable<AgentDefinition>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ListAgents([FromQuery] bool includeRetired = false)
-        {
-            try
-            {
-                var agents = await _registryPort.ListAgentsAsync(includeRetired);
-                return Ok(agents);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while listing agents.");
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    ErrorEnvelope.ServiceUnavailable("AgentRegistry"));
+                    ErrorEnvelope.Create("SERVICE_UNAVAILABLE", "AgentRegistry service is unavailable."));
             }
         }
 
@@ -112,18 +95,21 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         /// Retrieves the details of a specific agent definition.
         /// </summary>
         [HttpGet("registry/{agentId:guid}")]
-        [ProducesResponseType(typeof(AgentDefinition), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Agent), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAgentDetails(Guid agentId)
         {
             try
             {
-                var agent = await _registryPort.GetAgentByIdAsync(agentId);
+                var (tenantId, _) = GetAuthContextFromClaims();
+                if (tenantId == null) return Unauthorized("Tenant ID is missing.");
+
+                var agent = await _registryPort.GetAgentByIdAsync(agentId, tenantId);
                 if (agent == null)
                 {
                     _logger.LogWarning("Agent with ID '{AgentId}' not found.", agentId);
-                    return NotFound(ErrorEnvelope.AgentNotFound(agentId.ToString()));
+                    return NotFound(ErrorEnvelope.Create("AGENT_NOT_FOUND", $"Agent with ID '{agentId}' was not found."));
                 }
                 return Ok(agent);
             }
@@ -131,70 +117,40 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
             {
                 _logger.LogError(ex, "An error occurred while retrieving agent with ID '{AgentId}'.", agentId);
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    ErrorEnvelope.ServiceUnavailable("AgentRegistry"));
+                    ErrorEnvelope.Create("SERVICE_UNAVAILABLE", "AgentRegistry service is unavailable."));
             }
         }
 
         /// <summary>
-        /// Updates an existing agent definition. (Admin Only)
-        /// </summary>
-        [HttpPut("registry/{agentId:guid}")]
-        [Authorize(Policy = "AdminAccess")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateAgent(Guid agentId, [FromBody] AgentDefinition definition)
-        {
-            try
-            {
-                if (agentId != definition.AgentId)
-                {
-                    return BadRequest(new { error_code = "ID_MISMATCH", message = "The agent ID in the URL does not match the ID in the request body." });
-                }
-                await _registryPort.UpdateAgentAsync(definition);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                _logger.LogWarning(ex.Message);
-                return NotFound(ErrorEnvelope.AgentNotFound(agentId.ToString()));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while updating agent with ID '{AgentId}'.", agentId);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    ErrorEnvelope.ServiceUnavailable("AgentRegistry"));
-            }
-        }
-
-        /// <summary>
-        /// Retires an agent, making it unavailable for new tasks. (Admin Only)
+        /// Deactivates an agent, making it unavailable for new tasks. (Admin Only)
         /// </summary>
         [HttpDelete("registry/{agentId:guid}")]
         [Authorize(Policy = "AdminAccess")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> RetireAgent(Guid agentId)
+        public async Task<IActionResult> DeactivateAgent(Guid agentId, [FromQuery] string? reason = null)
         {
             try
             {
-                var success = await _registryPort.RetireAgentAsync(agentId);
+                var (tenantId, userId) = GetAuthContextFromClaims();
+                if (tenantId == null) return Unauthorized("Tenant ID is missing.");
+
+                var success = await _registryPort.DeactivateAgentAsync(agentId, tenantId, userId ?? "system", reason ?? "Manual deactivation");
                 if (!success)
                 {
-                    return NotFound(ErrorEnvelope.AgentNotFound(agentId.ToString()));
+                    return NotFound(ErrorEnvelope.Create("AGENT_NOT_FOUND", $"Agent with ID '{agentId}' was not found."));
                 }
 
-                _ = _audit.LogAgentRetiredAsync(agentId, User?.Identity?.Name ?? "system", "Manual retirement");
+                _ = _audit.LogAgentRetiredAsync(agentId, User?.Identity?.Name ?? "system", reason ?? "Manual deactivation");
 
                 return NoContent();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while retiring agent with ID '{AgentId}'.", agentId);
+                _logger.LogError(ex, "An error occurred while deactivating agent with ID '{AgentId}'.", agentId);
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    ErrorEnvelope.ServiceUnavailable("AgentRegistry"));
+                    ErrorEnvelope.Create("SERVICE_UNAVAILABLE", "AgentRegistry service is unavailable."));
             }
         }
 
@@ -211,7 +167,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
             if (tenantId == null) return Unauthorized("Tenant ID is missing.");
 
             request.TenantId = tenantId;
-            request.RequestingUserId = userId;
+            request.RequestingUserId = userId ?? string.Empty;
 
             var response = await _orchestrationPort.ExecuteTaskAsync(request);
             return Ok(response);
@@ -225,19 +181,19 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
         [HttpPut("authority/{agentType}")]
         [Authorize(Policy = "AdminAccess")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> ConfigureAuthority(string agentType, [FromBody] AuthorityScope scope)
+        public async Task<IActionResult> ConfigureAuthority(string agentType, [FromBody] RegistryAuthorityScope scope)
         {
-            var (tenantId, _) = GetAuthContextFromClaims();
+            var (tenantId, userId) = GetAuthContextFromClaims();
             if (tenantId == null) return Unauthorized("Tenant ID is missing.");
 
-            await _authorityPort.UpdateAgentAuthorityAsync(Guid.Empty /* TBD: resolve agentId by type */, scope, tenantId, "Admin API update");
+            await _authorityPort.ConfigureAgentAuthorityAsync(Guid.Empty /* TBD: resolve agentId by type */, scope, userId ?? "system", tenantId);
             return NoContent();
         }
 
         /// <summary>
         /// Helper method to securely retrieve the Tenant and Actor IDs from the user's claims.
         /// </summary>
-        private (string TenantId, string UserId) GetAuthContextFromClaims()
+        private (string? TenantId, string? UserId) GetAuthContextFromClaims()
         {
             var tenantId = User.FindFirstValue("tenant_id");
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -1,5 +1,7 @@
 using CognitiveMesh.BusinessApplications.NISTCompliance.Models;
 using CognitiveMesh.BusinessApplications.NISTCompliance.Ports;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CognitiveMesh.BusinessApplications.NISTCompliance.Controllers;
@@ -9,7 +11,9 @@ namespace CognitiveMesh.BusinessApplications.NISTCompliance.Controllers;
 /// evidence submission, checklist tracking, maturity scoring, reviews,
 /// roadmap generation, and audit logging.
 /// </summary>
-public class NISTComplianceController
+[ApiController]
+[Route("api/v1/nist-compliance")]
+public class NISTComplianceController : ControllerBase
 {
     private readonly ILogger<NISTComplianceController> _logger;
     private readonly INISTComplianceServicePort _servicePort;
@@ -33,9 +37,12 @@ public class NISTComplianceController
     /// <param name="request">The evidence submission request.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The evidence submission response.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when request is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when required fields are missing.</exception>
-    public async Task<NISTEvidenceResponse> SubmitEvidenceAsync(NISTEvidenceRequest request, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the evidence submission confirmation.</response>
+    /// <response code="400">If the request is invalid or required fields are missing.</response>
+    [HttpPost("evidence")]
+    [ProducesResponseType(typeof(NISTEvidenceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<NISTEvidenceResponse>> SubmitEvidenceAsync([FromBody] NISTEvidenceRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -78,8 +85,12 @@ public class NISTComplianceController
     /// <param name="organizationId">The identifier of the organization.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The compliance checklist grouped by pillar.</returns>
-    /// <exception cref="ArgumentException">Thrown when organizationId is null or whitespace.</exception>
-    public async Task<NISTChecklistResponse> GetChecklistAsync(string organizationId, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the compliance checklist.</response>
+    /// <response code="400">If organizationId is invalid.</response>
+    [HttpGet("organizations/{organizationId}/checklist")]
+    [ProducesResponseType(typeof(NISTChecklistResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<NISTChecklistResponse>> GetChecklistAsync(string organizationId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(organizationId);
 
@@ -94,8 +105,12 @@ public class NISTComplianceController
     /// <param name="organizationId">The identifier of the organization.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The maturity scores by pillar and overall.</returns>
-    /// <exception cref="ArgumentException">Thrown when organizationId is null or whitespace.</exception>
-    public async Task<NISTScoreResponse> GetScoreAsync(string organizationId, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the maturity scores.</response>
+    /// <response code="400">If organizationId is invalid.</response>
+    [HttpGet("organizations/{organizationId}/score")]
+    [ProducesResponseType(typeof(NISTScoreResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<NISTScoreResponse>> GetScoreAsync(string organizationId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(organizationId);
 
@@ -110,9 +125,12 @@ public class NISTComplianceController
     /// <param name="request">The review request containing the decision.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The review response with updated status.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when request is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when required fields are missing.</exception>
-    public async Task<NISTReviewResponse> SubmitReviewAsync(NISTReviewRequest request, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the review confirmation.</response>
+    /// <response code="400">If the request is invalid or required fields are missing.</response>
+    [HttpPost("reviews")]
+    [ProducesResponseType(typeof(NISTReviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<NISTReviewResponse>> SubmitReviewAsync([FromBody] NISTReviewRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -150,8 +168,12 @@ public class NISTComplianceController
     /// <param name="organizationId">The identifier of the organization.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The improvement roadmap with identified gaps.</returns>
-    /// <exception cref="ArgumentException">Thrown when organizationId is null or whitespace.</exception>
-    public async Task<NISTRoadmapResponse> GetRoadmapAsync(string organizationId, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the improvement roadmap.</response>
+    /// <response code="400">If organizationId is invalid.</response>
+    [HttpGet("organizations/{organizationId}/roadmap")]
+    [ProducesResponseType(typeof(NISTRoadmapResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<NISTRoadmapResponse>> GetRoadmapAsync(string organizationId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(organizationId);
 
@@ -167,8 +189,12 @@ public class NISTComplianceController
     /// <param name="maxResults">The maximum number of audit entries to return.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The audit log entries.</returns>
-    /// <exception cref="ArgumentException">Thrown when organizationId is null or whitespace.</exception>
-    public async Task<NISTAuditLogResponse> GetAuditLogAsync(string organizationId, int maxResults, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the audit log entries.</response>
+    /// <response code="400">If organizationId is invalid or maxResults is non-positive.</response>
+    [HttpGet("organizations/{organizationId}/audit-log")]
+    [ProducesResponseType(typeof(NISTAuditLogResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<NISTAuditLogResponse>> GetAuditLogAsync(string organizationId, [FromQuery] int maxResults, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(organizationId);
 

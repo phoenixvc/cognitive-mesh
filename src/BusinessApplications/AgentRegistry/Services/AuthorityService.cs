@@ -4,9 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Ports.Models;
 using CognitiveMesh.BusinessApplications.AgentRegistry.Ports;
+using CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models;
 using CognitiveMesh.BusinessApplications.Common.Models;
+using FoundationLayer.EnterpriseConnectors;
 
 namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
 {
@@ -34,7 +35,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             
             // Initialize circuit breaker for database operations
-            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000, 50);
+            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000);
         }
 
         /// <inheritdoc />
@@ -513,13 +514,14 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 {
                     var policy = await _dbContext.AuthorityPolicyTemplates
                         .AsNoTracking()
-                        .FirstOrDefaultAsync(p => p.PolicyId == policyId && 
+                        .FirstOrDefaultAsync(p => p.PolicyId == policyId &&
                                                  (p.TenantId == tenantId || p.IsSystemTemplate));
 
                     if (policy == null)
                     {
-                        _logger.LogWarning("Authority policy template not found: {PolicyId}, Tenant: {TenantId}", 
+                        _logger.LogWarning("Authority policy template not found: {PolicyId}, Tenant: {TenantId}",
                             policyId, tenantId);
+                        throw new PolicyNotFoundException($"Authority policy template '{policyId}' not found");
                     }
 
                     return policy;
@@ -564,7 +566,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
             Guid agentId, 
             string policyId, 
             string tenantId, 
-            Dictionary<string, object> customizations = null)
+            Dictionary<string, object>? customizations = null)
         {
             if (agentId == Guid.Empty)
             {
@@ -646,6 +648,130 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 throw new AuthorityServiceException($"Failed to apply authority policy template {policyId} to agent {agentId}", ex);
             }
         }
+        // --- Explicit IAuthorityPort interface implementations ---
+        // These methods bridge between the local service and the port interface.
+
+        /// <inheritdoc />
+        Task<AuthorityScope> IAuthorityPort.ConfigureAgentAuthorityAsync(Guid agentId, AuthorityScope scope, string configuredBy, string tenantId)
+        {
+            _logger.LogInformation("ConfigureAgentAuthorityAsync called for agent {AgentId}", agentId);
+            throw new NotImplementedException("ConfigureAgentAuthorityAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<AuthorityScope> IAuthorityPort.GetAgentAuthorityScopeAsync(Guid agentId, string tenantId)
+        {
+            _logger.LogInformation("GetAgentAuthorityScopeAsync called for agent {AgentId}", agentId);
+            throw new NotImplementedException("GetAgentAuthorityScopeAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<AuthorityScope> IAuthorityPort.CreateAuthorityScopeTemplateAsync(AuthorityScope scope, string tenantId)
+        {
+            _logger.LogInformation("CreateAuthorityScopeTemplateAsync called");
+            throw new NotImplementedException("CreateAuthorityScopeTemplateAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<AuthorityScope> IAuthorityPort.GetAuthorityScopeTemplateAsync(string scopeId, string tenantId)
+        {
+            _logger.LogInformation("GetAuthorityScopeTemplateAsync called for scope {ScopeId}", scopeId);
+            throw new NotImplementedException("GetAuthorityScopeTemplateAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<IEnumerable<AuthorityScope>> IAuthorityPort.ListAuthorityScopeTemplatesAsync(string tenantId)
+        {
+            _logger.LogInformation("ListAuthorityScopeTemplatesAsync called for tenant {TenantId}", tenantId);
+            throw new NotImplementedException("ListAuthorityScopeTemplatesAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<AuthorityScope> IAuthorityPort.ApplyAuthorityScopeTemplateAsync(Guid agentId, string scopeId, string appliedBy, string tenantId)
+        {
+            _logger.LogInformation("ApplyAuthorityScopeTemplateAsync called for agent {AgentId}", agentId);
+            throw new NotImplementedException("ApplyAuthorityScopeTemplateAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<AuthorityValidationResult> IAuthorityPort.ValidateAuthorityAsync(AuthorityValidationRequest request)
+        {
+            _logger.LogInformation("ValidateAuthorityAsync called for agent {AgentId}", request?.AgentId);
+            throw new NotImplementedException("ValidateAuthorityAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<AuthorityValidationResult> IAuthorityPort.ValidateActionWithinScopeAsync(Guid agentId, string action, string resource, string tenantId)
+        {
+            _logger.LogInformation("ValidateActionWithinScopeAsync called for agent {AgentId}", agentId);
+            throw new NotImplementedException("ValidateActionWithinScopeAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<bool> IAuthorityPort.OverrideAuthorityAsync(AuthorityOverrideRequest request)
+        {
+            _logger.LogInformation("OverrideAuthorityAsync called for agent {AgentId}", request?.AgentId);
+            throw new NotImplementedException("OverrideAuthorityAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<bool> IAuthorityPort.RevokeAuthorityOverrideAsync(Guid agentId, string action, string revokedBy, string tenantId)
+        {
+            _logger.LogInformation("RevokeAuthorityOverrideAsync called for agent {AgentId}", agentId);
+            throw new NotImplementedException("RevokeAuthorityOverrideAsync via IAuthorityPort is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<OverridePermission> IAuthorityPort.GrantOverridePermissionAsync(OverridePermission permission)
+        {
+            _logger.LogInformation("GrantOverridePermissionAsync called");
+            throw new NotImplementedException("GrantOverridePermissionAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<bool> IAuthorityPort.RevokeOverridePermissionAsync(string permissionId, string revokedBy, string tenantId)
+        {
+            _logger.LogInformation("RevokeOverridePermissionAsync called for permission {PermissionId}", permissionId);
+            throw new NotImplementedException("RevokeOverridePermissionAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<bool> IAuthorityPort.HasOverridePermissionAsync(string userId, Guid agentId, string action, string tenantId)
+        {
+            _logger.LogInformation("HasOverridePermissionAsync called for user {UserId} and agent {AgentId}", userId, agentId);
+            throw new NotImplementedException("HasOverridePermissionAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<IEnumerable<OverridePermission>> IAuthorityPort.ListUserOverridePermissionsAsync(string userId, string tenantId)
+        {
+            _logger.LogInformation("ListUserOverridePermissionsAsync called for user {UserId}", userId);
+            throw new NotImplementedException("ListUserOverridePermissionsAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<IEnumerable<Ports.Models.AuthorityAuditRecord>> IAuthorityPort.GetAuthorityAuditRecordsAsync(
+            Guid? agentId, string? userId, string? eventType, DateTimeOffset? startTime, DateTimeOffset? endTime,
+            string? tenantId, int maxResults, int skip)
+        {
+            _logger.LogInformation("GetAuthorityAuditRecordsAsync called");
+            throw new NotImplementedException("GetAuthorityAuditRecordsAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<Ports.Models.AuthorityAuditRecord> IAuthorityPort.GetAuthorityAuditRecordByIdAsync(string auditId, string tenantId)
+        {
+            _logger.LogInformation("GetAuthorityAuditRecordByIdAsync called for audit {AuditId}", auditId);
+            throw new NotImplementedException("GetAuthorityAuditRecordByIdAsync is not yet implemented.");
+        }
+
+        /// <inheritdoc />
+        Task<List<ComplianceIssue>> IAuthorityPort.ValidateAuthorityScopeComplianceAsync(
+            AuthorityScope scope, List<string> frameworks, string tenantId)
+        {
+            _logger.LogInformation("ValidateAuthorityScopeComplianceAsync called");
+            throw new NotImplementedException("ValidateAuthorityScopeComplianceAsync is not yet implemented.");
+        }
     }
 
     /// <summary>
@@ -677,7 +803,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.Property(e => e.AuthorityScope)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions()));
+                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions())!);
             });
 
             // Configure AuthorityOverride entity
@@ -690,12 +816,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.ExpiresAt).IsRequired();
                 entity.Property(e => e.IsActive).IsRequired();
-                
+
                 // Configure OverrideScope as a JSON column
                 entity.Property(e => e.OverrideScope)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions()));
+                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions())!);
             });
 
             // Configure AuthorityAuditRecord entity
@@ -706,7 +832,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.Property(e => e.TenantId).IsRequired();
                 entity.Property(e => e.ActionType).IsRequired();
                 entity.Property(e => e.Timestamp).IsRequired();
-                
+
                 // Configure AuthorityScope as a JSON column
                 entity.Property(e => e.AuthorityScope)
                     .HasConversion(
@@ -723,18 +849,18 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.Property(e => e.CreatedAt).IsRequired();
                 entity.Property(e => e.UpdatedAt).IsRequired();
                 entity.Property(e => e.IsSystemTemplate).IsRequired();
-                
+
                 // Configure BaseScope as a JSON column
                 entity.Property(e => e.BaseScope)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
                         v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions()));
-                
+
                 // Configure Rules as a JSON column
                 entity.Property(e => e.Rules)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<List<AuthorityPolicyRule>>(v, new System.Text.Json.JsonSerializerOptions()));
+                        v => System.Text.Json.JsonSerializer.Deserialize<List<AuthorityPolicyRule>>(v, new System.Text.Json.JsonSerializerOptions())!);
             });
         }
     }
@@ -752,12 +878,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The tenant context for this configuration.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The authority scope for the agent.
         /// </summary>
-        public AuthorityScope AuthorityScope { get; set; }
+        public AuthorityScope AuthorityScope { get; set; } = new AuthorityScope();
 
         /// <summary>
         /// When the configuration was created.
@@ -772,7 +898,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The reason for the last update.
         /// </summary>
-        public string UpdateReason { get; set; }
+        public string UpdateReason { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -783,7 +909,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The unique token for this override.
         /// </summary>
-        public string OverrideToken { get; set; }
+        public string OverrideToken { get; set; } = string.Empty;
 
         /// <summary>
         /// The unique identifier of the agent.
@@ -793,22 +919,22 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The tenant context for this override.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The user who requested the override.
         /// </summary>
-        public string RequestedBy { get; set; }
+        public string RequestedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The reason for the override.
         /// </summary>
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
 
         /// <summary>
         /// The override authority scope.
         /// </summary>
-        public AuthorityScope OverrideScope { get; set; }
+        public AuthorityScope OverrideScope { get; set; } = new AuthorityScope();
 
         /// <summary>
         /// When the override was created.
@@ -833,7 +959,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The user who revoked the override, if applicable.
         /// </summary>
-        public string RevokedBy { get; set; }
+        public string RevokedBy { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -854,12 +980,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The tenant context for this audit record.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of action (e.g., "Update", "Override", "RevokeOverride").
         /// </summary>
-        public string ActionType { get; set; }
+        public string ActionType { get; set; } = string.Empty;
 
         /// <summary>
         /// When the action occurred.
@@ -869,17 +995,17 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The reason for the action.
         /// </summary>
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
 
         /// <summary>
         /// The authority scope involved in the action, if applicable.
         /// </summary>
-        public AuthorityScope AuthorityScope { get; set; }
+        public AuthorityScope? AuthorityScope { get; set; }
 
         /// <summary>
         /// The user who performed the action, if applicable.
         /// </summary>
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         /// <summary>
         /// When the action expires, if applicable.
@@ -889,7 +1015,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The override token, if applicable.
         /// </summary>
-        public string OverrideToken { get; set; }
+        public string OverrideToken { get; set; } = string.Empty;
     }
 
     /// <summary>

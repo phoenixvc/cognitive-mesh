@@ -1,7 +1,17 @@
-using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using CognitiveMesh.BusinessApplications.DecisionSupport;
+using CognitiveMesh.BusinessApplications.DecisionSupport.Models;
+using FoundationLayer.EnterpriseConnectors;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// Controller providing decision support endpoints including situation analysis,
+/// option generation, and scenario exploration using the cognitive mesh.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class DecisionSupportController : ControllerBase
@@ -11,6 +21,13 @@ public class DecisionSupportController : ControllerBase
     private readonly ILogger<DecisionSupportController> _logger;
     private readonly FeatureFlagManager _featureFlagManager;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DecisionSupportController"/> class.
+    /// </summary>
+    /// <param name="coordinator">The cognitive mesh coordinator for processing queries.</param>
+    /// <param name="causalComponent">The causal understanding component for causal analysis.</param>
+    /// <param name="logger">The logger instance for structured logging.</param>
+    /// <param name="featureFlagManager">The feature flag manager for gating functionality.</param>
     public DecisionSupportController(
         CognitiveMeshCoordinator coordinator,
         CausalUnderstandingComponent causalComponent,
@@ -23,6 +40,11 @@ public class DecisionSupportController : ControllerBase
         _featureFlagManager = featureFlagManager;
     }
 
+    /// <summary>
+    /// Analyzes a situation from multiple perspectives, extracting key factors and causal relationships.
+    /// </summary>
+    /// <param name="request">The situation analysis request.</param>
+    /// <returns>A <see cref="SituationAnalysisResponse"/> containing multi-perspective analysis results.</returns>
     [HttpPost("analyze")]
     [Authorize(Policy = "ReadAccess")]
     public async Task<IActionResult> AnalyzeSituation([FromBody] SituationAnalysisRequest request)
@@ -99,6 +121,11 @@ public class DecisionSupportController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Generates and analyzes multiple decision options for a given situation.
+    /// </summary>
+    /// <param name="request">The options generation request.</param>
+    /// <returns>An <see cref="OptionsGenerationResponse"/> containing analyzed options and comparison.</returns>
     [HttpPost("options")]
     [Authorize(Policy = "ReadAccess")]
     public async Task<IActionResult> GenerateOptions([FromBody] OptionsGenerationRequest request)
@@ -175,6 +202,11 @@ public class DecisionSupportController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Explores possible future scenarios for a situation and generates strategic recommendations.
+    /// </summary>
+    /// <param name="request">The scenario exploration request.</param>
+    /// <returns>A <see cref="ScenarioExplorationResponse"/> containing analyzed scenarios and recommendations.</returns>
     [HttpPost("scenarios")]
     [Authorize(Policy = "ReadAccess")]
     public async Task<IActionResult> ExploreScenarios([FromBody] ScenarioExplorationRequest request)

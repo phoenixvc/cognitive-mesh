@@ -68,9 +68,13 @@ public enum DemandSignalType
 /// </summary>
 public enum TrendDirection
 {
+    /// <summary>Trend is rising.</summary>
     Rising,
+    /// <summary>Trend is stable.</summary>
     Stable,
+    /// <summary>Trend is declining.</summary>
     Declining,
+    /// <summary>Trend is emerging.</summary>
     Emerging
 }
 
@@ -118,9 +122,13 @@ public class ProductOpportunity
 /// </summary>
 public enum ImpactLevel
 {
+    /// <summary>Low impact.</summary>
     Low,
+    /// <summary>Medium impact.</summary>
     Medium,
+    /// <summary>High impact.</summary>
     High,
+    /// <summary>Critical impact.</summary>
     Critical
 }
 
