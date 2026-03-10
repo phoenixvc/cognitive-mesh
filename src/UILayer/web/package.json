@@ -14,6 +14,7 @@
     "generate-api": "openapi-typescript ../../../docs/openapi.yaml -o src/lib/api/generated/services.d.ts && openapi-typescript ../../../docs/spec/agentic-ai.yaml -o src/lib/api/generated/agentic.d.ts"
   },
   "dependencies": {
+    "@microsoft/signalr": "^10.0.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "d3": "7.9.0",
@@ -28,7 +29,8 @@
     "react-i18next": "16.5.6",
     "shadcn": "4.0.2",
     "tailwind-merge": "3.5.0",
-    "tailwindcss-animate": "1.0.7"
+    "tailwindcss-animate": "1.0.7",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@babel/preset-env": "7.29.0",
