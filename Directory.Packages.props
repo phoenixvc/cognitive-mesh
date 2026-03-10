@@ -58,6 +58,8 @@
     <PackageVersion Include="WolverineFx" Version="[5.17.0]" />
     <!-- Resilience -->
     <PackageVersion Include="Polly" Version="[8.6.5]" />
+    <!-- YAML -->
+    <PackageVersion Include="YamlDotNet" Version="[16.3.0]" />
     <!-- Entity Framework Core -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[10.0.3]" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Cosmos" Version="[10.0.3]" />
