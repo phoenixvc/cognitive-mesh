@@ -16,8 +16,8 @@ using Microsoft.Extensions.Logging;
 [Route("api/[controller]")]
 public class DecisionSupportController : ControllerBase
 {
-    private readonly CognitiveMeshCoordinator _coordinator;
-    private readonly CausalUnderstandingComponent _causalComponent;
+    private readonly DecisionSupportCoordinator _coordinator;
+    private readonly CausalUnderstandingEngine _causalComponent;
     private readonly ILogger<DecisionSupportController> _logger;
     private readonly FeatureFlagManager _featureFlagManager;
 
@@ -25,29 +25,30 @@ public class DecisionSupportController : ControllerBase
     /// Initializes a new instance of the <see cref="DecisionSupportController"/> class.
     /// </summary>
     /// <param name="coordinator">The cognitive mesh coordinator for processing queries.</param>
-    /// <param name="causalComponent">The causal understanding component for causal analysis.</param>
+    /// <param name="causalComponent">The causal understanding engine for causal analysis.</param>
     /// <param name="logger">The logger instance for structured logging.</param>
     /// <param name="featureFlagManager">The feature flag manager for gating functionality.</param>
     public DecisionSupportController(
-        CognitiveMeshCoordinator coordinator,
-        CausalUnderstandingComponent causalComponent,
+        DecisionSupportCoordinator coordinator,
+        CausalUnderstandingEngine causalComponent,
         ILogger<DecisionSupportController> logger,
         FeatureFlagManager featureFlagManager)
     {
-        _coordinator = coordinator;
-        _causalComponent = causalComponent;
-        _logger = logger;
-        _featureFlagManager = featureFlagManager;
+        _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
+        _causalComponent = causalComponent ?? throw new ArgumentNullException(nameof(causalComponent));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _featureFlagManager = featureFlagManager ?? throw new ArgumentNullException(nameof(featureFlagManager));
     }
 
     /// <summary>
     /// Analyzes a situation from multiple perspectives, extracting key factors and causal relationships.
     /// </summary>
     /// <param name="request">The situation analysis request.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>A <see cref="SituationAnalysisResponse"/> containing multi-perspective analysis results.</returns>
     [HttpPost("analyze")]
     [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> AnalyzeSituation([FromBody] SituationAnalysisRequest request)
+    public async Task<IActionResult> AnalyzeSituation([FromBody] SituationAnalysisRequest request, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -125,10 +126,11 @@ public class DecisionSupportController : ControllerBase
     /// Generates and analyzes multiple decision options for a given situation.
     /// </summary>
     /// <param name="request">The options generation request.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>An <see cref="OptionsGenerationResponse"/> containing analyzed options and comparison.</returns>
     [HttpPost("options")]
     [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> GenerateOptions([FromBody] OptionsGenerationRequest request)
+    public async Task<IActionResult> GenerateOptions([FromBody] OptionsGenerationRequest request, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -206,10 +208,11 @@ public class DecisionSupportController : ControllerBase
     /// Explores possible future scenarios for a situation and generates strategic recommendations.
     /// </summary>
     /// <param name="request">The scenario exploration request.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>A <see cref="ScenarioExplorationResponse"/> containing analyzed scenarios and recommendations.</returns>
     [HttpPost("scenarios")]
     [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> ExploreScenarios([FromBody] ScenarioExplorationRequest request)
+    public async Task<IActionResult> ExploreScenarios([FromBody] ScenarioExplorationRequest request, CancellationToken cancellationToken = default)
     {
         try
         {

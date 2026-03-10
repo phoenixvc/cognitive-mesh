@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmployabilityPort, EmployabilityPredictorEngine>();
 
         // --- In-memory repository adapters (engine dependencies) ---
-        services.AddSingleton<IValueDiagnosticDataRepository, InMemoryValueDiagnosticDataRepository>();
+        services.AddSingleton<IValueDiagnosticDataRepository, InMemoryValueDiagnosticDataAdapter>();
         services.AddSingleton<IOrganizationalDataRepository, InMemoryOrganizationalDataRepository>();
         services.AddSingleton<IEmployabilityDataRepository, InMemoryEmployabilityDataRepository>();
 

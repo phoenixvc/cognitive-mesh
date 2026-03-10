@@ -1,10 +1,10 @@
 namespace CognitiveMesh.BusinessApplications.DecisionSupport;
 
 /// <summary>
-/// Component for extracting causal relations and performing causal reasoning
+/// Engine for extracting causal relations and performing causal reasoning
 /// on text-based inputs within the decision support domain.
 /// </summary>
-public class CausalUnderstandingComponent
+public class CausalUnderstandingEngine
 {
     /// <summary>
     /// Extracts causal relations (entities and their relationships) from the supplied text.

@@ -4,7 +4,7 @@ namespace CognitiveMesh.BusinessApplications.DecisionSupport;
 /// Coordinates queries across the cognitive mesh, routing them to appropriate
 /// reasoning engines and returning aggregated responses.
 /// </summary>
-public class CognitiveMeshCoordinator
+public class DecisionSupportCoordinator
 {
     /// <summary>
     /// Processes a query through the cognitive mesh without additional options.

@@ -10,16 +10,16 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Adapters;
 /// <see cref="ConcurrentDictionary{TKey,TValue}"/> and is not persisted
 /// between application restarts.
 /// </summary>
-public class InMemoryValueDiagnosticDataRepository : IValueDiagnosticDataRepository
+public class InMemoryValueDiagnosticDataAdapter : IValueDiagnosticDataRepository
 {
-    private readonly ILogger<InMemoryValueDiagnosticDataRepository> _logger;
+    private readonly ILogger<InMemoryValueDiagnosticDataAdapter> _logger;
     private readonly ConcurrentDictionary<string, ValueDiagnosticData> _store = new();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InMemoryValueDiagnosticDataRepository"/> class.
+    /// Initializes a new instance of the <see cref="InMemoryValueDiagnosticDataAdapter"/> class.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    public InMemoryValueDiagnosticDataRepository(ILogger<InMemoryValueDiagnosticDataRepository> logger)
+    public InMemoryValueDiagnosticDataAdapter(ILogger<InMemoryValueDiagnosticDataAdapter> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }

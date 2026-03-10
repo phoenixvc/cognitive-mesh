@@ -6,7 +6,7 @@ namespace CognitiveMesh.BusinessApplications.ResearchAnalysis;
 /// <summary>
 /// Coordinates cognitive mesh queries by routing them through reasoning and knowledge retrieval pipelines.
 /// </summary>
-public class CognitiveMeshCoordinator
+public class ResearchAnalysisCoordinator
 {
     /// <summary>
     /// Processes a query through the cognitive mesh pipeline.

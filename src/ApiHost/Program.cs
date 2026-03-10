@@ -34,7 +34,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-            ?? ["http://localhost:3000"];
+            ?? (builder.Environment.IsDevelopment()
+                ? ["http://localhost:3000"]
+                : throw new InvalidOperationException("Cors:AllowedOrigins must be configured in non-development environments"));
         policy.WithOrigins(origins)
               .AllowAnyHeader()
               .AllowAnyMethod()

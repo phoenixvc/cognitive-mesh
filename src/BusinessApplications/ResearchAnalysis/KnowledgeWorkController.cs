@@ -11,7 +11,7 @@ using CognitiveMesh.BusinessApplications.ResearchAnalysis;
 [Route("api/[controller]")]
 public class KnowledgeWorkController : ControllerBase
 {
-    private readonly CognitiveMeshCoordinator _coordinator;
+    private readonly ResearchAnalysisCoordinator _coordinator;
     private readonly ILogger<KnowledgeWorkController> _logger;
 
     /// <summary>
@@ -20,21 +20,22 @@ public class KnowledgeWorkController : ControllerBase
     /// <param name="coordinator">The cognitive mesh coordinator for query processing.</param>
     /// <param name="logger">The logger instance for structured logging.</param>
     public KnowledgeWorkController(
-        CognitiveMeshCoordinator coordinator,
+        ResearchAnalysisCoordinator coordinator,
         ILogger<KnowledgeWorkController> logger)
     {
-        _coordinator = coordinator;
-        _logger = logger;
+        _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>
     /// Researches a topic using multi-perspective analysis and returns findings with sources.
     /// </summary>
     /// <param name="request">The research request containing the topic and focus areas.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>Research results including plan, findings, insights, and sources.</returns>
     [HttpPost("research")]
     [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> ResearchTopic([FromBody] ResearchRequest request)
+    public async Task<IActionResult> ResearchTopic([FromBody] ResearchRequest request, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -98,10 +99,11 @@ public class KnowledgeWorkController : ControllerBase
     /// Synthesizes multiple documents into a coherent analysis with key takeaways.
     /// </summary>
     /// <param name="request">The synthesis request containing documents and focus area.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>Synthesis results including combined analysis and key takeaways.</returns>
     [HttpPost("synthesize")]
     [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> SynthesizeDocuments([FromBody] SynthesisRequest request)
+    public async Task<IActionResult> SynthesizeDocuments([FromBody] SynthesisRequest request, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -157,10 +159,11 @@ public class KnowledgeWorkController : ControllerBase
     /// Creates content based on a topic, content type, target audience, and style.
     /// </summary>
     /// <param name="request">The content creation request with topic, type, audience, and style details.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>Content creation results including outline, content, and research summary.</returns>
     [HttpPost("content-creation")]
     [Authorize(Policy = "ReadAccess")]
-    public async Task<IActionResult> CreateContent([FromBody] ContentCreationRequest request)
+    public async Task<IActionResult> CreateContent([FromBody] ContentCreationRequest request, CancellationToken cancellationToken = default)
     {
         try
         {
