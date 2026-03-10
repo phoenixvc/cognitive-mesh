@@ -3,7 +3,7 @@
  *
  * Middleware for openapi-fetch clients that handles:
  * - 401 → redirect to login
- * - 403 → redirect to forbidden
+ * - 403 → toast error notification
  * - 5xx → toast error notification
  * - Network errors → toast with retry hint
  */

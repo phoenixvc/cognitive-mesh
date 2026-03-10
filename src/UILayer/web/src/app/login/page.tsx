@@ -1,22 +1,25 @@
 "use client"
 
 import { useAuth } from "@/contexts/AuthContext"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
 
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
+  const returnTo = searchParams.get("returnTo") || "/"
+
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace("/")
+      router.replace(returnTo)
     }
-  }, [isAuthenticated, isLoading, router])
+  }, [isAuthenticated, isLoading, router, returnTo])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -24,7 +27,7 @@ export default function LoginPage() {
     setSubmitting(true)
     try {
       await login(email, password)
-      router.replace("/")
+      router.replace(returnTo)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
     } finally {

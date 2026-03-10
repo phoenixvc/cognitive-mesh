@@ -26,6 +26,7 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 const TOKEN_KEY = "cm_access_token"
+// TODO(Phase 14): Move refresh token to httpOnly cookie via backend /api/auth/refresh endpoint
 const REFRESH_TOKEN_KEY = "cm_refresh_token"
 
 function parseJwt(token: string): Record<string, unknown> | null {
@@ -99,13 +100,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem(TOKEN_KEY)
     if (token && !isTokenExpired(token)) {
-      applyToken(token)
+      if (!applyToken(token)) {
+        setState({ user: null, isAuthenticated: false, isLoading: false })
+      }
     } else if (token) {
       // Token expired — try refresh
       refreshToken().then((ok) => {
         if (!ok) {
           localStorage.removeItem(TOKEN_KEY)
           localStorage.removeItem(REFRESH_TOKEN_KEY)
+          document.cookie = "cm_access_token=; path=/; max-age=0"
           setState({ user: null, isAuthenticated: false, isLoading: false })
         }
       })
@@ -114,8 +118,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [applyToken, refreshToken])
 
-  // Proactive token refresh — refresh 60s before expiry
+  // Proactive token refresh — reschedule on each new token
   useEffect(() => {
+    if (!state.isAuthenticated || !state.user) return
     const token = localStorage.getItem(TOKEN_KEY)
     if (!token) return
     const payload = parseJwt(token)
@@ -126,7 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refreshToken()
     }, refreshIn)
     return () => clearTimeout(timer)
-  }, [state.isAuthenticated, refreshToken])
+  }, [state.isAuthenticated, state.user, refreshToken])
 
   const login = useCallback(
     async (email: string, password: string) => {

@@ -11,7 +11,16 @@ import createClient, { type Middleware } from 'openapi-fetch';
 import type { paths as ServicePaths } from './generated/services';
 import type { paths as AgenticPaths } from './generated/agentic';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5000';
+function getApiBaseUrl(): string {
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (url) return url;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('NEXT_PUBLIC_API_BASE_URL must be set in production');
+  }
+  return 'http://localhost:5000';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 /** Services API — champion discovery, community pulse, learning, innovation, approvals, provenance, notifications */
 export const servicesApi = createClient<ServicePaths>({

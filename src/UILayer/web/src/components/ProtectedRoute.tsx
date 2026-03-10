@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from "@/contexts/AuthContext"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 interface ProtectedRouteProps {
@@ -12,11 +12,12 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, user } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (isLoading) return
     if (!isAuthenticated) {
-      router.replace("/login")
+      router.replace(`/login?returnTo=${encodeURIComponent(pathname)}`)
       return
     }
     if (requiredRoles?.length && user) {
