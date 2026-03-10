@@ -1,5 +1,6 @@
 using CognitiveMesh.BusinessApplications.NISTCompliance.Models;
 using CognitiveMesh.BusinessApplications.NISTCompliance.Ports;
+using static CognitiveMesh.Shared.LogSanitizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -68,13 +69,13 @@ public class NISTComplianceController : ControllerBase
 
         _logger.LogInformation(
             "Submitting evidence for statement {StatementId} by {SubmittedBy}",
-            request.StatementId, request.SubmittedBy);
+            Sanitize(request.StatementId), Sanitize(request.SubmittedBy));
 
         var response = await _servicePort.SubmitEvidenceAsync(request, cancellationToken);
 
         _logger.LogInformation(
             "Evidence {EvidenceId} submitted successfully for statement {StatementId}",
-            response.EvidenceId, request.StatementId);
+            response.EvidenceId, Sanitize(request.StatementId));
 
         return response;
     }
@@ -94,7 +95,7 @@ public class NISTComplianceController : ControllerBase
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(organizationId);
 
-        _logger.LogInformation("Retrieving checklist for organization {OrganizationId}", organizationId);
+        _logger.LogInformation("Retrieving checklist for organization {OrganizationId}", Sanitize(organizationId));
 
         return await _servicePort.GetChecklistAsync(organizationId, cancellationToken);
     }
@@ -114,7 +115,7 @@ public class NISTComplianceController : ControllerBase
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(organizationId);
 
-        _logger.LogInformation("Retrieving score for organization {OrganizationId}", organizationId);
+        _logger.LogInformation("Retrieving score for organization {OrganizationId}", Sanitize(organizationId));
 
         return await _servicePort.GetScoreAsync(organizationId, cancellationToken);
     }
@@ -151,13 +152,13 @@ public class NISTComplianceController : ControllerBase
 
         _logger.LogInformation(
             "Submitting review for evidence {EvidenceId} by {ReviewerId}",
-            request.EvidenceId, request.ReviewerId);
+            request.EvidenceId, Sanitize(request.ReviewerId));
 
         var response = await _servicePort.SubmitReviewAsync(request, cancellationToken);
 
         _logger.LogInformation(
             "Review for evidence {EvidenceId} completed with status {NewStatus}",
-            response.EvidenceId, response.NewStatus);
+            response.EvidenceId, Sanitize(response.NewStatus));
 
         return response;
     }
@@ -177,7 +178,7 @@ public class NISTComplianceController : ControllerBase
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(organizationId);
 
-        _logger.LogInformation("Generating roadmap for organization {OrganizationId}", organizationId);
+        _logger.LogInformation("Generating roadmap for organization {OrganizationId}", Sanitize(organizationId));
 
         return await _servicePort.GetRoadmapAsync(organizationId, cancellationToken);
     }
@@ -205,7 +206,7 @@ public class NISTComplianceController : ControllerBase
 
         _logger.LogInformation(
             "Retrieving audit log for organization {OrganizationId} (max {MaxResults})",
-            organizationId, maxResults);
+            Sanitize(organizationId), maxResults);
 
         return await _servicePort.GetAuditLogAsync(organizationId, maxResults, cancellationToken);
     }

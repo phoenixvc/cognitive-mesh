@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using static CognitiveMesh.Shared.LogSanitizer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,7 +97,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registering agent type '{AgentType}'.", request?.AgentType);
+                _logger.LogError(ex, "Error registering agent type '{AgentType}'.", Sanitize(request?.AgentType));
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     ErrorEnvelope.Create("SERVICE_UNAVAILABLE", "AgentRegistry service is unavailable."));
             }
