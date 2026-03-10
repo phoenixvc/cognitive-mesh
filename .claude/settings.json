@@ -19,8 +19,9 @@
       "Bash(gh api repos/JustAGhosT/* --jq *)",
       "Bash(gh api repos/phoenixvc/* --jq *)",
       "Bash(curl -s https://raw.githubusercontent.com/phoenixvc/*)",
-      "Bash(curl -s https://raw.githubusercontent.com/JustAGhosT/*)"
-     ],
+      "Bash(curl -s https://raw.githubusercontent.com/JustAGhosT/*)",
+      "Bash(/tmp/issue-265-body.md:*)"
+    ],
     "deny": [
       "Bash(rm -rf /)",
       "Bash(rm -rf ~*)",
@@ -34,6 +35,9 @@
       "Bash(git checkout .)",
       "Bash(git restore .)",
       "Bash(git branch -D *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   },
   "hooks": {

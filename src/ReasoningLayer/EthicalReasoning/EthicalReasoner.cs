@@ -1,3 +1,5 @@
+using OpenAI.Chat;
+
 namespace CognitiveMesh.ReasoningLayer.EthicalReasoning;
 
 /// <summary>
@@ -6,8 +8,7 @@ namespace CognitiveMesh.ReasoningLayer.EthicalReasoning;
 /// </summary>
 public class EthicalReasoner
 {
-    private readonly OpenAIClient _openAIClient;
-    private readonly string _completionDeployment;
+    private readonly ChatClient _chatClient;
     private readonly ILogger<EthicalReasoner> _logger;
 
     /// <summary>
@@ -15,8 +16,8 @@ public class EthicalReasoner
     /// </summary>
     public EthicalReasoner(string openAIEndpoint, string openAIApiKey, string completionDeployment, ILogger<EthicalReasoner> logger)
     {
-        _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
-        _completionDeployment = completionDeployment;
+        var aoaiClient = new AzureOpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
+        _chatClient = aoaiClient.GetChatClient(completionDeployment);
         _logger = logger;
     }
 
@@ -29,20 +30,20 @@ public class EthicalReasoner
         {
             var systemPrompt = "You are an ethical reasoner. Consider the ethical implications of the following scenario and provide a detailed analysis.";
 
-            var chatCompletionOptions = new ChatCompletionsOptions
+            var messages = new List<ChatMessage>
             {
-                DeploymentName = _completionDeployment,
-                Temperature = 0.3f,
-                MaxTokens = 800,
-                Messages =
-                {
-                    new ChatRequestSystemMessage(systemPrompt),
-                    new ChatRequestUserMessage(input)
-                }
+                new SystemChatMessage(systemPrompt),
+                new UserChatMessage(input)
             };
 
-            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-            return response.Value.Choices[0].Message.Content;
+            var options = new ChatCompletionOptions
+            {
+                Temperature = 0.3f,
+                MaxOutputTokenCount = 800
+            };
+
+            var completion = await _chatClient.CompleteChatAsync(messages, options);
+            return completion.Value.Content[0].Text;
         }
         catch (Exception ex)
         {

@@ -1,3 +1,5 @@
+using OpenAI.Chat;
+
 namespace CognitiveMesh.ReasoningLayer.DomainSpecificReasoning;
 
 /// <summary>
@@ -24,7 +26,7 @@ public interface IDomainKnowledgePort
 public class DomainSpecificReasoner
 {
     private readonly TextAnalyticsClient _textAnalyticsClient;
-    private readonly OpenAIClient _openAIClient;
+    private readonly ChatClient _chatClient;
     private readonly ILogger<DomainSpecificReasoner> _logger;
     private readonly IDomainKnowledgePort _domainKnowledgePort;
 
@@ -37,12 +39,13 @@ public class DomainSpecificReasoner
     /// <param name="domainKnowledgePort">The port for retrieving domain-specific knowledge.</param>
     public DomainSpecificReasoner(
         TextAnalyticsClient textAnalyticsClient,
-        OpenAIClient openAIClient,
+        AzureOpenAIClient openAIClient,
         ILogger<DomainSpecificReasoner> logger,
         IDomainKnowledgePort domainKnowledgePort)
     {
         _textAnalyticsClient = textAnalyticsClient ?? throw new ArgumentNullException(nameof(textAnalyticsClient));
-        _openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
+        ArgumentNullException.ThrowIfNull(openAIClient);
+        _chatClient = openAIClient.GetChatClient("text-davinci-003");
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _domainKnowledgePort = domainKnowledgePort ?? throw new ArgumentNullException(nameof(domainKnowledgePort));
     }
@@ -73,22 +76,23 @@ public class DomainSpecificReasoner
             }
 
             var systemPrompt = $"You are an expert in {domain}. Use the following domain-specific knowledge to answer the question.";
-            var chatCompletionOptions = new ChatCompletionsOptions
+
+            var messages = new List<ChatMessage>
             {
-                DeploymentName = "text-davinci-003",
-                Temperature = 0.3f,
-                MaxTokens = 800,
-                Messages =
-                {
-                    new ChatRequestSystemMessage(systemPrompt),
-                    new ChatRequestUserMessage($"Domain Knowledge:\n{domainKnowledge}\n\nQuestion: {input}")
-                }
+                new SystemChatMessage(systemPrompt),
+                new UserChatMessage($"Domain Knowledge:\n{domainKnowledge}\n\nQuestion: {input}")
             };
 
-            var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions, cancellationToken);
+            var options = new ChatCompletionOptions
+            {
+                Temperature = 0.3f,
+                MaxOutputTokenCount = 800
+            };
+
+            var completion = await _chatClient.CompleteChatAsync(messages, options, cancellationToken);
 
             _logger.LogInformation("Successfully applied specialized knowledge for domain: {Domain}", domain);
-            return response.Value.Choices[0].Message.Content;
+            return completion.Value.Content[0].Text;
         }
         catch (Exception ex)
         {
