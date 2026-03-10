@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -10,12 +11,13 @@ namespace FoundationLayer.AuditLogging.Services
     /// This repository handles the persistence and retrieval of audit events, ensuring data integrity
     /// and providing resilient operations through a circuit breaker pattern.
     /// </summary>
-    public class AuditEventRepository : IAuditEventRepository
+    public class AuditEventRepository : IAuditEventRepository, IDisposable
     {
         private readonly CosmosClient _cosmosClient;
         private readonly Container _container;
         private readonly ILogger<AuditEventRepository> _logger;
         private readonly JsonSerializerOptions _jsonOptions;
+        private bool _disposed = false;
 
         /// <summary>
         /// Initializes a new instance of the AuditEventRepository class.
@@ -55,7 +57,7 @@ namespace FoundationLayer.AuditLogging.Services
         }
 
         /// <inheritdoc />
-        public async Task SaveEventAsync(AuditEvent auditEvent)
+        public async Task AddEventAsync(AuditEvent auditEvent, CancellationToken cancellationToken = default)
         {
             if (auditEvent == null)
             {
@@ -82,7 +84,7 @@ namespace FoundationLayer.AuditLogging.Services
                 };
 
                 // Save to Cosmos DB
-                await _container.CreateItemAsync(document, new PartitionKey(partitionKey));
+                await _container.CreateItemAsync(document, new PartitionKey(partitionKey), cancellationToken: cancellationToken);
                 _logger.LogDebug("Successfully saved audit event: {EventType}, ID: {EventId}", 
                     auditEvent.EventType, auditEvent.EventId);
             }
@@ -101,7 +103,7 @@ namespace FoundationLayer.AuditLogging.Services
         }
 
         /// <inheritdoc />
-        public async Task<AuditEvent> GetEventByIdAsync(string eventId)
+        public async Task<AuditEvent?> GetEventByIdAsync(string eventId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(eventId))
             {
@@ -114,8 +116,8 @@ namespace FoundationLayer.AuditLogging.Services
                 var query = new QueryDefinition("SELECT * FROM c WHERE c.id = @eventId")
                     .WithParameter("@eventId", eventId);
 
-                var results = await ExecuteQueryAsync(query);
-                return results.FirstOrDefault()!;
+                var results = await ExecuteQueryAsync(query, cancellationToken);
+                return results.FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -125,7 +127,7 @@ namespace FoundationLayer.AuditLogging.Services
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<AuditEvent>> GetEventsByCorrelationIdAsync(string correlationId)
+        public async Task<IEnumerable<AuditEvent>> GetEventsByCorrelationIdAsync(string correlationId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(correlationId))
             {
@@ -137,7 +139,7 @@ namespace FoundationLayer.AuditLogging.Services
                 var query = new QueryDefinition("SELECT * FROM c WHERE c.correlationId = @correlationId ORDER BY c.timestamp DESC")
                     .WithParameter("@correlationId", correlationId);
 
-                return await ExecuteQueryAsync(query);
+                return await ExecuteQueryAsync(query, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -147,7 +149,7 @@ namespace FoundationLayer.AuditLogging.Services
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<AuditEvent>> SearchEventsAsync(AuditSearchCriteria criteria)
+        public async Task<IEnumerable<AuditEvent>> SearchEventsAsync(AuditSearchCriteria criteria, CancellationToken cancellationToken = default)
         {
             if (criteria == null)
             {
@@ -230,7 +232,7 @@ namespace FoundationLayer.AuditLogging.Services
                     queryDefinition = queryDefinition.WithParameter(name, value);
                 }
 
-                return await ExecuteQueryAsync(queryDefinition);
+                return await ExecuteQueryAsync(queryDefinition, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -244,8 +246,9 @@ namespace FoundationLayer.AuditLogging.Services
         /// Executes a query against the Cosmos DB container and returns the results as AuditEvent objects.
         /// </summary>
         /// <param name="queryDefinition">The query to execute</param>
+        /// <param name="cancellationToken">A cancellation token</param>
         /// <returns>A collection of audit events matching the query</returns>
-        private async Task<IEnumerable<AuditEvent>> ExecuteQueryAsync(QueryDefinition queryDefinition)
+        private async Task<IEnumerable<AuditEvent>> ExecuteQueryAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
         {
             var results = new List<AuditEvent>();
             var queryOptions = new QueryRequestOptions { MaxItemCount = 100 };
@@ -256,7 +259,7 @@ namespace FoundationLayer.AuditLogging.Services
 
             while (iterator.HasMoreResults)
             {
-                var response = await iterator.ReadNextAsync();
+                var response = await iterator.ReadNextAsync(cancellationToken);
                 foreach (var item in response)
                 {
                     results.Add(new AuditEvent
@@ -325,6 +328,48 @@ namespace FoundationLayer.AuditLogging.Services
             // Default retention period (1 year in seconds)
             return 365 * 24 * 60 * 60;
         }
+
+        /// <summary>
+        /// Releases all resources used by the current instance of the <see cref="AuditEventRepository"/> class.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="AuditEventRepository"/> and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _cosmosClient?.Dispose();
+                }
+                _disposed = true;
+            }
+        }
+
+        // ---- IAuditEventRepository (legacy interface) ----
+
+        /// <inheritdoc />
+        public Task SaveEventAsync(AuditEvent auditEvent) => AddEventAsync(auditEvent);
+
+        /// <inheritdoc />
+        Task<AuditEvent> IAuditEventRepository.GetEventByIdAsync(string eventId)
+            => GetEventByIdAsync(eventId, default)!;
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<AuditEvent>> GetEventsByCorrelationIdAsync(string correlationId)
+            => await GetEventsByCorrelationIdAsync(correlationId, default);
+
+        /// <inheritdoc />
+        Task<IEnumerable<AuditEvent>> IAuditEventRepository.SearchEventsAsync(AuditSearchCriteria criteria)
+            => SearchEventsAsync(criteria, default);
     }
 
     /// <summary>
@@ -332,19 +377,11 @@ namespace FoundationLayer.AuditLogging.Services
     /// </summary>
     public class CosmosDbOptions
     {
-        /// <summary>
-        /// The Cosmos DB connection string.
-        /// </summary>
+        /// <summary>The Cosmos DB connection string.</summary>
         public string ConnectionString { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The name of the Cosmos DB database.
-        /// </summary>
+        /// <summary>The name of the Cosmos DB database.</summary>
         public string DatabaseName { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The name of the container for audit events.
-        /// </summary>
+        /// <summary>The name of the container for audit events.</summary>
         public string AuditContainerName { get; set; } = string.Empty;
     }
 }

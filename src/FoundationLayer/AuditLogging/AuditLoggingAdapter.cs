@@ -1,10 +1,11 @@
 using System.Text.Json;
+using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using FoundationLayer.AuditLogging.Models;
 using FoundationLayer.EnterpriseConnectors;
-using Microsoft.Extensions.Logging;
 
 namespace FoundationLayer.AuditLogging;
-// <-- new models (ethical/legal events)
 
 /// <summary>
 /// Adapter for logging agent-related audit events to a persistent store.
@@ -31,10 +32,10 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            
+
         // Initialize circuit breaker with 3 failure threshold, 5s reset timeout, 3 success threshold
         _circuitBreaker = new AgentCircuitBreakerPolicy(logger: _logger);
-            
+
         // Initialize retry timer to process queued events every 30 seconds
         _retryTimer = new Timer(ProcessRetryQueue, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
     }
@@ -46,7 +47,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         {
             throw new ArgumentNullException(nameof(eventData));
         }
-            
+
         // Ensure correlationId is not null by providing a default value if needed
         correlationId ??= Guid.NewGuid().ToString();
 
@@ -66,16 +67,16 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
             return await _circuitBreaker.ExecuteAsync(async () =>
             {
                 await _repository.SaveEventAsync(auditEvent);
-                _logger.LogDebug("Successfully logged agent audit event: {EventType}, ID: {EventId}", 
+                _logger.LogDebug("Successfully logged agent audit event: {EventType}, ID: {EventId}",
                     auditEvent.EventType, auditEvent.EventId);
                 return true;
             });
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to log agent audit event: {EventType}. Queueing for retry.", 
+            _logger.LogWarning(ex, "Failed to log agent audit event: {EventType}. Queueing for retry.",
                 auditEvent.EventType);
-                
+
             // Queue the event for retry
             await EnqueueForRetryAsync(auditEvent);
             return false;
@@ -112,10 +113,10 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
 
     /// <inheritdoc />
     public async Task<bool> LogAgentActionExecutedAsync(
-        Guid agentId, 
-        string actionType, 
-        string userId, 
-        Dictionary<string, object> parameters, 
+        Guid agentId,
+        string actionType,
+        string userId,
+        Dictionary<string, object> parameters,
         bool success,
         string? correlationId = null)
     {
@@ -134,10 +135,10 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
 
     /// <inheritdoc />
     public async Task<bool> LogAuthorityOverriddenAsync(
-        Guid agentId, 
-        string overriddenBy, 
-        string reason, 
-        Dictionary<string, object> overrideDetails, 
+        Guid agentId,
+        string overriddenBy,
+        string reason,
+        Dictionary<string, object> overrideDetails,
         string? correlationId = null)
     {
         var eventData = new AuthorityOverriddenEvent
@@ -154,9 +155,9 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
 
     /// <inheritdoc />
     public async Task<bool> LogConsentRequestedAsync(
-        Guid agentId, 
-        string userId, 
-        string consentType, 
+        Guid agentId,
+        string userId,
+        string consentType,
         string? correlationId = null)
     {
         var eventData = new ConsentRequestedEvent
@@ -172,10 +173,10 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
 
     /// <inheritdoc />
     public async Task<bool> LogConsentDecisionAsync(
-        Guid agentId, 
-        string userId, 
-        string consentType, 
-        bool granted, 
+        Guid agentId,
+        string userId,
+        string consentType,
+        bool granted,
         string? correlationId = null)
     {
         var eventData = new ConsentDecisionEvent
@@ -188,8 +189,8 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         };
 
         return await LogAgentEventAsync(
-            granted ? AgentAuditEventType.ConsentGranted : AgentAuditEventType.ConsentDenied, 
-            eventData, 
+            granted ? AgentAuditEventType.ConsentGranted : AgentAuditEventType.ConsentDenied,
+            eventData,
             correlationId);
     }
 
@@ -492,6 +493,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
 
         return LogAgentEventAsync(AgentAuditEventType.CrossCulturalAdaptation, ev, correlationId);
     }
+
     /// <inheritdoc />
     public async Task<IEnumerable<AuditEvent>> SearchEventsAsync(AuditSearchCriteria criteria)
     {
@@ -504,7 +506,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to search audit events with criteria: {Criteria}", 
+            _logger.LogError(ex, "Failed to search audit events with criteria: {Criteria}",
                 JsonSerializer.Serialize(criteria));
             throw new AuditSearchException("Failed to search audit events", ex);
         }
@@ -568,7 +570,7 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         try
         {
             _retryQueue.Enqueue(auditEvent);
-            _logger.LogInformation("Enqueued audit event for retry: {EventType}, ID: {EventId}. Queue size: {QueueSize}", 
+            _logger.LogInformation("Enqueued audit event for retry: {EventType}, ID: {EventId}. Queue size: {QueueSize}",
                 auditEvent.EventType, auditEvent.EventId, _retryQueue.Count);
         }
         finally
@@ -590,43 +592,35 @@ public class AuditLoggingAdapter : IAuditLoggingAdapter
         _processingRetryQueue = true;
         try
         {
-            await _queueLock.WaitAsync();
-            try
+            if (_retryQueue.Count == 0)
+            {
+                return; // Nothing to process
+            }
+
+            _logger.LogInformation("Processing retry queue. Items: {Count}", _retryQueue.Count);
+
+            // Process up to 100 items at a time
+            int itemsToProcess = Math.Min(_retryQueue.Count, 100);
+            for (int i = 0; i < itemsToProcess; i++)
             {
                 if (_retryQueue.Count == 0)
                 {
-                    return; // Nothing to process
+                    break;
                 }
 
-                _logger.LogInformation("Processing retry queue. Items: {Count}", _retryQueue.Count);
-                    
-                // Process up to 100 items at a time
-                int itemsToProcess = Math.Min(_retryQueue.Count, 100);
-                for (int i = 0; i < itemsToProcess; i++)
+                var auditEvent = _retryQueue.Dequeue();
+                try
                 {
-                    if (_retryQueue.Count == 0)
-                    {
-                        break;
-                    }
-
-                    var auditEvent = _retryQueue.Dequeue();
-                    try
-                    {
-                        await _repository.SaveEventAsync(auditEvent);
-                        _logger.LogInformation("Successfully retried audit event: {EventType}, ID: {EventId}", 
-                            auditEvent.EventType, auditEvent.EventId);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Failed to retry audit event: {EventType}, ID: {EventId}. Re-enqueueing.", 
-                            auditEvent.EventType, auditEvent.EventId);
-                        _retryQueue.Enqueue(auditEvent); // Put it back in the queue
-                    }
+                    await _repository.SaveEventAsync(auditEvent);
+                    _logger.LogInformation("Successfully retried audit event: {EventType}, ID: {EventId}",
+                        auditEvent.EventType, auditEvent.EventId);
                 }
-            }
-            finally
-            {
-                _queueLock.Release();
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to retry audit event: {EventType}, ID: {EventId}. Re-enqueueing.",
+                        auditEvent.EventType, auditEvent.EventId);
+                    _retryQueue.Enqueue(auditEvent); // Put it back in the queue
+                }
             }
         }
         catch (Exception ex)
@@ -737,10 +731,10 @@ public interface IAuditLoggingAdapter : IDisposable
     /// <param name="correlationId">Optional correlation ID for tracing related events</param>
     /// <returns>True if the event was successfully logged; otherwise, false</returns>
     Task<bool> LogAgentActionExecutedAsync(
-        Guid agentId, 
-        string actionType, 
-        string userId, 
-        Dictionary<string, object> parameters, 
+        Guid agentId,
+        string actionType,
+        string userId,
+        Dictionary<string, object> parameters,
         bool success,
         string? correlationId = null);
 
@@ -754,10 +748,10 @@ public interface IAuditLoggingAdapter : IDisposable
     /// <param name="correlationId">Optional correlation ID for tracing related events</param>
     /// <returns>True if the event was successfully logged; otherwise, false</returns>
     Task<bool> LogAuthorityOverriddenAsync(
-        Guid agentId, 
-        string overriddenBy, 
-        string reason, 
-        Dictionary<string, object> overrideDetails, 
+        Guid agentId,
+        string overriddenBy,
+        string reason,
+        Dictionary<string, object> overrideDetails,
         string? correlationId = null);
 
     /// <summary>
@@ -769,9 +763,9 @@ public interface IAuditLoggingAdapter : IDisposable
     /// <param name="correlationId">Optional correlation ID for tracing related events</param>
     /// <returns>True if the event was successfully logged; otherwise, false</returns>
     Task<bool> LogConsentRequestedAsync(
-        Guid agentId, 
-        string userId, 
-        string consentType, 
+        Guid agentId,
+        string userId,
+        string consentType,
         string? correlationId = null);
 
     /// <summary>
@@ -784,10 +778,10 @@ public interface IAuditLoggingAdapter : IDisposable
     /// <param name="correlationId">Optional correlation ID for tracing related events</param>
     /// <returns>True if the event was successfully logged; otherwise, false</returns>
     Task<bool> LogConsentDecisionAsync(
-        Guid agentId, 
-        string userId, 
-        string consentType, 
-        bool granted, 
+        Guid agentId,
+        string userId,
+        string consentType,
+        bool granted,
         string? correlationId = null);
 
     /// <summary>
@@ -985,6 +979,11 @@ public class AuditSearchCriteria
     /// The correlation IDs to include.
     /// </summary>
     public List<string> CorrelationIds { get; set; } = new List<string>();
+
+    /// <summary>
+    /// The correlation ID to filter by.
+    /// </summary>
+    public string? CorrelationId { get; set; }
 
     /// <summary>
     /// The maximum number of results to return.
@@ -1232,29 +1231,15 @@ public class AgentActionExecutedEvent
 /// </summary>
 public class AuthorityOverriddenEvent
 {
-    /// <summary>
-    /// The ID of the agent.
-    /// </summary>
+    /// <summary>The ID of the agent.</summary>
     public Guid AgentId { get; set; }
-
-    /// <summary>
-    /// The ID of the user who overrode the authority.
-    /// </summary>
+    /// <summary>The ID of the user who overrode the authority.</summary>
     public string OverriddenBy { get; set; } = string.Empty;
-
-    /// <summary>
-    /// The timestamp of the override.
-    /// </summary>
+    /// <summary>The timestamp of the override.</summary>
     public DateTimeOffset OverriddenAt { get; set; }
-
-    /// <summary>
-    /// The reason for the override.
-    /// </summary>
+    /// <summary>The reason for the override.</summary>
     public string Reason { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Details about the override.
-    /// </summary>
+    /// <summary>Details about the override.</summary>
     public Dictionary<string, object> OverrideDetails { get; set; } = new Dictionary<string, object>();
 }
 
@@ -1263,24 +1248,13 @@ public class AuthorityOverriddenEvent
 /// </summary>
 public class ConsentRequestedEvent
 {
-    /// <summary>
-    /// The ID of the agent.
-    /// </summary>
+    /// <summary>The ID of the agent.</summary>
     public Guid AgentId { get; set; }
-
-    /// <summary>
-    /// The ID of the user from whom consent is requested.
-    /// </summary>
+    /// <summary>The ID of the user from whom consent is requested.</summary>
     public string UserId { get; set; } = string.Empty;
-
-    /// <summary>
-    /// The type of consent requested.
-    /// </summary>
+    /// <summary>The type of consent requested.</summary>
     public string ConsentType { get; set; } = string.Empty;
-
-    /// <summary>
-    /// The timestamp of the request.
-    /// </summary>
+    /// <summary>The timestamp of the request.</summary>
     public DateTimeOffset RequestedAt { get; set; }
 }
 
@@ -1289,29 +1263,15 @@ public class ConsentRequestedEvent
 /// </summary>
 public class ConsentDecisionEvent
 {
-    /// <summary>
-    /// The ID of the agent.
-    /// </summary>
+    /// <summary>The ID of the agent.</summary>
     public Guid AgentId { get; set; }
-
-    /// <summary>
-    /// The ID of the user who made the decision.
-    /// </summary>
+    /// <summary>The ID of the user who made the decision.</summary>
     public string UserId { get; set; } = string.Empty;
-
-    /// <summary>
-    /// The type of consent.
-    /// </summary>
+    /// <summary>The type of consent.</summary>
     public string ConsentType { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Whether consent was granted.
-    /// </summary>
+    /// <summary>Whether consent was granted.</summary>
     public bool Granted { get; set; }
-
-    /// <summary>
-    /// The timestamp of the decision.
-    /// </summary>
+    /// <summary>The timestamp of the decision.</summary>
     public DateTimeOffset DecisionAt { get; set; }
 }
 
@@ -1323,8 +1283,6 @@ public class AuditSearchException : Exception
     /// <summary>
     /// Initializes a new instance of the AuditSearchException class.
     /// </summary>
-    /// <param name="message">The exception message</param>
-    /// <param name="innerException">The inner exception</param>
     public AuditSearchException(string message, Exception? innerException = null)
         : base(message, innerException)
     {

@@ -55,12 +55,14 @@ namespace FoundationLayer.Infrastructure.Repositories
         {
             try
             {
-                return await _context.Set<PolicyConfiguration>()
+                var policy = await _context.Set<PolicyConfiguration>()
                     .Where(p => p.TenantId == _currentTenantId && p.IsActive)
                     .OrderByDescending(p => p.PolicyVersion)
                     .FirstOrDefaultAsync();
+
+                return policy ?? throw new InvalidOperationException($"No active policy found for tenant {_currentTenantId}");
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not InvalidOperationException)
             {
                 _logger.LogError(ex, "Error retrieving active policy for tenant {TenantId}", _currentTenantId);
                 throw new PolicyRepositoryException("Failed to retrieve active policy", ex);

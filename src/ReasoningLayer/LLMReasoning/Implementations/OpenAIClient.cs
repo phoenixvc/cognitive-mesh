@@ -1,4 +1,7 @@
-using AzureOpenAIClient = Azure.AI.OpenAI.OpenAIClient;
+using Azure.AI.OpenAI;
+using Microsoft.Extensions.Logging;
+using OpenAI.Chat;
+using OpenAI.Embeddings;
 using CognitiveMesh.ReasoningLayer.LLMReasoning.Abstractions;
 using System.Text.Json;
 
@@ -76,7 +79,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
                 _logger?.LogInformation("Initializing Azure OpenAI client for model {ModelName}", _modelName);
 
                 var credential = new AzureKeyCredential(_apiKey);
-                var options = new OpenAIClientOptions();
+                var options = new AzureOpenAIClientOptions();
                 _client = new AzureOpenAIClient(new Uri(_endpoint), credential, options);
 
                 _logger?.LogInformation("Successfully initialized Azure OpenAI client");
@@ -111,16 +114,20 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             {
                 _logger?.LogDebug("Generating completion with {Length} characters", prompt?.Length ?? 0);
 
-                var options = new CompletionsOptions
+                var chatClient = _client!.GetChatClient(_deploymentName);
+
+                var chatMessages = new List<OpenAI.Chat.ChatMessage>
                 {
-                    DeploymentName = _deploymentName,
-                    Prompts = { prompt },
-                    MaxTokens = maxTokens,
+                    new UserChatMessage(prompt)
+                };
+
+                var options = new ChatCompletionOptions
+                {
+                    MaxOutputTokenCount = maxTokens,
                     Temperature = temperature,
-                    NucleusSamplingFactor = 0.95f,
+                    TopP = 0.95f,
                     FrequencyPenalty = 0,
                     PresencePenalty = 0,
-                    GenerationSampleCount = 1
                 };
 
                 if (stopSequences != null)
@@ -129,8 +136,10 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
                         options.StopSequences.Add(seq);
                 }
 
-                var response = await _client!.GetCompletionsAsync(options, cancellationToken);
-                var completion = response.Value.Choices[0].Text?.Trim() ?? string.Empty;
+                var response = await chatClient.CompleteChatAsync(chatMessages, options, cancellationToken);
+                var completion = response.Value.Content.Count > 0
+                    ? response.Value.Content[0].Text?.Trim() ?? string.Empty
+                    : string.Empty;
 
                 _logger?.LogDebug("Successfully generated completion with {Length} characters", completion.Length);
                 return completion;
@@ -149,7 +158,7 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
 
         /// <inheritdoc/>
         public async Task<string> GenerateChatCompletionAsync(
-            IEnumerable<ChatMessage> messages,
+            IEnumerable<Abstractions.ChatMessage> messages,
             float temperature = 0.7f,
             int maxTokens = 1000,
             CancellationToken cancellationToken = default)
@@ -166,29 +175,33 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             try
             {
                 _logger?.LogDebug("Generating chat completion with {Count} messages", messages.Count());
-                
+
+                var chatClient = _client!.GetChatClient(_deploymentName);
+
                 var chatMessages = messages.Select(m =>
                 {
-                    ChatRequestMessage msg = m.Role.ToLower() switch
+                    OpenAI.Chat.ChatMessage msg = m.Role.ToLower() switch
                     {
-                        "system" => new ChatRequestSystemMessage(m.Content),
-                        "assistant" => new ChatRequestAssistantMessage(m.Content),
-                        _ => new ChatRequestUserMessage(m.Content)
+                        "system" => new SystemChatMessage(m.Content),
+                        "assistant" => new AssistantChatMessage(m.Content),
+                        _ => new UserChatMessage(m.Content)
                     };
                     return msg;
                 }).ToList();
 
-                var options = new ChatCompletionsOptions(_deploymentName, chatMessages)
+                var options = new ChatCompletionOptions
                 {
-                    MaxTokens = maxTokens,
+                    MaxOutputTokenCount = maxTokens,
                     Temperature = temperature,
-                    NucleusSamplingFactor = 0.95f,
+                    TopP = 0.95f,
                     FrequencyPenalty = 0,
                     PresencePenalty = 0,
                 };
 
-                var response = await _client!.GetChatCompletionsAsync(options, cancellationToken);
-                var completion = response.Value.Choices[0].Message?.Content?.Trim() ?? string.Empty;
+                var response = await chatClient.CompleteChatAsync(chatMessages, options, cancellationToken);
+                var completion = response.Value.Content.Count > 0
+                    ? response.Value.Content[0].Text?.Trim() ?? string.Empty
+                    : string.Empty;
 
                 _logger?.LogDebug("Successfully generated chat completion with {Length} characters", completion.Length);
                 return completion;
@@ -232,15 +245,15 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
             try
             {
                 _logger?.LogDebug("Getting embeddings for {Count} texts", texts.Count());
-                
-                var options = new EmbeddingsOptions(_deploymentName, texts);
-                var response = await _client!.GetEmbeddingsAsync(options, cancellationToken);
 
-                var data = response.Value?.Data;
+                var embeddingClient = _client!.GetEmbeddingClient(_deploymentName);
+                var response = await embeddingClient.GenerateEmbeddingsAsync(texts, cancellationToken: cancellationToken);
+
+                var data = response.Value;
                 var embeddings = data != null
-                    ? data.Select(d => d.Embedding.ToArray()).ToArray()
+                    ? data.Select(d => d.ToFloats().ToArray()).ToArray()
                     : [];
-                
+
                 _logger?.LogDebug("Successfully retrieved {Count} embeddings", embeddings.Length);
                 return embeddings;
             }
@@ -326,22 +339,22 @@ namespace CognitiveMesh.ReasoningLayer.LLMReasoning.Implementations
         private sealed class AzureChatSession : IChatSession
         {
             private readonly OpenAIClient _owner;
-            private readonly List<ChatMessage> _history = new();
+            private readonly List<Abstractions.ChatMessage> _history = new();
 
             public AzureChatSession(OpenAIClient owner, string? systemMessage)
             {
                 _owner = owner;
                 if (systemMessage != null)
-                    _history.Add(new ChatMessage("system", systemMessage));
+                    _history.Add(new Abstractions.ChatMessage("system", systemMessage));
             }
 
-            public IReadOnlyList<ChatMessage> History => _history.AsReadOnly();
+            public IReadOnlyList<Abstractions.ChatMessage> History => _history.AsReadOnly();
 
             public async Task<string> SendMessageAsync(string message, CancellationToken cancellationToken = default)
             {
-                _history.Add(new ChatMessage("user", message));
+                _history.Add(new Abstractions.ChatMessage("user", message));
                 var response = await _owner.GenerateChatCompletionAsync(_history, cancellationToken: cancellationToken);
-                _history.Add(new ChatMessage("assistant", response));
+                _history.Add(new Abstractions.ChatMessage("assistant", response));
                 return response;
             }
 

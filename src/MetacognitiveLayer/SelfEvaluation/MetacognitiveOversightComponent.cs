@@ -6,6 +6,7 @@ using CognitiveMesh.ReasoningLayer.AnalyticalReasoning;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Logging;
+using OpenAI.Chat;
 
 namespace MetacognitiveLayer.SelfEvaluation;
 
@@ -16,8 +17,7 @@ namespace MetacognitiveLayer.SelfEvaluation;
 /// </summary>
 public class MetacognitiveOversightComponent
 {
-    private readonly OpenAIClient _openAIClient;
-    private readonly string _completionDeployment;
+    private readonly ChatClient _chatClient;
     private readonly TelemetryClient _telemetryClient;
     private readonly ILogger<MetacognitiveOversightComponent> _logger;
 
@@ -36,8 +36,8 @@ public class MetacognitiveOversightComponent
         TelemetryClient telemetryClient,
         ILogger<MetacognitiveOversightComponent> logger)
     {
-        _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
-        _completionDeployment = completionDeployment;
+        var aoaiClient = new AzureOpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
+        _chatClient = aoaiClient.GetChatClient(completionDeployment);
         _telemetryClient = telemetryClient;
         _logger = logger;
     }
@@ -142,20 +142,20 @@ public class MetacognitiveOversightComponent
                          "Provide a score from 0.0 (completely inaccurate) to 1.0 (completely accurate). " +
                          "Explain your reasoning and identify any factual errors or unsupported claims.";
 
-        var chatCompletionOptions = new ChatCompletionsOptions
+        var messages = new List<ChatMessage>
         {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.1f,
-            MaxTokens = 1000,
-            Messages =
-            {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage(userPrompt)
-            }
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage(userPrompt)
         };
 
-        var completionResponse = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        var evaluationText = completionResponse.Value.Choices[0].Message.Content;
+        var chatCompletionOptions = new ChatCompletionOptions
+        {
+            Temperature = 0.1f,
+            MaxOutputTokenCount = 1000
+        };
+
+        var completionResponse = await _chatClient.CompleteChatAsync(messages, chatCompletionOptions);
+        var evaluationText = completionResponse.Value.Content[0].Text;
 
         // Extract score and explanation
         var score = ExtractScore(evaluationText);
@@ -196,20 +196,20 @@ public class MetacognitiveOversightComponent
                          "Provide a score from 0.0 (poor reasoning) to 1.0 (excellent reasoning). " +
                          "Consider logical coherence, consideration of multiple perspectives, and quality of inferences.";
 
-        var chatCompletionOptions = new ChatCompletionsOptions
+        var messages = new List<ChatMessage>
         {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.1f,
-            MaxTokens = 1000,
-            Messages =
-            {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage(userPrompt)
-            }
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage(userPrompt)
         };
 
-        var completionResponse = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        var evaluationText = completionResponse.Value.Choices[0].Message.Content;
+        var chatCompletionOptions = new ChatCompletionOptions
+        {
+            Temperature = 0.1f,
+            MaxOutputTokenCount = 1000
+        };
+
+        var completionResponse = await _chatClient.CompleteChatAsync(messages, chatCompletionOptions);
+        var evaluationText = completionResponse.Value.Content[0].Text;
 
         // Extract score and explanation
         var score = ExtractScore(evaluationText);
@@ -234,20 +234,20 @@ public class MetacognitiveOversightComponent
                          "Provide a score from 0.0 (completely irrelevant) to 1.0 (perfectly relevant). " +
                          "Explain your reasoning and identify any irrelevant content.";
 
-        var chatCompletionOptions = new ChatCompletionsOptions
+        var messages = new List<ChatMessage>
         {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.1f,
-            MaxTokens = 800,
-            Messages =
-            {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage(userPrompt)
-            }
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage(userPrompt)
         };
 
-        var completionResponse = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        var evaluationText = completionResponse.Value.Choices[0].Message.Content;
+        var chatCompletionOptions = new ChatCompletionOptions
+        {
+            Temperature = 0.1f,
+            MaxOutputTokenCount = 800
+        };
+
+        var completionResponse = await _chatClient.CompleteChatAsync(messages, chatCompletionOptions);
+        var evaluationText = completionResponse.Value.Content[0].Text;
 
         // Extract score and explanation
         var score = ExtractScore(evaluationText);
@@ -272,20 +272,20 @@ public class MetacognitiveOversightComponent
                          "Provide a score from 0.0 (very incomplete) to 1.0 (fully complete). " +
                          "Explain your reasoning and identify any missing elements.";
 
-        var chatCompletionOptions = new ChatCompletionsOptions
+        var messages = new List<ChatMessage>
         {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.1f,
-            MaxTokens = 800,
-            Messages =
-            {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage(userPrompt)
-            }
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage(userPrompt)
         };
 
-        var completionResponse = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        var evaluationText = completionResponse.Value.Choices[0].Message.Content;
+        var chatCompletionOptions = new ChatCompletionOptions
+        {
+            Temperature = 0.1f,
+            MaxOutputTokenCount = 800
+        };
+
+        var completionResponse = await _chatClient.CompleteChatAsync(messages, chatCompletionOptions);
+        var evaluationText = completionResponse.Value.Content[0].Text;
 
         // Extract score and explanation
         var score = ExtractScore(evaluationText);
@@ -333,20 +333,20 @@ public class MetacognitiveOversightComponent
                          "Suggest 3-5 specific improvements that would address the weaknesses identified in the evaluations. " +
                          "Format each suggestion as a separate point.";
 
-        var chatCompletionOptions = new ChatCompletionsOptions
+        var messages = new List<ChatMessage>
         {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.3f,
-            MaxTokens = 1000,
-            Messages =
-            {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage(userPrompt)
-            }
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage(userPrompt)
         };
 
-        var completionResponse = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        var suggestionsText = completionResponse.Value.Choices[0].Message.Content;
+        var chatCompletionOptions = new ChatCompletionOptions
+        {
+            Temperature = 0.3f,
+            MaxOutputTokenCount = 1000
+        };
+
+        var completionResponse = await _chatClient.CompleteChatAsync(messages, chatCompletionOptions);
+        var suggestionsText = completionResponse.Value.Content[0].Text;
 
         // Parse suggestions
         return ParseSuggestions(suggestionsText);
@@ -469,21 +469,21 @@ public class MetacognitiveOversightComponent
                          $"Perspective Analyses:\n{perspectivesText}\n\n" +
                          "Generate an improved response that addresses the suggestions while maintaining the core information.";
 
-        var chatCompletionOptions = new ChatCompletionsOptions
+        var messages = new List<ChatMessage>
         {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.3f,
-            MaxTokens = 1500,
-            Messages =
-            {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage(userPrompt)
-            }
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage(userPrompt)
         };
 
-        var completionResponse = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+        var chatCompletionOptions = new ChatCompletionOptions
+        {
+            Temperature = 0.3f,
+            MaxOutputTokenCount = 1500
+        };
 
-        return completionResponse.Value.Choices[0].Message.Content;
+        var completionResponse = await _chatClient.CompleteChatAsync(messages, chatCompletionOptions);
+
+        return completionResponse.Value.Content[0].Text;
     }
 }
 

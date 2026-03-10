@@ -3,10 +3,25 @@ using Microsoft.Extensions.Configuration;
 namespace FoundationLayer.EnterpriseConnectors;
 
 /// <summary>
+/// Defines the contract for accessing feature flags.
+/// </summary>
+public interface IFeatureFlagManager
+{
+    /// <summary>Gets whether OneLake integration is enabled.</summary>
+    bool UseOneLake { get; }
+    /// <summary>Gets whether ADK (Agent Development Kit) is enabled.</summary>
+    bool EnableADK { get; }
+    /// <summary>Gets whether LangGraph integration is enabled.</summary>
+    bool EnableLangGraph { get; }
+    /// <summary>Gets whether CrewAI integration is enabled.</summary>
+    bool EnableCrewAI { get; }
+}
+
+/// <summary>
 /// Provides strongly-typed access to feature flags from the application configuration.
 /// Each property maps to a "FeatureFlags:*" configuration key.
 /// </summary>
-public class FeatureFlagManager
+public class FeatureFlagManager : IFeatureFlagManager
 {
     private readonly IConfiguration _configuration;
 

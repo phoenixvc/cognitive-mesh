@@ -3,6 +3,7 @@ using Azure;
 using Azure.AI.OpenAI;
 using FoundationLayer.EnterpriseConnectors;
 using Microsoft.Extensions.Logging;
+using OpenAI.Chat;
 
 namespace MetacognitiveLayer.ContinuousLearning;
 
@@ -12,8 +13,7 @@ namespace MetacognitiveLayer.ContinuousLearning;
 /// </summary>
 public class LearningManager
 {
-    private readonly OpenAIClient _openAIClient;
-    private readonly string _completionDeployment;
+    private readonly ChatClient _chatClient;
     private readonly FeatureFlagManager _featureFlagManager;
     private readonly ILogger<LearningManager>? _logger;
 
@@ -93,8 +93,8 @@ public class LearningManager
         FeatureFlagManager featureFlagManager,
         ILogger<LearningManager>? logger = null)
     {
-        _openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
-        _completionDeployment = completionDeployment;
+        var aoaiClient = new AzureOpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIApiKey));
+        _chatClient = aoaiClient.GetChatClient(completionDeployment);
         _featureFlagManager = featureFlagManager ?? throw new ArgumentNullException(nameof(featureFlagManager));
         _logger = logger;
     }
@@ -157,22 +157,18 @@ public class LearningManager
         var systemPrompt = "You are a learning report generation system. Generate a detailed learning report based on the provided data.";
         var userPrompt = $"Generate a learning report based on the recent learning data. Currently enabled frameworks: {enabledList}. Total active: {_enabledFrameworks.Count}.";
 
-        var chatCompletionOptions = new ChatCompletionsOptions
-        {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.3f,
-            MaxTokens = 800,
-            Messages =
+        var completion = await _chatClient.CompleteChatAsync(
+            [
+                new SystemChatMessage(systemPrompt),
+                new UserChatMessage(userPrompt)
+            ],
+            new ChatCompletionOptions
             {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage(userPrompt)
-            }
-        };
+                Temperature = 0.3f,
+                MaxOutputTokenCount = 800
+            });
 
-        var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        var report = response.Value.Choices[0].Message.Content;
-
-        return report;
+        return completion.Value.Content[0].Text;
     }
 
     #endregion

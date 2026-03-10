@@ -1,23 +1,30 @@
 using System;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azure.AI.OpenAI;
-using CognitiveMesh.AgencyLayer.ToolIntegration;
+using AgencyLayer.ToolIntegration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using OpenAI.Chat;
 using Xunit;
 
+/// <summary>
+/// Tests for <see cref="TextGenerationTool"/> using Azure.AI.OpenAI v2 stable API.
+/// Mocks <see cref="ChatClient"/> (which has virtual methods in v2) instead of the
+/// old beta-era OpenAIClient.
+/// </summary>
 public class TextGenerationToolTests
 {
     private readonly Mock<ILogger<TextGenerationTool>> _loggerMock;
-    private readonly Mock<OpenAIClient> _openAIClientMock;
+    private readonly Mock<ChatClient> _chatClientMock;
     private readonly TextGenerationTool _textGenerationTool;
 
     public TextGenerationToolTests()
     {
         _loggerMock = new Mock<ILogger<TextGenerationTool>>();
-        _openAIClientMock = new Mock<OpenAIClient>();
-        _textGenerationTool = new TextGenerationTool(_openAIClientMock.Object, "testDeployment", _loggerMock.Object);
+        _chatClientMock = new Mock<ChatClient>();
+        _textGenerationTool = new TextGenerationTool(_chatClientMock.Object, _loggerMock.Object);
     }
 
     [Fact]
@@ -29,23 +36,7 @@ public class TextGenerationToolTests
             { "prompt", "test prompt" }
         };
 
-        var chatCompletions = new ChatCompletions
-        {
-            Choices = new List<ChatChoice>
-            {
-                new ChatChoice
-                {
-                    Message = new ChatMessage
-                    {
-                        Content = "Generated text"
-                    }
-                }
-            }
-        };
-
-        _openAIClientMock
-            .Setup(client => client.GetChatCompletionsAsync(It.IsAny<ChatCompletionsOptions>()))
-            .ReturnsAsync(Response.FromValue(chatCompletions, new MockResponse(200)));
+        SetupChatCompletionResponse("Generated text");
 
         // Act
         var result = await _textGenerationTool.ExecuteAsync(parameters);
@@ -88,23 +79,7 @@ public class TextGenerationToolTests
             { "prompt", "test prompt" }
         };
 
-        var chatCompletions = new ChatCompletions
-        {
-            Choices = new List<ChatChoice>
-            {
-                new ChatChoice
-                {
-                    Message = new ChatMessage
-                    {
-                        Content = "Generated text"
-                    }
-                }
-            }
-        };
-
-        _openAIClientMock
-            .Setup(client => client.GetChatCompletionsAsync(It.IsAny<ChatCompletionsOptions>()))
-            .ReturnsAsync(Response.FromValue(chatCompletions, new MockResponse(200)));
+        SetupChatCompletionResponse("Generated text");
 
         // Act
         await _textGenerationTool.ExecuteAsync(parameters);
@@ -114,9 +89,9 @@ public class TextGenerationToolTests
             x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Text generation executed successfully for prompt: test prompt")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Text generation executed successfully for prompt: test prompt")),
                 null,
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
     }
 
@@ -129,21 +104,47 @@ public class TextGenerationToolTests
             { "prompt", "test prompt" }
         };
 
-        _openAIClientMock
-            .Setup(client => client.GetChatCompletionsAsync(It.IsAny<ChatCompletionsOptions>()))
-            .ThrowsAsync(new Exception("Test exception"));
+        _chatClientMock
+            .Setup(client => client.CompleteChatAsync(
+                It.IsAny<IEnumerable<ChatMessage>>(),
+                It.IsAny<ChatCompletionOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Test exception"));
 
         // Act
-        await Assert.ThrowsAsync<Exception>(() => _textGenerationTool.ExecuteAsync(parameters));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _textGenerationTool.ExecuteAsync(parameters));
 
         // Assert
         _loggerMock.Verify(
             x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error executing text generation for prompt: test prompt")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Error executing text generation for prompt: test prompt")),
                 It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
+    }
+
+    /// <summary>
+    /// Helper to set up the ChatClient mock to return a ChatCompletion with the given text.
+    /// Uses OpenAIChatModelFactory to construct testable response objects.
+    /// </summary>
+    private void SetupChatCompletionResponse(string responseText)
+    {
+        var chatCompletion = OpenAIChatModelFactory.ChatCompletion(
+            content: new ChatMessageContent
+            {
+                ChatMessageContentPart.CreateTextPart(responseText)
+            });
+
+        var pipelineResponse = new Mock<PipelineResponse>();
+        var clientResult = ClientResult.FromValue(chatCompletion, pipelineResponse.Object);
+
+        _chatClientMock
+            .Setup(client => client.CompleteChatAsync(
+                It.IsAny<IEnumerable<ChatMessage>>(),
+                It.IsAny<ChatCompletionOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(clientResult);
     }
 }

@@ -10,8 +10,10 @@ using CognitiveMesh.BusinessApplications.AgentRegistry.Services;
 using CognitiveMesh.BusinessApplications.ConvenerServices.Ports;
 using CognitiveMesh.FoundationLayer.AuditLogging;
 using CognitiveMesh.FoundationLayer.AuditLogging.Services;
+using CognitiveMesh.FoundationLayer.EnterpriseConnectors;
 using CognitiveMesh.FoundationLayer.Notifications;
 using CognitiveMesh.FoundationLayer.Notifications.Services;
+using CognitiveMesh.FoundationLayer.OneLakeIntegration;
 
 namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
 {
@@ -37,6 +39,10 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Infrastructure
             // Add foundation layer services
             services.AddAuditLoggingServices(configuration);
             services.AddNotificationServices(configuration);
+            
+            // Add Enterprise Connectors and OneLake Integration
+            services.AddEnterpriseConnectors(configuration);
+            services.AddOneLakeIntegration(configuration);
             
             return services;
         }

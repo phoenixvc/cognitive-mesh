@@ -1,4 +1,8 @@
 {
+  "env": {
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "DOTNET_NOLOGO": "1"
+  },
   "permissions": {
     "allow": [
       "Bash(dotnet build *)",
@@ -11,7 +15,12 @@
       "Bash(git log*)",
       "Bash(git branch*)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(gh api repos/JustAGhosT/* --jq *)",
+      "Bash(gh api repos/phoenixvc/* --jq *)",
+      "Bash(curl -s https://raw.githubusercontent.com/phoenixvc/*)",
+      "Bash(curl -s https://raw.githubusercontent.com/JustAGhosT/*)",
+      "Bash(/tmp/issue-265-body.md:*)"
     ],
     "deny": [
       "Bash(rm -rf /)",
@@ -26,9 +35,11 @@
       "Bash(git checkout .)",
       "Bash(git restore .)",
       "Bash(git branch -D *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   },
-
   "hooks": {
     "SessionStart": [
       {
@@ -88,10 +99,5 @@
         ]
       }
     ]
-  },
-
-  "env": {
-    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
-    "DOTNET_NOLOGO": "1"
   }
 }

@@ -1,5 +1,6 @@
 using Azure.AI.OpenAI;
 using CognitiveMesh.ReasoningLayer.AnalyticalReasoning.Models;
+using OpenAI.Chat;
 
 namespace CognitiveMesh.ReasoningLayer.AnalyticalReasoning;
 
@@ -9,18 +10,16 @@ namespace CognitiveMesh.ReasoningLayer.AnalyticalReasoning;
 /// </summary>
 public class AnalysisResultGenerator
 {
-    private readonly OpenAIClient _openAIClient;
-    private readonly string _completionDeployment;
+    private readonly ChatClient _chatClient;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AnalysisResultGenerator"/> class.
     /// </summary>
-    /// <param name="openAIClient">The OpenAI client for generating completions.</param>
+    /// <param name="openAIClient">The Azure OpenAI client for generating completions.</param>
     /// <param name="completionDeployment">The deployment name to use for completions.</param>
-    public AnalysisResultGenerator(OpenAIClient openAIClient, string completionDeployment)
+    public AnalysisResultGenerator(AzureOpenAIClient openAIClient, string completionDeployment)
     {
-        _openAIClient = openAIClient;
-        _completionDeployment = completionDeployment;
+        _chatClient = openAIClient.GetChatClient(completionDeployment);
     }
 
     /// <summary>
@@ -31,24 +30,21 @@ public class AnalysisResultGenerator
         var systemPrompt = "You are an analytical system that performs data-driven analysis based on the provided query. " +
                            "Generate a detailed analysis report.";
 
-        var chatCompletionOptions = new ChatCompletionsOptions
-        {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.3f,
-            MaxTokens = 800,
-            Messages =
+        var completion = await _chatClient.CompleteChatAsync(
+            [
+                new SystemChatMessage(systemPrompt),
+                new UserChatMessage($"Data Query: {dataQuery}")
+            ],
+            new ChatCompletionOptions
             {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage($"Data Query: {dataQuery}")
-            }
-        };
-
-        var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
+                Temperature = 0.3f,
+                MaxOutputTokenCount = 800
+            });
 
         return new AnalyticalResult
         {
             Query = dataQuery,
-            AnalysisReport = response.Value.Choices[0].Message.Content
+            AnalysisReport = completion.Value.Content[0].Text
         };
     }
 }

@@ -1,5 +1,8 @@
 using System.Text;
+using Azure;
+using Azure.AI.OpenAI;
 using FoundationLayer.SemanticSearch.Ports;
+using OpenAI.Chat;
 
 namespace FoundationLayer.SemanticSearch;
 
@@ -13,10 +16,10 @@ public class EnhancedRAGSystem
 {
     private readonly SearchClient _searchClient;
     private readonly SearchIndexClient _indexClient;
-    private readonly OpenAIClient _openAIClient;
+    private readonly AzureOpenAIClient _openAIClient;
+    private readonly ChatClient _chatClient;
     private readonly string _indexName;
     private readonly string _embeddingDeployment;
-    private readonly string _completionDeployment;
     private readonly IDataPipelinePort? _dataPipeline;
     private readonly ILogger<EnhancedRAGSystem>? _logger;
 
@@ -37,7 +40,7 @@ public class EnhancedRAGSystem
     public EnhancedRAGSystem(
         SearchClient searchClient,
         SearchIndexClient indexClient,
-        OpenAIClient openAIClient,
+        AzureOpenAIClient openAIClient,
         string indexName,
         string embeddingDeployment,
         string completionDeployment,
@@ -47,9 +50,9 @@ public class EnhancedRAGSystem
         _searchClient = searchClient;
         _indexClient = indexClient;
         _openAIClient = openAIClient;
+        _chatClient = openAIClient.GetChatClient(completionDeployment);
         _indexName = indexName;
         _embeddingDeployment = embeddingDeployment;
-        _completionDeployment = completionDeployment;
         _dataPipeline = dataPipeline;
         _logger = logger;
     }
@@ -112,11 +115,11 @@ public class EnhancedRAGSystem
     {
         // Generate embedding for document content
         var embeddingResponse = await _openAIClient.GetEmbeddingsAsync(
-            _embeddingDeployment, 
+            _embeddingDeployment,
             new EmbeddingsOptions(document.Content));
-            
+
         float[] embedding = embeddingResponse.Value.Data[0].Embedding.ToArray();
-        
+
         // Create search document
         var searchDocument = new Dictionary<string, object>
         {
@@ -129,7 +132,7 @@ public class EnhancedRAGSystem
             { "tags", document.Tags },
             { "embedding", embedding }
         };
-        
+
         // Upload document to index
         await _searchClient.IndexDocumentsAsync(IndexDocumentsBatch.Upload(new[] { searchDocument }));
     }
@@ -138,18 +141,18 @@ public class EnhancedRAGSystem
     {
         // Generate embedding for query
         var embeddingResponse = await _openAIClient.GetEmbeddingsAsync(
-            _embeddingDeployment, 
+            _embeddingDeployment,
             new EmbeddingsOptions(query));
-            
+
         float[] queryEmbedding = embeddingResponse.Value.Data[0].Embedding.ToArray();
-        
+
         // Create vector query
         var vectorQuery = new VectorizedQuery(queryEmbedding)
         {
             KNearestNeighborsCount = limit,
             Fields = { "embedding" }
         };
-        
+
         // Execute search
         var searchOptions = new SearchOptions
         {
@@ -159,15 +162,15 @@ public class EnhancedRAGSystem
             },
             Size = limit
         };
-        
+
         // Add filter if provided
         if (!string.IsNullOrEmpty(filter))
         {
             searchOptions.Filter = filter;
         }
-        
+
         var searchResults = await _searchClient.SearchAsync<SearchDocument>(null, searchOptions);
-        
+
         // Process results
         var documents = new List<KnowledgeDocument>();
         await foreach (var result in searchResults.GetResultsAsync())
@@ -182,10 +185,10 @@ public class EnhancedRAGSystem
                 Created = (DateTimeOffset)result.Document["created"],
                 Tags = ((string[])result.Document["tags"]).ToList()
             };
-            
+
             documents.Add(doc);
         }
-        
+
         return documents;
     }
 
@@ -193,12 +196,12 @@ public class EnhancedRAGSystem
     {
         // Search for relevant documents
         var documents = await SearchAsync(query, 5);
-        
+
         if (documents.Count == 0)
         {
             return "I don't have enough information to answer that question.";
         }
-        
+
         // Format documents as context
         var context = new StringBuilder();
         foreach (var doc in documents)
@@ -208,31 +211,31 @@ public class EnhancedRAGSystem
             context.AppendLine(doc.Content);
             context.AppendLine();
         }
-        
+
         // Create system prompt if not provided
         if (string.IsNullOrEmpty(systemPrompt))
         {
             systemPrompt = "You are a helpful assistant that answers questions based on the provided context. " +
                            "If the answer cannot be found in the context, say that you don't know.";
         }
-        
-        // Create completion options
-        var chatCompletionOptions = new ChatCompletionsOptions
+
+        // Create message list and completion options
+        var messages = new List<ChatMessage>
         {
-            DeploymentName = _completionDeployment,
-            Temperature = 0.3f,
-            MaxTokens = 800,
-            Messages =
-            {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage($"Context:\n{context}\n\nQuestion: {query}")
-            }
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage($"Context:\n{context}\n\nQuestion: {query}")
         };
-        
+
+        var chatCompletionOptions = new ChatCompletionOptions
+        {
+            Temperature = 0.3f,
+            MaxOutputTokenCount = 800
+        };
+
         // Generate response
-        var response = await _openAIClient.GetChatCompletionsAsync(chatCompletionOptions);
-        
-        return response.Value.Choices[0].Message.Content;
+        var completion = await _chatClient.CompleteChatAsync(messages, chatCompletionOptions);
+
+        return completion.Value.Content[0].Text;
     }
 
     /// <summary>
