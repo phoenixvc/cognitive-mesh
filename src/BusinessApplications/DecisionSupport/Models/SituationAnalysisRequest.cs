@@ -15,4 +15,12 @@ public class SituationAnalysisRequest
     /// When null, defaults to analytical, critical, creative, and practical.
     /// </summary>
     public List<string>? Perspectives { get; set; }
+
+    /// <summary>
+    /// Returns the effective perspectives, applying defaults if none were specified.
+    /// </summary>
+    public List<string> GetEffectivePerspectives() =>
+        Perspectives is { Count: > 0 }
+            ? Perspectives
+            : new List<string> { "analytical", "critical", "creative", "practical" };
 }

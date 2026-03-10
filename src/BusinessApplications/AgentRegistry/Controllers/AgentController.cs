@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -76,10 +77,18 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
 
                 var agent = await _registryPort.RegisterAgentAsync(request);
 
-                // audit + notify (best-effort)
+                // audit + notify (best-effort, exceptions logged but not propagated)
                 var actorName = User?.Identity?.Name ?? "system";
-                _ = _audit.LogAgentRegisteredAsync(agent.AgentId, agent.AgentType, actorName);
-                _ = _notify.SendAgentRegistrationNotificationAsync(agent.AgentId, agent.AgentType, actorName, new[] { actorName });
+                _ = Task.Run(async () =>
+                {
+                    try { await _audit.LogAgentRegisteredAsync(agent.AgentId, agent.AgentType, actorName); }
+                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to log agent registration audit for {AgentId}.", agent.AgentId); }
+                });
+                _ = Task.Run(async () =>
+                {
+                    try { await _notify.SendAgentRegistrationNotificationAsync(agent.AgentId, agent.AgentType, actorName, new[] { actorName }); }
+                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to send registration notification for {AgentId}.", agent.AgentId); }
+                });
 
                 return CreatedAtAction(nameof(GetAgentDetails), new { agentId = agent.AgentId }, agent);
             }
@@ -142,7 +151,11 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
                     return NotFound(ErrorEnvelope.Create("AGENT_NOT_FOUND", $"Agent with ID '{agentId}' was not found."));
                 }
 
-                _ = _audit.LogAgentRetiredAsync(agentId, User?.Identity?.Name ?? "system", reason ?? "Manual deactivation");
+                _ = Task.Run(async () =>
+                {
+                    try { await _audit.LogAgentRetiredAsync(agentId, User?.Identity?.Name ?? "system", reason ?? "Manual deactivation"); }
+                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to log agent retirement audit for {AgentId}.", agentId); }
+                });
 
                 return NoContent();
             }
@@ -186,7 +199,15 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
             var (tenantId, userId) = GetAuthContextFromClaims();
             if (tenantId == null) return Unauthorized("Tenant ID is missing.");
 
-            await _authorityPort.ConfigureAgentAuthorityAsync(Guid.Empty /* TBD: resolve agentId by type */, scope, userId ?? "system", tenantId);
+            // Look up agent by type to resolve the agentId
+            var agents = await _registryPort.GetAgentsByTypeAsync(agentType, tenantId);
+            var targetAgent = agents.FirstOrDefault();
+            if (targetAgent == null)
+            {
+                return NotFound(ErrorEnvelope.Create("AGENT_NOT_FOUND", $"No agent of type '{agentType}' was found."));
+            }
+
+            await _authorityPort.ConfigureAgentAuthorityAsync(targetAgent.AgentId, scope, userId ?? "system", tenantId);
             return NoContent();
         }
 
