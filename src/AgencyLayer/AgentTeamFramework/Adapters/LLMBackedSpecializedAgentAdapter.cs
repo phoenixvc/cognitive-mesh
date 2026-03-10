@@ -114,7 +114,7 @@ public sealed class LLMBackedSpecializedAgentAdapter : ISpecializedAgentPort
         {
             throw;
         }
-        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
+        catch (Exception ex)
         {
             stopwatch.Stop();
             _logger.LogError(ex, "Agent {AgentId} failed on task {TaskId}", agentId, task.TaskId);
