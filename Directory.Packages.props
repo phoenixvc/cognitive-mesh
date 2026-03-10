@@ -57,7 +57,7 @@
     <!-- Messaging -->
     <PackageVersion Include="WolverineFx" Version="[5.17.0]" />
     <!-- Resilience -->
-    <PackageVersion Include="Polly" Version="[8.6.5]" />
+    <PackageVersion Include="Polly" Version="[8.6.6]" />
     <!-- YAML -->
     <PackageVersion Include="YamlDotNet" Version="[16.3.0]" />
     <!-- Entity Framework Core -->
