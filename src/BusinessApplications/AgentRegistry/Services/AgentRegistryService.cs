@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using CognitiveMesh.AgencyLayer.MultiAgentOrchestration.Ports.Models;
+using CognitiveMesh.BusinessApplications.AgentRegistry.Data;
 using CognitiveMesh.BusinessApplications.AgentRegistry.Ports;
 using CognitiveMesh.BusinessApplications.Common.Models;
-using CognitiveMesh.BusinessApplications.AgentRegistry.Data;
+using FoundationLayer.EnterpriseConnectors;
 
 namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
 {
@@ -35,7 +35,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             
             // Initialize circuit breaker for database operations
-            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000, 50);
+            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000);
         }
 
         /// <inheritdoc />
@@ -114,6 +114,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                     if (agent == null)
                     {
                         _logger.LogWarning("Agent not found: {AgentId}", agentId);
+                        throw new AgentNotFoundException($"Agent with ID {agentId} not found");
                     }
 
                     return agent;
@@ -523,6 +524,203 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
 
             return string.Join(".", parts);
         }
+
+        // --- Explicit IAgentRegistryPort interface implementations ---
+        // These methods bridge between the local data model and the port interface.
+
+        /// <inheritdoc />
+        async Task<Ports.Models.Agent> IAgentRegistryPort.RegisterAgentAsync(Ports.Models.AgentRegistrationRequest request)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+
+            var definition = new AgentDefinition
+            {
+                AgentId = request.AgentId == Guid.Empty ? Guid.NewGuid() : request.AgentId,
+                AgentType = request.AgentType,
+                Description = request.Description,
+                Capabilities = request.Capabilities ?? new List<string>(),
+                Status = AgentStatus.Active
+            };
+
+            var result = await RegisterAgentAsync(definition);
+            return MapToPortAgent(result, request.TenantId, request.RegisteredBy);
+        }
+
+        /// <inheritdoc />
+        async Task<Ports.Models.Agent> IAgentRegistryPort.GetAgentByIdAsync(Guid agentId, string tenantId)
+        {
+            var definition = await _dbContext.AgentDefinitions.FindAsync(agentId);
+            if (definition == null)
+            {
+                throw new KeyNotFoundException($"Agent with ID '{agentId}' was not found.");
+            }
+
+            return MapToPortAgent(definition, tenantId);
+        }
+
+        /// <inheritdoc />
+        async Task<Ports.Models.Agent> IAgentRegistryPort.UpdateAgentAsync(Ports.Models.Agent agent, string updatedBy)
+        {
+            ArgumentNullException.ThrowIfNull(agent);
+
+            var definition = await _dbContext.AgentDefinitions.FindAsync(agent.AgentId);
+            if (definition == null)
+            {
+                throw new KeyNotFoundException($"Agent with ID '{agent.AgentId}' was not found.");
+            }
+
+            definition.AgentType = agent.AgentType;
+            definition.Description = agent.Description;
+            definition.Capabilities = agent.Capabilities ?? new List<string>();
+            definition.Status = agent.IsActive ? AgentStatus.Active : AgentStatus.Retired;
+
+            await _dbContext.SaveChangesAsync();
+            _logger.LogInformation("Agent {AgentId} updated by {UpdatedBy}", agent.AgentId, updatedBy);
+
+            return MapToPortAgent(definition, agent.TenantId, updatedBy: updatedBy);
+        }
+
+        /// <inheritdoc />
+        async Task<bool> IAgentRegistryPort.DeactivateAgentAsync(Guid agentId, string tenantId, string deactivatedBy, string reason)
+        {
+            var definition = await _dbContext.AgentDefinitions.FindAsync(agentId);
+            if (definition == null)
+            {
+                return false;
+            }
+
+            definition.Status = AgentStatus.Retired;
+            await _dbContext.SaveChangesAsync();
+            _logger.LogInformation("Agent {AgentId} deactivated by {DeactivatedBy}. Reason: {Reason}", agentId, deactivatedBy, reason);
+
+            return true;
+        }
+
+        /// <inheritdoc />
+        async Task<IEnumerable<Ports.Models.Agent>> IAgentRegistryPort.GetAgentsByTypeAsync(string agentType, string tenantId, bool includeInactive)
+        {
+            var query = _dbContext.AgentDefinitions.Where(a => a.AgentType == agentType);
+            if (!includeInactive)
+            {
+                query = query.Where(a => a.Status == AgentStatus.Active);
+            }
+
+            var definitions = await query.ToListAsync();
+            return definitions.Select(d => MapToPortAgent(d, tenantId));
+        }
+
+        /// <inheritdoc />
+        async Task<IEnumerable<Ports.Models.Agent>> IAgentRegistryPort.GetAgentsByComplianceStatusAsync(string framework, bool isCompliant, string tenantId)
+        {
+            // Return all active agents — compliance filtering requires dedicated compliance store (future work)
+            var definitions = await _dbContext.AgentDefinitions
+                .Where(a => a.Status == AgentStatus.Active)
+                .ToListAsync();
+
+            return definitions.Select(d => MapToPortAgent(d, tenantId));
+        }
+
+        /// <inheritdoc />
+        async Task<IEnumerable<Ports.Models.Agent>> IAgentRegistryPort.SearchAgentsAsync(Ports.Models.AgentSearchCriteria criteria)
+        {
+            ArgumentNullException.ThrowIfNull(criteria);
+
+            var query = _dbContext.AgentDefinitions.AsQueryable();
+
+            if (!string.IsNullOrEmpty(criteria.AgentType))
+            {
+                query = query.Where(a => a.AgentType == criteria.AgentType);
+            }
+
+            if (!criteria.IncludeInactive)
+            {
+                query = query.Where(a => a.Status == AgentStatus.Active);
+            }
+
+            var definitions = await query
+                .Skip(criteria.Skip)
+                .Take(criteria.MaxResults)
+                .ToListAsync();
+
+            return definitions.Select(d => MapToPortAgent(d, criteria.TenantId));
+        }
+
+        /// <inheritdoc />
+        async Task<Ports.Models.Agent> IAgentRegistryPort.VerifyAgentComplianceAsync(Ports.Models.ComplianceVerificationRequest request)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+
+            var definition = await _dbContext.AgentDefinitions.FindAsync(request.AgentId);
+            if (definition == null)
+            {
+                throw new KeyNotFoundException($"Agent with ID '{request.AgentId}' was not found.");
+            }
+
+            // Return the agent with a fresh compliance status (full verification logic is future work)
+            var agent = MapToPortAgent(definition, string.Empty);
+            agent.ComplianceStatus = new Ports.Models.AgentComplianceStatus
+            {
+                IsCompliant = true,
+                LastVerifiedAt = DateTimeOffset.UtcNow,
+                VerifiedBy = request.RequestedBy
+            };
+
+            return agent;
+        }
+
+        /// <inheritdoc />
+        Task<IEnumerable<Ports.Models.AgentComplianceStatus>> IAgentRegistryPort.GetAgentComplianceHistoryAsync(
+            Guid agentId, string tenantId, string? framework, DateTimeOffset? startTime, DateTimeOffset? endTime)
+        {
+            // Compliance history storage is future work — return empty for now
+            _logger.LogInformation("GetAgentComplianceHistoryAsync called for agent {AgentId}", agentId);
+            return Task.FromResult<IEnumerable<Ports.Models.AgentComplianceStatus>>(
+                Array.Empty<Ports.Models.AgentComplianceStatus>());
+        }
+
+        /// <inheritdoc />
+        Task<Ports.Models.ComplianceCertification> IAgentRegistryPort.RequestComplianceCertificationAsync(
+            Guid agentId, string tenantId, string framework, string requestedBy)
+        {
+            _logger.LogInformation("RequestComplianceCertificationAsync called for agent {AgentId}, framework {Framework}", agentId, framework);
+            return Task.FromResult(new Ports.Models.ComplianceCertification
+            {
+                CertificationId = Guid.NewGuid().ToString(),
+                Framework = framework,
+                Status = "Pending",
+                IssuedAt = DateTimeOffset.UtcNow,
+                ExpiresAt = DateTimeOffset.UtcNow.AddYears(1),
+                IssuedBy = requestedBy,
+                Evidence = string.Empty
+            });
+        }
+
+        /// <summary>
+        /// Maps an internal AgentDefinition to the port-level Agent model.
+        /// </summary>
+        private static Ports.Models.Agent MapToPortAgent(
+            AgentDefinition definition,
+            string tenantId,
+            string registeredBy = "",
+            string updatedBy = "")
+        {
+            return new Ports.Models.Agent
+            {
+                AgentId = definition.AgentId,
+                Name = definition.AgentType,
+                AgentType = definition.AgentType,
+                Description = definition.Description,
+                Capabilities = definition.Capabilities ?? new List<string>(),
+                Version = "1.0.0",
+                TenantId = tenantId,
+                RegisteredBy = registeredBy,
+                RegisteredAt = DateTimeOffset.UtcNow,
+                LastUpdatedBy = updatedBy,
+                DefaultAuthorityScope = definition.DefaultAuthorityScope?.Name ?? string.Empty,
+                DefaultAutonomyLevel = definition.DefaultAutonomyLevel.ToString(),
+                IsActive = definition.Status == AgentStatus.Active
+            };
+        }
     }
 
     /// <summary>
@@ -559,7 +757,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.Property(e => e.DefaultAuthorityScope)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions()));
+                        v => System.Text.Json.JsonSerializer.Deserialize<CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models.AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions())!);
             });
 
             // Configure AgentVersionRecord entity

@@ -39,10 +39,26 @@
       "groupName": "GitHub Actions"
     },
     {
-      "description": "Auto-merge patch updates for non-major dependencies",
-      "matchUpdateTypes": ["patch"],
+      "description": "Auto-merge minor and patch updates after CI passes",
+      "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
-      "automergeType": "pr"
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "Auto-merge devDependency minor and patch updates",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "Assign Claude and Codex to major version updates for automated migration",
+      "matchUpdateTypes": ["major"],
+      "assignees": ["claude[bot]", "codex[bot]"],
+      "labels": ["dependencies", "major-update"],
+      "dependencyDashboardApproval": true
     },
     {
       "description": "Do not update pre-release packages automatically",

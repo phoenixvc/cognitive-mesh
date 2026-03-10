@@ -9,6 +9,7 @@ using CognitiveMesh.BusinessApplications.AgentRegistry.Ports;
 using CognitiveMesh.BusinessApplications.Common.Models;
 using CognitiveMesh.BusinessApplications.ConvenerServices.Ports;
 using CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models;
+using FoundationLayer.EnterpriseConnectors;
 
 namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
 {
@@ -36,7 +37,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             
             // Initialize circuit breaker for database operations
-            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000, 50);
+            _circuitBreaker = new AgentCircuitBreakerPolicy(3, 250, 1000);
         }
 
         #region IConsentPort Implementation
@@ -112,7 +113,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                     {
                         HasConsent = record != null && record.IsGranted,
                         ValidationTimestamp = DateTimeOffset.UtcNow,
-                        ConsentRecordId = record?.ConsentId
+                        ConsentRecordId = record?.ConsentId ?? string.Empty
                     };
 
                     _logger.LogInformation("Consent validated: {ConsentType}, User: {UserId}, HasConsent: {HasConsent}", 
@@ -162,7 +163,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         }
 
         /// <inheritdoc />
-        public async Task<bool> RevokeConsentAsync(string userId, string tenantId, string consentType, string scope = null)
+        public async Task<bool> RevokeConsentAsync(string userId, string tenantId, string consentType, string? scope = null)
         {
             if (string.IsNullOrEmpty(userId))
             {
@@ -190,7 +191,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                         UserId = userId,
                         TenantId = tenantId,
                         ConsentType = consentType,
-                        Scope = scope,
+                        Scope = scope ?? string.Empty,
                         IsGranted = false, // Revoked = not granted
                         Timestamp = DateTimeOffset.UtcNow,
                         Source = "Revocation API",
@@ -411,7 +412,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                     {
                         HasConsent = record != null && record.IsGranted,
                         ValidationTimestamp = DateTimeOffset.UtcNow,
-                        ConsentRecordId = record?.ConsentId
+                        ConsentRecordId = record?.ConsentId ?? string.Empty
                     };
 
                     _logger.LogInformation("Agent consent validated: {ConsentType}, User: {UserId}, Agent: {AgentId}, HasConsent: {HasConsent}", 
@@ -889,7 +890,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.Property(e => e.OperationContext)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, new System.Text.Json.JsonSerializerOptions()));
+                        v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(v, new System.Text.Json.JsonSerializerOptions())!);
             });
 
             // Configure AgentConsentPreferences entity
@@ -898,18 +899,18 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.HasKey(e => new { e.UserId, e.TenantId });
                 entity.Property(e => e.AutoConsentLowRisk).IsRequired();
                 entity.Property(e => e.RememberDecisions).IsRequired();
-                
+
                 // Configure AgentPreferences as a JSON column
                 entity.Property(e => e.AgentPreferences)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<Guid, AgentSpecificPreferences>>(v, new System.Text.Json.JsonSerializerOptions()));
-                
+                        v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<Guid, AgentSpecificPreferences>>(v, new System.Text.Json.JsonSerializerOptions())!);
+
                 // Configure ConsentTypePreferences as a JSON column
                 entity.Property(e => e.ConsentTypePreferences)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(v, new System.Text.Json.JsonSerializerOptions()));
+                        v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(v, new System.Text.Json.JsonSerializerOptions())!);
             });
 
             // Configure EmergencyOverride entity
@@ -944,7 +945,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The tenant context for this override.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The agent for which consent is overridden.
@@ -964,12 +965,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The user who requested the override.
         /// </summary>
-        public string RequestingUserId { get; set; }
+        public string RequestingUserId { get; set; } = string.Empty;
 
         /// <summary>
         /// The reason for the override.
         /// </summary>
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -985,7 +986,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The tenant context for this audit record.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The agent for which consent was overridden.
@@ -1000,17 +1001,17 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <summary>
         /// The type of action (e.g., "Activate", "Deactivate").
         /// </summary>
-        public string ActionType { get; set; }
+        public string ActionType { get; set; } = string.Empty;
 
         /// <summary>
         /// The user who performed the action.
         /// </summary>
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         /// <summary>
         /// The reason for the action.
         /// </summary>
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
 
         /// <summary>
         /// The duration of the override, if applicable.

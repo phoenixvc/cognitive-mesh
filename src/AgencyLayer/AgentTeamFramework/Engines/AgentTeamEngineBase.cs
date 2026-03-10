@@ -15,7 +15,7 @@ public abstract class AgentTeamEngineBase : IAgentTeamPort
 {
     private readonly ISpecializedAgentPort _agentPort;
     private readonly SemaphoreSlim _initLock = new(1, 1);
-    private bool _initialized;
+    private volatile bool _initialized;
 
     /// <summary>
     /// The pipeline executor for running agent steps with standardized serialization.

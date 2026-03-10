@@ -1,0 +1,52 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.vs
+.vscode
+.idea
+*.user
+*.suo
+
+# Build output
+**/bin
+**/obj
+
+# Node
+**/node_modules
+
+# Claude Code
+.claude/projects
+.claude/state
+
+# Documentation & planning (not needed in image)
+docs/planning
+docs/prds
+
+# Infrastructure (not needed in app image)
+infra
+k8s
+
+# Test artifacts
+**/TestResults
+**/coverage
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Environment / secrets
+.env*
+**/.env
+**/.env.*
+!.env.example
+!.env.sample
+!.env.template
+!**/.env.example
+!**/.env.sample
+!**/.env.template
+
+# Temp files
+*.tmp
+*.log

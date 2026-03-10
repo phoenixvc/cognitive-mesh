@@ -101,6 +101,44 @@ jobs:
         working-directory: docs
         run: npm run test:unit
 
+  frontend:
+    name: Frontend build, lint and test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src/UILayer/web
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: src/UILayer/web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit --skipLibCheck
+
+      - name: Test
+        run: npm test -- --ci --coverage --passWithNoTests
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: src/UILayer/web/coverage/
+          retention-days: 7
+
   # Uncomment when Rust sources are added to the repository
   # rust:
   #   name: Rust build and test
