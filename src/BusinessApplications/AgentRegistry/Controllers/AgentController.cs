@@ -82,12 +82,14 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
                 _ = Task.Run(async () =>
                 {
                     try { await _audit.LogAgentRegisteredAsync(agent.AgentId, agent.AgentType, actorName); }
-                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to log agent registration audit for {AgentId}.", agent.AgentId); }
+                    catch (InvalidOperationException ex) { _logger.LogWarning(ex, "Failed to log agent registration audit for {AgentId}.", agent.AgentId); }
+                    catch (HttpRequestException ex) { _logger.LogWarning(ex, "Failed to log agent registration audit for {AgentId}.", agent.AgentId); }
                 });
                 _ = Task.Run(async () =>
                 {
                     try { await _notify.SendAgentRegistrationNotificationAsync(agent.AgentId, agent.AgentType, actorName, new[] { actorName }); }
-                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to send registration notification for {AgentId}.", agent.AgentId); }
+                    catch (InvalidOperationException ex) { _logger.LogWarning(ex, "Failed to send registration notification for {AgentId}.", agent.AgentId); }
+                    catch (HttpRequestException ex) { _logger.LogWarning(ex, "Failed to send registration notification for {AgentId}.", agent.AgentId); }
                 });
 
                 return CreatedAtAction(nameof(GetAgentDetails), new { agentId = agent.AgentId }, agent);
@@ -154,7 +156,8 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
                 _ = Task.Run(async () =>
                 {
                     try { await _audit.LogAgentRetiredAsync(agentId, User?.Identity?.Name ?? "system", reason ?? "Manual deactivation"); }
-                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to log agent retirement audit for {AgentId}.", agentId); }
+                    catch (InvalidOperationException ex) { _logger.LogWarning(ex, "Failed to log agent retirement audit for {AgentId}.", agentId); }
+                    catch (HttpRequestException ex) { _logger.LogWarning(ex, "Failed to log agent retirement audit for {AgentId}.", agentId); }
                 });
 
                 return NoContent();

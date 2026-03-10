@@ -54,9 +54,9 @@
       "platformAutomerge": true
     },
     {
-      "description": "Assign Codex to major version updates for automated migration",
+      "description": "Assign Claude and Codex to major version updates for automated migration",
       "matchUpdateTypes": ["major"],
-      "assignees": ["codex[bot]"],
+      "assignees": ["claude[bot]", "codex[bot]"],
       "labels": ["dependencies", "major-update"],
       "dependencyDashboardApproval": true
     },

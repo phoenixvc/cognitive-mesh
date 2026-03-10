@@ -716,7 +716,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 RegisteredBy = registeredBy,
                 RegisteredAt = DateTimeOffset.UtcNow,
                 LastUpdatedBy = updatedBy,
-                DefaultAuthorityScope = definition.DefaultAuthorityScope?.ToString() ?? string.Empty,
+                DefaultAuthorityScope = definition.DefaultAuthorityScope?.Name ?? string.Empty,
                 DefaultAutonomyLevel = definition.DefaultAutonomyLevel.ToString(),
                 IsActive = definition.Status == AgentStatus.Active
             };

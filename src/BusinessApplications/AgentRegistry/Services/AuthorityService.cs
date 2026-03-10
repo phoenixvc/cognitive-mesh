@@ -698,7 +698,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            var scope = await GetAgentAuthorityAsync(request.AgentId, request.TenantId);
+            _ = await GetAgentAuthorityAsync(request.AgentId, request.TenantId);
             return new AuthorityValidationResult
             {
                 IsAuthorized = true,
