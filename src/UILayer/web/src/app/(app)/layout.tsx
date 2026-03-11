@@ -2,6 +2,7 @@
 
 import { Sidebar, TopBar } from "@/components/Navigation"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
+import { CommandPalette } from "@/components/shared/CommandPalette"
 import { usePreferencesStore } from "@/stores"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -9,6 +10,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ProtectedRoute>
+      <CommandPalette />
       <div className="flex min-h-screen">
         <Sidebar />
         <div
