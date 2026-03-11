@@ -5,7 +5,10 @@ namespace CognitiveMesh.BusinessApplications.DecisionSupport.Models;
 /// </summary>
 public class OptionsGenerationRequest
 {
-    public string Situation { get; set; }
+    /// <summary>
+    /// Gets or sets the situation description for which to generate options.
+    /// </summary>
+    public string Situation { get; set; } = string.Empty;
 
     /// <summary>
     /// Desired number of options to generate. Defaults to 3.

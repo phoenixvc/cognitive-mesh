@@ -8,8 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="DecisionSupportManager.cs" />
-    <Compile Include="IDecisionAnalysisPort.cs" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\FoundationLayer\EnterpriseConnectors\EnterpriseConnectors.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -41,6 +41,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Models
         /// </summary>
         public const string ExternalCommunication = "Agent.ExternalCommunication";
 
+        /// <summary>
+        /// Consent for an agent to perform high-authority actions that require explicit user approval.
+        /// This consent type is used for actions that have significant impact or risk.
+        /// </summary>
+        public const string HighAuthorityAction = "Agent.HighAuthorityAction";
+
         // --- Authority Escalation Consent Types ---
 
         /// <summary>

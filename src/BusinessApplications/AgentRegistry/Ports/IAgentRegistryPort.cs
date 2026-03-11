@@ -17,17 +17,17 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The name of the agent.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of the agent (e.g., "Analyst", "Researcher", "Assistant").
         /// </summary>
-        public string AgentType { get; set; }
+        public string AgentType { get; set; } = string.Empty;
 
         /// <summary>
         /// A description of the agent's purpose and capabilities.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// The capabilities this agent has (e.g., "DataAnalysis", "ContentGeneration").
@@ -37,27 +37,27 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The version of the agent.
         /// </summary>
-        public string Version { get; set; }
+        public string Version { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the tenant that owns this agent.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the user who is registering the agent.
         /// </summary>
-        public string RegisteredBy { get; set; }
+        public string RegisteredBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The default authority scope for this agent.
         /// </summary>
-        public string DefaultAuthorityScope { get; set; }
+        public string DefaultAuthorityScope { get; set; } = string.Empty;
 
         /// <summary>
         /// The default autonomy level for this agent.
         /// </summary>
-        public string DefaultAutonomyLevel { get; set; }
+        public string DefaultAutonomyLevel { get; set; } = string.Empty;
 
         /// <summary>
         /// The regulatory frameworks this agent claims compliance with (e.g., "GDPR", "EU AI Act").
@@ -83,17 +83,17 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The name of the agent.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of the agent (e.g., "Analyst", "Researcher", "Assistant").
         /// </summary>
-        public string AgentType { get; set; }
+        public string AgentType { get; set; } = string.Empty;
 
         /// <summary>
         /// A description of the agent's purpose and capabilities.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// The capabilities this agent has (e.g., "DataAnalysis", "ContentGeneration").
@@ -103,17 +103,17 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The version of the agent.
         /// </summary>
-        public string Version { get; set; }
+        public string Version { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the tenant that owns this agent.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the user who registered the agent.
         /// </summary>
-        public string RegisteredBy { get; set; }
+        public string RegisteredBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when the agent was registered.
@@ -123,7 +123,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The ID of the user who last updated the agent.
         /// </summary>
-        public string LastUpdatedBy { get; set; }
+        public string LastUpdatedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when the agent was last updated.
@@ -133,12 +133,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The default authority scope for this agent.
         /// </summary>
-        public string DefaultAuthorityScope { get; set; }
+        public string DefaultAuthorityScope { get; set; } = string.Empty;
 
         /// <summary>
         /// The default autonomy level for this agent.
         /// </summary>
-        public string DefaultAutonomyLevel { get; set; }
+        public string DefaultAutonomyLevel { get; set; } = string.Empty;
 
         /// <summary>
         /// Indicates whether the agent is active.
@@ -153,7 +153,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The current compliance status of the agent.
         /// </summary>
-        public AgentComplianceStatus ComplianceStatus { get; set; }
+        public AgentComplianceStatus ComplianceStatus { get; set; } = new AgentComplianceStatus();
 
         /// <summary>
         /// Additional metadata about the agent, including compliance-related information.
@@ -179,7 +179,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The ID of the user or system that performed the last verification.
         /// </summary>
-        public string VerifiedBy { get; set; }
+        public string VerifiedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// A list of compliance issues that need to be addressed.
@@ -200,27 +200,27 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The unique identifier for the compliance issue.
         /// </summary>
-        public string IssueId { get; set; }
+        public string IssueId { get; set; } = string.Empty;
 
         /// <summary>
         /// The regulatory framework related to this issue (e.g., "GDPR", "EU AI Act").
         /// </summary>
-        public string Framework { get; set; }
+        public string Framework { get; set; } = string.Empty;
 
         /// <summary>
         /// The specific article or section of the regulation.
         /// </summary>
-        public string RegulatoryReference { get; set; }
+        public string RegulatoryReference { get; set; } = string.Empty;
 
         /// <summary>
         /// A description of the compliance issue.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// The severity of the issue (e.g., "Low", "Medium", "High", "Critical").
         /// </summary>
-        public string Severity { get; set; }
+        public string Severity { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when the issue was identified.
@@ -230,7 +230,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// Suggested remediation steps to address the issue.
         /// </summary>
-        public string RemediationSteps { get; set; }
+        public string RemediationSteps { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -241,17 +241,17 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The unique identifier for the certification.
         /// </summary>
-        public string CertificationId { get; set; }
+        public string CertificationId { get; set; } = string.Empty;
 
         /// <summary>
         /// The regulatory framework this certification applies to.
         /// </summary>
-        public string Framework { get; set; }
+        public string Framework { get; set; } = string.Empty;
 
         /// <summary>
         /// The status of the certification (e.g., "Pending", "Approved", "Rejected").
         /// </summary>
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when the certification was issued.
@@ -266,12 +266,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The ID of the authority that issued the certification.
         /// </summary>
-        public string IssuedBy { get; set; }
+        public string IssuedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// A link or reference to the certification evidence.
         /// </summary>
-        public string Evidence { get; set; }
+        public string Evidence { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -293,7 +293,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The ID of the user requesting the verification.
         /// </summary>
-        public string RequestedBy { get; set; }
+        public string RequestedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional context for the verification.
@@ -309,17 +309,17 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// Filter by agent type.
         /// </summary>
-        public string AgentType { get; set; }
+        public string AgentType { get; set; } = string.Empty;
 
         /// <summary>
         /// Filter by tenant ID.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// Filter by compliance framework.
         /// </summary>
-        public string ComplianceFramework { get; set; }
+        public string ComplianceFramework { get; set; } = string.Empty;
 
         /// <summary>
         /// Filter by compliance status.
@@ -329,7 +329,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// Filter by capability.
         /// </summary>
-        public string Capability { get; set; }
+        public string Capability { get; set; } = string.Empty;
 
         /// <summary>
         /// Include inactive agents in the results.
@@ -354,17 +354,19 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports
 
     /// <summary>
     /// Defines the contract for the Agent Registry Port in the BusinessApplications Layer.
-    /// This port is the primary entry point for registering, querying, and managing agent 
+    /// This port is the primary entry point for registering, querying, and managing agent
     /// definitions, adhering to the Hexagonal Architecture pattern.
-    ///
-    /// In the context of the Ethical & Legal Compliance Framework (P0), this interface
+    /// <para>
+    /// In the context of the Ethical and Legal Compliance Framework (P0), this interface
     /// is extended to include methods for verifying agent compliance with various
     /// regulatory and ethical standards, ensuring that agents operate within defined
     /// legal and ethical boundaries.
-    ///
+    /// </para>
+    /// <para>
     /// The Agent Registry serves as a central repository for all agent definitions and
     /// their compliance statuses, enabling comprehensive governance, audit trails, and
     /// regulatory reporting across the Cognitive Mesh platform.
+    /// </para>
     /// </summary>
     public interface IAgentRegistryPort
     {
@@ -459,7 +461,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports
         Task<IEnumerable<AgentComplianceStatus>> GetAgentComplianceHistoryAsync(
             Guid agentId,
             string tenantId,
-            string framework = null,
+            string? framework = null,
             DateTimeOffset? startTime = null,
             DateTimeOffset? endTime = null);
 

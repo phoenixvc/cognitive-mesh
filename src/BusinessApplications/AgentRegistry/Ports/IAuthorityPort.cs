@@ -13,17 +13,17 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The unique identifier for this authority scope.
         /// </summary>
-        public string ScopeId { get; set; }
+        public string ScopeId { get; set; } = string.Empty;
 
         /// <summary>
         /// A human-readable name for this authority scope.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// A description of what this authority scope allows.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// The list of actions permitted within this scope.
@@ -53,7 +53,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The tenant ID to which this scope belongs.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when this scope was created.
@@ -63,7 +63,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The ID of the user who created this scope.
         /// </summary>
-        public string CreatedBy { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when this scope was last updated.
@@ -73,7 +73,27 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The ID of the user who last updated this scope.
         /// </summary>
-        public string LastUpdatedBy { get; set; }
+        public string LastUpdatedBy { get; set; } = string.Empty;
+
+        /// <summary>
+        /// A list of API endpoints or ports the agent is allowed to call.
+        /// </summary>
+        public List<string> AllowedApiEndpoints { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Maximum computational resources the agent can consume per task.
+        /// </summary>
+        public double MaxResourceConsumption { get; set; }
+
+        /// <summary>
+        /// Maximum budget the agent can expend per task.
+        /// </summary>
+        public decimal MaxBudget { get; set; }
+
+        /// <summary>
+        /// The data access policies that apply to this agent.
+        /// </summary>
+        public List<string> DataAccessPolicies { get; set; } = new List<string>();
     }
 
     /// <summary>
@@ -89,22 +109,22 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The action the agent is attempting to perform.
         /// </summary>
-        public string Action { get; set; }
+        public string Action { get; set; } = string.Empty;
 
         /// <summary>
         /// The resource the agent is attempting to access.
         /// </summary>
-        public string Resource { get; set; }
+        public string Resource { get; set; } = string.Empty;
 
         /// <summary>
         /// The tenant ID in which the action is being performed.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the user on whose behalf the agent is acting (if applicable).
         /// </summary>
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         /// <summary>
         /// Additional context for the validation.
@@ -125,12 +145,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The reason for the authorization decision.
         /// </summary>
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the authority scope that was used for validation.
         /// </summary>
-        public string ScopeId { get; set; }
+        public string ScopeId { get; set; } = string.Empty;
 
         /// <summary>
         /// The regulatory frameworks that were considered during validation.
@@ -150,7 +170,61 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// A unique identifier for this validation result, useful for audit trails.
         /// </summary>
-        public string ValidationId { get; set; }
+        public string ValidationId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The consent type required, if applicable.
+        /// </summary>
+        public string? RequiredConsentType { get; set; }
+
+        /// <summary>
+        /// Additional context for the validation result.
+        /// </summary>
+        public Dictionary<string, object>? ConsentContext { get; set; }
+
+        /// <summary>
+        /// Creates an authorized validation result.
+        /// </summary>
+        public static AuthorityValidationResult Authorized()
+        {
+            return new AuthorityValidationResult
+            {
+                IsAuthorized = true,
+                Reason = "Action is authorized",
+                ValidatedAt = DateTimeOffset.UtcNow,
+                ValidationId = Guid.NewGuid().ToString()
+            };
+        }
+
+        /// <summary>
+        /// Creates a denied validation result.
+        /// </summary>
+        public static AuthorityValidationResult Denied(string reason)
+        {
+            return new AuthorityValidationResult
+            {
+                IsAuthorized = false,
+                Reason = reason,
+                ValidatedAt = DateTimeOffset.UtcNow,
+                ValidationId = Guid.NewGuid().ToString()
+            };
+        }
+
+        /// <summary>
+        /// Creates a validation result indicating consent is required.
+        /// </summary>
+        public static AuthorityValidationResult RequiresConsentResult(string consentType, Dictionary<string, object>? context = null)
+        {
+            return new AuthorityValidationResult
+            {
+                IsAuthorized = false,
+                Reason = $"Consent required: {consentType}",
+                RequiredConsentType = consentType,
+                ConsentContext = context,
+                ValidatedAt = DateTimeOffset.UtcNow,
+                ValidationId = Guid.NewGuid().ToString()
+            };
+        }
     }
 
     /// <summary>
@@ -166,27 +240,27 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The action for which authority is being overridden.
         /// </summary>
-        public string Action { get; set; }
+        public string Action { get; set; } = string.Empty;
 
         /// <summary>
         /// The resource for which authority is being overridden.
         /// </summary>
-        public string Resource { get; set; }
+        public string Resource { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the user requesting the override.
         /// </summary>
-        public string RequestedBy { get; set; }
+        public string RequestedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The reason for the override.
         /// </summary>
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
 
         /// <summary>
         /// The tenant ID in which the override is being requested.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The duration for which the override should be valid.
@@ -207,12 +281,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The unique identifier for this audit record.
         /// </summary>
-        public string AuditId { get; set; }
+        public string AuditId { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of event (e.g., "Validation", "Override", "ScopeUpdate").
         /// </summary>
-        public string EventType { get; set; }
+        public string EventType { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the agent involved.
@@ -222,37 +296,37 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The ID of the user involved (if applicable).
         /// </summary>
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         /// <summary>
         /// The action that was being performed.
         /// </summary>
-        public string Action { get; set; }
+        public string Action { get; set; } = string.Empty;
 
         /// <summary>
         /// The resource that was being accessed.
         /// </summary>
-        public string Resource { get; set; }
+        public string Resource { get; set; } = string.Empty;
 
         /// <summary>
         /// The result of the event (e.g., "Authorized", "Denied", "Overridden").
         /// </summary>
-        public string Result { get; set; }
+        public string Result { get; set; } = string.Empty;
 
         /// <summary>
         /// The reason for the result.
         /// </summary>
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the authority scope that was applied.
         /// </summary>
-        public string ScopeId { get; set; }
+        public string ScopeId { get; set; } = string.Empty;
 
         /// <summary>
         /// The tenant ID in which the event occurred.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when the event occurred.
@@ -266,6 +340,88 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
     }
 
     /// <summary>
+    /// Represents a policy template for agent authority configuration.
+    /// </summary>
+    public class AuthorityPolicyTemplate
+    {
+        /// <summary>
+        /// The unique identifier for this policy template.
+        /// </summary>
+        public string PolicyId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The name of the policy template.
+        /// </summary>
+        public string Name { get; set; } = string.Empty;
+
+        /// <summary>
+        /// A description of the policy template.
+        /// </summary>
+        public string Description { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The base authority scope defined by this template.
+        /// </summary>
+        public AuthorityScope? BaseScope { get; set; }
+
+        /// <summary>
+        /// The rules defined in this policy template.
+        /// </summary>
+        public List<AuthorityPolicyRule> Rules { get; set; } = new List<AuthorityPolicyRule>();
+
+        /// <summary>
+        /// The tenant ID associated with this template.
+        /// </summary>
+        public string TenantId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// When this template was created.
+        /// </summary>
+        public DateTimeOffset CreatedAt { get; set; }
+
+        /// <summary>
+        /// When this template was last updated.
+        /// </summary>
+        public DateTimeOffset UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Whether this is a system-level template available to all tenants.
+        /// </summary>
+        public bool IsSystemTemplate { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a rule within an authority policy template.
+    /// </summary>
+    public class AuthorityPolicyRule
+    {
+        /// <summary>
+        /// The unique identifier for this rule.
+        /// </summary>
+        public string RuleId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The name of the rule.
+        /// </summary>
+        public string Name { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The condition that triggers this rule.
+        /// </summary>
+        public string Condition { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The action to take when the rule is triggered.
+        /// </summary>
+        public string Action { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Additional parameters for the rule.
+        /// </summary>
+        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
+    }
+
+    /// <summary>
     /// Represents a user's permission to override agent authority.
     /// </summary>
     public class OverridePermission
@@ -273,12 +429,12 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The unique identifier for this permission.
         /// </summary>
-        public string PermissionId { get; set; }
+        public string PermissionId { get; set; } = string.Empty;
 
         /// <summary>
         /// The ID of the user who has the override permission.
         /// </summary>
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         /// <summary>
         /// The scope of the override permission (e.g., specific agents, actions, or resources).
@@ -288,7 +444,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The tenant ID to which this permission applies.
         /// </summary>
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when this permission was granted.
@@ -298,7 +454,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The ID of the user who granted this permission.
         /// </summary>
-        public string GrantedBy { get; set; }
+        public string GrantedBy { get; set; } = string.Empty;
 
         /// <summary>
         /// The timestamp when this permission expires.
@@ -308,7 +464,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports.Models
         /// <summary>
         /// The reason this permission was granted.
         /// </summary>
-        public string Reason { get; set; }
+        public string Reason { get; set; } = string.Empty;
     }
 }
 
@@ -318,12 +474,13 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports
 
     /// <summary>
     /// Defines the contract for the Authority Port in the BusinessApplications Layer.
-    /// This port is responsible for managing agent authority, including querying and 
+    /// This port is responsible for managing agent authority, including querying and
     /// overriding agent permissions and scope, adhering to the Hexagonal Architecture pattern.
-    ///
-    /// In the context of the Ethical & Legal Compliance Framework, this interface ensures
+    /// <para>
+    /// In the context of the Ethical and Legal Compliance Framework, this interface ensures
     /// that agent actions are validated against defined authority scopes and that all
     /// authority-related events are auditable.
+    /// </para>
     /// </summary>
     public interface IAuthorityPort
     {
@@ -460,11 +617,11 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports
         /// <returns>A collection of authority audit records matching the criteria.</returns>
         Task<IEnumerable<AuthorityAuditRecord>> GetAuthorityAuditRecordsAsync(
             Guid? agentId = null,
-            string userId = null,
-            string eventType = null,
+            string? userId = null,
+            string? eventType = null,
             DateTimeOffset? startTime = null,
             DateTimeOffset? endTime = null,
-            string tenantId = null,
+            string? tenantId = null,
             int maxResults = 100,
             int skip = 0);
 

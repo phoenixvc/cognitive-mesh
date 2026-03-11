@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>CognitiveMesh.ApiHost</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Agency Layer -->
+    <ProjectReference Include="..\AgencyLayer\CognitiveSandwich\CognitiveSandwich.csproj" />
+    <ProjectReference Include="..\AgencyLayer\RealTime\RealTime.csproj" />
+
+    <!-- Business Applications (controllers that compile cleanly) -->
+    <ProjectReference Include="..\BusinessApplications\AdaptiveBalance\AdaptiveBalance.csproj" />
+    <ProjectReference Include="..\BusinessApplications\Compliance\Compliance.csproj" />
+    <ProjectReference Include="..\BusinessApplications\ConvenerServices\ConvenerServices.csproj" />
+    <ProjectReference Include="..\BusinessApplications\ImpactMetrics\ImpactMetrics.csproj" />
+    <ProjectReference Include="..\BusinessApplications\NISTCompliance\NISTCompliance.csproj" />
+  </ItemGroup>
+
+</Project>
