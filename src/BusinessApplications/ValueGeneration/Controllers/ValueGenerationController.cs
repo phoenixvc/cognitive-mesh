@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using CognitiveMesh.BusinessApplications.Common.Models;
 using CognitiveMesh.BusinessApplications.ConvenerServices.Ports;
 using CognitiveMesh.BusinessApplications.ConvenerServices.Ports.Models;
-using CognitiveMesh.FoundationLayer.AuditLogging;
+using FoundationLayer.AuditLogging;
 using CognitiveMesh.ReasoningLayer.ValueGeneration.Ports;
 
 namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
@@ -104,9 +104,9 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
                             EventType = "ValueDiagnostic.ConsentMissing",
                             EventCategory = "Consent",
                             UserId = GetCurrentUserId(),
-                            TargetId = request.TargetId,
                             CorrelationId = correlationId,
-                            EventData = JsonSerializer.Serialize(new { request.TenantId, request.TargetType })
+                            EventData = JsonSerializer.Serialize(new { request.TenantId, request.TargetType }),
+                            Metadata = new Dictionary<string, string> { { "TargetId", request.TargetId } }
                         });
 
                         return StatusCode(StatusCodes.Status403Forbidden, ErrorEnvelope.ConsentMissing(
@@ -137,8 +137,8 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
                     EventType = "ValueDiagnostic.Completed",
                     EventCategory = "ValueGeneration",
                     UserId = GetCurrentUserId(),
-                    TargetId = request.TargetId,
                     CorrelationId = correlationId,
+                    Metadata = new Dictionary<string, string> { { "TargetId", request.TargetId } },
                     EventData = JsonSerializer.Serialize(new 
                     { 
                         request.TenantId, 
@@ -220,8 +220,8 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
                     EventType = "OrgBlindness.Completed",
                     EventCategory = "ValueGeneration",
                     UserId = GetCurrentUserId(),
-                    TargetId = request.OrganizationId,
                     CorrelationId = correlationId,
+                    Metadata = new Dictionary<string, string> { { "TargetId", request.OrganizationId } },
                     EventData = JsonSerializer.Serialize(new 
                     { 
                         request.TenantId, 
@@ -297,8 +297,8 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
                         EventType = "Employability.ConsentMissing",
                         EventCategory = "Consent",
                         UserId = GetCurrentUserId(),
-                        TargetId = request.UserId,
                         CorrelationId = correlationId,
+                        Metadata = new Dictionary<string, string> { { "TargetId", request.UserId } },
                         EventData = JsonSerializer.Serialize(new { request.TenantId })
                     });
 
@@ -329,8 +329,8 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
                     EventType = "Employability.Completed",
                     EventCategory = "ValueGeneration",
                     UserId = GetCurrentUserId(),
-                    TargetId = request.UserId,
                     CorrelationId = correlationId,
+                    Metadata = new Dictionary<string, string> { { "TargetId", request.UserId } },
                     EventData = JsonSerializer.Serialize(new 
                     { 
                         request.TenantId, 
@@ -550,19 +550,19 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
         /// The ID of the target (user or team) for the diagnostic.
         /// </summary>
         [Required]
-        public string TargetId { get; set; }
+        public string TargetId { get; set; } = string.Empty;
 
         /// <summary>
         /// The type of the target ("User" or "Team").
         /// </summary>
         [Required]
-        public string TargetType { get; set; }
+        public string TargetType { get; set; } = string.Empty;
 
         /// <summary>
         /// The tenant ID.
         /// </summary>
         [Required]
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -574,18 +574,18 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
         /// The ID of the organization to analyze.
         /// </summary>
         [Required]
-        public string OrganizationId { get; set; }
+        public string OrganizationId { get; set; } = string.Empty;
 
         /// <summary>
         /// Optional filters to limit the analysis to specific departments.
         /// </summary>
-        public string[] DepartmentFilters { get; set; }
+        public string[] DepartmentFilters { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// The tenant ID.
         /// </summary>
         [Required]
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -597,13 +597,13 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Controllers
         /// The ID of the user to check.
         /// </summary>
         [Required]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         /// <summary>
         /// The tenant ID.
         /// </summary>
         [Required]
-        public string TenantId { get; set; }
+        public string TenantId { get; set; } = string.Empty;
     }
 
     #endregion

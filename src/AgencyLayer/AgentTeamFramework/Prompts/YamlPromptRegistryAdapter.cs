@@ -150,7 +150,7 @@ public sealed class YamlPromptRegistryAdapter : IPromptRegistryPort
                 var dirName = Path.GetFileName(dir);
                 if (dirName.Contains(teamId, StringComparison.OrdinalIgnoreCase))
                 {
-                    var promptsPath = Path.Combine(dir, "Prompts");
+                    var promptsPath = Path.Join(dir, "Prompts");
                     if (Directory.Exists(promptsPath))
                         return promptsPath;
                 }
@@ -158,7 +158,7 @@ public sealed class YamlPromptRegistryAdapter : IPromptRegistryPort
         }
 
         // Convention 2: Direct Prompts subdirectory
-        var directPath = Path.Combine(_basePath, "Prompts");
+        var directPath = Path.Join(_basePath, "Prompts");
         if (Directory.Exists(directPath))
             return directPath;
 

@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using CognitiveMesh.BusinessApplications.NISTCompliance.Models;
 using CognitiveMesh.BusinessApplications.NISTCompliance.Ports;
+using static CognitiveMesh.Shared.LogSanitizer;
 using Microsoft.Extensions.Logging;
 
 namespace CognitiveMesh.BusinessApplications.NISTCompliance.Services;
@@ -85,7 +86,7 @@ public class NISTComplianceService : INISTComplianceServicePort
 
         _logger.LogInformation(
             "Evidence {EvidenceId} submitted for statement {StatementId} by {SubmittedBy}",
-            evidenceId, request.StatementId, request.SubmittedBy);
+            evidenceId, Sanitize(request.StatementId), Sanitize(request.SubmittedBy));
 
         return Task.FromResult(new NISTEvidenceResponse
         {
@@ -145,7 +146,7 @@ public class NISTComplianceService : INISTComplianceServicePort
 
         _logger.LogInformation(
             "Checklist retrieved for organization {OrganizationId}: {Completed}/{Total} statements completed",
-            organizationId, completedStatements, totalStatements);
+            Sanitize(organizationId), completedStatements, totalStatements);
 
         return Task.FromResult(new NISTChecklistResponse
         {
@@ -195,7 +196,7 @@ public class NISTComplianceService : INISTComplianceServicePort
 
         _logger.LogInformation(
             "Score calculated for organization {OrganizationId}: overall {OverallScore}",
-            organizationId, overall);
+            Sanitize(organizationId), overall);
 
         return Task.FromResult(new NISTScoreResponse
         {
@@ -236,7 +237,7 @@ public class NISTComplianceService : INISTComplianceServicePort
 
         _logger.LogInformation(
             "Review completed for evidence {EvidenceId}: {Decision} by {ReviewerId}",
-            request.EvidenceId, request.Decision, request.ReviewerId);
+            request.EvidenceId, Sanitize(request.Decision), Sanitize(request.ReviewerId));
 
         return Task.FromResult(new NISTReviewResponse
         {
@@ -288,7 +289,7 @@ public class NISTComplianceService : INISTComplianceServicePort
 
         _logger.LogInformation(
             "Roadmap generated for organization {OrganizationId}: {GapCount} gaps identified",
-            organizationId, gaps.Count);
+            Sanitize(organizationId), gaps.Count);
 
         return Task.FromResult(new NISTRoadmapResponse
         {
@@ -315,7 +316,7 @@ public class NISTComplianceService : INISTComplianceServicePort
 
         _logger.LogInformation(
             "Audit log retrieved for organization {OrganizationId}: {EntryCount} entries (max {MaxResults})",
-            organizationId, snapshot.Count, maxResults);
+            Sanitize(organizationId), snapshot.Count, maxResults);
 
         return Task.FromResult(new NISTAuditLogResponse
         {

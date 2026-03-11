@@ -1,5 +1,8 @@
 using CognitiveMesh.BusinessApplications.AdaptiveBalance.Models;
 using CognitiveMesh.BusinessApplications.AdaptiveBalance.Ports;
+using static CognitiveMesh.Shared.LogSanitizer;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CognitiveMesh.BusinessApplications.AdaptiveBalance.Controllers;
@@ -9,7 +12,9 @@ namespace CognitiveMesh.BusinessApplications.AdaptiveBalance.Controllers;
 /// spectrum dimension retrieval, manual overrides, history tracking,
 /// learning evidence submission, and reflexion status monitoring.
 /// </summary>
-public class AdaptiveBalanceController
+[ApiController]
+[Route("api/v1/adaptive-balance")]
+public class AdaptiveBalanceController : ControllerBase
 {
     private readonly ILogger<AdaptiveBalanceController> _logger;
     private readonly IAdaptiveBalanceServicePort _servicePort;
@@ -33,8 +38,12 @@ public class AdaptiveBalanceController
     /// <param name="request">The balance request with optional context.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The current balance positions with confidence metrics.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when request is null.</exception>
-    public async Task<BalanceResponse> GetBalanceAsync(BalanceRequest request, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the current balance positions.</response>
+    /// <response code="400">If the request is invalid.</response>
+    [HttpPost("balance")]
+    [ProducesResponseType(typeof(BalanceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<BalanceResponse>> GetBalanceAsync([FromBody] BalanceRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -49,9 +58,12 @@ public class AdaptiveBalanceController
     /// <param name="request">The override request with new value and rationale.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The override response confirming the change.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when request is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when required fields are missing.</exception>
-    public async Task<OverrideResponse> ApplyOverrideAsync(OverrideRequest request, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the override confirmation.</response>
+    /// <response code="400">If the request is invalid or required fields are missing.</response>
+    [HttpPost("override")]
+    [ProducesResponseType(typeof(OverrideResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<OverrideResponse>> ApplyOverrideAsync([FromBody] OverrideRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -67,7 +79,7 @@ public class AdaptiveBalanceController
 
         _logger.LogInformation(
             "Applying override to dimension {Dimension} by {OverriddenBy}",
-            request.Dimension, request.OverriddenBy);
+            Sanitize(request.Dimension), Sanitize(request.OverriddenBy));
 
         return await _servicePort.ApplyOverrideAsync(request, cancellationToken);
     }
@@ -78,12 +90,16 @@ public class AdaptiveBalanceController
     /// <param name="dimension">The name of the dimension to retrieve history for.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The change history for the specified dimension.</returns>
-    /// <exception cref="ArgumentException">Thrown when dimension is null or whitespace.</exception>
-    public async Task<SpectrumHistoryResponse> GetSpectrumHistoryAsync(string dimension, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the spectrum history.</response>
+    /// <response code="400">If dimension is null or whitespace.</response>
+    [HttpGet("history/{dimension}")]
+    [ProducesResponseType(typeof(SpectrumHistoryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<SpectrumHistoryResponse>> GetSpectrumHistoryAsync(string dimension, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dimension);
 
-        _logger.LogInformation("Retrieving spectrum history for dimension {Dimension}", dimension);
+        _logger.LogInformation("Retrieving spectrum history for dimension {Dimension}", Sanitize(dimension));
 
         return await _servicePort.GetSpectrumHistoryAsync(dimension, cancellationToken);
     }
@@ -94,14 +110,18 @@ public class AdaptiveBalanceController
     /// <param name="request">The learning evidence request.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The learning evidence submission response.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when request is null.</exception>
-    public async Task<LearningEvidenceResponse> SubmitLearningEvidenceAsync(LearningEvidenceRequest request, CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the learning evidence submission confirmation.</response>
+    /// <response code="400">If the request is invalid.</response>
+    [HttpPost("learning-evidence")]
+    [ProducesResponseType(typeof(LearningEvidenceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<LearningEvidenceResponse>> SubmitLearningEvidenceAsync([FromBody] LearningEvidenceRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         _logger.LogInformation(
             "Submitting learning evidence from agent {SourceAgentId}: pattern {PatternType}",
-            request.SourceAgentId, request.PatternType);
+            Sanitize(request.SourceAgentId), Sanitize(request.PatternType));
 
         return await _servicePort.SubmitLearningEvidenceAsync(request, cancellationToken);
     }
@@ -111,7 +131,10 @@ public class AdaptiveBalanceController
     /// </summary>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>The current reflexion status with aggregate metrics.</returns>
-    public async Task<ReflexionStatusResponse> GetReflexionStatusAsync(CancellationToken cancellationToken = default)
+    /// <response code="200">Returns the current reflexion status.</response>
+    [HttpGet("reflexion-status")]
+    [ProducesResponseType(typeof(ReflexionStatusResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ReflexionStatusResponse>> GetReflexionStatusAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Retrieving reflexion status");
 

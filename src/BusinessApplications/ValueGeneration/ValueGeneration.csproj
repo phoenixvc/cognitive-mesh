@@ -5,17 +5,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>CognitiveMesh.BusinessApplications.ValueGeneration</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="[10.0.3]" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="[2.3.9]" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\FoundationLayer\FoundationLayer.csproj" />
+    <ProjectReference Include="..\..\FoundationLayer\AuditLogging\AuditLogging.csproj" />
     <ProjectReference Include="..\..\ReasoningLayer\ReasoningLayer.csproj" />
     <ProjectReference Include="..\..\ReasoningLayer\ValueGeneration\ValueGeneration.csproj" />
     <ProjectReference Include="..\..\Shared\CognitiveMesh.Shared.csproj" />

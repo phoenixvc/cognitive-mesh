@@ -10,16 +10,16 @@ namespace CognitiveMesh.BusinessApplications.ValueGeneration.Adapters;
 /// <see cref="ConcurrentDictionary{TKey,TValue}"/> and is not persisted
 /// between application restarts.
 /// </summary>
-public class InMemoryValueDiagnosticDataRepository : IValueDiagnosticDataRepository
+public class InMemoryValueDiagnosticDataAdapter : IValueDiagnosticDataRepository
 {
-    private readonly ILogger<InMemoryValueDiagnosticDataRepository> _logger;
+    private readonly ILogger<InMemoryValueDiagnosticDataAdapter> _logger;
     private readonly ConcurrentDictionary<string, ValueDiagnosticData> _store = new();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InMemoryValueDiagnosticDataRepository"/> class.
+    /// Initializes a new instance of the <see cref="InMemoryValueDiagnosticDataAdapter"/> class.
     /// </summary>
     /// <param name="logger">The logger instance.</param>
-    public InMemoryValueDiagnosticDataRepository(ILogger<InMemoryValueDiagnosticDataRepository> logger)
+    public InMemoryValueDiagnosticDataAdapter(ILogger<InMemoryValueDiagnosticDataAdapter> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -40,6 +40,24 @@ public class InMemoryValueDiagnosticDataRepository : IValueDiagnosticDataReposit
         });
 
         return Task.FromResult(data);
+    }
+
+    /// <inheritdoc />
+    public Task<OrgDataSnapshot> GetOrgDataSnapshotAsync(string organizationId, string[] departmentFilters, string tenantId)
+    {
+        _logger.LogDebug(
+            "Retrieving org data snapshot for organization '{OrganizationId}' in tenant '{TenantId}'.",
+            organizationId, tenantId);
+
+        var snapshot = new OrgDataSnapshot
+        {
+            PerceivedValueScores = new Dictionary<string, double> { { "Engineering", 0.8 }, { "Marketing", 0.6 } },
+            ActualImpactScores = new Dictionary<string, double> { { "Engineering", 0.7 }, { "Marketing", 0.75 } },
+            ResourceAllocation = new Dictionary<string, double> { { "Engineering", 0.5 }, { "Marketing", 0.3 } },
+            RecognitionMetrics = new Dictionary<string, double> { { "Engineering", 0.9 }, { "Marketing", 0.4 } }
+        };
+
+        return Task.FromResult(snapshot);
     }
 
     /// <summary>

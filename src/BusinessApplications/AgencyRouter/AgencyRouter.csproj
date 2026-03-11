@@ -5,21 +5,27 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>CognitiveMesh.BusinessApplications.AgencyRouter</AssemblyName>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Microsoft Extensions -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-    
+
     <!-- JSON -->
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\FoundationLayer\FoundationLayer.csproj" />
-    <ProjectReference Include="..\AgencyLayer.csproj" />
+    <ProjectReference Include="..\..\AgencyLayer\AgencyLayer.csproj" />
+    <ProjectReference Include="..\..\ReasoningLayer\AgencyRouter\AgencyRouter.csproj" />
   </ItemGroup>
 
 </Project>
