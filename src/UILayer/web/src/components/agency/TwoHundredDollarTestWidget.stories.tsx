@@ -1,21 +1,33 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { within, userEvent, expect } from '@storybook/test';
+import { within, userEvent, expect } from 'storybook/test';
 
 import AgentStatusBanner from './AgentStatusBanner';
-import type { AgentStatus } from './AgentStatusBanner'; // Assuming type is exported
 
 // --- Mock Adapter Interfaces and Models ---
-// Re-defining these for Storybook context. In a real app, they'd be imported.
+// Re-defining these for Storybook context to match AgentStatusBanner's interfaces.
+
+type AgentStatus =
+  | 'idle'
+  | 'executing'
+  | 'awaiting_approval'
+  | 'offline'
+  | 'circuit_broken'
+  | 'authority_required'
+  | 'consent_required'
+  | 'error';
 
 interface ErrorEnvelope {
   errorCode: string;
   message: string;
+  correlationId?: string;
+  details?: unknown;
   canRetry?: boolean;
 }
 
 interface WidgetState<T> {
   data: T | null;
+  isStale: boolean;
+  lastSyncTimestamp: Date;
   lastError: ErrorEnvelope | null;
 }
 
@@ -29,10 +41,22 @@ interface Notification {
 
 interface ThemeSettings {
   name: 'Light' | 'Dark';
+  highContrastEnabled: boolean;
+  languageCode: string;
+}
+
+interface AgentViewModel {
+  agentId: string;
+  agentType: string;
+  description: string;
+  status: 'Active' | 'Deprecated' | 'Retired';
+  version: string;
+  defaultAutonomy: 'RecommendOnly' | 'ActWithConfirmation' | 'FullyAutonomous';
 }
 
 interface IDataAPIAdapterPort {
   getAgentStatusAsync(agentId: string, tenantId: string): Promise<WidgetState<AgentStatus>>;
+  getAgentDetailsAsync(agentId: string, tenantId: string): Promise<WidgetState<AgentViewModel>>;
 }
 
 interface INotificationAdapter {
@@ -61,11 +85,26 @@ const createMockDataAPIAdapter = (
     if (shouldFail) {
       return {
         data: null,
+        isStale: false,
+        lastSyncTimestamp: new Date(),
         lastError: { errorCode: 'API_ERROR', message: 'Failed to fetch agent status.', canRetry: true },
       };
     }
-    return { data: status, lastError: null };
+    return { data: status, isStale: false, lastSyncTimestamp: new Date(), lastError: null };
   },
+  getAgentDetailsAsync: async (agentId, tenantId) => ({
+    data: {
+      agentId,
+      agentType: 'GeneralPurpose',
+      description: 'Mock agent for Storybook',
+      status: 'Active' as const,
+      version: '1.0.0',
+      defaultAutonomy: 'ActWithConfirmation' as const,
+    },
+    isStale: false,
+    lastSyncTimestamp: new Date(),
+    lastError: null,
+  }),
 });
 
 const mockNotificationAdapter: INotificationAdapter = {
@@ -82,8 +121,8 @@ const mockTelemetryAdapter: ITelemetryAdapter = {
   },
 };
 
-const createMockThemeAdapter = (theme: ThemeSettings): IThemeAdapter => ({
-  getCurrentThemeAsync: async () => theme,
+const createMockThemeAdapter = (themeName: 'Light' | 'Dark'): IThemeAdapter => ({
+  getCurrentThemeAsync: async () => ({ name: themeName, highContrastEnabled: false, languageCode: 'en-US' }),
   onThemeChanged: (callback) => {},
 });
 
@@ -135,7 +174,7 @@ type Story = StoryObj<typeof AgentStatusBanner>;
 export const Idle: Story = {
   args: {
     dataAPIAdapter: createMockDataAPIAdapter('idle'),
-    themeAdapter: createMockThemeAdapter({ name: 'Light' }),
+    themeAdapter: createMockThemeAdapter('Light'),
   },
 };
 
@@ -146,7 +185,7 @@ export const Idle: Story = {
 export const Executing: Story = {
   args: {
     dataAPIAdapter: createMockDataAPIAdapter('executing'),
-    themeAdapter: createMockThemeAdapter({ name: 'Light' }),
+    themeAdapter: createMockThemeAdapter('Light'),
   },
 };
 
@@ -157,7 +196,7 @@ export const Executing: Story = {
 export const AwaitingApproval: Story = {
   args: {
     dataAPIAdapter: createMockDataAPIAdapter('awaiting_approval'),
-    themeAdapter: createMockThemeAdapter({ name: 'Light' }),
+    themeAdapter: createMockThemeAdapter('Light'),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -175,7 +214,7 @@ export const AwaitingApproval: Story = {
 export const Offline: Story = {
   args: {
     dataAPIAdapter: createMockDataAPIAdapter('offline'),
-    themeAdapter: createMockThemeAdapter({ name: 'Light' }),
+    themeAdapter: createMockThemeAdapter('Light'),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -193,7 +232,7 @@ export const Offline: Story = {
 export const ErrorState: Story = {
   args: {
     dataAPIAdapter: createMockDataAPIAdapter('idle', true), // Force a failure
-    themeAdapter: createMockThemeAdapter({ name: 'Light' }),
+    themeAdapter: createMockThemeAdapter('Light'),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -212,7 +251,7 @@ export const ErrorState: Story = {
 export const CircuitBroken: Story = {
   args: {
     dataAPIAdapter: createMockDataAPIAdapter('circuit_broken'),
-    themeAdapter: createMockThemeAdapter({ name: 'Light' }),
+    themeAdapter: createMockThemeAdapter('Light'),
   },
 };
 
@@ -223,7 +262,7 @@ export const CircuitBroken: Story = {
 export const DarkMode: Story = {
   args: {
     dataAPIAdapter: createMockDataAPIAdapter('awaiting_approval'),
-    themeAdapter: createMockThemeAdapter({ name: 'Dark' }),
+    themeAdapter: createMockThemeAdapter('Dark'),
   },
   parameters: {
     backgrounds: {
@@ -246,7 +285,7 @@ export const DarkMode: Story = {
 export const WithNotification: Story = {
   args: {
     dataAPIAdapter: createMockDataAPIAdapter('executing'),
-    themeAdapter: createMockThemeAdapter({ name: 'Light' }),
+    themeAdapter: createMockThemeAdapter('Light'),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

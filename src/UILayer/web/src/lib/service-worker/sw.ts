@@ -1,3 +1,4 @@
+/// <reference lib="webworker" />
 /**
  * @fileoverview Service Worker for the Cognitive Mesh UI.
  *
@@ -409,7 +410,9 @@ self.addEventListener('fetch', (event: FetchEvent) => {
  * Fired when the browser regains connectivity, allowing us to
  * replay queued telemetry events.
  */
-self.addEventListener('sync', (event: SyncEvent) => {
+// Background Sync API is not yet in the standard TS lib typings.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(self as any).addEventListener('sync', (event: any) => {
   if (event.tag === TELEMETRY_SYNC_TAG) {
     console.log('[SW] Background sync: replaying queued telemetry');
     event.waitUntil(replayQueuedTelemetry());

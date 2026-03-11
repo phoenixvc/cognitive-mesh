@@ -221,7 +221,7 @@ export async function getServiceWorkerVersion(): Promise<string | undefined> {
       resolve(event.data?.version);
     };
 
-    navigator.serviceWorker.controller.postMessage(
+    navigator.serviceWorker.controller?.postMessage(
       { type: 'GET_VERSION' },
       [channel.port2],
     );

@@ -7,7 +7,6 @@
  */
 
 import { useTranslation, UseTranslationResponse } from 'react-i18next';
-import type { TFunction } from 'i18next';
 import type enUSCommon from '../locales/en-US/common.json';
 
 // ---------------------------------------------------------------------------
@@ -70,7 +69,7 @@ export interface CognitiveMeshTranslationResult {
   /** Typed translation function scoped to the requested namespace. */
   t: TypedTFunction;
   /** The underlying i18next instance for advanced operations. */
-  i18n: UseTranslationResponse<TranslationNamespace>[1];
+  i18n: UseTranslationResponse<TranslationNamespace, undefined>[1];
   /** `true` while the namespace resources are still being loaded. */
   ready: boolean;
 }

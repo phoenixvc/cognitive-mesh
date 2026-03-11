@@ -1,18 +1,13 @@
 // Central export file for all Cognitive Mesh components
 export { default as AdvancedDraggableModule } from "./AdvancedDraggableModule"
 export { default as BackgroundEffects } from "./BackgroundEffects"
-export { default as BridgeHeader } from "./BridgeHeader"
 export { default as DashboardLayout } from "./DashboardLayout"
 export { default as DraggableModule } from "./DraggableModule"
 export { default as DraggableModuleContent } from "./DraggableModuleContent"
 export { default as EnergyFlow } from "./EnergyFlow"
 export { default as ErrorBoundary } from "./ErrorBoundary"
-export { default as FXModePanel } from "./FXModePanel"
-export { default as LayoutToolsPanel } from "./LayoutToolsPanel"
 export { default as LoadingSpinner } from "./LoadingSpinner"
 export { default as Nexus } from "./Nexus"
-export { default as VoiceFeedback } from "./VoiceFeedback"
-
 // Setup & Onboarding
 export { default as SetupWizard } from "./setup/SetupWizard"
 export { default as DatabaseSettings } from "./setup/DatabaseSettings"

@@ -170,8 +170,8 @@ export default function ParticleField() {
         height: "100vh",
         opacity: 0.7,
       }}
-      width={window.innerWidth}
-      height={window.innerHeight}
+      width={typeof window !== "undefined" ? window.innerWidth : 0}
+      height={typeof window !== "undefined" ? window.innerHeight : 0}
       aria-hidden="true"
     />
   );

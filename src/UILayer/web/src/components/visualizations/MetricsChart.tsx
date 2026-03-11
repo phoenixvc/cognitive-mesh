@@ -1,8 +1,8 @@
 import React, { useEffect, useCallback, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { MetricDataPoint, VisualizationTheme, ThresholdLine } from '../types/visualization';
-import { useD3 } from '../hooks/useD3';
-import { defaultTheme } from '../themes/defaultTheme';
+import { MetricDataPoint, VisualizationTheme, ThresholdLine } from '@/lib/visualizations/types/visualization';
+import { useD3 } from '@/lib/visualizations/useD3';
+import { defaultTheme } from '@/lib/visualizations/themes/defaultTheme';
 
 /**
  * Props for the MetricsChart component.
