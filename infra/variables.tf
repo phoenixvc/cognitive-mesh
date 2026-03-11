@@ -135,6 +135,26 @@ variable "appinsights_retention_days" {
   default     = 90
 }
 
+# ---------- Frontend Hosting ----------
+
+variable "frontend_api_base_url" {
+  description = "Base URL for the backend API, consumed by the Next.js frontend."
+  type        = string
+  default     = "https://cognitive-mesh-api.azurewebsites.net"
+}
+
+variable "frontend_app_service_plan_sku" {
+  description = "App Service Plan SKU for the frontend (B1 for dev, S1 for prod)."
+  type        = string
+  default     = "B1"
+}
+
+variable "frontend_custom_domain" {
+  description = "Custom domain for the frontend App Service. Set to null to skip."
+  type        = string
+  default     = null
+}
+
 # ---------- Networking ----------
 
 variable "vnet_address_space" {

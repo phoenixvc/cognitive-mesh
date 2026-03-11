@@ -58,3 +58,25 @@ export const LazyMetricsChart = createLazyWidget(
 export const LazyAgentNetworkGraph = createLazyWidget(
   () => import('@/components/visualizations/AgentNetworkGraph') as AnyImport
 );
+
+// Phase 15b — PRD Widget Dashboards
+
+export const LazyNistComplianceDashboard = createLazyWidget(
+  () => import('@/components/widgets/NistCompliance/NistComplianceDashboard') as AnyImport
+);
+
+export const LazyAdaptiveBalanceDashboard = createLazyWidget(
+  () => import('@/components/widgets/AdaptiveBalance/AdaptiveBalanceDashboard') as AnyImport
+);
+
+export const LazyValueGenerationDashboard = createLazyWidget(
+  () => import('@/components/widgets/ValueGeneration/ValueGenerationDashboard') as AnyImport
+);
+
+export const LazyImpactMetricsDashboard = createLazyWidget(
+  () => import('@/components/widgets/ImpactMetrics/ImpactMetricsDashboard') as AnyImport
+);
+
+export const LazyCognitiveSandwichDashboard = createLazyWidget(
+  () => import('@/components/widgets/CognitiveSandwich/CognitiveSandwichDashboard') as AnyImport
+);

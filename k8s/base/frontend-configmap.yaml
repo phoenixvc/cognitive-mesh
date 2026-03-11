@@ -1,0 +1,15 @@
+###############################################################################
+# Cognitive Mesh — Frontend ConfigMap
+# Non-sensitive configuration for the Next.js frontend.
+# Values below are overridden per environment via Kustomize overlays.
+###############################################################################
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cognitive-mesh-frontend-config
+  labels:
+    app: cognitive-mesh
+    component: frontend
+data:
+  NEXT_PUBLIC_API_BASE_URL: "http://cognitive-mesh-api"
+  NODE_ENV: "production"

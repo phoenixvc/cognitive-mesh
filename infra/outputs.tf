@@ -123,3 +123,20 @@ output "log_analytics_workspace_id" {
   description = "The Log Analytics Workspace ID."
   value       = module.monitoring.log_analytics_workspace_id
 }
+
+# ---------- Frontend Hosting ----------
+
+output "frontend_app_service_url" {
+  description = "The default URL of the frontend App Service."
+  value       = module.frontend_hosting.app_service_url
+}
+
+output "frontend_app_service_id" {
+  description = "The ID of the frontend App Service."
+  value       = module.frontend_hosting.app_service_id
+}
+
+output "frontend_app_service_name" {
+  description = "The name of the frontend App Service."
+  value       = module.frontend_hosting.app_service_name
+}

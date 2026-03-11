@@ -68,7 +68,52 @@ patches:
         path: /data/LOG_LEVEL
         value: Debug
 
+  # Frontend: scale down for dev
+  - target:
+      kind: Deployment
+      name: cognitive-mesh-frontend
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 100m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 128Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 250m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 256Mi
+
+  # Frontend config for dev
+  - target:
+      kind: ConfigMap
+      name: cognitive-mesh-frontend-config
+    patch: |
+      - op: replace
+        path: /data/NEXT_PUBLIC_API_BASE_URL
+        value: "http://cognitive-mesh-api.cognitive-mesh-dev.svc.cluster.local"
+      - op: replace
+        path: /data/NODE_ENV
+        value: "development"
+
+  # Ingress: add dev host
+  - target:
+      kind: Ingress
+      name: cognitive-mesh-ingress
+    patch: |
+      - op: add
+        path: /spec/rules/0/host
+        value: "dev.cognitive-mesh.local"
+
 images:
   - name: cognitive-mesh-api
     newName: cognitivemeshacr.azurecr.io/cognitive-mesh-api
+    newTag: dev-latest
+  - name: cognitive-mesh-frontend
+    newName: cognitivemeshacr.azurecr.io/cognitive-mesh-frontend
     newTag: dev-latest
