@@ -744,10 +744,8 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <inheritdoc />
         Task<bool> IAuthorityPort.RevokeAuthorityOverrideAsync(Guid agentId, string action, string revokedBy, string tenantId)
         {
-            // The existing RevokeAuthorityOverrideAsync uses overrideToken, not agentId directly.
-            // Log the revocation intent and return true — full implementation requires token lookup.
-            _logger.LogInformation("RevokeAuthorityOverrideAsync called for agent {AgentId}, action {Action} by {RevokedBy}", agentId, action, revokedBy);
-            return Task.FromResult(true);
+            _logger.LogWarning("RevokeAuthorityOverrideAsync is not yet implemented — override for agent {AgentId}, action {Action} was not revoked", agentId, action);
+            return Task.FromResult(false);
         }
 
         /// <inheritdoc />
@@ -933,7 +931,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.Property(e => e.BaseScope)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions()));
+                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions())!);
 
                 // Configure Rules as a JSON column
                 entity.Property(e => e.Rules)

@@ -26,7 +26,7 @@ export function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps)
         router.replace("/forbidden")
       }
     }
-  }, [isAuthenticated, isLoading, user, requiredRoles, router])
+  }, [isAuthenticated, isLoading, user, requiredRoles, router, pathname])
 
   if (isLoading) {
     return (
