@@ -13,6 +13,7 @@ export const navItems: NavItem[] = [
   { label: "Compliance", href: "/compliance", icon: "ShieldCheck", section: "Governance" },
   { label: "Marketplace", href: "/marketplace", icon: "Store", section: "Governance" },
   { label: "Settings", href: "/settings", icon: "Settings", section: "System" },
+  { label: "Profile", href: "/profile", icon: "User", section: "System" },
 ]
 
 export const sectionOrder = ["Core", "Governance", "System"]
