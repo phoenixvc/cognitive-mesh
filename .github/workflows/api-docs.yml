@@ -60,7 +60,9 @@ jobs:
     needs: validate
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
@@ -93,8 +95,6 @@ jobs:
         user_name: 'GitHub Action'
         user_email: 'action@github.com'
         commit_message: 'Deploy API documentation'
-      env:
-        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
 
   notify:
     name: Notify on Failure
