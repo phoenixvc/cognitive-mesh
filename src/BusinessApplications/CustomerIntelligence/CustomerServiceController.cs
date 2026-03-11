@@ -1,4 +1,5 @@
 using CognitiveMesh.BusinessApplications.CustomerIntelligence;
+using static CognitiveMesh.Shared.LogSanitizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -51,7 +52,7 @@ public class CustomerServiceController : ControllerBase
 
         try
         {
-            _logger.LogInformation("Retrieving profile for customer {CustomerId}", customerId);
+            _logger.LogInformation("Retrieving profile for customer {CustomerId}", Sanitize(customerId));
 
             var profile = await _intelligenceManager.GetCustomerProfileAsync(customerId, cancellationToken)
                 .ConfigureAwait(false);
@@ -82,7 +83,7 @@ public class CustomerServiceController : ControllerBase
         ArgumentNullException.ThrowIfNull(request);
 
         _logger.LogInformation("Querying customer segments with filter: {NameFilter}, limit: {Limit}",
-            request.NameContains ?? "(none)", request.Limit);
+            Sanitize(request.NameContains ?? "(none)"), request.Limit);
 
         var segments = await _intelligenceManager.GetCustomerSegmentsAsync(request, cancellationToken)
             .ConfigureAwait(false);
@@ -116,7 +117,7 @@ public class CustomerServiceController : ControllerBase
         try
         {
             _logger.LogInformation("Generating insights for customer {CustomerId}, type: {InsightType}",
-                customerId, insightType);
+                Sanitize(customerId), insightType);
 
             var insights = await _intelligenceManager.GenerateCustomerInsightsAsync(customerId, insightType, cancellationToken)
                 .ConfigureAwait(false);
@@ -155,7 +156,7 @@ public class CustomerServiceController : ControllerBase
         try
         {
             _logger.LogInformation("Predicting behavior for customer {CustomerId}, type: {PredictionType}",
-                customerId, predictionType);
+                Sanitize(customerId), predictionType);
 
             var prediction = await _intelligenceManager.PredictCustomerBehaviorAsync(customerId, predictionType, cancellationToken)
                 .ConfigureAwait(false);

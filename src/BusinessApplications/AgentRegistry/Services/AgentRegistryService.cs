@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using static CognitiveMesh.Shared.LogSanitizer;
 using CognitiveMesh.BusinessApplications.AgentRegistry.Data;
 using CognitiveMesh.BusinessApplications.AgentRegistry.Ports;
 using CognitiveMesh.BusinessApplications.Common.Models;
@@ -51,7 +52,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
             if (!validationResult.IsValid)
             {
                 var errorMessage = string.Join(", ", validationResult.Errors);
-                _logger.LogWarning("Agent definition validation failed: {ErrorMessage}", errorMessage);
+                _logger.LogWarning("Agent definition validation failed: {ErrorMessage}", Sanitize(errorMessage));
                 throw new AgentValidationException(errorMessage);
             }
 
@@ -87,15 +88,15 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                     _dbContext.AgentVersionRecords.Add(versionRecord);
                     await _dbContext.SaveChangesAsync();
 
-                    _logger.LogInformation("Agent registered successfully: {AgentId}, Type: {AgentType}", 
-                        definition.AgentId, definition.AgentType);
+                    _logger.LogInformation("Agent registered successfully: {AgentId}, Type: {AgentType}",
+                        definition.AgentId, Sanitize(definition.AgentType));
 
                     return definition;
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registering agent: {AgentType}", definition.AgentType);
+                _logger.LogError(ex, "Error registering agent: {AgentType}", Sanitize(definition.AgentType));
                 throw new AgentRegistrationException("Failed to register agent", ex);
             }
         }
@@ -412,8 +413,8 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error finding agents with criteria: {Criteria}", 
-                    criteria.ToString());
+                _logger.LogError(ex, "Error finding agents with criteria: {Criteria}",
+                    Sanitize(criteria.ToString()));
                 throw new AgentRegistryException("Failed to find agents", ex);
             }
         }
@@ -579,7 +580,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
 
             definition.Status = AgentStatus.Retired;
             await _dbContext.SaveChangesAsync();
-            _logger.LogInformation("Agent {AgentId} deactivated by {DeactivatedBy}. Reason: {Reason}", agentId, deactivatedBy, reason);
+            _logger.LogInformation("Agent {AgentId} deactivated by {DeactivatedBy}. Reason: {Reason}", agentId, Sanitize(deactivatedBy), Sanitize(reason));
 
             return true;
         }

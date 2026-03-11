@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using CognitiveMesh.BusinessApplications.AdaptiveBalance.Models;
 using CognitiveMesh.BusinessApplications.AdaptiveBalance.Ports;
+using static CognitiveMesh.Shared.LogSanitizer;
 using Microsoft.Extensions.Logging;
 
 namespace CognitiveMesh.BusinessApplications.AdaptiveBalance.Services;
@@ -144,7 +145,7 @@ public class AdaptiveBalanceService : IAdaptiveBalanceServicePort
 
         _logger.LogInformation(
             "Override {OverrideId} applied to dimension {Dimension}: {OldValue} -> {NewValue} by {OverriddenBy}",
-            overrideId, request.Dimension, oldValue, request.NewValue, request.OverriddenBy);
+            overrideId, Sanitize(request.Dimension), oldValue, request.NewValue, Sanitize(request.OverriddenBy));
 
         return Task.FromResult(new OverrideResponse
         {
@@ -174,7 +175,7 @@ public class AdaptiveBalanceService : IAdaptiveBalanceServicePort
 
         _logger.LogInformation(
             "History retrieved for dimension {Dimension}: {EntryCount} entries",
-            dimension, snapshot.Count);
+            Sanitize(dimension), snapshot.Count);
 
         return Task.FromResult(new SpectrumHistoryResponse
         {
@@ -206,7 +207,7 @@ public class AdaptiveBalanceService : IAdaptiveBalanceServicePort
 
         _logger.LogInformation(
             "Learning evidence {EventId} submitted by agent {SourceAgentId}: pattern type {PatternType}",
-            eventId, request.SourceAgentId, request.PatternType);
+            eventId, Sanitize(request.SourceAgentId), Sanitize(request.PatternType));
 
         return Task.FromResult(new LearningEvidenceResponse
         {

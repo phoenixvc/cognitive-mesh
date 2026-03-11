@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CognitiveMesh.Shared.Interfaces;
+using static CognitiveMesh.Shared.LogSanitizer;
 
 namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
 {
@@ -56,13 +57,13 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
 
             try
             {
-                _logger.LogInformation("Retrieving customer profile: {CustomerId}", customerId);
+                _logger.LogInformation("Retrieving customer profile: {CustomerId}", Sanitize(customerId));
 
                 var profile = await _customerDataPort.GetProfileAsync(customerId, cancellationToken).ConfigureAwait(false);
 
                 if (profile is null)
                 {
-                    _logger.LogWarning("Customer profile not found: {CustomerId}", customerId);
+                    _logger.LogWarning("Customer profile not found: {CustomerId}", Sanitize(customerId));
                     throw new KeyNotFoundException($"Customer profile not found for ID: {customerId}");
                 }
 
@@ -84,7 +85,7 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
 
                 profile.UpdatedAt = DateTime.UtcNow;
 
-                _logger.LogInformation("Successfully retrieved customer profile: {CustomerId}", customerId);
+                _logger.LogInformation("Successfully retrieved customer profile: {CustomerId}", Sanitize(customerId));
                 return profile;
             }
             catch (KeyNotFoundException)
@@ -93,7 +94,7 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving customer profile: {CustomerId}", customerId);
+                _logger.LogError(ex, "Error retrieving customer profile: {CustomerId}", Sanitize(customerId));
                 throw;
             }
         }
@@ -109,7 +110,7 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
             try
             {
                 _logger.LogInformation("Retrieving customer segments with filter: {NameFilter}, limit: {Limit}",
-                    query.NameContains ?? "(none)", query.Limit);
+                    Sanitize(query.NameContains ?? "(none)"), query.Limit);
 
                 var segments = await _customerDataPort.QuerySegmentsAsync(query, cancellationToken).ConfigureAwait(false);
                 var segmentList = segments.ToList();
@@ -136,7 +137,7 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
             try
             {
                 _logger.LogInformation("Generating insights for customer: {CustomerId}, types: {InsightType}",
-                    customerId, insightType);
+                    Sanitize(customerId), insightType);
 
                 var interactions = await _customerDataPort.GetInteractionHistoryAsync(customerId, cancellationToken)
                     .ConfigureAwait(false);
@@ -144,7 +145,7 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
 
                 if (interactionList.Count == 0)
                 {
-                    _logger.LogWarning("No interaction history found for customer: {CustomerId}", customerId);
+                    _logger.LogWarning("No interaction history found for customer: {CustomerId}", Sanitize(customerId));
                     return Enumerable.Empty<CustomerInsight>();
                 }
 
@@ -171,12 +172,12 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
                 }
 
                 _logger.LogInformation("Generated {InsightCount} insights for customer: {CustomerId}",
-                    insights.Count, customerId);
+                    insights.Count, Sanitize(customerId));
                 return insights;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating insights for customer: {CustomerId}", customerId);
+                _logger.LogError(ex, "Error generating insights for customer: {CustomerId}", Sanitize(customerId));
                 throw;
             }
         }
@@ -193,7 +194,7 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
             try
             {
                 _logger.LogInformation("Predicting behavior for customer: {CustomerId}, type: {PredictionType}",
-                    customerId, predictionType);
+                    Sanitize(customerId), predictionType);
 
                 // Retrieve behavioral features for prediction
                 var features = await _customerDataPort.GetBehavioralFeaturesAsync(customerId, cancellationToken)
@@ -257,13 +258,13 @@ Explanation: [explanation]";
 
                 _logger.LogInformation(
                     "Prediction completed for customer {CustomerId}: {PredictionType} = {PredictedValue}, confidence = {Confidence}",
-                    customerId, predictionType, predictedValue, confidence);
+                    Sanitize(customerId), predictionType, predictedValue, confidence);
 
                 return prediction;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error predicting behavior for customer: {CustomerId}", customerId);
+                _logger.LogError(ex, "Error predicting behavior for customer: {CustomerId}", Sanitize(customerId));
                 throw;
             }
         }

@@ -1,5 +1,6 @@
 using CognitiveMesh.BusinessApplications.AdaptiveBalance.Models;
 using CognitiveMesh.BusinessApplications.AdaptiveBalance.Ports;
+using static CognitiveMesh.Shared.LogSanitizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -78,7 +79,7 @@ public class AdaptiveBalanceController : ControllerBase
 
         _logger.LogInformation(
             "Applying override to dimension {Dimension} by {OverriddenBy}",
-            request.Dimension, request.OverriddenBy);
+            Sanitize(request.Dimension), Sanitize(request.OverriddenBy));
 
         return await _servicePort.ApplyOverrideAsync(request, cancellationToken);
     }
@@ -101,7 +102,7 @@ public class AdaptiveBalanceController : ControllerBase
             return BadRequest("Dimension is required and cannot be empty or whitespace.");
         }
 
-        _logger.LogInformation("Retrieving spectrum history for dimension {Dimension}", dimension);
+        _logger.LogInformation("Retrieving spectrum history for dimension {Dimension}", Sanitize(dimension));
 
         return await _servicePort.GetSpectrumHistoryAsync(dimension, cancellationToken);
     }
@@ -123,7 +124,7 @@ public class AdaptiveBalanceController : ControllerBase
 
         _logger.LogInformation(
             "Submitting learning evidence from agent {SourceAgentId}: pattern {PatternType}",
-            request.SourceAgentId, request.PatternType);
+            Sanitize(request.SourceAgentId), Sanitize(request.PatternType));
 
         return await _servicePort.SubmitLearningEvidenceAsync(request, cancellationToken);
     }

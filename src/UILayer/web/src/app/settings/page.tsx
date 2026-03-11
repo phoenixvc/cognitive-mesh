@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
+import Link from "next/link";
 import { ArrowLeft, Database, Brain } from "lucide-react";
 import DatabaseSettings from "@/components/setup/DatabaseSettings";
 import LLMSettings from "@/components/setup/LLMSettings";
@@ -21,12 +22,12 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-slate-950 p-6">
       <div className="max-w-4xl mx-auto">
-        <a
+        <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-        </a>
+        </Link>
 
         <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
 
