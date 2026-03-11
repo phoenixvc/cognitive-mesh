@@ -1,6 +1,6 @@
 # Cognitive Mesh — Agent Backlog
 
-> Prioritized, actionable work items. Backend is 100% complete (70/70 items). Frontend Phase 13 complete (4/4), Phase 14 in progress (6/6 core items done). Remaining 29 frontend items + 4 Phase 14b items + 6 DevOps evaluation tickets across Phases 14b–18.
+> Prioritized, actionable work items. Backend is 100% complete (70/70 items). Frontend Phase 13 complete (4/4), Phase 14 in progress (6/6 core items done). Remaining 27 frontend items + 4 Phase 14b items + 6 DevOps evaluation tickets across Phases 14b–18.
 
 ---
 
@@ -378,7 +378,7 @@
 - [x] SignalR hook created with reconnection logic and connection indicator
 - [x] Navigation between all 6 routes works with loading/error states
 - [x] Zustand stores hydrating from API on mount
-- [ ] Storybook stories for skeleton and navigation components (deferred to Phase 14b)
+- [ ] Storybook stories for skeleton and navigation components (deferred to Phase 15)
 
 ---
 

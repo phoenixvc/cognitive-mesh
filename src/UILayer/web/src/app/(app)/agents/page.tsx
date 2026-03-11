@@ -30,7 +30,7 @@ export default function AgentsPage() {
       )}
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm" role="grid">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/10 text-left text-xs text-gray-400">
               <th className="px-4 py-3">Name</th>
@@ -54,7 +54,7 @@ export default function AgentsPage() {
                 tabIndex={0}
                 role="row"
                 aria-selected={selectedAgentId === agent.agentId}
-                className={`cursor-pointer border-b border-white/5 transition-colors hover:bg-white/5 ${
+                className={`cursor-pointer border-b border-white/5 transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                   selectedAgentId === agent.agentId ? "bg-cyan-500/10" : ""
                 }`}
               >

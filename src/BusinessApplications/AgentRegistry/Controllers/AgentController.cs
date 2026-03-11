@@ -76,7 +76,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
                     return BadRequest(ErrorEnvelope.InvalidPayload("Agent type is required."));
                 }
 
-                var agent = await _registryPort.RegisterAgentAsync(request);
+                var agent = await _registryPort.RegisterAgentAsync(request, cancellationToken);
 
                 // Audit + notify (best-effort, fire-and-forget).
                 // NOTE: Task.Run is used here as a lightweight fire-and-forget mechanism.
@@ -121,7 +121,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
                 var (tenantId, _) = GetAuthContextFromClaims();
                 if (tenantId == null) return Unauthorized(ErrorEnvelope.Create("UNAUTHORIZED", "Tenant ID is missing."));
 
-                var agent = await _registryPort.GetAgentByIdAsync(agentId, tenantId);
+                var agent = await _registryPort.GetAgentByIdAsync(agentId, tenantId, cancellationToken);
                 if (agent == null)
                 {
                     _logger.LogWarning("Agent with ID '{AgentId}' not found.", agentId);
@@ -152,7 +152,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Controllers
                 var (tenantId, userId) = GetAuthContextFromClaims();
                 if (tenantId == null) return Unauthorized(ErrorEnvelope.Create("UNAUTHORIZED", "Tenant ID is missing."));
 
-                var success = await _registryPort.DeactivateAgentAsync(agentId, tenantId, userId ?? "system", reason ?? "Manual deactivation");
+                var success = await _registryPort.DeactivateAgentAsync(agentId, tenantId, userId ?? "system", reason ?? "Manual deactivation", cancellationToken);
                 if (!success)
                 {
                     return NotFound(ErrorEnvelope.Create("AGENT_NOT_FOUND", $"Agent with ID '{agentId}' was not found."));

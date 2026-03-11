@@ -74,19 +74,28 @@ public class AdaptiveBalanceService : IAdaptiveBalanceServicePort
                 Rationale = "Default initial position."
             });
 
+            double value;
+            string rationale;
+            lock (state)
+            {
+                value = state.Value;
+                rationale = state.Rationale;
+            }
+
             dimensions.Add(new SpectrumDimensionResult
             {
                 Dimension = dimensionName,
-                Value = state.Value,
-                LowerBound = Math.Max(0.0, state.Value - 0.1),
-                UpperBound = Math.Min(1.0, state.Value + 0.1),
-                Rationale = state.Rationale
+                Value = value,
+                LowerBound = Math.Max(0.0, value - 0.1),
+                UpperBound = Math.Min(1.0, value + 0.1),
+                Rationale = rationale
             });
         }
 
-        var overallConfidence = _reflexionResults.IsEmpty
+        var reflexionSnapshot = _reflexionResults.ToArray();
+        var overallConfidence = reflexionSnapshot.Length == 0
             ? 0.5
-            : 1.0 - _reflexionResults.Count(r => r.IsHallucination) / (double)_reflexionResults.Count;
+            : 1.0 - reflexionSnapshot.Count(r => r.IsHallucination) / (double)reflexionSnapshot.Length;
 
         _logger.LogInformation(
             "Balance retrieved with {DimensionCount} dimensions, overall confidence {Confidence}",
@@ -123,11 +132,15 @@ public class AdaptiveBalanceService : IAdaptiveBalanceServicePort
             Rationale = "Default initial position."
         });
 
-        var oldValue = state.Value;
+        double oldValue;
         var now = DateTimeOffset.UtcNow;
 
-        state.Value = request.NewValue;
-        state.Rationale = request.Rationale;
+        lock (state)
+        {
+            oldValue = state.Value;
+            state.Value = request.NewValue;
+            state.Rationale = request.Rationale;
+        }
 
         // Add history entry
         var historyEntries = _history.GetOrAdd(request.Dimension, _ => new List<SpectrumHistoryEntry>());

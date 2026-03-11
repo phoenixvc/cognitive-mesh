@@ -530,7 +530,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         // These methods bridge between the local data model and the port interface.
 
         /// <inheritdoc />
-        async Task<Ports.Models.Agent> IAgentRegistryPort.RegisterAgentAsync(Ports.Models.AgentRegistrationRequest request)
+        async Task<Ports.Models.Agent> IAgentRegistryPort.RegisterAgentAsync(Ports.Models.AgentRegistrationRequest request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
 
@@ -548,7 +548,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         }
 
         /// <inheritdoc />
-        async Task<Ports.Models.Agent> IAgentRegistryPort.GetAgentByIdAsync(Guid agentId, string tenantId)
+        async Task<Ports.Models.Agent> IAgentRegistryPort.GetAgentByIdAsync(Guid agentId, string tenantId, CancellationToken cancellationToken)
         {
             var definition = await GetAgentByIdAsync(agentId);
             return MapToPortAgent(definition, tenantId);
@@ -570,7 +570,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         }
 
         /// <inheritdoc />
-        async Task<bool> IAgentRegistryPort.DeactivateAgentAsync(Guid agentId, string tenantId, string deactivatedBy, string reason)
+        async Task<bool> IAgentRegistryPort.DeactivateAgentAsync(Guid agentId, string tenantId, string deactivatedBy, string reason, CancellationToken cancellationToken)
         {
             var definition = await _dbContext.AgentDefinitions.FindAsync(agentId);
             if (definition == null)
@@ -602,7 +602,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         async Task<IEnumerable<Ports.Models.Agent>> IAgentRegistryPort.GetAgentsByComplianceStatusAsync(string framework, bool isCompliant, string tenantId)
         {
             // Return all active agents — compliance filtering requires dedicated compliance store (future work)
-            _logger.LogWarning("GetAgentsByComplianceStatusAsync: framework={Framework} and isCompliant={IsCompliant} parameters are not yet implemented; returning all active agents", framework, isCompliant);
+            _logger.LogWarning("GetAgentsByComplianceStatusAsync: framework={Framework} and isCompliant={IsCompliant} parameters are not yet implemented; returning all active agents", Sanitize(framework), isCompliant);
 
             var definitions = await _dbContext.AgentDefinitions
                 .Where(a => a.Status == AgentStatus.Active)
