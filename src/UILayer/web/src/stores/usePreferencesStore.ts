@@ -177,6 +177,13 @@ export const usePreferencesStore = create<PreferencesState & PreferencesActions>
     }),
     {
       name: "cm-preferences",
+      version: 1,
+      migrate: (persisted, version) => {
+        if (version === 0) {
+          return { ...defaults, ...(persisted as Partial<PreferencesState>) }
+        }
+        return persisted as PreferencesState & PreferencesActions
+      },
     }
   )
 )

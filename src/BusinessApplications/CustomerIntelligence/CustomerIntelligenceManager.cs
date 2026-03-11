@@ -68,10 +68,14 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
                 }
 
                 // Enrich profile with knowledge graph relationships
-                // Escape single quotes to prevent Cypher injection
-                var safeCustomerId = customerId.Replace("'", "\\'", StringComparison.Ordinal);
+                // Validate customerId contains only safe characters (alphanumeric, hyphens, underscores)
+                if (!System.Text.RegularExpressions.Regex.IsMatch(customerId, @"^[\w\-]+$"))
+                {
+                    throw new ArgumentException("Customer ID contains invalid characters", nameof(customerId));
+                }
+
                 var relationships = await _knowledgeGraphManager.QueryAsync(
-                    $"MATCH (c:Customer {{id: '{safeCustomerId}'}})-[r]->(s:Segment) RETURN s",
+                    $"MATCH (c:Customer {{id: '{customerId}'}})-[r]->(s:Segment) RETURN s",
                     cancellationToken).ConfigureAwait(false);
 
                 foreach (var relation in relationships)

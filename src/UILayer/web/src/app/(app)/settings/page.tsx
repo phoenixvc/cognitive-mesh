@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import Link from "next/link"
 import { usePreferencesStore } from "@/stores"
 import { ToggleRow } from "@/components/ui/toggle-switch"
@@ -31,6 +31,13 @@ export default function SettingsPage() {
   } = usePreferencesStore()
 
   const [saved, setSaved] = useState(false)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    }
+  }, [])
 
   function handleLanguageChange(lang: SupportedLanguage) {
     setLanguage(lang)
@@ -48,7 +55,8 @@ export default function SettingsPage() {
     // Preferences are already persisted to localStorage via Zustand persist.
     // TODO: Sync to backend user preferences API.
     setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => setSaved(false), 2000)
   }
 
   return (
@@ -212,7 +220,7 @@ function SelectRow({
         className="rounded bg-white/10 px-3 py-1.5 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} className="bg-gray-900 text-white">
             {opt.label}
           </option>
         ))}

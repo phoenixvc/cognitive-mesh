@@ -158,7 +158,7 @@ export default function NotificationPreferencesPage() {
                   className="w-full rounded bg-white/10 px-3 py-1.5 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
                 >
                   {TIMEZONES.map((tz) => (
-                    <option key={tz} value={tz}>
+                    <option key={tz} value={tz} className="bg-gray-900 text-white">
                       {tz}
                     </option>
                   ))}

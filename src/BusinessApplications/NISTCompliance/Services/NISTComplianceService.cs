@@ -220,13 +220,17 @@ public class NISTComplianceService : INISTComplianceServicePort
         }
 
         var now = DateTimeOffset.UtcNow;
-        lock (record)
-        {
-            record.ReviewStatus = request.Decision;
-            record.ReviewedBy = request.ReviewerId;
-            record.ReviewedAt = now;
-            record.ReviewNotes = request.Notes;
-        }
+        _evidence.AddOrUpdate(
+            request.EvidenceId,
+            _ => throw new InvalidOperationException("Evidence record disappeared during review"),
+            (_, existing) =>
+            {
+                existing.ReviewStatus = request.Decision;
+                existing.ReviewedBy = request.ReviewerId;
+                existing.ReviewedAt = now;
+                existing.ReviewNotes = request.Notes;
+                return existing;
+            });
 
         AddAuditEntry("default-org", new NISTAuditEntry
         {

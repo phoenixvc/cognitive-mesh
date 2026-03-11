@@ -102,7 +102,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         }
 
         /// <inheritdoc />
-        public async Task<AgentDefinition> GetAgentByIdAsync(Guid agentId)
+        public async Task<AgentDefinition> GetAgentByIdAsync(Guid agentId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 {
                     var agent = await _dbContext.AgentDefinitions
                         .AsNoTracking()
-                        .FirstOrDefaultAsync(a => a.AgentId == agentId);
+                        .FirstOrDefaultAsync(a => a.AgentId == agentId, cancellationToken);
 
                     if (agent == null)
                     {
@@ -550,7 +550,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         /// <inheritdoc />
         async Task<Ports.Models.Agent> IAgentRegistryPort.GetAgentByIdAsync(Guid agentId, string tenantId, CancellationToken cancellationToken)
         {
-            var definition = await GetAgentByIdAsync(agentId);
+            var definition = await GetAgentByIdAsync(agentId, cancellationToken);
             return MapToPortAgent(definition, tenantId);
         }
 

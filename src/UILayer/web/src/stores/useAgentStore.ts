@@ -57,7 +57,7 @@ export const useAgentStore = create<AgentStoreState & AgentStoreActions>(
               agentType: String(d.agentType ?? ""),
               name: String(d.name ?? d.agentType ?? ""),
               status: mapStatus(String(d.status ?? "Active")),
-              capabilities: (d.capabilities as string[]) ?? [],
+              capabilities: Array.isArray(d.capabilities) ? (d.capabilities as string[]).filter((c): c is string => typeof c === "string") : [],
               currentTasks: Number(d.currentTasks ?? 0),
               registeredAt: String(d.registeredAt ?? new Date().toISOString()),
             }

@@ -33,8 +33,21 @@ export default function ProfilePage() {
   const { user } = useAuth()
   const { privacyConsent, gdprConsents, setGdprConsent } = usePreferencesStore()
 
-  // Capture auth time once on mount so it doesn't change on re-renders
-  const authenticatedSince = useMemo(() => new Date().toLocaleString(), [])
+  // Show the user's auth time from the token, fallback to mount time
+  const authenticatedSince = useMemo(() => {
+    if (user?.id) {
+      const token = typeof localStorage !== "undefined" ? localStorage.getItem("cm_access_token") : null
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")))
+          if (typeof payload.iat === "number") {
+            return new Date(payload.iat * 1000).toLocaleString()
+          }
+        } catch { /* fallthrough */ }
+      }
+    }
+    return new Date().toLocaleString()
+  }, [user?.id])
 
   function isConsentGranted(type: string): boolean {
     const record = gdprConsents.find((c) => c.type === type)
@@ -140,10 +153,24 @@ export default function ProfilePage() {
 
 function DataExportSection() {
   const [exportRequested, setExportRequested] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
 
-  function handleDataExport() {
-    // TODO: Call POST /api/v1/compliance/gdpr/data-export
-    setExportRequested(true)
+  async function handleDataExport() {
+    setExporting(true)
+    setExportError(null)
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000"}/api/v1/compliance/gdpr/data-export`,
+        { method: "POST" }
+      )
+      if (!res.ok) throw new Error(`Export request failed (${res.status})`)
+      setExportRequested(true)
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "Export request failed")
+    } finally {
+      setExporting(false)
+    }
   }
 
   return (
@@ -152,6 +179,11 @@ function DataExportSection() {
       <p className="mb-4 text-xs text-gray-500">
         Request a copy of all personal data stored in the system (GDPR Article 20).
       </p>
+      {exportError && (
+        <div className="mb-3 rounded-md border border-red-800 bg-red-950/30 px-4 py-3 text-sm text-red-300">
+          {exportError}
+        </div>
+      )}
       {exportRequested ? (
         <div className="rounded-md border border-cyan-800 bg-cyan-950/30 px-4 py-3 text-sm text-cyan-300">
           Export request submitted. You will receive a download link via email.
@@ -160,9 +192,10 @@ function DataExportSection() {
         <button
           type="button"
           onClick={handleDataExport}
-          className="rounded-md bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-cyan-500"
+          disabled={exporting}
+          className="rounded-md bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-cyan-500 disabled:opacity-50"
         >
-          Request data export
+          {exporting ? "Requesting…" : "Request data export"}
         </button>
       )}
     </section>
