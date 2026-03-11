@@ -2,7 +2,7 @@
  * Preferences store — user settings persisted to localStorage.
  *
  * Uses Zustand's persist middleware to survive page reloads.
- * Also syncs to backend when the user is authenticated.
+ * TODO: Sync to backend user preferences API when authenticated.
  */
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
@@ -41,6 +41,12 @@ export interface NotificationCategoryPreference {
   channels: { email: boolean; push: boolean; sms: boolean; inApp: boolean }
 }
 
+export interface GdprConsentRecord {
+  type: string
+  granted: boolean
+  updatedAt: number
+}
+
 interface PreferencesState {
   theme: Theme
   sidebarCollapsed: boolean
@@ -52,6 +58,7 @@ interface PreferencesState {
   language: SupportedLanguage
   privacyConsent: PrivacyConsent
   notificationPreferences: NotificationPreferences
+  gdprConsents: GdprConsentRecord[]
 }
 
 interface PreferencesActions {
@@ -68,6 +75,7 @@ interface PreferencesActions {
   setNotificationPreferences: (prefs: Partial<NotificationPreferences>) => void
   setNotificationChannel: (channel: keyof NotificationPreferences["channels"], enabled: boolean) => void
   setQuietHours: (quietHours: Partial<NotificationPreferences["quietHours"]>) => void
+  setGdprConsent: (type: string, granted: boolean) => void
   resetDefaults: () => void
 }
 
@@ -101,6 +109,7 @@ const defaults: PreferencesState = {
   language: "en-US",
   privacyConsent: defaultPrivacyConsent,
   notificationPreferences: defaultNotificationPreferences,
+  gdprConsents: [],
 }
 
 export const usePreferencesStore = create<PreferencesState & PreferencesActions>()(
@@ -154,6 +163,16 @@ export const usePreferencesStore = create<PreferencesState & PreferencesActions>
             },
           },
         })),
+      setGdprConsent: (type, granted) =>
+        set((state) => {
+          const filtered = state.gdprConsents.filter((c) => c.type !== type)
+          return {
+            gdprConsents: [
+              ...filtered,
+              { type, granted, updatedAt: Date.now() },
+            ],
+          }
+        }),
       resetDefaults: () => set(defaults),
     }),
     {

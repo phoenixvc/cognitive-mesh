@@ -1,58 +1,44 @@
 "use client"
 
-import { useId, useState } from "react"
+import { useId, useMemo, useState } from "react"
+import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { usePreferencesStore } from "@/stores"
+import { ToggleButton } from "@/components/ui/toggle-switch"
 
-interface ConsentRecord {
-  type: string
-  label: string
-  description: string
-  granted: boolean
-}
-
-const GDPR_CONSENTS: ConsentRecord[] = [
+const GDPR_CONSENT_TYPES = [
   {
     type: "GDPRDataProcessing",
     label: "Data processing",
     description: "Allow processing of personal data for core platform functionality",
-    granted: true,
   },
   {
     type: "GDPRAutomatedDecisionMaking",
     label: "Automated decision-making",
     description: "Allow AI agents to make decisions using your data",
-    granted: false,
   },
   {
     type: "GDPRDataTransferOutsideEU",
     label: "Cross-border data transfer",
     description: "Allow data to be processed outside the EU/EEA",
-    granted: false,
   },
   {
     type: "EUAIActHighRiskSystem",
     label: "High-risk AI system consent",
     description: "Acknowledge interaction with systems classified as high-risk under the EU AI Act",
-    granted: false,
   },
-]
+] as const
 
 export default function ProfilePage() {
   const { user } = useAuth()
-  const { privacyConsent } = usePreferencesStore()
-  const [consents, setConsents] = useState<ConsentRecord[]>(GDPR_CONSENTS)
-  const [exportRequested, setExportRequested] = useState(false)
+  const { privacyConsent, gdprConsents, setGdprConsent } = usePreferencesStore()
 
-  function toggleConsent(type: string) {
-    setConsents((prev) =>
-      prev.map((c) => (c.type === type ? { ...c, granted: !c.granted } : c))
-    )
-  }
+  // Capture auth time once on mount so it doesn't change on re-renders
+  const authenticatedSince = useMemo(() => new Date().toLocaleString(), [])
 
-  function handleDataExport() {
-    // In production this calls POST /api/v1/compliance/gdpr/data-export
-    setExportRequested(true)
+  function isConsentGranted(type: string): boolean {
+    const record = gdprConsents.find((c) => c.type === type)
+    return record?.granted ?? false
   }
 
   if (!user) {
@@ -99,11 +85,14 @@ export default function ProfilePage() {
           Manage your consent preferences. All changes are logged for compliance auditing.
         </p>
         <div className="space-y-3">
-          {consents.map((consent) => (
+          {GDPR_CONSENT_TYPES.map((consent) => (
             <ConsentRow
               key={consent.type}
-              consent={consent}
-              onToggle={() => toggleConsent(consent.type)}
+              type={consent.type}
+              label={consent.label}
+              description={consent.description}
+              granted={isConsentGranted(consent.type)}
+              onToggle={(granted) => setGdprConsent(consent.type, granted)}
             />
           ))}
         </div>
@@ -127,46 +116,56 @@ export default function ProfilePage() {
           </div>
           <p className="text-xs text-gray-600">
             Manage these in{" "}
-            <a href="/settings" className="text-cyan-500 hover:underline">
+            <Link href="/settings" className="text-cyan-500 hover:underline">
               Settings &gt; Data &amp; Privacy
-            </a>
+            </Link>
           </p>
         </div>
       </section>
 
       {/* Data export */}
-      <section className="rounded-lg border border-white/10 bg-white/5 p-6">
-        <h2 className="mb-2 text-sm font-semibold text-white">Data Export</h2>
-        <p className="mb-4 text-xs text-gray-500">
-          Request a copy of all personal data stored in the system (GDPR Article 20).
-        </p>
-        {exportRequested ? (
-          <div className="rounded-md border border-cyan-800 bg-cyan-950/30 px-4 py-3 text-sm text-cyan-300">
-            Export request submitted. You will receive a download link via email.
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={handleDataExport}
-            className="rounded-md bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-cyan-500"
-          >
-            Request data export
-          </button>
-        )}
-      </section>
+      <DataExportSection />
 
       {/* Session info */}
       <section className="rounded-lg border border-white/10 bg-white/5 p-6">
         <h2 className="mb-4 text-sm font-semibold text-white">Session</h2>
         <div className="space-y-3">
           <InfoRow label="Status" value="Active" />
-          <InfoRow
-            label="Authenticated since"
-            value={new Date().toLocaleString()}
-          />
+          <InfoRow label="Authenticated since" value={authenticatedSince} />
         </div>
       </section>
     </div>
+  )
+}
+
+function DataExportSection() {
+  const [exportRequested, setExportRequested] = useState(false)
+
+  function handleDataExport() {
+    // TODO: Call POST /api/v1/compliance/gdpr/data-export
+    setExportRequested(true)
+  }
+
+  return (
+    <section className="rounded-lg border border-white/10 bg-white/5 p-6">
+      <h2 className="mb-2 text-sm font-semibold text-white">Data Export</h2>
+      <p className="mb-4 text-xs text-gray-500">
+        Request a copy of all personal data stored in the system (GDPR Article 20).
+      </p>
+      {exportRequested ? (
+        <div className="rounded-md border border-cyan-800 bg-cyan-950/30 px-4 py-3 text-sm text-cyan-300">
+          Export request submitted. You will receive a download link via email.
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={handleDataExport}
+          className="rounded-md bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-cyan-500"
+        >
+          Request data export
+        </button>
+      )}
+    </section>
   )
 }
 
@@ -207,38 +206,33 @@ function RoleBadge({ role }: { role: string }) {
 }
 
 function ConsentRow({
-  consent,
+  type,
+  label,
+  description,
+  granted,
   onToggle,
 }: {
-  consent: ConsentRecord
-  onToggle: () => void
+  type: string
+  label: string
+  description: string
+  granted: boolean
+  onToggle: (granted: boolean) => void
 }) {
   const id = useId()
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-md border border-white/5 bg-white/[0.02] px-4 py-3">
+    <div className="flex items-center justify-between gap-4 rounded-md border border-white/5 bg-white/2 px-4 py-3">
       <div>
         <span id={id} className="text-sm text-gray-300">
-          {consent.label}
+          {label}
         </span>
-        <p className="text-xs text-gray-600">{consent.description}</p>
+        <p className="text-xs text-gray-600">{description}</p>
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={consent.granted ? "true" : "false"}
-        aria-labelledby={id}
-        onClick={onToggle}
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 ${
-          consent.granted ? "bg-cyan-600" : "bg-white/20"
-        }`}
-      >
-        <span
-          className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-            consent.granted ? "translate-x-5" : ""
-          }`}
-        />
-      </button>
+      <ToggleButton
+        checked={granted}
+        onChange={(v) => onToggle(v)}
+        label={label}
+      />
     </div>
   )
 }

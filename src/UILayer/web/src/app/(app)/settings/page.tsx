@@ -1,12 +1,15 @@
 "use client"
 
 import { useId, useState } from "react"
+import Link from "next/link"
 import { usePreferencesStore } from "@/stores"
+import { ToggleRow } from "@/components/ui/toggle-switch"
 import {
   SUPPORTED_LANGUAGES,
   LANGUAGE_LABELS,
   type SupportedLanguage,
 } from "@/lib/i18n/i18nConfig"
+import i18n from "@/lib/i18n/i18nConfig"
 
 export default function SettingsPage() {
   const {
@@ -31,6 +34,8 @@ export default function SettingsPage() {
 
   function handleLanguageChange(lang: SupportedLanguage) {
     setLanguage(lang)
+    // Update i18next runtime language immediately
+    i18n.changeLanguage(lang)
     // Also persist to localStorage key used by i18nConfig
     try {
       localStorage.setItem("cognitivemesh_language", lang)
@@ -41,7 +46,7 @@ export default function SettingsPage() {
 
   function handleSave() {
     // Preferences are already persisted to localStorage via Zustand persist.
-    // In a future iteration this will also sync to the backend API.
+    // TODO: Sync to backend user preferences API.
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -172,12 +177,12 @@ export default function SettingsPage() {
         >
           Reset to defaults
         </button>
-        <a
+        <Link
           href="/settings/notifications"
           className="rounded-md border border-white/10 px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
         >
           Notification preferences
-        </a>
+        </Link>
       </div>
     </div>
   )
@@ -212,49 +217,6 @@ function SelectRow({
           </option>
         ))}
       </select>
-    </div>
-  )
-}
-
-function ToggleRow({
-  label,
-  description,
-  checked,
-  onChange,
-}: {
-  label: string
-  description?: string
-  checked: boolean
-  onChange: (v: boolean) => void
-}) {
-  const id = useId()
-
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <div>
-        <span id={id} className="text-sm text-gray-400">
-          {label}
-        </span>
-        {description && (
-          <p className="text-xs text-gray-600">{description}</p>
-        )}
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked ? "true" : "false"}
-        aria-labelledby={id}
-        onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 ${
-          checked ? "bg-cyan-600" : "bg-white/20"
-        }`}
-      >
-        <span
-          className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-            checked ? "translate-x-5" : ""
-          }`}
-        />
-      </button>
     </div>
   )
 }

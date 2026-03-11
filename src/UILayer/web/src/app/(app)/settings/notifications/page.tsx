@@ -1,7 +1,9 @@
 "use client"
 
 import { useId } from "react"
+import Link from "next/link"
 import { usePreferencesStore } from "@/stores"
+import { ToggleRow, ToggleButton } from "@/components/ui/toggle-switch"
 import type { NotificationPreferences } from "@/stores/usePreferencesStore"
 
 const NOTIFICATION_CATEGORIES = [
@@ -11,6 +13,35 @@ const NOTIFICATION_CATEGORIES = [
   { id: "agents", label: "Agent activity", description: "Agent status changes and completions" },
   { id: "compliance", label: "Compliance", description: "Compliance deadlines and audit results" },
 ] as const
+
+// Common timezones — a curated subset for the UI dropdown.
+// Intl.supportedValuesOf('timeZone') would be ideal but requires TS lib es2024.
+const TIMEZONES = [
+  "UTC",
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "America/Anchorage",
+  "Pacific/Honolulu",
+  "America/Toronto",
+  "America/Vancouver",
+  "America/Sao_Paulo",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Europe/Amsterdam",
+  "Europe/Zurich",
+  "Europe/Moscow",
+  "Asia/Dubai",
+  "Asia/Kolkata",
+  "Asia/Singapore",
+  "Asia/Tokyo",
+  "Asia/Shanghai",
+  "Asia/Seoul",
+  "Australia/Sydney",
+  "Pacific/Auckland",
+]
 
 export default function NotificationPreferencesPage() {
   const {
@@ -119,26 +150,31 @@ export default function NotificationPreferencesPage() {
                 onChange={(v) => setQuietHours({ endTime: v })}
               />
               <div className="col-span-2">
-                <label className="mb-1 block text-xs text-gray-500">Timezone</label>
-                <input
-                  type="text"
+                <label htmlFor="tz-select" className="mb-1 block text-xs text-gray-500">Timezone</label>
+                <select
+                  id="tz-select"
                   value={quietHours.timezone}
                   onChange={(e) => setQuietHours({ timezone: e.target.value })}
                   className="w-full rounded bg-white/10 px-3 py-1.5 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
-                  placeholder="America/New_York"
-                />
+                >
+                  {TIMEZONES.map((tz) => (
+                    <option key={tz} value={tz}>
+                      {tz}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           )}
         </div>
       </section>
 
-      <a
+      <Link
         href="/settings"
         className="inline-block rounded-md border border-white/10 px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
       >
         Back to settings
-      </a>
+      </Link>
     </div>
   )
 }
@@ -167,7 +203,7 @@ function CategoryRow({
   }
 
   return (
-    <div className="flex items-center justify-between rounded-md border border-white/5 bg-white/[0.02] px-4 py-3">
+    <div className="flex items-center justify-between rounded-md border border-white/5 bg-white/2 px-4 py-3">
       <div>
         <span className="text-sm text-gray-300">{category.label}</span>
         <p className="text-xs text-gray-600">{category.description}</p>
@@ -200,65 +236,5 @@ function TimeInput({
         className="w-full rounded bg-white/10 px-3 py-1.5 text-sm text-white outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
       />
     </div>
-  )
-}
-
-function ToggleRow({
-  label,
-  description,
-  checked,
-  onChange,
-  disabled,
-}: {
-  label: string
-  description?: string
-  checked: boolean
-  onChange: (v: boolean) => void
-  disabled?: boolean
-}) {
-  const id = useId()
-
-  return (
-    <div className={`flex items-center justify-between gap-4 ${disabled ? "opacity-50" : ""}`}>
-      <div>
-        <span id={id} className="text-sm text-gray-400">
-          {label}
-        </span>
-        {description && <p className="text-xs text-gray-600">{description}</p>}
-      </div>
-      <ToggleButton checked={checked} onChange={onChange} disabled={disabled} label={label} />
-    </div>
-  )
-}
-
-function ToggleButton({
-  checked,
-  onChange,
-  disabled,
-  label,
-}: {
-  checked: boolean
-  onChange: (v: boolean) => void
-  disabled?: boolean
-  label: string
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked ? "true" : "false"}
-      aria-label={label}
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-cyan-500 disabled:cursor-not-allowed ${
-        checked ? "bg-cyan-600" : "bg-white/20"
-      }`}
-    >
-      <span
-        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-          checked ? "translate-x-5" : ""
-        }`}
-      />
-    </button>
   )
 }
