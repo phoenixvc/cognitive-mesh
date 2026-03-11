@@ -33,8 +33,6 @@ interface NotificationStoreActions {
   clearAll: () => void
 }
 
-let nextId = 1
-
 export const useNotificationStore = create<
   NotificationStoreState & NotificationStoreActions
 >((set) => ({
@@ -45,7 +43,7 @@ export const useNotificationStore = create<
     set((state) => {
       const newNotification: Notification = {
         ...notification,
-        id: `notif-${nextId++}`,
+        id: crypto.randomUUID(),
         timestamp: Date.now(),
         read: false,
       }

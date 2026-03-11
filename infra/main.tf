@@ -140,6 +140,22 @@ module "ai_search" {
   common_tags         = local.tags
 }
 
+# ---------- Frontend Hosting ----------
+
+module "frontend_hosting" {
+  source = "./modules/frontend-hosting"
+
+  project_name        = var.project_name
+  environment         = var.environment
+  location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
+  api_base_url        = var.frontend_api_base_url
+  app_service_plan_sku = var.frontend_app_service_plan_sku
+  custom_domain       = var.frontend_custom_domain
+  subnet_id           = var.enable_private_endpoints ? module.networking.subnet_ids["app"] : null
+  common_tags         = local.tags
+}
+
 # ---------- Store secrets in Key Vault ----------
 
 resource "azurerm_key_vault_secret" "cosmosdb_connection" {

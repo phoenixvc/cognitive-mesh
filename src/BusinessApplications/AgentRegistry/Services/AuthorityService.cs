@@ -742,10 +742,22 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         }
 
         /// <inheritdoc />
-        Task<bool> IAuthorityPort.RevokeAuthorityOverrideAsync(Guid agentId, string action, string revokedBy, string tenantId)
+        async Task<bool> IAuthorityPort.RevokeAuthorityOverrideAsync(Guid agentId, string action, string revokedBy, string tenantId)
         {
-            _logger.LogWarning("RevokeAuthorityOverrideAsync is not yet implemented — override for agent {AgentId}, action {Action} was not revoked", agentId, action);
-            return Task.FromResult(false);
+            return await _circuitBreaker.ExecuteAsync(async () =>
+            {
+                var activeOverride = await _dbContext.AuthorityOverrides
+                    .Where(o => o.AgentId == agentId && o.TenantId == tenantId && o.IsActive)
+                    .FirstOrDefaultAsync();
+
+                if (activeOverride == null)
+                {
+                    _logger.LogWarning("No active authority override found for agent {AgentId}, action {Action} in tenant {TenantId}", agentId, action, tenantId);
+                    return false;
+                }
+
+                return await RevokeAuthorityOverrideAsync(activeOverride.OverrideToken, revokedBy);
+            });
         }
 
         /// <inheritdoc />

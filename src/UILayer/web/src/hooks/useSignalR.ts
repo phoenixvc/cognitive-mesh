@@ -53,7 +53,7 @@ export function useSignalR(options?: UseSignalROptions): UseSignalRReturn {
       })
       .withAutomaticReconnect({
         nextRetryDelayInMilliseconds: (retryContext) => {
-          // Exponential backoff: 0s, 1s, 2s, 4s, 8s, 16s, max 30s
+          // Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 30s
           const delay = Math.min(
             1000 * Math.pow(2, retryContext.previousRetryCount),
             30_000
@@ -64,19 +64,25 @@ export function useSignalR(options?: UseSignalROptions): UseSignalRReturn {
       .configureLogging(LogLevel.Warning)
       .build()
 
-    connection.onreconnecting(() => setStatus("reconnecting"))
-    connection.onreconnected(() => setStatus("connected"))
-    connection.onclose(() => setStatus("disconnected"))
+    let mounted = true
+
+    connection.onreconnecting(() => { if (mounted) setStatus("reconnecting") })
+    connection.onreconnected(() => { if (mounted) setStatus("connected") })
+    connection.onclose(() => { if (mounted) setStatus("disconnected") })
 
     connectionRef.current = connection
     setStatus("connecting")
 
     connection
       .start()
-      .then(() => setStatus("connected"))
-      .catch(() => setStatus("disconnected"))
+      .then(() => { if (mounted) setStatus("connected") })
+      .catch((err) => {
+        console.error("SignalR connection failed:", err)
+        if (mounted) setStatus("disconnected")
+      })
 
     return () => {
+      mounted = false
       connection.stop()
       connectionRef.current = null
     }

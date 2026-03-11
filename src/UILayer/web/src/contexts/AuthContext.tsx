@@ -68,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   })
 
   const applyToken = useCallback((accessToken: string) => {
+    if (isTokenExpired(accessToken)) return false
     const user = extractUser(accessToken)
     if (!user) return false
     localStorage.setItem(TOKEN_KEY, accessToken)

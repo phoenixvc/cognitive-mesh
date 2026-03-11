@@ -223,7 +223,7 @@ All moved from root `components/ui/` → `src/components/ui/`. Radix-UI deps ins
 | lib/service-worker/register | done | Fixed TS error |
 | lib/service-worker/offlineManager | done | |
 | lib/service-worker/index | done | |
-| lib/visualizations/useD3 | done | D3 hook exists here (AgentNetworkGraph imports wrong path) |
+| lib/visualizations/useD3 | done | D3 hook — all visualizations import from `@/lib/visualizations/useD3` |
 
 ---
 
@@ -304,7 +304,7 @@ All moved from root `components/ui/` → `src/components/ui/`. Radix-UI deps ins
 | Tests | 1 | 1 | 0 | 0 | 0 | 0 |
 | **Totals** | **151** | **145** | **0** | **1** | **5** | **0** |
 
-**Migration progress: 100% complete (0 TypeScript errors, Next.js 16 build passing)**
+**Migration progress: 96% complete (145/151 items done, 0 TypeScript errors, Next.js 16 build passing)**
 
 ### Remaining legacy items (1)
 

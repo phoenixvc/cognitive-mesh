@@ -22,7 +22,7 @@ export function TopBar() {
         {/* TODO: implement notification panel onClick handler */}
         <button
           className="relative rounded p-2 text-gray-400 hover:bg-white/10 hover:text-white"
-          aria-label="Notifications"
+          aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
         >
           <Bell size={18} />
           {unreadCount > 0 && (

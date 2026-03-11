@@ -243,7 +243,8 @@ const AgentActionAuditTrail: React.FC<AgentActionAuditTrailProps> = ({
 
   useEffect(() => {
     themeAdapter.getCurrentThemeAsync().then((t) => setCurrentTheme(t));
-    themeAdapter.onThemeChanged((t) => setCurrentTheme(t));
+    const handler = (settings: ThemeSettings) => setCurrentTheme(settings);
+    themeAdapter.onThemeChanged(handler);
   }, [themeAdapter]);
 
   const handleFilterChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

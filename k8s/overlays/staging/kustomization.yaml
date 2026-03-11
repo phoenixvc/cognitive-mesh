@@ -68,7 +68,49 @@ patches:
         path: /data/LOG_LEVEL
         value: Information
 
+  # Frontend: staging replica count and resources
+  - target:
+      kind: Deployment
+      name: cognitive-mesh-frontend
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 2
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: 250m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: 256Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: 250m
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: 256Mi
+
+  # Frontend config for staging
+  - target:
+      kind: ConfigMap
+      name: cognitive-mesh-frontend-config
+    patch: |
+      - op: replace
+        path: /data/NEXT_PUBLIC_API_BASE_URL
+        value: "http://cognitive-mesh-api.cognitive-mesh-staging.svc.cluster.local"
+
+  # Ingress: add staging host
+  - target:
+      kind: Ingress
+      name: cognitive-mesh-ingress
+    patch: |
+      - op: add
+        path: /spec/rules/0/host
+        value: "staging.cognitive-mesh.io"
+
 images:
   - name: cognitive-mesh-api
     newName: cognitivemeshacr.azurecr.io/cognitive-mesh-api
+    newTag: staging-latest
+  - name: cognitive-mesh-frontend
+    newName: cognitivemeshacr.azurecr.io/cognitive-mesh-frontend
     newTag: staging-latest

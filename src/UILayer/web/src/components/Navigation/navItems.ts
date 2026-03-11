@@ -11,8 +11,13 @@ export const navItems: NavItem[] = [
   { label: "Agents", href: "/agents", icon: "Bot", section: "Core" },
   { label: "Analytics", href: "/analytics", icon: "BarChart3", section: "Core" },
   { label: "Compliance", href: "/compliance", icon: "ShieldCheck", section: "Governance" },
+  { label: "Balance", href: "/balance", icon: "Scale", section: "Governance" },
+  { label: "Value", href: "/value", icon: "TrendingUp", section: "Governance" },
+  { label: "Impact", href: "/impact", icon: "Activity", section: "Governance" },
+  { label: "Sandwich", href: "/sandwich", icon: "Layers", section: "Governance" },
   { label: "Marketplace", href: "/marketplace", icon: "Store", section: "Governance" },
   { label: "Settings", href: "/settings", icon: "Settings", section: "System" },
+  { label: "Profile", href: "/profile", icon: "User", section: "System" },
 ]
 
 export const sectionOrder = ["Core", "Governance", "System"]

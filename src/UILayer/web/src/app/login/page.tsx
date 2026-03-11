@@ -6,10 +6,13 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
 
 function sanitizeReturnTo(value: string | null): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("://")) {
+  if (!value) return "/"
+  // Normalize backslashes to forward slashes to prevent open redirects (e.g. /\evil.com)
+  const normalized = value.replace(/\\/g, "/")
+  if (!normalized.startsWith("/") || normalized.startsWith("//") || normalized.includes("://")) {
     return "/"
   }
-  return value
+  return normalized
 }
 
 function LoginForm() {

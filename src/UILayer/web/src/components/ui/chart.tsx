@@ -67,6 +67,10 @@ const ChartContainer = React.forwardRef<
 })
 ChartContainer.displayName = "Chart"
 
+function sanitizeCssToken(str: string): string {
+  return str.replace(/[<>"'&;{}\\]/g, "")
+}
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color
@@ -88,7 +92,7 @@ ${colorConfig
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    return color ? `  --color-${sanitizeCssToken(key)}: ${sanitizeCssToken(color)};` : null
   })
   .join("\n")}
 }
@@ -205,7 +209,7 @@ const ChartTooltipContent = React.forwardRef<
 
             return (
               <div
-                key={item.dataKey as string}
+                key={`${item.dataKey ?? item.name ?? index}`}
                 className={cn(
                   "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
                   indicator === "dot" && "items-center"
@@ -299,13 +303,13 @@ const ChartLegendContent = React.forwardRef<
           className
         )}
       >
-        {payload.map((item: Record<string, unknown>) => {
+        {payload.map((item: Record<string, unknown>, index: number) => {
           const key = `${nameKey || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
 
           return (
             <div
-              key={item.value as string}
+              key={`${item.value ?? item.dataKey ?? index}`}
               className={cn(
                 "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
               )}

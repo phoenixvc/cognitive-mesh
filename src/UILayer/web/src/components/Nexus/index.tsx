@@ -366,6 +366,7 @@ export default function Nexus({
   const handleDragStart = useCallback((type: "nexus" | "icon", data?: unknown, event?: React.MouseEvent) => {
     if (mode !== "enhanced") return
     if (!event) return
+    nexusDragStart()
     startDrag({
       id: `${type}-${Date.now()}`,
       type: "nexus",
@@ -376,7 +377,7 @@ export default function Nexus({
     }, event)
     if (enableAudio) playSound("click")
     if (onDragStart) onDragStart()
-  }, [mode, startDrag, enableAudio, playSound, onDragStart])
+  }, [mode, startDrag, enableAudio, playSound, onDragStart, nexusDragStart])
 
   const handleDragEnd = useCallback(() => {
     if (mode !== "enhanced") return

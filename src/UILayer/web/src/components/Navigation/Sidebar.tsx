@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Store,
   Settings,
+  User,
   ChevronLeft,
   ChevronRight,
   type LucideIcon,
@@ -23,6 +24,7 @@ const iconMap: Record<string, LucideIcon> = {
   ShieldCheck,
   Store,
   Settings,
+  User,
 }
 
 export function Sidebar() {
