@@ -1,4 +1,5 @@
 import { EnergyFlow } from "@/components";
+import type { LucideIcon } from "lucide-react";
 import { Activity, CheckCircle, Database, Lock, Shield } from "lucide-react";
 import React from "react";
 

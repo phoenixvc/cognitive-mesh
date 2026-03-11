@@ -1,12 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+@import "../../build/css/_variables.css";
 
 @layer base {
   :root {

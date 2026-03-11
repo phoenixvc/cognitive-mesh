@@ -167,7 +167,7 @@ const widgetStyles: { [key: string]: CSSProperties } = {
 
 // --- Sub-components ---
 
-const AgentDetailsModal = ({ agent, scope, onClose, onOverride, onEscalate, theme }) => (
+const AgentDetailsModal = ({ agent, scope, onClose, onOverride, onEscalate, theme }: { agent: AgentViewModel; scope: AuthorityScopeViewModel | null; onClose: () => void; onOverride: (agent: AgentViewModel) => void; onEscalate: (agent: AgentViewModel) => void; theme: { name: string } }) => (
     <div style={widgetStyles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="details-title">
         <div style={theme.name === 'Dark' ? { ...widgetStyles.modalContent, ...widgetStyles.darkModalContent } : widgetStyles.modalContent}>
             <button style={{ ...widgetStyles.modalCloseButton, color: theme.name === 'Dark' ? 'white' : 'black' }} onClick={onClose}>&times;</button>
@@ -358,7 +358,7 @@ const AgentControlCenter: React.FC<AgentControlCenterProps> = ({
                 <tr
                   key={agent.agentId}
                   onClick={() => handleAgentSelect(agent)}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = currentTheme?.name === 'Dark' ? widgetStyles.darkTrHover.backgroundColor : widgetStyles.trHover.backgroundColor}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = (currentTheme?.name === 'Dark' ? widgetStyles.darkTrHover.backgroundColor : widgetStyles.trHover.backgroundColor) ?? ''}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   style={widgetStyles.tr}
                   tabIndex={0}

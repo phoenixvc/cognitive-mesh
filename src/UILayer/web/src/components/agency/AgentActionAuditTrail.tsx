@@ -33,7 +33,7 @@ interface ThemeSettings {
 // In a real application, these would be concrete implementations provided via DI.
 
 const mockThemeAdapter = {
-  getCurrentThemeAsync: async () => ({ name: 'Light', highContrastEnabled: false, languageCode: 'en-US' }),
+  getCurrentThemeAsync: async (): Promise<ThemeSettings> => ({ name: 'Light', highContrastEnabled: false, languageCode: 'en-US' }),
   onThemeChanged: (callback: (settings: ThemeSettings) => void) => {
     // Simulate theme change after 5 seconds for testing
     setTimeout(() => {
@@ -242,8 +242,8 @@ const AgentActionAuditTrail: React.FC<AgentActionAuditTrailProps> = ({
   const styles = getStyles(currentTheme);
 
   useEffect(() => {
-    themeAdapter.getCurrentThemeAsync().then(setCurrentTheme);
-    themeAdapter.onThemeChanged(setCurrentTheme);
+    themeAdapter.getCurrentThemeAsync().then((t) => setCurrentTheme(t));
+    themeAdapter.onThemeChanged((t) => setCurrentTheme(t));
   }, [themeAdapter]);
 
   const handleFilterChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
