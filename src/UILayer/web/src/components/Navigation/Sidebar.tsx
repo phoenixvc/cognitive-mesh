@@ -3,15 +3,23 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { usePreferencesStore } from "@/stores"
+import { useAuth } from "@/contexts/AuthContext"
 import { navItems, groupBySections } from "./navItems"
 import {
   LayoutDashboard,
   Bot,
   BarChart3,
+  Braces,
   ShieldCheck,
   Store,
   Settings,
   User,
+  Users,
+  Network,
+  Scale,
+  TrendingUp,
+  Activity,
+  Layers,
   ChevronLeft,
   ChevronRight,
   type LucideIcon,
@@ -21,21 +29,30 @@ const iconMap: Record<string, LucideIcon> = {
   LayoutDashboard,
   Bot,
   BarChart3,
+  Braces,
   ShieldCheck,
   Store,
   Settings,
   User,
+  Users,
+  Network,
+  Scale,
+  TrendingUp,
+  Activity,
+  Layers,
 }
 
 export function Sidebar() {
   const pathname = usePathname()
   const collapsed = usePreferencesStore((s) => s.sidebarCollapsed)
   const toggleSidebar = usePreferencesStore((s) => s.toggleSidebar)
+  const { user } = useAuth()
   const sections = groupBySections(navItems)
+  const primaryRole = user?.roles?.[0] ?? null
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 h-screen border-r border-white/10 bg-black/80 backdrop-blur-xl transition-all duration-300 ${
+      className={`fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-white/10 bg-black/80 backdrop-blur-xl transition-all duration-300 ${
         collapsed ? "w-16" : "w-56"
       }`}
     >
@@ -56,7 +73,7 @@ export function Sidebar() {
       </div>
 
       {/* Nav sections */}
-      <nav className="flex flex-col gap-1 p-2" role="navigation">
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-2" role="navigation">
         {Array.from(sections.entries()).map(([section, items]) => (
           <div key={section}>
             {!collapsed && (
@@ -87,6 +104,34 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+
+      {/* Role indicator */}
+      {user && (
+        <div className="border-t border-white/10 px-3 py-3">
+          {collapsed ? (
+            <div
+              className="flex items-center justify-center"
+              title={primaryRole ? `Role: ${primaryRole}` : user.name}
+            >
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/20 text-[10px] font-bold text-cyan-400">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-500/20 text-[10px] font-bold text-cyan-400">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-xs font-medium text-gray-300">{user.name}</p>
+                {primaryRole && (
+                  <p className="truncate text-[10px] text-gray-500">{primaryRole}</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </aside>
   )
 }
