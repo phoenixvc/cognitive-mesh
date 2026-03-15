@@ -26,6 +26,7 @@
     <ProjectReference Include=".\Security\Security.csproj" />
     <ProjectReference Include=".\NISTEvidence\NISTEvidence.csproj" />
     <ProjectReference Include=".\EvidenceArtifacts\EvidenceArtifacts.csproj" />
+    <ProjectReference Include=".\PolicyStore\PolicyStore.csproj" />
   </ItemGroup>
 
 </Project>
