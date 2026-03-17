@@ -1,8 +1,7 @@
 name: CodeQL Security Scanning
 
 on:
-  # Reduced to weekly + manual to cut GitHub Actions costs
-  # Was running on every push/PR including Renovate bot
+  # Weekly + manual only to minimize GitHub Actions costs
   schedule:
     # Run every Monday at 06:00 UTC
     - cron: '0 6 * * 1'
@@ -43,4 +42,4 @@ jobs:
         uses: github/codeql-action/analyze@v4
         with:
           category: "/language:csharp"
-          upload: always
+          upload: "always"
