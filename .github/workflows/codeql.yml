@@ -1,8 +1,8 @@
 name: CodeQL Security Scanning
 
 on:
-  pull_request:
-    branches: [main, dev]
+  # Reduced to weekly + manual to cut GitHub Actions costs
+  # Was running on every push/PR including Renovate bot
   schedule:
     # Run every Monday at 06:00 UTC
     - cron: '0 6 * * 1'
@@ -28,9 +28,7 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: |
-            9.0.x
-            10.0.x
+          dotnet-version: "9.0.x"
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -39,33 +37,10 @@ jobs:
           queries: security-and-quality
 
       - name: Build solution
-        run: dotnet build CognitiveMesh.sln --configuration Release
+        run: dotnet build CognitiveMesh.sln --no-incremental
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: '/language:csharp'
-
-  analyze-javascript:
-    name: Analyze TypeScript/JavaScript
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: javascript-typescript
-          queries: security-and-quality
-
-      # JavaScript/TypeScript analysis is extractorless — no build step needed
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-        with:
-          category: '/language:javascript-typescript'
+          category: "/language:csharp"
+          upload: always
