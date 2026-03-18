@@ -42,6 +42,12 @@
       "command": "npx",
       "args": ["-y", "@playwright/mcp"]
     },
+    "kernel": {
+      "url": "https://mcp.onkernel.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${KERNEL_API_KEY}"
+      }
+    },
     "fetch": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-fetch"]
