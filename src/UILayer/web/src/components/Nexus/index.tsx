@@ -363,22 +363,6 @@ export default function Nexus({
   }
 
   // Enhanced mode drag handlers
-  const handleDragStart = useCallback((type: "nexus" | "icon", data?: unknown, event?: React.MouseEvent) => {
-    if (mode !== "enhanced") return
-    if (!event) return
-    nexusDragStart()
-    startDrag({
-      id: `${type}-${Date.now()}`,
-      type: "nexus",
-      size: "small",
-      position: { x: 0, y: 0 },
-      isDocked: false,
-      zIndex: 100,
-    }, event)
-    if (enableAudio) playSound("click")
-    if (onDragStart) onDragStart()
-  }, [mode, startDrag, enableAudio, playSound, onDragStart, nexusDragStart])
-
   const handleDragEnd = useCallback(() => {
     if (mode !== "enhanced") return
     nexusDragEnd()
