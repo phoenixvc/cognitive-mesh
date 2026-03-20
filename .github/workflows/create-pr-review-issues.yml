@@ -2,6 +2,9 @@ name: Create Issues from PR #361 Review Comments
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - copilot/sub-pr-361
 
 jobs:
   create-issues:
