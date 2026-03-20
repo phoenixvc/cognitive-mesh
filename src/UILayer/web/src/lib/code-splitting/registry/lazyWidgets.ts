@@ -80,3 +80,21 @@ export const LazyImpactMetricsDashboard = createLazyWidget(
 export const LazyCognitiveSandwichDashboard = createLazyWidget(
   () => import('@/components/widgets/CognitiveSandwich/CognitiveSandwichDashboard') as AnyImport
 );
+
+// Phase 16 — New Widget Dashboards
+
+export const LazyContextEngineeringDashboard = createLazyWidget(
+  () => import('@/components/widgets/ContextEngineering/ContextEngineeringDashboard') as AnyImport
+);
+
+export const LazyConvenerDashboard = createLazyWidget(
+  () => import('@/components/widgets/Convener/ConvenerDashboard') as AnyImport
+);
+
+export const LazyMarketplaceDashboard = createLazyWidget(
+  () => import('@/components/widgets/Marketplace/MarketplaceDashboard') as AnyImport
+);
+
+export const LazyOrgMeshDashboard = createLazyWidget(
+  () => import('@/components/widgets/OrgMesh/OrgMeshDashboard') as AnyImport
+);

@@ -1,0 +1,388 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visual regression snapshots ConnectionIndicator connected state matches snapshot 1`] = `
+<div
+  class="flex items-center gap-1.5 text-xs text-gray-400"
+  title="Connected"
+>
+  <span
+    class="h-2 w-2 rounded-full bg-green-500"
+  />
+  <svg
+    aria-hidden="true"
+    class="lucide lucide-wifi"
+    fill="none"
+    height="14"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+    width="14"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 20h.01"
+    />
+    <path
+      d="M2 8.82a15 15 0 0 1 20 0"
+    />
+    <path
+      d="M5 12.859a10 10 0 0 1 14 0"
+    />
+    <path
+      d="M8.5 16.429a5 5 0 0 1 7 0"
+    />
+  </svg>
+</div>
+`;
+
+exports[`Visual regression snapshots ConnectionIndicator connecting state matches snapshot 1`] = `
+<div
+  class="flex items-center gap-1.5 text-xs text-gray-400"
+  title="Connecting..."
+>
+  <span
+    class="h-2 w-2 rounded-full bg-yellow-500 animate-pulse"
+  />
+  <svg
+    aria-hidden="true"
+    class="lucide lucide-wifi"
+    fill="none"
+    height="14"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+    width="14"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 20h.01"
+    />
+    <path
+      d="M2 8.82a15 15 0 0 1 20 0"
+    />
+    <path
+      d="M5 12.859a10 10 0 0 1 14 0"
+    />
+    <path
+      d="M8.5 16.429a5 5 0 0 1 7 0"
+    />
+  </svg>
+</div>
+`;
+
+exports[`Visual regression snapshots ConnectionIndicator disconnected state matches snapshot 1`] = `
+<div
+  class="flex items-center gap-1.5 text-xs text-gray-400"
+  title="Disconnected"
+>
+  <span
+    class="h-2 w-2 rounded-full bg-red-500"
+  />
+  <svg
+    aria-hidden="true"
+    class="lucide lucide-wifi-off"
+    fill="none"
+    height="14"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+    width="14"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 20h.01"
+    />
+    <path
+      d="M8.5 16.429a5 5 0 0 1 7 0"
+    />
+    <path
+      d="M5 12.859a10 10 0 0 1 5.17-2.69"
+    />
+    <path
+      d="M19 12.859a10 10 0 0 0-2.007-1.523"
+    />
+    <path
+      d="M2 8.82a15 15 0 0 1 4.177-2.643"
+    />
+    <path
+      d="M22 8.82a15 15 0 0 0-11.288-3.764"
+    />
+    <path
+      d="m2 2 20 20"
+    />
+  </svg>
+</div>
+`;
+
+exports[`Visual regression snapshots ConnectionIndicator reconnecting state matches snapshot 1`] = `
+<div
+  class="flex items-center gap-1.5 text-xs text-gray-400"
+  title="Reconnecting..."
+>
+  <span
+    class="h-2 w-2 rounded-full bg-yellow-500 animate-pulse"
+  />
+  <svg
+    aria-hidden="true"
+    class="lucide lucide-wifi"
+    fill="none"
+    height="14"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+    width="14"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 20h.01"
+    />
+    <path
+      d="M2 8.82a15 15 0 0 1 20 0"
+    />
+    <path
+      d="M5 12.859a10 10 0 0 1 14 0"
+    />
+    <path
+      d="M8.5 16.429a5 5 0 0 1 7 0"
+    />
+  </svg>
+</div>
+`;
+
+exports[`Visual regression snapshots Skeleton components Skeleton base matches snapshot 1`] = `
+<div
+  aria-hidden="true"
+  class="animate-pulse rounded-md bg-white/5 h-4 w-32"
+/>
+`;
+
+exports[`Visual regression snapshots Skeleton components SkeletonCard matches snapshot 1`] = `
+<div
+  class="rounded-lg border border-white/10 bg-white/5 p-4"
+>
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 mb-3 h-4 w-1/3"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 mb-2 h-8 w-2/3"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-3 w-full"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 mt-1 h-3 w-4/5"
+  />
+</div>
+`;
+
+exports[`Visual regression snapshots Skeleton components SkeletonDashboard matches snapshot 1`] = `
+<div
+  class="space-y-6"
+>
+  <div
+    class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+  >
+    <div
+      class="rounded-lg border border-white/10 bg-white/5 p-3"
+    >
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mb-2 h-3 w-1/2"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 h-6 w-1/3"
+      />
+    </div>
+    <div
+      class="rounded-lg border border-white/10 bg-white/5 p-3"
+    >
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mb-2 h-3 w-1/2"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 h-6 w-1/3"
+      />
+    </div>
+    <div
+      class="rounded-lg border border-white/10 bg-white/5 p-3"
+    >
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mb-2 h-3 w-1/2"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 h-6 w-1/3"
+      />
+    </div>
+    <div
+      class="rounded-lg border border-white/10 bg-white/5 p-3"
+    >
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mb-2 h-3 w-1/2"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 h-6 w-1/3"
+      />
+    </div>
+  </div>
+  <div
+    class="grid grid-cols-1 gap-4 lg:grid-cols-2"
+  >
+    <div
+      class="rounded-lg border border-white/10 bg-white/5 p-4"
+    >
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mb-3 h-4 w-1/3"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mb-2 h-8 w-2/3"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 h-3 w-full"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mt-1 h-3 w-4/5"
+      />
+    </div>
+    <div
+      class="rounded-lg border border-white/10 bg-white/5 p-4"
+    >
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mb-3 h-4 w-1/3"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mb-2 h-8 w-2/3"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 h-3 w-full"
+      />
+      <div
+        aria-hidden="true"
+        class="animate-pulse rounded-md bg-white/5 mt-1 h-3 w-4/5"
+      />
+    </div>
+  </div>
+  <div
+    class="space-y-2"
+  >
+    <div
+      aria-hidden="true"
+      class="animate-pulse rounded-md bg-white/5 h-10 w-full"
+    />
+    <div
+      aria-hidden="true"
+      class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+    />
+    <div
+      aria-hidden="true"
+      class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+    />
+    <div
+      aria-hidden="true"
+      class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+    />
+    <div
+      aria-hidden="true"
+      class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+    />
+    <div
+      aria-hidden="true"
+      class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+    />
+  </div>
+</div>
+`;
+
+exports[`Visual regression snapshots Skeleton components SkeletonMetric matches snapshot 1`] = `
+<div
+  class="rounded-lg border border-white/10 bg-white/5 p-3"
+>
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 mb-2 h-3 w-1/2"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-6 w-1/3"
+  />
+</div>
+`;
+
+exports[`Visual regression snapshots Skeleton components SkeletonTable matches snapshot with 3 rows 1`] = `
+<div
+  class="space-y-2"
+>
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-10 w-full"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+  />
+</div>
+`;
+
+exports[`Visual regression snapshots Skeleton components SkeletonTable matches snapshot with default rows 1`] = `
+<div
+  class="space-y-2"
+>
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-10 w-full"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+  />
+  <div
+    aria-hidden="true"
+    class="animate-pulse rounded-md bg-white/5 h-12 w-full"
+  />
+</div>
+`;
