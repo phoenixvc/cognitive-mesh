@@ -1,0 +1,112 @@
+[
+  {
+    "title": "fix(ci): Pin all checkouts to triggering workflow_run commit in deploy-frontend.yml",
+    "body": "## Summary\n\nOn `workflow_run`-triggered jobs, `github.sha` points to the default branch HEAD — not the commit that passed the upstream workflow. This causes `actions/checkout` to check out a different revision than what was tested, allowing a build-one-commit/deploy-another-manifests scenario.\n\n## Affected file\n`.github/workflows/deploy-frontend.yml` — lines 64-67, 105-106, 121-123, 185-187\n\n## Required fix\nUse `github.event.workflow_run.head_sha` as the `ref` input on every `actions/checkout` step and for the `org.opencontainers.image.revision` OCI label:\n\n```yaml\n- uses: actions/checkout@v6\n  with:\n    fetch-depth: 0\n    ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}\n```\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918141425\n- Severity: 🔴 Critical",
+    "labels": ["bug", "ci/cd"]
+  },
+  {
+    "title": "fix(ci): Staging calls production API — NEXT_PUBLIC_API_BASE_URL baked in at build time",
+    "body": "## Summary\n\nThe workflow bakes `NEXT_PUBLIC_API_BASE_URL=https://api.cognitivemesh.io` into the client bundle via Docker build-args, then promotes the **same image** to both staging and production. Because Next.js inlines `NEXT_PUBLIC_*` variables at build time, staging can never override this value at runtime and will always call the production API endpoint.\n\n## Affected file\n`.github/workflows/deploy-frontend.yml` — lines 97-99\n\n## Required fix\nEither:\n1. Create separate build jobs per environment, each passing environment-specific `NEXT_PUBLIC_API_BASE_URL`; or\n2. Move API configuration to runtime (e.g., server-side config endpoint, SSR context, or non-`NEXT_PUBLIC_` env var read server-side and exposed to the client).\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918141434\n- Severity: 🔴 Critical",
+    "labels": ["bug", "ci/cd"]
+  },
+  {
+    "title": "fix(k8s): Global rewrite-target \"/\" collapses all requests in frontend-ingress.yaml",
+    "body": "## Summary\n\nThe annotation `nginx.ingress.kubernetes.io/rewrite-target: /` is applied globally. This means every request — including `/api/foo`, `/healthz`, and frontend deep links like `/widgets/marketplace` — arrives at the upstream service as `/`, breaking API routing and App Router direct loads.\n\n## Affected file\n`k8s/base/frontend-ingress.yaml` — lines 11-15, 24-25, 47-48\n\n## Required fix\nRemove the global rewrite annotation. If path stripping is needed for a specific route, apply a targeted annotation on that rule only. Switch `/api(/|$)(.*)` regex rules to simple `Prefix` path type rules:\n\n```yaml\n- path: /api\n  pathType: Prefix\n  backend:\n    service:\n      name: cognitive-mesh-api\n```\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918141438\n- Severity: 🔴 Critical",
+    "labels": ["bug", "infrastructure"]
+  },
+  {
+    "title": "fix(auth): RevokeAuthorityOverrideAsync ignores action parameter and may revoke wrong override",
+    "body": "## Summary\n\n`IAuthorityPort.RevokeAuthorityOverrideAsync` in `AuthorityService` queries `AuthorityOverrides` by `AgentId`/`TenantId`/`IsActive` but **ignores the `action` parameter** and calls `FirstOrDefaultAsync()`. When multiple active override rows exist for the same agent/tenant, this can revoke an unrelated or already-expired override, leaving the requested elevated permission in place.\n\n## Affected file\n`src/BusinessApplications/AgentRegistry/Services/AuthorityService.cs` — lines 745-760\n\n## Required fix\nAdd `action` to the LINQ filter and choose deterministically:\n\n```csharp\nvar activeOverride = (await _dbContext.AuthorityOverrides\n    .Where(o => o.AgentId == agentId\n             && o.TenantId == tenantId\n             && o.IsActive\n             && o.ExpiresAt > DateTimeOffset.UtcNow)\n    .OrderByDescending(o => o.CreatedAt)\n    .ToListAsync())\n    .FirstOrDefault(o => o.OverrideScope?.AllowedApiEndpoints?.Contains(action) == true);\n```\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918141445\n- Severity: 🔴 Critical",
+    "labels": ["bug", "security"]
+  },
+  {
+    "title": "fix(compliance): ConcurrentDictionary.AddOrUpdate unsafe for in-place EvidenceRecord mutation in NISTComplianceService",
+    "body": "## Summary\n\n`ConcurrentDictionary.AddOrUpdate` executes its `updateValueFactory` delegate **outside the dictionary's internal locks** and may invoke it **multiple times** under contention. Concurrent calls to `SubmitReviewAsync` with the same evidence ID therefore mutate an `EvidenceRecord` field-by-field without synchronization, resulting in a record with a mixed review state.\n\n## Affected file\n`src/BusinessApplications/NISTCompliance/Services/NISTComplianceService.cs` — line 233\n\n## Required fix\nReplace the unsafe in-place mutation with an immutable update (create a new record value) or use a proper `lock`/`Interlocked` mechanism:\n\n```csharp\n_evidenceRecords.AddOrUpdate(\n    evidenceId,\n    _ => CreateNewRecord(review),\n    (_, existing) => existing with { ReviewedBy = review.ReviewedBy, Status = review.Status, ReviewedAt = review.ReviewedAt }\n);\n```\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918141448\n- Severity: 🔴 Critical",
+    "labels": ["bug", "concurrency"]
+  },
+  {
+    "title": "fix(state): Phase 16 history entry missing from orchestrator.json before advancing last_phase_completed",
+    "body": "## Summary\n\n`last_phase_completed` in `.claude/state/orchestrator.json` has been advanced to `16`, but `phase_history` still ends at `\"15a\"`. Any consumer that derives release notes, rollback context, or next work from the history log will see Phase 16 as if it never happened.\n\n## Affected file\n`.claude/state/orchestrator.json` — line 4\n\n## Required fix\nAdd a Phase 16 history entry to `phase_history` before (or alongside) updating `last_phase_completed`. The entry should include the phase name, completion date, and key deliverables.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918362689\n- Severity: 🟠 Major",
+    "labels": ["bug", "documentation"]
+  },
+  {
+    "title": "fix(state): FETEST-001 marked DONE in backlog while component_test_coverage_pct is 25% in orchestrator.json",
+    "body": "## Summary\n\n`.claude/state/orchestrator.json` shows `component_test_coverage_pct: 25`, but the backlog simultaneously marks `FETEST-001 Unit tests 80% [DONE]`. This internal inconsistency risks treating incomplete test coverage as complete, allowing work items that depend on 80% coverage to proceed prematurely.\n\n## Affected file\n`.claude/state/orchestrator.json` — line 173\n\n## Required fix\nEither:\n1. Update `component_test_coverage_pct` to accurately reflect the achieved coverage; or\n2. Reopen `FETEST-001` in the backlog until coverage actually reaches 80%.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918362694\n- Severity: 🟠 Major",
+    "labels": ["bug", "testing"]
+  },
+  {
+    "title": "fix(tests): E2E auth-flow test helper uses stale auth contract (auth_token vs accessToken/refreshToken)",
+    "body": "## Summary\n\nThe in-test auth store helper in `auth-flow.test.tsx` writes `auth_token` and accepts an injected `user` object. The actual shipped auth flow uses `accessToken`/`refreshToken`, derives the user from the JWT, and sets the `cm_access_token` cookie. This mismatch means the tests pass even when the real auth contract is broken.\n\n## Affected file\n`src/UILayer/web/src/__tests__/e2e/auth-flow.test.tsx` — line 39\n\n## Required fix\nUpdate the test helper to use the same field names and structure as the real `useAuthStore` (`accessToken`, `refreshToken`, cookie logic) so the tests fail when the production auth contract changes.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366126\n- Severity: 🟠 Major",
+    "labels": ["bug", "testing"]
+  },
+  {
+    "title": "fix(tests): E2E login tests exercise fictional API and component flow, not the real implementation",
+    "body": "## Summary\n\nThe login tests in `auth-flow.test.tsx` (lines 76, 105) post to `/api/auth/login` and consume `{ token, user }`, while the actual implementation uses a different endpoint and response shape. The form, submit handler, fetch URL, response parsing, and redirect are all defined inline within the test — the real component is never imported or rendered.\n\n## Affected file\n`src/UILayer/web/src/__tests__/e2e/auth-flow.test.tsx` — line 123\n\n## Required fix\nImport and render the actual login page/component. Mock only external boundaries (fetch, router) with responses that match the real API shape. Assertions should verify the real component's behavior after login.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366167\n- Severity: 🟠 Major",
+    "labels": ["bug", "testing"]
+  },
+  {
+    "title": "fix(tests): Dashboard e2e tests use inline stub components — real implementation never exercised",
+    "body": "## Summary\n\nAll \"dashboard\" behavior in `dashboard-flow.test.tsx` comes from inline stub components defined in the test file. The suite will not fail if the actual route, widgets, fetch logic, or `useSignalR` integration breaks, because the real implementation is never imported or rendered.\n\n## Affected file\n`src/UILayer/web/src/__tests__/e2e/dashboard-flow.test.tsx` — line 105\n\n## Required fix\nImport and render the real dashboard route/page. Mock only external boundaries (API calls, WebSocket) and assert on rendered output from the real implementation.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366173\n- Severity: 🟠 Major",
+    "labels": ["bug", "testing"]
+  },
+  {
+    "title": "fix(tests): Settings e2e test suite tests the Zustand store directly, not the settings UI flow",
+    "body": "## Summary\n\nEvery assertion in `settings-flow.test.tsx` goes through `usePreferencesStore.getState()` directly. The test suite will pass even if the real settings page stops rendering the correct controls, miswires event handlers, or fails to hydrate from the store — because the real component is never involved.\n\n## Affected file\n`src/UILayer/web/src/__tests__/e2e/settings-flow.test.tsx` — line 54\n\n## Required fix\nRender the real settings page component and interact with it via user events (`userEvent.click`, `userEvent.type`). Assert on what the user sees (rendered output) rather than internal store state.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366181\n- Severity: 🟠 Major",
+    "labels": ["bug", "testing"]
+  },
+  {
+    "title": "fix(ui): CommandPalette Ctrl/Cmd+K shortcut fires when focus is on text-entry controls",
+    "body": "## Summary\n\nThe document-level `keydown` handler in `CommandPalette.tsx` fires on all events regardless of which element is focused. If a user is typing in an `<input>`, `<textarea>`, `<select>`, or `contentEditable` element and presses Ctrl/Cmd+K, the palette opens and steals focus, interrupting their workflow.\n\n## Affected file\n`src/UILayer/web/src/components/shared/CommandPalette.tsx` — lines 41-50\n\n## Required fix\n\n```tsx\nfunction handleKeyDown(e: KeyboardEvent) {\n  const target = e.target as HTMLElement | null\n  if (\n    target &&\n    (target.tagName === 'INPUT' ||\n      target.tagName === 'TEXTAREA' ||\n      target.tagName === 'SELECT' ||\n      target.isContentEditable)\n  ) {\n    return\n  }\n  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {\n    e.preventDefault()\n    setOpen((prev) => !prev)\n  }\n}\n```\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366211\n- Severity: 🟠 Major",
+    "labels": ["bug", "frontend"]
+  },
+  {
+    "title": "fix(tests): bundle-size.test.ts is missing LazyValueGenerationDashboard assertion",
+    "body": "## Summary\n\n`src/UILayer/web/src/lib/code-splitting/registry/lazyWidgets.ts` exports `LazyValueGenerationDashboard`, but the bundle-size test at line 20 of `bundle-size.test.ts` does not assert that it is lazy-loaded. The neighboring Phase 15b dashboards are all asserted, leaving a gap in coverage.\n\n## Affected file\n`src/UILayer/web/src/__tests__/performance/bundle-size.test.ts` — line 20\n\n## Required fix\nAdd `LazyValueGenerationDashboard` to the list of expected lazy-loaded components in the test.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366186\n- Severity: 🟡 Minor",
+    "labels": ["bug", "testing"]
+  },
+  {
+    "title": "fix(ui): CSV export permanently unavailable on compliance page — ExportMenu receives no data prop",
+    "body": "## Summary\n\n`ExportMenu` only enables the CSV export option when a `data` prop is provided. The compliance page passes only `targetRef` to `ExportMenu`, with no `data` prop. Since `NistComplianceDashboard` keeps its exportable data internal, CSV export is permanently disabled on this page.\n\n## Affected file\n`src/UILayer/web/src/app/(app)/compliance/page.tsx` — line 15\n\n## Required fix\nExpose the exportable data from `NistComplianceDashboard` (e.g., via a callback prop or ref) and pass it to `ExportMenu` as the `data` prop.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366203\n- Severity: 🟡 Minor",
+    "labels": ["bug", "frontend"]
+  },
+  {
+    "title": "fix(ui): CSV export permanently unavailable on impact page — ExportMenu receives no data prop",
+    "body": "## Summary\n\nThe impact page mounts `ExportMenu` without a `data` prop. `ImpactMetricsDashboard` keeps `report`/`resistance` data private, so CSV export is permanently disabled.\n\n## Affected file\n`src/UILayer/web/src/app/(app)/impact/page.tsx` — line 14\n\n## Required fix\nExpose the exportable data from `ImpactMetricsDashboard` and pass it to `ExportMenu` as the `data` prop.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366207\n- Severity: 🟡 Minor",
+    "labels": ["bug", "frontend"]
+  },
+  {
+    "title": "fix(ui): ExportMenu CSV serializer does not quote fields containing newlines",
+    "body": "## Summary\n\nThe CSV serializer in `ExportMenu.tsx` only quotes fields that contain commas, but does not handle values containing `\\n` or `\\r`. A single cell with embedded newlines will be emitted as multiple CSV rows, producing a malformed export file.\n\n## Affected file\n`src/UILayer/web/src/components/shared/ExportMenu.tsx` — line 23\n\n## Required fix\n\n```ts\nconst needsQuoting = (val: string) =>\n  val.includes(',') || val.includes('\"') || val.includes('\\n') || val.includes('\\r')\n```\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366223\n- Severity: 🟡 Minor",
+    "labels": ["bug", "frontend"]
+  },
+  {
+    "title": "fix(ui): ExportMenu PNG export creates a blank canvas — target element is never rendered into bitmap",
+    "body": "## Summary\n\nThe PNG export path in `ExportMenu.tsx` creates a fresh `<canvas>` and draws only a background colour and header text. `targetRef.current` (the actual dashboard element) is never rendered into the canvas. Downloaded PNGs contain only the background and title, missing all dashboard content.\n\n## Affected file\n`src/UILayer/web/src/components/shared/ExportMenu.tsx` — line 83\n\n## Required fix\nUse a library such as `html2canvas` or `dom-to-image` to capture the `targetRef.current` DOM node into the canvas, rather than drawing a blank canvas manually.\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366235\n- Severity: 🟠 Major",
+    "labels": ["bug", "frontend"]
+  },
+  {
+    "title": "fix(ui): PresenceIndicator initials computation breaks on empty name or consecutive spaces",
+    "body": "## Summary\n\nThe initials computation in `PresenceIndicator.tsx` uses `name.split(' ')` which produces empty strings for consecutive spaces or an empty `name`. Accessing `w[0]` on an empty string returns `undefined`, causing the `join()` call to include literal `\"undefined\"` text in the initials.\n\n## Affected file\n`src/UILayer/web/src/components/shared/PresenceIndicator.tsx` — line 28\n\n## Required fix\n\n```ts\nconst initials = name\n  .split(' ')\n  .filter(Boolean)\n  .map((w) => w[0])\n  .join('')\n  .slice(0, 2)\n  .toUpperCase()\n```\n\n## References\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919366242\n- Severity: 🟡 Minor",
+    "labels": ["bug", "frontend"]
+  },
+  {
+    "title": "fix(tests): Remove unused fireEvent import in ErrorBoundary.test.tsx (CodeQL #541)",
+    "body": "## Summary\n\n`fireEvent` is imported but never used in `ErrorBoundary.test.tsx` line 2. This triggers CodeQL alert #541 (Unused variable, import, function or class).\n\n## Affected file\n`src/UILayer/web/src/components/ErrorBoundary/ErrorBoundary.test.tsx` — line 2\n\n## Required fix\nRemove `fireEvent` from the import statement.\n\n## References\n- Code scanning alert: https://github.com/phoenixvc/cognitive-mesh/security/code-scanning/541\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918058348",
+    "labels": ["bug", "testing"]
+  },
+  {
+    "title": "fix(tests): Remove unused screen import in Skeleton.test.tsx (CodeQL #542)",
+    "body": "## Summary\n\n`screen` is imported but never used in `Skeleton.test.tsx` line 2. This triggers CodeQL alert #542 (Unused variable, import, function or class).\n\n## Affected file\n`src/UILayer/web/src/components/Skeleton/Skeleton.test.tsx` — line 2\n\n## Required fix\nRemove `screen` from the import statement.\n\n## References\n- Code scanning alert: https://github.com/phoenixvc/cognitive-mesh/security/code-scanning/542\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918058365",
+    "labels": ["bug", "testing"]
+  },
+  {
+    "title": "fix(tests): Remove unused isLoading variable in AuthContext.test.tsx (CodeQL #543)",
+    "body": "## Summary\n\n`isLoading` is declared but never used in `AuthContext.test.tsx` line 204. This triggers CodeQL alert #543 (Unused variable, import, function or class).\n\n## Affected file\n`src/UILayer/web/src/contexts/AuthContext.test.tsx` — line 204\n\n## Required fix\nRemove the unused `isLoading` variable declaration, or prefix it with `_` if the destructuring pattern is needed.\n\n## References\n- Code scanning alert: https://github.com/phoenixvc/cognitive-mesh/security/code-scanning/543\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2918058384",
+    "labels": ["bug", "testing"]
+  },
+  {
+    "title": "fix(tests): Remove unused act import in auth-flow.test.tsx (CodeQL #544)",
+    "body": "## Summary\n\n`act` is imported but never used in `src/UILayer/web/src/__tests__/e2e/auth-flow.test.tsx` line 2. This triggers CodeQL alert #544 (Unused variable, import, function or class).\n\n## Affected file\n`src/UILayer/web/src/__tests__/e2e/auth-flow.test.tsx` — line 2\n\n## Required fix\nRemove `act` from the import statement.\n\n## References\n- Code scanning alert: https://github.com/phoenixvc/cognitive-mesh/security/code-scanning/544\n- PR #361 review: https://github.com/phoenixvc/cognitive-mesh/pull/361#discussion_r2919312216",
+    "labels": ["bug", "testing"]
+  }
+]
