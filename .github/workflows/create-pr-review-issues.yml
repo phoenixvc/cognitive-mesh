@@ -1,0 +1,79 @@
+name: Create Issues from PR #361 Review Comments
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create issues from PR #361 review comments
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const issuesFile = path.join(process.env.GITHUB_WORKSPACE, '.github', 'pr-361-review-issues.json');
+            const issues = JSON.parse(fs.readFileSync(issuesFile, 'utf8'));
+            const repo = { owner: context.repo.owner, repo: context.repo.repo };
+
+            const created = [];
+            const skipped = [];
+            const failed = [];
+
+            for (const issueData of issues) {
+              // Check for existing open issues with the same title to avoid duplicates
+              const search = await github.rest.search.issuesAndPullRequests({
+                q: `repo:${repo.owner}/${repo.repo} is:issue "${issueData.title}" in:title`,
+                per_page: 5,
+              });
+
+              const duplicate = search.data.items.find(i => i.title === issueData.title);
+              if (duplicate) {
+                console.log(`Skipping (already exists #${duplicate.number}): ${issueData.title}`);
+                skipped.push({ title: issueData.title, url: duplicate.html_url });
+                continue;
+              }
+
+              // Filter to only labels that exist in the repo
+              const labelsToApply = [];
+              for (const labelName of (issueData.labels || [])) {
+                try {
+                  await github.rest.issues.getLabel({ ...repo, name: labelName });
+                  labelsToApply.push(labelName);
+                } catch {
+                  console.log(`Label '${labelName}' not found, skipping`);
+                }
+              }
+
+              try {
+                const result = await github.rest.issues.create({
+                  ...repo,
+                  title: issueData.title,
+                  body: issueData.body,
+                  labels: labelsToApply,
+                });
+                console.log(`Created #${result.data.number}: ${result.data.html_url}`);
+                created.push({ number: result.data.number, title: issueData.title, url: result.data.html_url });
+              } catch (err) {
+                console.error(`Failed to create: ${issueData.title}`, err.message);
+                failed.push({ title: issueData.title, error: err.message });
+              }
+            }
+
+            console.log('\n=== Summary ===');
+            console.log(`Created: ${created.length} | Skipped: ${skipped.length} | Failed: ${failed.length}`);
+            created.forEach(i => console.log(`  ✅ #${i.number} ${i.url}`));
+            skipped.forEach(i => console.log(`  ⏭️  ${i.url}`));
+            failed.forEach(i => console.log(`  ❌ ${i.title}: ${i.error}`));
+
+            if (failed.length > 0) {
+              core.setFailed(`${failed.length} issue(s) failed to create`);
+            }
