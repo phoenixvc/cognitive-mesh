@@ -1,93 +1,102 @@
-# Cognitive Mesh: Enterprise AI Transformation Framework
+# cognitive-mesh
 
-[![Build and Analyze](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/build.yml/badge.svg)](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/build.yml)
-[![Deploy](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/deploy.yml/badge.svg)](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/deploy.yml)
-[![Code Coverage](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/coverage.yml/badge.svg)](https://github.com/phoenixvc/cognitive-mesh/actions/workflows/coverage.yml)
-[![codecov](https://codecov.io/gh/phoenixvc/cognitive-mesh/graph/badge.svg)](https://codecov.io/gh/phoenixvc/cognitive-mesh)
-[![PRD Status](https://img.shields.io/badge/PRD%20Status-Tracked-blue?link=./docs/prds/PRD-PRIORITY-STATUS.md)](./docs/prds/PRD-PRIORITY-STATUS.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Version](https://img.shields.io/badge/version-0.0.1-blue) ![Status](https://img.shields.io/badge/status-active-green) ![Platform](https://img.shields.io/badge/platform-.NET%2010-purple)
 
----
-
-## 🎯 Vision & Mission
-
-**Cognitive Mesh** is an enterprise-grade AI transformation framework designed to orchestrate sophisticated, multi-agent cognitive systems. Our mission is to provide a secure, compliant, and philosophically-grounded platform that enables organizations to build, deploy, and govern advanced AI capabilities with confidence and transparency.
-
-The platform integrates spectrum-adaptive intelligence, a complete NIST AI RMF compliance system, and a foundational Zero-Trust security architecture, making it the most advanced and reliable system for regulated and mission-critical enterprise environments.
-
----
-
-## 🏛️ Core Pillars
-
-The Cognitive Mesh architecture is built on four unwavering pillars that ensure robustness, security, and scalability.
-
-1.  **Layered Hexagonal Architecture:** A clean, decoupled design separating core domain logic from infrastructure. Each of the 5 layers (Foundation, Reasoning, Metacognitive, Agency, Business Applications) has a distinct responsibility, communicating through well-defined ports and adapters.
-2.  **Zero-Trust Security by Default:** Security is not an afterthought; it is the foundation. Every request, whether internal or external, is authenticated, authorized, and encrypted, enforcing the principle of least privilege across the entire mesh.
-3.  **Ethical & Legal Compliance:** The framework is governed by a comprehensive ethical and legal compliance system, ensuring all operations align with global standards like the GDPR and the EU AI Act, and are grounded in established philosophical principles.
-4.  **PRD-Driven Development:** Every component, feature, and architectural decision is guided by a comprehensive portfolio of Product Requirement Documents (PRDs). This ensures systematic, transparent, and priority-driven development.
-
----
-
-## 🏗️ Architecture Overview
-
-The Cognitive Mesh is organized into five distinct layers, each with a specific role in the cognitive processing pipeline. This separation of concerns ensures modularity, testability, and maintainability.
-
-*   [**`FoundationLayer`**](./src/FoundationLayer/README.md): Provides the core infrastructure, including security, data persistence, audit logging, and communication protocols. It is the bedrock upon which all other layers are built.
-*   [**`ReasoningLayer`**](./src/ReasoningLayer/README.md): Contains the cognitive engines responsible for various forms of reasoning—analytical, creative, ethical, and threat intelligence.
-*   [**`MetacognitiveLayer`**](./src/MetacognitiveLayer/README.md): The "mind of the mesh," responsible for self-monitoring, continuous learning, performance optimization, and incident response.
-*   [**`AgencyLayer`**](./src/AgencyLayer/README.md): Home to autonomous agents that execute tasks, interact with tools, and carry out automated workflows based on the decisions and plans formulated by the other layers.
-*   [**`BusinessApplications`**](./src/BusinessApplications/README.md): The outermost layer, which exposes the mesh's capabilities to the outside world through controllers, APIs, and business-specific logic.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download) or later
-- [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) or [VS Code](https://code.visualstudio.com/) with the C# Dev Kit
-- (Optional) [Azure Subscription](https://azure.microsoft.com) for cloud-native feature development
-
-### Quick Start
-
-1.  **Clone the repository:**
-    ```sh
-    git clone https://github.com/phoenixvc/cognitive-mesh.git
-    cd cognitive-mesh
-    ```
-
-2.  **Build the solution:**
-    This will restore all NuGet dependencies and compile every project.
-    ```sh
-    dotnet build CognitiveMesh.sln
-    ```
-
-3.  **Run all tests:**
-    Verify that the entire system is functioning correctly.
-    ```sh
-    dotnet test CognitiveMesh.sln
-    ```
-
-For advanced build, testing, and utility operations, please see the scripts in the [`./scripts/`](./scripts/) directory.
-
----
-
-## 🗺️ PRD-Driven Development
-
-All development in the Cognitive Mesh is meticulously planned and tracked through a comprehensive portfolio of **Product Requirement Documents (PRDs)**. This ensures every feature is well-defined, architecturally sound, and aligned with the project's strategic goals.
-
-Our complete PRD portfolio, including implementation priorities, status, and dependencies, is tracked in the master document:
-
-➡️ **[PRD Priority & Implementation Status](./docs/prds/PRD-PRIORITY-STATUS.md)**
-
----
-
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-Please refer to our [Contributing Guidelines](./CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests to us.
-
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more information.
+> Multi-agent orchestration framework for phoenixvc — structured reasoning, role-based agent coordination, and cross-repo AI task routing.
+>
+> **cognitive-mesh** is the agent intelligence layer of the phoenixvc ecosystem. It provides a .NET 10 framework for coordinating teams of specialised AI agents, routing complex tasks through structured reasoning pipelines, and surfacing results to consuming services. It is the "thinking layer" that sits between raw model calls (via `ai-flume`) and the products that need intelligent, multi-step results.
+>
+> ---
+>
+> ## What it does
+>
+> - **Multi-agent coordination** — Role-based agent teams where each agent has a defined specialisation (planner, executor, reviewer, critic). Complex tasks are decomposed and routed to the right agent.
+> - - **Structured reasoning** — Pipeline-based task execution with checkpointing, retry logic, and quality gates.
+>   - - **Cross-repo routing** — `ai-cadence` backend proxies task-routing decisions here. `retort`-based projects can register their agents into the mesh.
+>     - - **Observability** — All agent calls and reasoning steps are traced via OpenTelemetry, with spans pushed to `ai-flume`'s state service for attribution.
+>       - - **Kubernetes-ready** — Containerised, with k8s manifests and Helm chart support.
+>        
+>         - ---
+>
+> ## Architecture
+>
+> ```
+> consumers (ai-cadence / cockpit / retort projects)
+>          |
+>          v
+> cognitive-mesh API  (.NET 10 / ASP.NET Core)
+>          |
+>     -----+------------------
+>     |                      |
+> agent teams            tools/
+> (planner, executor,    (external APIs,
+> reviewer, critic)       MCP clients)
+>          |
+>          v
+>    ai-flume gateway  (model calls)
+> ```
+>
+> ---
+>
+> ## Repository layout
+>
+> ```
+> cognitive-mesh/
+> ├── src/                    # .NET source (agents, pipelines, API)
+> ├── api/                    # REST API layer
+> ├── tests/                  # Unit + integration tests
+> ├── cypress/                # E2E tests
+> ├── k8s/                    # Kubernetes manifests
+> ├── infra/                  # Infrastructure as code
+> ├── docs/                   # Architecture and runbooks
+> ├── examples/               # Usage examples
+> ├── tools/                  # Supporting tools
+> ├── scripts/                # Build and deploy scripts
+> ├── CognitiveMesh.sln       # .NET solution file
+> ├── Directory.Build.props   # Shared build properties
+> └── README.md
+> ```
+>
+> ---
+>
+> ## Prerequisites
+>
+> - .NET 10 SDK
+> - - Docker (for local containerised run)
+>   - - Azure CLI (for cloud deployment)
+>     - - Access to `ai-flume` gateway endpoint
+>      
+>       - ---
+>
+> ## Quick start
+>
+> ```bash
+> # Build
+> dotnet build CognitiveMesh.sln
+>
+> # Test
+> dotnet test
+>
+> # Run locally
+> dotnet run --project src/CognitiveMesh.Api
+> ```
+>
+> ---
+>
+> ## Ecosystem
+>
+> cognitive-mesh is the agent orchestration layer of the phoenixvc platform. It connects to:
+>
+> | Repo | Role |
+> |---|---|
+> | `ai-flume` | AI data plane — all model calls from cognitive-mesh route through ai-flume for observability and attribution |
+> | `ai-cadence` | Project tracker — proxies task-routing decisions to cognitive-mesh for AI-assisted triage |
+> | `cockpit` | Desktop ops tool — can invoke cognitive-mesh agent teams for complex multi-step operations |
+> | `retort` | Agent scaffold — retort-based projects register their agents into cognitive-mesh |
+> | `ai-gauge` | Cost observability — attributes cognitive-mesh model spend via ai-flume state service |
+>
+> ---
+>
+> ## Name
+>
+> **cognitive-mesh** — a mesh network has no single point of failure; every node connects to every other node. A cognitive mesh applies the same principle to AI agents: no single agent is the bottleneck, reasoning is distributed across specialised nodes, and the network routes around failures. The name captures both the distributed topology and the nature of the work — cognition, reasoning, intelligence — without being tied to any single framework or provider.

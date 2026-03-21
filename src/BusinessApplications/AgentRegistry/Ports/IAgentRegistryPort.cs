@@ -374,21 +374,23 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports
         /// Registers a new agent in the system with compliance metadata.
         /// </summary>
         /// <param name="request">The registration request containing agent details and compliance claims.</param>
+        /// <param name="cancellationToken">Token to cancel the operation.</param>
         /// <returns>The registered agent with its assigned ID and initial compliance status.</returns>
         /// <remarks>
         /// This method performs initial validation of the agent's compliance claims against
         /// the specified regulatory frameworks. For a full compliance verification, use
         /// <see cref="VerifyAgentComplianceAsync"/> after registration.
         /// </remarks>
-        Task<Agent> RegisterAgentAsync(AgentRegistrationRequest request);
+        Task<Agent> RegisterAgentAsync(AgentRegistrationRequest request, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves an agent by its ID.
         /// </summary>
         /// <param name="agentId">The ID of the agent to retrieve.</param>
         /// <param name="tenantId">The ID of the tenant that owns the agent.</param>
+        /// <param name="cancellationToken">Token to cancel the operation.</param>
         /// <returns>The agent if found; otherwise, null.</returns>
-        Task<Agent> GetAgentByIdAsync(Guid agentId, string tenantId);
+        Task<Agent> GetAgentByIdAsync(Guid agentId, string tenantId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Updates an existing agent's definition and metadata.
@@ -409,8 +411,9 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Ports
         /// <param name="tenantId">The ID of the tenant that owns the agent.</param>
         /// <param name="deactivatedBy">The ID of the user performing the deactivation.</param>
         /// <param name="reason">The reason for deactivation.</param>
+        /// <param name="cancellationToken">Token to cancel the operation.</param>
         /// <returns>True if the agent was successfully deactivated; otherwise, false.</returns>
-        Task<bool> DeactivateAgentAsync(Guid agentId, string tenantId, string deactivatedBy, string reason);
+        Task<bool> DeactivateAgentAsync(Guid agentId, string tenantId, string deactivatedBy, string reason, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retrieves agents of a specific type.

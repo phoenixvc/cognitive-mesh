@@ -742,12 +742,22 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
         }
 
         /// <inheritdoc />
-        Task<bool> IAuthorityPort.RevokeAuthorityOverrideAsync(Guid agentId, string action, string revokedBy, string tenantId)
+        async Task<bool> IAuthorityPort.RevokeAuthorityOverrideAsync(Guid agentId, string action, string revokedBy, string tenantId)
         {
-            // The existing RevokeAuthorityOverrideAsync uses overrideToken, not agentId directly.
-            // Log the revocation intent and return true — full implementation requires token lookup.
-            _logger.LogInformation("RevokeAuthorityOverrideAsync called for agent {AgentId}, action {Action} by {RevokedBy}", agentId, action, revokedBy);
-            return Task.FromResult(true);
+            return await _circuitBreaker.ExecuteAsync(async () =>
+            {
+                var activeOverride = await _dbContext.AuthorityOverrides
+                    .Where(o => o.AgentId == agentId && o.TenantId == tenantId && o.IsActive)
+                    .FirstOrDefaultAsync();
+
+                if (activeOverride == null)
+                {
+                    _logger.LogWarning("No active authority override found for agent {AgentId}, action {Action} in tenant {TenantId}", agentId, action, tenantId);
+                    return false;
+                }
+
+                return await RevokeAuthorityOverrideAsync(activeOverride.OverrideToken, revokedBy);
+            });
         }
 
         /// <inheritdoc />
@@ -933,7 +943,7 @@ namespace CognitiveMesh.BusinessApplications.AgentRegistry.Services
                 entity.Property(e => e.BaseScope)
                     .HasConversion(
                         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions()));
+                        v => System.Text.Json.JsonSerializer.Deserialize<AuthorityScope>(v, new System.Text.Json.JsonSerializerOptions())!);
 
                 // Configure Rules as a JSON column
                 entity.Property(e => e.Rules)

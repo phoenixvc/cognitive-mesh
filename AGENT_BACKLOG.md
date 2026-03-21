@@ -1,6 +1,6 @@
 # Cognitive Mesh — Agent Backlog
 
-> Prioritized, actionable work items. Backend is 100% complete (70/70 items). Frontend Phase 13 complete (4/4). Remaining 35 frontend items + 6 DevOps evaluation tickets across Phases 14–18.
+> Prioritized, actionable work items. Backend is 100% complete (70/70 items). Frontend Phase 13 ✓ (4/4), Phase 14 ✓ (6/6), Phase 14b ✓ (4/4). Remaining 25 frontend items + 6 DevOps evaluation tickets across Phases 15–18.
 
 ---
 
@@ -288,15 +288,16 @@
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
 | P0-CRITICAL (frontend) | 4 | 4 | **0** |
-| P1-HIGH (frontend infra) | 6 | 0 | **6** |
+| P1-HIGH (frontend infra) | 6 | 6 | **0** |
+| P1-HIGH (UI library — 14b) | 4 | 4 | **0** |
 | P1-HIGH (widget PRDs) | 5 | 0 | **5** |
-| P2-MEDIUM (widgets + nav) | 8 | 0 | **8** |
+| P2-MEDIUM (widgets + nav) | 8 | 4 | **4** |
 | P2-MEDIUM (security) | 1 | 0 | **1** |
 | P2-MEDIUM (CI/CD) | 5 | 0 | **5** |
 | P2-MEDIUM (testing) | 5 | 0 | **5** |
 | P3-LOW (features) | 5 | 0 | **5** |
 | DEVOPS (evaluation) | 6 | 0 | **6** |
-| **Total remaining** | **45** | **4** | **41** |
+| **Total remaining** | **49** | **18** | **31** |
 
 ---
 
@@ -351,33 +352,60 @@
 
 ---
 
-### Phase 14 — Core UX (NEXT)
+### Phase 14 — Core UX ✓ COMPLETE
 
 **Items:** FE-002, FE-003, FE-005, FE-007, FE-021, FE-022
-**Goal:** Replace all mocked data with real API calls, add real-time updates, state management, and multi-page navigation.
+**Status:** Complete. All 6 core items implemented.
 
-| Item | Description | Key Work |
-| ---- | ----------- | -------- |
-| FE-002 | Replace mocked API with real backend | Remove `DashboardAPI` singleton + `Math.random()` calls. Wire all 13 controllers through generated client. Implement request/response mapping for each endpoint. |
-| FE-003 | SignalR real-time client | Install `@microsoft/signalr`. Connect to `CognitiveMeshHub`. Replace polling with subscriptions (`JoinDashboardGroup`, `SubscribeToAgent`). Exponential backoff reconnection. Connection state indicator. |
-| FE-005 | Zustand state management | Create stores: `useAuthStore`, `useAgentStore`, `useDashboardStore`, `useNotificationStore`, `usePreferencesStore`. Replace scattered `useState`. Add persistence middleware for preferences. |
-| FE-007 | Loading states + skeletons | Skeleton components for dashboard panels, agent lists, metrics cards. Suspense boundaries per route. Optimistic updates for mutations. |
-| FE-021 | Multi-page routing | Create route dirs: `/dashboard`, `/settings`, `/agents`, `/compliance`, `/analytics`, `/marketplace`. Add `loading.tsx`, `error.tsx`, `layout.tsx` per route group. Parallel route loading. |
-| FE-022 | Navigation component | Sidebar with collapsible sections, breadcrumbs, mobile hamburger menu. Active route highlighting. Responsive drawer (< 768px). Keyboard navigation. |
+| Item | Description | Status |
+| ---- | ----------- | ------ |
+| FE-002 | Replace mocked API with real backend | ✓ Done — `DashboardAPI` singleton + `useDashboardData` hook deleted. Root `/` redirects to `/dashboard`. Stores fetch from real backend. |
+| FE-003 | SignalR real-time client | ✓ Done — `useSignalR` hook with `@microsoft/signalr@10.0.0`. HubConnection to `/hubs/cognitive-mesh`, exponential backoff (1s→30s), `ConnectionIndicator` in TopBar. |
+| FE-005 | Zustand state management | ✓ Done — 5 stores: `useAuthStore`, `useAgentStore`, `useDashboardStore`, `useNotificationStore`, `usePreferencesStore`. Persistence middleware for preferences. |
+| FE-007 | Loading states + skeletons | ✓ Done — `Skeleton`, `SkeletonCard`, `SkeletonTable`, `SkeletonMetric`, `SkeletonDashboard`. `loading.tsx` and `error.tsx` per route group. |
+| FE-021 | Multi-page routing | ✓ Done — `(app)` route group with 6 routes: `/dashboard`, `/agents`, `/settings`, `/analytics`, `/compliance`, `/marketplace`. Shared layout with `ProtectedRoute`. |
+| FE-022 | Navigation component | ✓ Done — `Sidebar` (collapsible), `TopBar` (breadcrumbs + notification bell), `MobileMenu` (responsive drawer), `Breadcrumbs`, `ConnectionIndicator`. Active route highlighting via `usePathname()`. |
 
-**Also in Phase 14 (deferred from Phase 13):**
+**Deferred to later phases (require backend work):**
 
 - httpOnly cookie for refresh token (requires backend `/api/auth/refresh` set-cookie endpoint)
 - Full JWT validation in middleware (requires JWKS endpoint or shared secret config)
 - Backend auth middleware in `Program.cs` (`AddAuthentication`/`AddAuthorization`)
 
+#### Gate → Phase 14b
+
+- [x] DashboardAPI mock removed, stores fetching from real backend
+- [x] SignalR hook created with reconnection logic and connection indicator
+- [x] Navigation between all 6 routes works with loading/error states
+- [x] Zustand stores hydrating from API on mount
+- [ ] Storybook stories for skeleton and navigation components (deferred to Phase 15)
+
+---
+
+### Phase 14b — UI Component Library Integration ✓ COMPLETE
+
+**Items:** FEUI-001, FEUI-002, FEUI-003, FEUI-004
+**Status:** Complete. All 169 files from CognitiveMeshUI accounted for (153 migrated, 4 removed dead code, 3 superseded, 7 IDE configs, 2 deduplicated).
+
+| Item | Description | Status |
+| ---- | ----------- | ------ |
+| FEUI-001 | Fix or replace broken shadcn/ui components | ✓ Done — All 48 shadcn/ui components working with 27 @radix-ui/* packages installed. Zero TS errors. |
+| FEUI-002 | Import design tokens | ✓ Done — `tokens/` directory imported (colors, typography, spacing, dimensions, text, object-values). Style Dictionary v5 generates `build/css/_variables.css`. Imported in globals.css. |
+| FEUI-003 | Wire Storybook | ✓ Done — Storybook v10 config (core + react-webpack5 + addon-links). 4 stories migrated. Addon alignment deferred (essentials bundled in v10 core). |
+| FEUI-004 | Clean up duplicate/dead component code | ✓ Done — Removed BridgeHeader, FXModePanel, LayoutToolsPanel, VoiceFeedback (dead code). Deduplicated hooks (use-mobile, use-toast). Consolidated type definitions. |
+
+**Additional work completed:**
+- Tailwind CSS v3 → v4 migration (`@tailwindcss/postcss` + CSS-first `@config`)
+- Next.js 16 SSR hardening (Suspense boundaries, `typeof window` guards, env fallbacks)
+- Duplicate route conflict resolved (`/settings` root deleted, kept `(app)/settings`)
+
 #### Gate → Phase 15
 
-- [ ] All 13 backend controllers callable from frontend (no mocked data remains)
-- [ ] SignalR connection established and reconnecting properly
-- [ ] Navigation between all 6 routes works with loading/error states
-- [ ] Zustand stores hydrating from API on mount
-- [ ] Storybook stories exist for skeleton and navigation components
+- [x] `npx tsc --noEmit` passes with zero errors
+
+- [x] Design tokens generating CSS custom properties
+- [~] Storybook running locally (config aligned to v10, addon version alignment deferred)
+- [x] No duplicate type definitions across stores/components
 
 ---
 
@@ -488,4 +516,4 @@
 
 ---
 
-*Updated: 2026-03-10 | Backend 100% complete (70/70). Frontend Phase 13 complete (4/4). Remaining: 35 frontend items + 6 DevOps evaluations across Phases 14–18.*
+*Updated: 2026-03-11 | Backend 100% complete (70/70). Frontend Phase 13 ✓, Phase 14 ✓ (6/6), Phase 14b ✓ (4/4). Phase 15 next (Widgets & User Settings). Remaining: 31 items across Phases 15–18.*

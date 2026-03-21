@@ -188,8 +188,8 @@ const getStyles = (theme: ThemeSettings) => {
     select: { padding: '8px', borderRadius: '4px', border: `1px solid ${isDark ? '#666' : '#ccc'}`, backgroundColor: isDark ? '#444' : '#f9f9f9', color: isDark ? '#f0f0f0' : '#333' },
     button: { padding: '8px 15px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '14px', marginRight: '10px', backgroundColor: '#007bff', color: 'white' },
     secondaryButton: { backgroundColor: '#6c757d', color: 'white' },
-    table: { width: '100%', borderCollapse: 'collapse' },
-    th: { borderBottom: `2px solid ${isDark ? '#555' : '#ddd'}`, padding: '12px', textAlign: 'left', fontWeight: 'bold', color: isDark ? '#bbb' : '#333' },
+    table: { width: '100%', borderCollapse: 'collapse' as const },
+    th: { borderBottom: `2px solid ${isDark ? '#555' : '#ddd'}`, padding: '12px', textAlign: 'left' as const, fontWeight: 'bold', color: isDark ? '#bbb' : '#333' },
     td: { borderBottom: `1px solid ${isDark ? '#444' : '#eee'}`, padding: '12px', color: isDark ? '#f0f0f0' : '#333' },
     tr: { cursor: 'pointer', transition: 'background-color 0.2s' },
     trHover: { backgroundColor: isDark ? '#3a3a3a' : '#f5f5f5' },
@@ -507,13 +507,13 @@ const RegistryViewer: React.FC<RegistryViewerProps> = ({
           <table style={styles.table} aria-label="Agent Registry Data">
             <thead>
               <tr>
-                <th style={styles.th} onClick={() => handleSort('agentType')} scope="col" aria-sort={sortBy === 'agentType' ? sortOrder : 'none'}>
+                <th style={styles.th} onClick={() => handleSort('agentType')} scope="col" aria-sort={sortBy === 'agentType' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Agent Type {sortBy === 'agentType' && (sortOrder === 'asc' ? '▲' : '▼')}
                 </th>
-                <th style={styles.th} onClick={() => handleSort('status')} scope="col" aria-sort={sortBy === 'status' ? sortOrder : 'none'}>
+                <th style={styles.th} onClick={() => handleSort('status')} scope="col" aria-sort={sortBy === 'status' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Status {sortBy === 'status' && (sortOrder === 'asc' ? '▲' : '▼')}
                 </th>
-                <th style={styles.th} onClick={() => handleSort('version')} scope="col" aria-sort={sortBy === 'version' ? sortOrder : 'none'}>
+                <th style={styles.th} onClick={() => handleSort('version')} scope="col" aria-sort={sortBy === 'version' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Version {sortBy === 'version' && (sortOrder === 'asc' ? '▲' : '▼')}
                 </th>
                 <th style={styles.th}>Default Autonomy</th>

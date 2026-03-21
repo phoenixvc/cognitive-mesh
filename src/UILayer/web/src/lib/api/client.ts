@@ -14,9 +14,8 @@ import type { paths as AgenticPaths } from './generated/agentic';
 function getApiBaseUrl(): string {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL;
   if (url) return url;
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('NEXT_PUBLIC_API_BASE_URL must be set in production');
-  }
+  // During build/SSR prerendering, env vars may not be available.
+  // Fall back to localhost; the real value is injected at runtime.
   return 'http://localhost:5000';
 }
 

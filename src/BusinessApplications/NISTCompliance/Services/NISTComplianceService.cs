@@ -79,9 +79,9 @@ public class NISTComplianceService : INISTComplianceServicePort
         {
             EntryId = Guid.NewGuid(),
             Action = "EvidenceSubmitted",
-            PerformedBy = request.SubmittedBy,
+            PerformedBy = Sanitize(request.SubmittedBy),
             PerformedAt = now,
-            Details = $"Evidence '{evidenceId}' submitted for statement '{request.StatementId}' with artifact type '{request.ArtifactType}'."
+            Details = $"Evidence '{evidenceId}' submitted for statement '{Sanitize(request.StatementId)}' with artifact type '{Sanitize(request.ArtifactType)}'."
         });
 
         _logger.LogInformation(
@@ -220,19 +220,26 @@ public class NISTComplianceService : INISTComplianceServicePort
         }
 
         var now = DateTimeOffset.UtcNow;
-        record.ReviewStatus = request.Decision;
-        record.ReviewedBy = request.ReviewerId;
-        record.ReviewedAt = now;
-        record.ReviewNotes = request.Notes;
+        _evidence.AddOrUpdate(
+            request.EvidenceId,
+            _ => throw new InvalidOperationException("Evidence record disappeared during review"),
+            (_, existing) =>
+            {
+                existing.ReviewStatus = request.Decision;
+                existing.ReviewedBy = request.ReviewerId;
+                existing.ReviewedAt = now;
+                existing.ReviewNotes = request.Notes;
+                return existing;
+            });
 
         AddAuditEntry("default-org", new NISTAuditEntry
         {
             EntryId = Guid.NewGuid(),
             Action = "ReviewCompleted",
-            PerformedBy = request.ReviewerId,
+            PerformedBy = Sanitize(request.ReviewerId),
             PerformedAt = now,
-            Details = $"Evidence '{request.EvidenceId}' reviewed with decision '{request.Decision}'."
-                    + (request.Notes != null ? $" Notes: {request.Notes}" : string.Empty)
+            Details = $"Evidence '{request.EvidenceId}' reviewed with decision '{Sanitize(request.Decision)}'."
+                    + (request.Notes != null ? $" Notes: {Sanitize(request.Notes)}" : string.Empty)
         });
 
         _logger.LogInformation(
@@ -309,8 +316,10 @@ public class NISTComplianceService : INISTComplianceServicePort
         var entries = _auditLogs.GetOrAdd(organizationId, _ => new List<NISTAuditEntry>());
 
         List<NISTAuditEntry> snapshot;
+        int totalCount;
         lock (entries)
         {
+            totalCount = entries.Count;
             snapshot = entries.OrderByDescending(e => e.PerformedAt).Take(maxResults).ToList();
         }
 
@@ -322,7 +331,7 @@ public class NISTComplianceService : INISTComplianceServicePort
         {
             OrganizationId = organizationId,
             Entries = snapshot,
-            TotalCount = entries.Count
+            TotalCount = totalCount
         });
     }
 

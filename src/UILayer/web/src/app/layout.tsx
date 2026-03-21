@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import React from "react"
-import { ThemeProvider } from "../../components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/AuthContext"
 import { ErrorBoundary } from "@/components/ErrorBoundary/ErrorBoundary"
 import { ToastProvider } from "@/components/Toast"
@@ -33,8 +33,8 @@ export default function RootLayout({
         >
           <AuthProvider>
             <ToastProvider>
-              <ApiBootstrap />
               <ErrorBoundary>
+                <ApiBootstrap />
                 {children}
               </ErrorBoundary>
             </ToastProvider>

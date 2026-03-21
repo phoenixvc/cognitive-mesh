@@ -129,7 +129,7 @@ export default function Nexus({
   })
 
   // Replace drag state with useNexusDrag
-  const { start: handleDragStart, end: handleDragEnd } = useNexusDrag({ onDragStart, onDragEnd })
+  const { isDragging: nexusDragActive, start: nexusDragStart, end: nexusDragEnd } = useNexusDrag({ onDragStart, onDragEnd })
 
   // Nexus identification
   const nexusId = "command-nexus"
@@ -363,26 +363,11 @@ export default function Nexus({
   }
 
   // Enhanced mode drag handlers
-  const handleDragStart = useCallback((type: "nexus" | "icon", data?: any) => {
-    if (mode !== "enhanced") return
-    startDrag({
-      id: `${type}-${Date.now()}`,
-      type: "nexus", // All modules dragged from Nexus are of type 'nexus'
-      size: "small", // Default size for dragged Nexus modules
-      position: { x: 0, y: 0 }, // Position will be updated by drag-and-drop context
-      isDocked: false,
-      zIndex: 100,
-      data: data, // Pass relevant data for the module
-    })
-    if (enableAudio) playSound("click")
-    if (onDragStart) onDragStart()
-  }, [mode, startDrag, enableAudio, playSound, onDragStart])
-
   const handleDragEnd = useCallback(() => {
     if (mode !== "enhanced") return
-    endDrag()
+    nexusDragEnd()
     if (enableAudio) playSound("snap")
-  }, [mode, endDrag, enableAudio, playSound])
+  }, [mode, nexusDragEnd, enableAudio, playSound])
 
   // Early return for draggable mode if not registered
   if (mode === "draggable" && !item) return null
@@ -774,10 +759,10 @@ export default function Nexus({
       </div>
 
       {/* Enhanced mode drag preview */}
-      {mode === "enhanced" && showDragPreview && useNexusDragIsDragging && (
+      {mode === "enhanced" && showDragPreview && nexusDragActive && (
         <DragPreview
-          isVisible={useNexusDragIsDragging}
-          draggedItem={useNexusDragIsDragging.draggedItem}
+          isVisible={nexusDragActive}
+          draggedItem={draggedItem as { id: string; type: "nexus" | "icon" } | null}
           onDragEnd={handleDragEnd}
           onDropZoneEnter={() => {}}
           onDropZoneLeave={() => {}}

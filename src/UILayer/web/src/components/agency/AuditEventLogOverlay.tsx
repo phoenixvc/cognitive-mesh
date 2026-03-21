@@ -629,7 +629,7 @@ const AuditEventLogOverlay: React.FC<AuditEventLogOverlayProps> = ({
           <select
             name="pageSize"
             value={pageSize}
-            onChange={handleFilterChange(val => setPageSize(parseInt(val)))}
+            onChange={(e) => setPageSize(parseInt(e.target.value))}
             style={styles.select}
             aria-label="Items per page"
           >

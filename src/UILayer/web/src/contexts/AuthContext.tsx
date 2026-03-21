@@ -68,11 +68,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   })
 
   const applyToken = useCallback((accessToken: string) => {
+    if (isTokenExpired(accessToken)) return false
     const user = extractUser(accessToken)
     if (!user) return false
     localStorage.setItem(TOKEN_KEY, accessToken)
     // Also set cookie so Next.js middleware can check auth server-side
-    document.cookie = `cm_access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`
+    const secure = typeof window !== "undefined" && window.location.protocol === "https:" ? "; Secure" : ""
+    document.cookie = `cm_access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax${secure}`
     setAuthToken(accessToken)
     setState({ user, isAuthenticated: true, isLoading: false })
     return true
@@ -95,6 +97,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return false
     }
   }, [applyToken])
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const res = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Login failed" }))
+        throw new Error(err.message ?? "Login failed")
+      }
+      const data = await res.json()
+      localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken)
+      if (!applyToken(data.accessToken)) {
+        throw new Error("Invalid token received")
+      }
+    },
+    [applyToken],
+  )
+
+  const logout = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(REFRESH_TOKEN_KEY)
+    document.cookie = "cm_access_token=; path=/; max-age=0"
+    clearAuthToken()
+    setState({ user: null, isAuthenticated: false, isLoading: false })
+  }, [])
 
   // Restore session on mount
   useEffect(() => {
@@ -135,35 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
     }, refreshIn)
     return () => clearTimeout(timer)
-  }, [state.isAuthenticated, state.user, refreshToken])
-
-  const login = useCallback(
-    async (email: string, password: string) => {
-      const res = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: "Login failed" }))
-        throw new Error(err.message ?? "Login failed")
-      }
-      const data = await res.json()
-      localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken)
-      if (!applyToken(data.accessToken)) {
-        throw new Error("Invalid token received")
-      }
-    },
-    [applyToken],
-  )
-
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
-    document.cookie = "cm_access_token=; path=/; max-age=0"
-    clearAuthToken()
-    setState({ user: null, isAuthenticated: false, isLoading: false })
-  }, [])
+  }, [state.isAuthenticated, state.user, refreshToken, logout])
 
   const value = useMemo<AuthContextValue>(
     () => ({ ...state, login, logout, refreshToken }),

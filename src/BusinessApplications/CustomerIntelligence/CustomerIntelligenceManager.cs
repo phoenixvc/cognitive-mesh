@@ -64,10 +64,16 @@ namespace CognitiveMesh.BusinessApplications.CustomerIntelligence
                 if (profile is null)
                 {
                     _logger.LogWarning("Customer profile not found: {CustomerId}", Sanitize(customerId));
-                    throw new KeyNotFoundException($"Customer profile not found for ID: {customerId}");
+                    throw new KeyNotFoundException($"Customer profile not found for ID: {Sanitize(customerId)}");
                 }
 
                 // Enrich profile with knowledge graph relationships
+                // Validate customerId contains only safe characters (alphanumeric, hyphens, underscores)
+                if (!System.Text.RegularExpressions.Regex.IsMatch(customerId, @"^[\w\-]+$"))
+                {
+                    throw new ArgumentException("Customer ID contains invalid characters", nameof(customerId));
+                }
+
                 var relationships = await _knowledgeGraphManager.QueryAsync(
                     $"MATCH (c:Customer {{id: '{customerId}'}})-[r]->(s:Segment) RETURN s",
                     cancellationToken).ConfigureAwait(false);

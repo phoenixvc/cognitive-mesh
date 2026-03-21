@@ -1,10 +1,21 @@
 "use client"
 
+import { Suspense } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useRouter, useSearchParams } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
 
-export default function LoginPage() {
+function sanitizeReturnTo(value: string | null): string {
+  if (!value) return "/"
+  // Normalize backslashes to forward slashes to prevent open redirects (e.g. /\evil.com)
+  const normalized = value.replace(/\\/g, "/")
+  if (!normalized.startsWith("/") || normalized.startsWith("//") || normalized.includes("://")) {
+    return "/"
+  }
+  return normalized
+}
+
+function LoginForm() {
   const { login, isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -13,7 +24,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
-  const returnTo = searchParams.get("returnTo") || "/"
+  const returnTo = sanitizeReturnTo(searchParams.get("returnTo"))
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -100,5 +111,19 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-cyan-500 border-t-transparent" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   )
 }
