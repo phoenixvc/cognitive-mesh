@@ -5,6 +5,8 @@ import { useNotificationStore } from "@/stores"
 import { Breadcrumbs } from "./Breadcrumbs"
 import { MobileMenu } from "./MobileMenu"
 import { ConnectionIndicator } from "./ConnectionIndicator"
+import { PresenceIndicator } from "@/components/shared/PresenceIndicator"
+import { ActivityFeed } from "@/components/shared/ActivityFeed"
 
 export function TopBar() {
   const unreadCount = useNotificationStore((s) => s.unreadCount)
@@ -17,7 +19,9 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-3">
+        <PresenceIndicator />
         <ConnectionIndicator />
+        <ActivityFeed />
 
         {/* TODO: implement notification panel onClick handler */}
         <button
