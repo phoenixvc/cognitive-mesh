@@ -30,9 +30,9 @@
     <PackageVersion Include="Azure.Storage.Files.DataLake" Version="[12.25.0]" />
     <PackageVersion Include="Microsoft.Azure.NotificationHubs" Version="[4.2.0]" />
     <!-- Identity / Security -->
-    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="[8.16.0]" />
+    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="[8.17.0]" />
     <PackageVersion Include="Newtonsoft.Json" Version="[13.0.4]" />
-    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="[8.16.0]" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="[8.17.0]" />
     <!-- SQLite -->
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="[10.0.5]" />
     <!-- Entity Framework Core -->
@@ -55,7 +55,7 @@
     <!-- Email -->
     <PackageVersion Include="SendGrid" Version="[9.29.3]" />
     <!-- Messaging -->
-    <PackageVersion Include="WolverineFx" Version="[5.21.0]" />
+    <PackageVersion Include="WolverineFx" Version="[5.23.0]" />
     <!-- Resilience -->
     <PackageVersion Include="Polly" Version="[8.6.6]" />
     <!-- YAML -->
