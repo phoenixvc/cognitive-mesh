@@ -187,6 +187,8 @@ npm run storybook    # http://localhost:6006 (component docs)
 
 ## Ecosystem
 
+> **Rebranding:** cognitive-mesh is relaunching as [neuralliquid.ai](https://neuralliquid.ai).
+
 | Repo | Role |
 |---|---|
 | **sluice** | AI data plane — all LLM calls from cognitive-mesh route through sluice for routing, observability, and cost attribution |
