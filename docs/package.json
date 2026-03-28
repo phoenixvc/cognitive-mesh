@@ -32,8 +32,8 @@
   "author": "Cognitive Mesh Team",
   "license": "Proprietary",
   "devDependencies": {
-    "@redocly/cli": "2.25.1",
-    "@types/k6": "1.6.0",
+    "@redocly/cli": "2.25.2",
+    "@types/k6": "1.7.0",
     "ajv": "8.18.0",
     "ajv-formats": "3.0.1",
     "commander": "14.0.3",
