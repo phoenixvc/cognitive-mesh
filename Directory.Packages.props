@@ -46,7 +46,7 @@
     <!-- LiteDB -->
     <PackageVersion Include="LiteDB" Version="[5.0.21]" />
     <!-- Redis -->
-    <PackageVersion Include="StackExchange.Redis" Version="[2.12.4]" />
+    <PackageVersion Include="StackExchange.Redis" Version="[2.12.8]" />
     <!-- Geospatial -->
     <PackageVersion Include="NetTopologySuite" Version="[2.6.0]" />
     <!-- Command Line -->
