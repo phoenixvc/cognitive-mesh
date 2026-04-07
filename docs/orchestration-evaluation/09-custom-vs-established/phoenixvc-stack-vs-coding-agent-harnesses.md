@@ -21,8 +21,12 @@ them up so the overlap and the gaps are obvious.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
+│  L5 — End-user / operator UI    (dashboards, widgets)       │
+│       ▸ Cognitive Mesh UILayer (Next.js + Tailwind)         │
+│       ▸ Widget plugins via IWidgetRegistry (PluginAPI)      │
+├─────────────────────────────────────────────────────────────┤
 │  L4 — Runtime cognition          (production traffic)       │
-│       ▸ Cognitive Mesh AgencyLayer                          │
+│       ▸ Cognitive Mesh AgencyLayer + Reasoning + Foundation │
 │       ▸ MultiAgentOrchestrationEngine, DurableWorkflowEngine│
 │       ▸ Ethical reasoning, MAKER benchmark, checkpointing   │
 ├─────────────────────────────────────────────────────────────┤
@@ -35,17 +39,24 @@ them up so the overlap and the gaps are obvious.
 │       ▸ Claw Code, Claude Code, oh-my-openagent, oh-my-pi   │
 │       ▸ Subagents, hooks, skills, MCP, worktree isolation   │
 │       ▸ Hash-anchored edits, LSP, tool-call loops           │
+│  L2.5 — IDE bridge for L1        (Retort inside the editor) │
+│       ▸ retort-plugins: VS Code (TS), JetBrains (Kotlin),   │
+│         Zed (Rust)                                          │
+│       ▸ Triggers sync, runs quality gates, status widgets   │
+│       ▸ `@retort` Copilot Chat, Junie context injection     │
 ├─────────────────────────────────────────────────────────────┤
 │  L1 — Spec & governance          (config sync, team rules)  │
-│       ▸ Retort (`.agentkit/spec/*.yaml`)                    │
+│       ▸ Retort (`.agentkit/spec/*.yaml`) — CLI + Ink TUI    │
 │       ▸ Renders configs for 16 harnesses from one source    │
 │       ▸ Quality gates, drift checks, GitHub Actions         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-The PhoenixVC stack covers **L1 + L3 + L4**. The coding-agent-harness ecosystem covers **L2** —
-and most of them ship with their own bundled L1 (per-tool config, hooks, agents folder). Retort
-exists precisely to push that L1 out of each individual harness and into a shared spec.
+The PhoenixVC stack now covers **L1 + L2.5 + L3 + L4 + L5**. The only gap is the *coding-agent
+harness itself* (L2 proper) — and Retort + retort-plugins exist precisely so any L2 harness can
+plug in cleanly. Think of the PhoenixVC stack as bracketing the L2 harness ecosystem on both
+sides: governance and IDE integration below, DevOps automation, runtime cognition, and operator
+UI above.
 
 ## The contenders
 
@@ -53,8 +64,9 @@ exists precisely to push that L1 out of each individual harness and into a share
 
 | Repo | Layer | Language | Primary unit | Differentiator |
 |------|-------|----------|--------------|----------------|
-| [`phoenixvc/cognitive-mesh`](https://github.com/phoenixvc/cognitive-mesh) | L4 | .NET 9 / C# | Agent task / workflow checkpoint | Five-layer hexagonal architecture, ethical reasoning (Brandom + Floridi), durable workflow engine with crash recovery, MAKER benchmark, ConclAIve recipes |
-| [`phoenixvc/retort`](https://github.com/phoenixvc/retort) | L1 | Node.js / TypeScript (Ink + React TUI) | YAML spec → tool-specific config | One YAML, 16 tool outputs, file-based task delegation protocol, Handlebars templates, drift detection |
+| [`phoenixvc/cognitive-mesh`](https://github.com/phoenixvc/cognitive-mesh) | L4 + L5 | .NET 9 / C# (backend) + Next.js / TS (UILayer) | Agent task / workflow checkpoint / dashboard widget | **Six-layer** hexagonal architecture (Foundation → Reasoning → Metacognitive → Agency → Business → UI), ethical reasoning (Brandom + Floridi), `DurableWorkflowEngine` with crash recovery, MAKER benchmark, ConclAIve recipes, **`UILayer/PluginAPI/IWidgetRegistry`** for operator-dashboard widget plugins |
+| [`phoenixvc/retort`](https://github.com/phoenixvc/retort) | L1 | Node.js / TypeScript (CLI + Ink + React TUI) | YAML spec → tool-specific config | One YAML, 16 tool outputs, CLI (`init`/`sync`/`start`/`run`/`worktree create`), interactive TUI (`retort start`), file-based task delegation protocol, Handlebars templates, drift detection |
+| [`phoenixvc/retort-plugins`](https://github.com/phoenixvc/retort-plugins) | L2.5 | TypeScript 65% (VS Code) + Kotlin 18% (JetBrains) + Rust 5% (Zed) | IDE command / panel / chat participant | Three IDE extensions sharing one Retort backend; activates on `.agentkit/` presence; `@retort` Copilot Chat participant in VS Code; Junie context injection in JetBrains; Zed slash commands (`/retort-status`, `/retort-teams`); brings sync, quality gates, and orchestration status into the editor |
 | [`phoenixvc/codeflow-engine`](https://github.com/phoenixvc/codeflow-engine) | L3 | Python (84%) | Workflow / event handler | AutoGen-backed multi-agent path, GitHub/Linear/Slack/Axolo integrations, event fan-out, exponential-backoff retries |
 
 ### Coding-agent harnesses (L2)
@@ -87,9 +99,37 @@ but with very different blast radius."
 | Audit & determinism | Hexagonal ports, structured logging, MAKER scoring | Workflow history retention | Drift detection across 16 tool outputs | Mock parity harness | Observable dashboards |
 
 The pattern is clear: **the coding-agent harnesses optimize for one developer at a keyboard**;
-**Cognitive Mesh + Codeflow-Engine optimize for production traffic**; **Retort sits between them
-and makes the L1 governance consistent**. Treat the overlap as "common vocabulary, different
-production targets" rather than as competition.
+**Cognitive Mesh + Codeflow-Engine optimize for production traffic**; **Retort + retort-plugins
+sit between them and make the L1 governance consistent both on disk and inside the IDE**. Treat
+the overlap as "common vocabulary, different production targets" rather than as competition.
+
+## Extension surfaces — the parallel that makes the stack consistent
+
+A subtle but important symmetry: **the PhoenixVC stack has two formal plugin systems, one at
+each end**. They are *not* the same plugin system, but they look alike on purpose.
+
+| Property | `retort-plugins` (L2.5) | `UILayer/PluginAPI/IWidgetRegistry` (L5) |
+|----------|-------------------------|------------------------------------------|
+| Host | An IDE (VS Code, JetBrains, Zed) | The Cognitive Mesh dashboard (Next.js) |
+| Plugin unit | An IDE extension calling Retort's CLI/HTTP surface | A `WidgetDefinition` registered with the dashboard |
+| Activation | `.agentkit/` directory present in workspace root | `RegisterWidgetAsync(WidgetDefinition)` |
+| Languages allowed | TS (VS Code), Kotlin (JetBrains), Rust (Zed) | Whatever Next.js can render — typed via C# `WidgetDefinition` model |
+| Primary verbs | `sync`, `start`, `quality-gate`, `orchestration-status` | `Register`, `Get`, `GetAll`, `Remove` |
+| Audit story | Drift detection across generated configs | Versioned API, validation, stable contract |
+| What it extends | The L1 spec layer's reach into the editor | The L4 runtime's reach into the operator UI |
+
+This is the stack's hidden through-line: **the PhoenixVC org treats "extensibility" as a
+first-class architectural concern at *both* boundaries** — where developers meet the spec layer,
+and where operators meet the runtime. The L2 harness ecosystem (Claude Code, Claw Code, OMO,
+oh-my-agent) has nothing analogous to `IWidgetRegistry` — they extend the *editor*, not the
+*operator dashboard*. Conversely, no L2 harness ships an IDE-extension family for governance
+the way retort-plugins does; their plugins all aim at editor productivity, not at sync/drift/
+quality-gate enforcement.
+
+The practical implication: a team adopting the PhoenixVC stack gets the *same* extension model
+twice — write a small plugin against a stable contract, get drop-in support across multiple
+hosts. Once at L2.5 for IDE integration, once at L5 for operator dashboards. That's a unique
+architectural property worth defending.
 
 ## The combined PhoenixVC stack — what you get
 
@@ -233,8 +273,13 @@ on purpose.
 
 ### Strengths
 
-- **Full-stack coverage** from L1 (spec/governance) to L4 (production cognition). No single
-  competing project spans all four layers; the closest competitors are L2-only.
+- **Full-stack coverage** from L1 (spec/governance) through L2.5 (IDE bridge) and L3 (DevOps
+  automation) to L4 (production cognition) and L5 (operator UI). No single competing project
+  spans all five layers; the closest competitors are L2-only.
+- **Two symmetric extension surfaces.** `retort-plugins` extends the spec layer into the IDE
+  via TS/Kotlin/Rust extensions; `UILayer/PluginAPI/IWidgetRegistry` extends the runtime layer
+  into the dashboard via versioned widget contracts. Same architectural pattern, both ends of
+  the stack — see [Extension surfaces](#extension-surfaces--the-parallel-that-makes-the-stack-consistent).
 - **Polyglot reach by design.** TypeScript at L1 (Retort), Python at L3 (Codeflow-Engine), .NET at
   L4 (Cognitive Mesh). Each language is the *right* one for its layer rather than a convenience
   pick.
@@ -255,13 +300,15 @@ on purpose.
 
 ### Weaknesses
 
-- **High onboarding cost.** Three repos, three runtimes, five layers, hexagonal architecture,
-  ports/adapters, MAKER benchmark — a new contributor must absorb a lot before being productive.
-  Compared to "install Claw Code, type a prompt," the activation energy is an order of magnitude
-  higher.
-- **No L2 story of its own.** PhoenixVC has no native developer harness; it relies on
-  Claude Code / Claw Code / oh-my-* to provide the IDE surface. Any harness improvement happens
-  outside the org's control.
+- **High onboarding cost.** Four repos, four runtimes (.NET / Node / Python / multi-language
+  IDE plugins), six layers, hexagonal architecture, ports/adapters, MAKER benchmark, two
+  separate plugin systems — a new contributor must absorb a lot before being productive.
+  Compared to "install Claw Code, type a prompt," the activation energy is an order of
+  magnitude higher.
+- **No L2 (coding-agent) story of its own.** PhoenixVC has L2.5 (retort-plugins) but not L2
+  proper — it doesn't ship a coding-agent harness. It bridges *into* whatever harness you
+  already use, but if Claude Code, Claw Code, or OMO change their tool-call protocol, retort-
+  plugins must follow. The runtime is still someone else's.
 - **Spec/runtime alignment is not yet automatic.** Retort spec teams and Cognitive Mesh ports
   are conceptually parallel but not generated from each other. Drift between them is possible.
 - **Codeflow-Engine maturity gaps.** AutoGen is imported behind `try/except` and isn't declared
@@ -332,27 +379,34 @@ Integration Ease 0.14 · Latency 0.10 · Scalability 0.08 · Throughput 0.07 · 
 
 | System | Det. | Maint. | F.T. | Int. | Lat. | Scale | Thru. | Eff. |
 |--------|:----:|:------:|:----:|:----:|:----:|:-----:|:-----:|:----:|
-| **PhoenixVC stack (combined)** | 4.5 | 3.5 | 4.5 | 4.0 | 3.0 | 4.0 | 4.0 | 3.5 |
-| Cognitive Mesh (alone) | 4.5 | 4.0 | 4.5 | 3.5 | 3.0 | 4.0 | 4.0 | 3.5 |
+| **PhoenixVC stack (combined: Cognitive Mesh + Retort + retort-plugins + Codeflow-Engine)** | 4.5 | 3.5 | 4.5 | 4.5 | 3.0 | 4.0 | 4.0 | 3.5 |
+| Cognitive Mesh (alone, all 6 layers) | 4.5 | 4.0 | 4.5 | 3.5 | 3.0 | 4.0 | 4.0 | 3.5 |
 | Codeflow-Engine (alone) | 3.0 | 3.0 | 4.0 | 3.0 | 3.0 | 4.0 | 3.0 | 3.0 |
-| Retort (alone, L1 only) | 4.0 | 4.0 | 3.0 | 5.0 | n/a | n/a | n/a | n/a |
+| Retort + retort-plugins (L1 + L2.5) | 4.0 | 4.0 | 3.0 | 5.0 | n/a | n/a | n/a | n/a |
 | Claw Code | 3.5 | 4.0 | 3.0 | 4.5 | 4.5 | 3.0 | 4.0 | 4.0 |
 | Claude Code | 3.0 | 4.5 | 3.5 | 5.0 | 4.5 | 3.0 | 4.0 | 4.0 |
 | oh-my-agent | 3.0 | 3.5 | 3.0 | 4.5 | 4.0 | 3.0 | 4.0 | 4.0 |
 | oh-my-openagent (OMO) | 3.5 | 3.5 | 3.0 | 4.5 | 4.5 | 3.5 | 4.5 | 4.0 |
 
+> **Why retort-plugins lifts the combined Integration Ease score from 4.0 to 4.5.** Retort
+> alone gets a 5.0 on Integration Ease (one YAML → 16 outputs). Adding the IDE bridge means
+> developers don't have to leave their editor to invoke any of it — `@retort` Copilot Chat,
+> JetBrains tool window, Zed slash commands. The combined-stack Integration Ease was previously
+> dragged down by Cognitive Mesh's .NET ports/adapters surface (3.5); retort-plugins partly
+> recovers that by giving the same developers an in-editor handle on the spec layer.
+
 ### Weighted totals (Profile 5: Multi-Agent Reasoning)
 
 | System | Weighted score (1–5) | Percentage |
 |--------|:--------------------:|:----------:|
-| **Cognitive Mesh (alone)** | **4.00** | **79.9%** |
-| **PhoenixVC stack (combined)** | **3.98** | **79.5%** |
+| **PhoenixVC stack (combined)** | **4.05** | **80.9%** |
+| Cognitive Mesh (alone) | 4.00 | 79.9% |
 | Claude Code | 3.90 | 78.0% |
 | Claw Code | 3.77 | 75.4% |
 | oh-my-openagent (OMO) | 3.76 | 75.1% |
 | oh-my-agent | 3.52 | 70.4% |
 | Codeflow-Engine (alone) | 3.24 | 64.8% |
-| Retort (alone) | n/a (L1 only — not directly comparable on runtime metrics) | — |
+| Retort + retort-plugins (alone) | n/a (L1 + L2.5 only — not directly comparable on runtime metrics) | — |
 
 Calculations use the Profile 5 weight vector applied to each row in the per-system table. Cells
 marked `n/a` for Retort reflect that L1 spec governance has no runtime latency, scalability,
@@ -360,15 +414,14 @@ throughput, or efficiency to score.
 
 ### What the weights say
 
-- **Cognitive Mesh alone narrowly outscores the combined PhoenixVC stack on Profile 5** — and
-  this is the most informative result in the table. The combined stack has slightly *worse*
-  Maintainability (3.5 vs 4.0) because three runtimes are harder to maintain than one, and
-  Profile 5 weights Maintainability at 0.18. Combining Retort and Codeflow-Engine doesn't help
-  the metrics this profile cares about; their value lives on Integration Ease (only 0.14 here)
-  and on the cross-cutting "spec governance" axis Profile 5 doesn't model. **If your workload
-  is purely Profile 5, run Cognitive Mesh alone — the combined stack pays for itself only on
-  Profile 1 (Interactive) and Profile 4 (Event-Driven), where Retort's 5.0 Integration Ease
-  and Codeflow-Engine's event fan-out dominate.**
+- **The combined PhoenixVC stack narrowly outscores Cognitive Mesh alone on Profile 5** — and
+  this flipped relative to the previous version of this doc once retort-plugins entered the
+  picture. The combined stack still pays a Maintainability tax (3.5 vs 4.0), but Integration
+  Ease rises from 3.5 (Cognitive Mesh ports/adapters alone) to 4.5 (Retort + retort-plugins
+  in-editor) — the +1.0 on Integration Ease at weight 0.14 outweighs the −0.5 on
+  Maintainability at weight 0.18 by about 0.05 points. **The takeaway: until retort-plugins
+  existed, "run Cognitive Mesh alone" was the right Profile-5 answer; now the combined stack
+  is.** It's a small margin, but it's the right direction.
 - **Claude Code edges out Claw Code despite Claw Code being a clean-room rewrite** because the
   rewrite is younger (lower Maintainability evidence) and has a less complete integration
   surface (4.5 vs 5.0). The gap is small and will close as Claw Code matures.
@@ -430,10 +483,13 @@ harnesses win on profiles where you'd be shipping a product to developers. Plan 
 ## Sources
 
 - [Cognitive Mesh — `src/AgencyLayer/README.md`](../../../src/AgencyLayer/README.md)
+- [Cognitive Mesh — `src/UILayer/PluginAPI/IWidgetRegistry.cs`](../../../src/UILayer/PluginAPI/IWidgetRegistry.cs)
+- [Cognitive Mesh — `.claude/rules/architecture.md`](../../../.claude/rules/architecture.md) (six-layer dependency rules)
 - [Cognitive Mesh — `CLAUDE.md`](../../../CLAUDE.md)
 - [Codeflow-Engine internal repo writeup](../02-internal-repos/codeflow-engine.md)
 - [`docs/orchestration-evaluation/03-external-engines/coding-agent-orchestration/fleet-orchestration.md`](../03-external-engines/coding-agent-orchestration/fleet-orchestration.md)
-- [`phoenixvc/retort` README](https://github.com/phoenixvc/retort) — config-sync framework, 16 supported tools
+- [`phoenixvc/retort`](https://github.com/phoenixvc/retort) — config-sync framework, 16 supported tools, CLI + Ink TUI
+- [`phoenixvc/retort-plugins`](https://github.com/phoenixvc/retort-plugins) — IDE extensions for VS Code (TS), JetBrains (Kotlin), Zed (Rust)
 - [`phoenixvc/codeflow-engine`](https://github.com/phoenixvc/codeflow-engine) — Python multi-agent PR/DevOps automation
 - [`instructkr/claw-code`](https://github.com/instructkr/claw-code) — Rust clean-room rewrite of Claude Code harness
 - [Claw Code launch coverage (24-7 Press Release)](https://www.24-7pressrelease.com/press-release/533389/claw-code-launches-open-source-ai-coding-agent-framework-with-72000-github-stars-in-first-days)
