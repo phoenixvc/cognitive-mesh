@@ -1,8 +1,9 @@
-# PhoenixVC Stack (Cognitive Mesh + Retort + Codeflow-Engine) vs. Coding-Agent Harnesses (Claw Code, oh-my-agent, and friends)
+# PhoenixVC Stack vs. Coding-Agent Harnesses (Claw Code, oh-my-openagent, and friends)
 
 > Companion comparison to [`custom-vs-established.md`](custom-vs-established.md). This doc answers the
 > narrower question: **what does the combined PhoenixVC stack give you that a popular coding-agent
-> harness doesn't, and vice versa?**
+> harness doesn't, and vice versa?** Earlier revisions framed this as a four- or six-layer comparison
+> of three repos. The PhoenixVC org has thirteen — see [The seven layers](#the-seven-layers).
 
 The PhoenixVC stack and the coding-agent-harness ecosystem are often discussed as if they competed.
 They don't. They sit at different layers of the stack and solve different problems. This doc lines
@@ -13,73 +14,221 @@ them up so the overlap and the gaps are obvious.
 | Question | Answer |
 |----------|--------|
 | Are these substitutes? | **No.** Cognitive Mesh runs production cognition; harnesses orchestrate the developer's editor. |
+| The single most useful axis? | **Build-time vs runtime.** Retort, retort-plugins, codeflow-plugins, and mcp-org are build-time. Sluice, docket, codeflow-engine, phoenix-flow, cognitive-mesh, and deck are runtime. The harnesses (Claude Code, Claw Code, oh-my-openagent) live entirely at runtime. |
 | Where does the overlap actually live? | **Multi-agent orchestration semantics, task delegation, quality gates, worktree isolation.** |
-| Should we pick one over the other? | **Combine.** Use Retort to govern the harness layer, Cognitive Mesh + Codeflow-Engine to govern the runtime layer. |
+| Should we pick one over the other? | **Combine.** Retort governs; sluice carries traffic; cognitive-mesh runs durable cognition; deck is the operator's pane of glass. |
 | What's the biggest mistake? | Trying to use Cognitive Mesh's `MultiAgentOrchestrationEngine` as an *editor* harness, or using Claw Code as a *production* agent runtime. They are not the same workload. |
 
-## The four layers
+## The seven layers
+
+Earlier revisions of this doc described five (and then six) layers covering three PhoenixVC repos.
+The actual PhoenixVC ecosystem is **thirteen repos across seven layers**, plus a horizontal axis
+(build-time vs runtime) that cuts across all of them. This is the diagram that matches the codebase:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  L5 — End-user / operator UI    (dashboards, widgets)       │
-│       ▸ Cognitive Mesh UILayer (Next.js + Tailwind)         │
-│       ▸ Widget plugins via IWidgetRegistry (PluginAPI)      │
-├─────────────────────────────────────────────────────────────┤
-│  L4 — Runtime cognition          (production traffic)       │
-│       ▸ Cognitive Mesh AgencyLayer + Reasoning + Foundation │
-│       ▸ MultiAgentOrchestrationEngine, DurableWorkflowEngine│
-│       ▸ Ethical reasoning, MAKER benchmark, checkpointing   │
-├─────────────────────────────────────────────────────────────┤
-│  L3 — DevOps automation          (CI / PR / review bots)    │
-│       ▸ Codeflow-Engine (Python)                            │
-│       ▸ AutoGen multi-agent, GitHub/Linear/Slack/Axolo      │
-│       ▸ Workflow retries, event fan-out                     │
-├─────────────────────────────────────────────────────────────┤
-│  L2 — Developer harness          (the IDE / CLI agent)      │
-│       ▸ Claw Code, Claude Code, oh-my-openagent, oh-my-pi   │
-│       ▸ Subagents, hooks, skills, MCP, worktree isolation   │
-│       ▸ Hash-anchored edits, LSP, tool-call loops           │
-│  L2.5 — IDE bridge for L1        (Retort inside the editor) │
-│       ▸ retort-plugins: VS Code (TS), JetBrains (Kotlin),   │
-│         Zed (Rust)                                          │
-│       ▸ Triggers sync, runs quality gates, status widgets   │
-│       ▸ `@retort` Copilot Chat, Junie context injection     │
-├─────────────────────────────────────────────────────────────┤
-│  L1 — Spec & governance          (config sync, team rules)  │
-│       ▸ Retort (`.agentkit/spec/*.yaml`) — CLI + Ink TUI    │
-│       ▸ Renders configs for 16 harnesses from one source    │
-│       ▸ Quality gates, drift checks, GitHub Actions         │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│  L6 — Operator control plane     (desktop ops, tray, dashboards)│
+│       ▸ deck — Tauri 2.0 + React/TS + Rust + .NET sidecar       │
+│         "VS Code-style shell" — surfaces sluice, docket,        │
+│         cognitive-mesh, phoenix-flow, retort, mcp-org           │
+├────────────────────────────────────────────────────────────────┤
+│  L5 — End-user UI                (dashboards, widgets)          │
+│       ▸ Cognitive Mesh UILayer (Next.js + Tailwind)             │
+│       ▸ Widget plugins via IWidgetRegistry (PluginAPI)          │
+│       ▸ phoenix-flow Kanban UI for human+agent task graph       │
+├────────────────────────────────────────────────────────────────┤
+│  L4 — Runtime cognition          (production traffic)           │
+│       ▸ Cognitive Mesh AgencyLayer + Reasoning + Foundation     │
+│       ▸ MultiAgentOrchestrationEngine, DurableWorkflowEngine    │
+│       ▸ Ethical reasoning, MAKER benchmark, checkpointing       │
+├────────────────────────────────────────────────────────────────┤
+│  L3 — DevOps & task automation   (CI / PR / shared task graph)  │
+│       ▸ codeflow-engine (Python) — AutoGen, GitHub/Linear/Slack │
+│       ▸ phoenix-flow — bidirectional YAML ↔ Kanban sync, MCP    │
+│         server for human+agent shared task graph                │
+├────────────────────────────────────────────────────────────────┤
+│  L2 — Coding-agent harness       (the IDE / CLI agent itself)   │
+│       ▸ Claw Code, Claude Code, oh-my-openagent, oh-my-pi       │
+│       ▸ Subagents, hooks, skills, MCP, worktree isolation       │
+│  L2.5 — IDE bridges              (extending L1/L3 into editors) │
+│       ▸ retort-plugins: VS Code (TS), JetBrains (Kotlin), Zed   │
+│       ▸ codeflow-plugins: VS Code AutoPR + multi-agent assist   │
+├────────────────────────────────────────────────────────────────┤
+│  L1 — Spec & governance          (config sync, team rules)      │
+│       ▸ retort (`.agentkit/spec/*.yaml`) — CLI + Ink TUI        │
+│         9+ harness outputs from one source, drift checks,       │
+│         5-phase lifecycle, hookify runtime guards               │
+│       ▸ mcp-org — org-level MCP server, cross-repo roadmap      │
+├────────────────────────────────────────────────────────────────┤
+│  L0 — AI data plane              (LLM traffic, cost, telemetry) │
+│       ▸ sluice — OpenAI-compatible gateway on Azure Container   │
+│         Apps; LiteLLM proxy, semantic cache, rate limit, auth   │
+│       ▸ docket — LLM spend tracking, cost analytics             │
+└────────────────────────────────────────────────────────────────┘
 ```
 
-The PhoenixVC stack now covers **L1 + L2.5 + L3 + L4 + L5**. The only gap is the *coding-agent
-harness itself* (L2 proper) — and Retort + retort-plugins exist precisely so any L2 harness can
-plug in cleanly. Think of the PhoenixVC stack as bracketing the L2 harness ecosystem on both
-sides: governance and IDE integration below, DevOps automation, runtime cognition, and operator
-UI above.
+Crossing horizontally:
+
+```
+        BUILD-TIME                       RUNTIME
+┌──────────────────────────┐  ┌──────────────────────────────┐
+│ retort                   │  │ sluice  (L0)                 │
+│ retort-plugins           │  │ docket  (L0)                 │
+│ codeflow-plugins         │  │ codeflow-engine  (L3)        │
+│ mcp-org                  │  │ phoenix-flow  (L3 + L5)      │
+│ ── all of L1 & L2.5 ──   │  │ cognitive-mesh  (L4 + L5)    │
+│                          │  │ deck  (L6)                   │
+│                          │  │ ── L2 harnesses ──           │
+│                          │  │ Claw Code, Claude Code, OMO  │
+└──────────────────────────┘  └──────────────────────────────┘
+```
+
+The PhoenixVC stack covers **L0 + L1 + L2.5 + L3 + L4 + L5 + L6** — every layer except the
+coding-agent harness itself (L2 proper). Retort and retort-plugins exist precisely so any L2
+harness can plug in cleanly. The PhoenixVC stack brackets the L2 harness ecosystem on every
+side: data plane (sluice/docket) and governance (retort/mcp-org) below; DevOps automation,
+runtime cognition, end-user UI, and operator control plane above.
+
+> **Credit where due:** the build-time vs runtime axis is the central reframe and comes from a
+> peer analysis. Earlier versions of this doc placed retort as L1 alongside the runtime systems,
+> which obscured the most important property — **retort has no runtime; it's a compiler.**
+> Treating it as a peer of cognitive-mesh on the same axis was a category error. The same peer
+> review prompted several factual corrections in the contender table below (retort's actual
+> harness count, oh-my-openagent's six archetypes, claw-code's parity-harness story).
 
 ## The contenders
 
-### PhoenixVC stack
+### PhoenixVC stack — full ecosystem (13 repos)
 
-| Repo | Layer | Language | Primary unit | Differentiator |
-|------|-------|----------|--------------|----------------|
-| [`phoenixvc/cognitive-mesh`](https://github.com/phoenixvc/cognitive-mesh) | L4 + L5 | .NET 9 / C# (backend) + Next.js / TS (UILayer) | Agent task / workflow checkpoint / dashboard widget | **Six-layer** hexagonal architecture (Foundation → Reasoning → Metacognitive → Agency → Business → UI), ethical reasoning (Brandom + Floridi), `DurableWorkflowEngine` with crash recovery, MAKER benchmark, ConclAIve recipes, **`UILayer/PluginAPI/IWidgetRegistry`** for operator-dashboard widget plugins |
-| [`phoenixvc/retort`](https://github.com/phoenixvc/retort) | L1 | Node.js / TypeScript (CLI + Ink + React TUI) | YAML spec → tool-specific config | One YAML, 16 tool outputs, CLI (`init`/`sync`/`start`/`run`/`worktree create`), interactive TUI (`retort start`), file-based task delegation protocol, Handlebars templates, drift detection |
-| [`phoenixvc/retort-plugins`](https://github.com/phoenixvc/retort-plugins) | L2.5 | TypeScript 65% (VS Code) + Kotlin 18% (JetBrains) + Rust 5% (Zed) | IDE command / panel / chat participant | Three IDE extensions sharing one Retort backend; activates on `.agentkit/` presence; `@retort` Copilot Chat participant in VS Code; Junie context injection in JetBrains; Zed slash commands (`/retort-status`, `/retort-teams`); brings sync, quality gates, and orchestration status into the editor |
-| [`phoenixvc/codeflow-engine`](https://github.com/phoenixvc/codeflow-engine) | L3 | Python (84%) | Workflow / event handler | AutoGen-backed multi-agent path, GitHub/Linear/Slack/Axolo integrations, event fan-out, exponential-backoff retries |
+| Repo | Layer | Build/Run | Language | Differentiator |
+|------|-------|-----------|----------|----------------|
+| [`cognitive-mesh`](https://github.com/phoenixvc/cognitive-mesh) | L4 + L5 | Runtime | .NET 9 / C# (backend) + Next.js / TS (UILayer) | **Six-layer** hexagonal architecture (Foundation → Reasoning → Metacognitive → Agency → Business → UI). 9 code teams + 5 workflow agents partitioned by layer. `DurableWorkflowEngine` checkpointing, `HybridMemoryStore` (Redis + DuckDB), MAKER benchmark, ethical reasoning (Brandom + Floridi), `UILayer/PluginAPI/IWidgetRegistry` widget contract. |
+| [`retort`](https://github.com/phoenixvc/retort) | L1 | **Build-time** | Node.js / TypeScript (CLI + Ink + React TUI) | **Spec-driven config compiler** for 9+ harnesses (Claude, Cursor, Copilot, Windsurf, Codex, Gemini, Cline, Roo, Warp). 13 team commands. CLI + interactive TUI. 5-phase lifecycle with `/check` gates, hookify runtime guards (file-event + bash-event regex), drift detection, file-based task delegation in `.claude/state/tasks/*.json`. **No runtime — it's a compiler.** |
+| [`retort-plugins`](https://github.com/phoenixvc/retort-plugins) | L2.5 | Build-time | TS 65% (VS Code) + Kotlin 18% (JetBrains) + Rust 5% (Zed) | Three IDE extensions sharing one Retort backend; activates on `.agentkit/` presence; `@retort` Copilot Chat participant; Junie context injection; Zed slash commands. |
+| [`codeflow-engine`](https://github.com/phoenixvc/codeflow-engine) | L3 | Runtime | Python 84% | AutoGen-backed multi-agent path, GitHub/Linear/Slack/Axolo integrations, event fan-out, exponential-backoff retries. |
+| [`codeflow-plugins`](https://github.com/phoenixvc/codeflow-plugins) | L2.5 | Build-time | TS / IDE-extension stack | VS Code extension surfacing AutoPR and multi-agent coding assistance from codeflow-engine — the L2.5 bridge for L3 (parallel to retort-plugins for L1). |
+| [`sluice`](https://github.com/phoenixvc/sluice) | **L0** | Runtime | HCL 34% + Python 23% + JS 14% + Shell + PowerShell | **OpenAI-compatible AI gateway.** LiteLLM proxy on Azure Container Apps; FastAPI + Redis state service; Terraform-managed; centralized auth, rate limiting, semantic caching, telemetry. Receives traffic from cognitive-mesh, mystira-workspace, phoenix-flow, codeflow-engine; retort recommends sluice as the standard gateway. |
+| [`docket`](https://github.com/phoenixvc/docket) | **L0** | Runtime | — | **LLM spend tracking & cost analytics.** Consumes telemetry from sluice; surfaces cost attribution and optimisation. Cost-control sibling to sluice. |
+| [`phoenix-flow`](https://github.com/phoenixvc/phoenix-flow) | L3 + L5 | Runtime | TypeScript / React + MCP server | **Human + agent shared task graph.** React Kanban UI, MCP server, bidirectional YAML ↔ board sync. Closes the loop where retort's file-based task delegation needs human visibility. |
+| [`mcp-org`](https://github.com/phoenixvc/mcp-org) | L1 | Mixed | — | Org-level MCP server for cross-repo tasks and roadmap management. Provides organizational context to any MCP-compatible harness. |
+| [`deck`](https://github.com/phoenixvc/deck) | **L6** | Runtime | TS 73% (React 18 + Vite + Tailwind) + Rust 18% (Tauri 2.0) + C# 5% (.NET 9 sidecar) | **Operator control plane.** Tauri desktop app with VS Code-style shell. Service management, infrastructure deploy (Bicep), dashboards, test execution. Integrates retort → cognitive-mesh → sluice → phoenix-flow → docket → mcp-org. The single pane of glass for L0–L5. |
+| [`mystira-workspace`](https://github.com/phoenixvc/mystira-workspace) | (consumer) | Runtime | .NET + TS + Rust monorepo | Out-of-scope for this comparison — it's a *consumer* of the stack ("AI-powered interactive storytelling for children"), not a platform component. Listed for completeness. |
+| [`phoenix-website`](https://github.com/phoenixvc/phoenix-website) | (org site) | n/a | — | Out-of-scope (public web presence). |
+| [`.github`](https://github.com/phoenixvc/.github) | (org meta) | n/a | — | Out-of-scope (org metadata). |
 
-### Coding-agent harnesses (L2)
+### Coding-agent harnesses (L2 proper)
 
 | Harness | Origin | Language | Notable architecture |
 |---------|--------|----------|----------------------|
-| **Claw Code** ([`instructkr/claw-code`](https://github.com/instructkr/claw-code)) | Clean-room rewrite of Claude Code after the npm source-map leak (March 2026) | Rust 95.9%, Python 3.6% reference workspace | Built on `oh-my-codex`, CLI subcommands (`prompt`, `login`, `doctor`), session management, OAuth/API-key auth, mock-parity test harness |
-| **Claude Code** | Anthropic | TypeScript / Node | Subagents, hooks (PreToolUse/PostToolUse), skills with progressive disclosure, MCP, worktree isolation, plain-text `CLAUDE.md` memory |
-| **oh-my-agent** ([`first-fluke/oh-my-agent`](https://github.com/first-fluke/oh-my-agent)) | Community | `.agents/`-based | 15 specialized agents (frontend/backend/db/mobile/qa/tf-infra…), 5-phase workflow with 11 review gates, portable across Antigravity, Claude Code, Cursor, Gemini CLI, Codex CLI, OpenCode |
-| **oh-my-openagent / OMO** ([`code-yeongyu/oh-my-openagent`](https://github.com/code-yeongyu/oh-my-openagent)) | Community | TypeScript + Bun | OpenCode plugin, hash-anchored edits (`LINE#ID`), LSP + ast-grep across 25 languages, multi-provider routing by task category, Sisyphus/Hephaestus/Prometheus/Oracle agents |
-| **oh-my-pi** ([`can1357/oh-my-pi`](https://github.com/can1357/oh-my-pi)) | Community | Mixed | Parallel execution framework, 6 bundled agents, isolation backends |
-| **oh-my-codex (OMX)** | Community | — | Hooks + agent teams + HUD on top of Codex CLI |
-| **Antigravity / Cursor / Windsurf / Gemini CLI / Codex CLI / Junie / Cline / Roo Code** | Various vendors | Various | Each has its own native config dialect — Retort generates all of them from one spec |
+| **Claw Code** ([`instructkr/claw-code`](https://github.com/instructkr/claw-code)) | Clean-room rewrite of Claude Code after the npm source-map leak (March 2026) | **Rust 72% + Python** (peer analysis correction; my earlier 95.9% was the canonical `/rust` workspace only) | **Rebuilds harness plumbing** (CLI binary, tool dispatch, context window) rather than agent choreography. CLI subcommands (`prompt`, `login`, `doctor`), session management, OAuth/API-key auth, **parity-harness against reference Claude Code behavior** (`claw doctor`). |
+| **Claude Code** | Anthropic | TypeScript / Node | Subagents, hooks (PreToolUse/PostToolUse), skills with progressive disclosure, MCP, worktree isolation, plain-text `CLAUDE.md` memory. |
+| **oh-my-openagent / OMO** ([`code-yeongyu/oh-my-openagent`](https://github.com/code-yeongyu/oh-my-openagent)) | Community | TypeScript + Bun | **Prescriptive role hierarchy:** Prometheus / Metis / Momus → Atlas → Sisyphus-Junior. **Six named archetypes with cognitive specialization** (planner, gap-analyzer, reviewer, conductor, executor, specialists). `boulder.json` (active plan + session history) + `.sisyphus/notepads/{plan}/` (wisdom accumulation across sessions). Hash-anchored edits (`LINE#ID`), LSP + ast-grep across 25 languages, multi-provider routing by **semantic categories** (visual-engineering, ultrabrain, artistry, quick, deep, writing) — decoupling intent from model choice. |
+| **oh-my-agent** ([`first-fluke/oh-my-agent`](https://github.com/first-fluke/oh-my-agent)) | Community | `.agents/`-based | 15 specialized agents, 5-phase workflow with 11 review gates, portable across Antigravity / Claude Code / Cursor / Gemini CLI / Codex CLI / OpenCode. |
+| **oh-my-pi** ([`can1357/oh-my-pi`](https://github.com/can1357/oh-my-pi)) | Community | Mixed | Parallel execution framework, 6 bundled agents, isolation backends. |
+| **oh-my-codex (OMX)** | Community | — | Hooks + agent teams + HUD on top of Codex CLI. |
+| **Antigravity / Cursor / Windsurf / Gemini CLI / Codex CLI / Junie / Cline / Roo Code** | Various vendors | Various | Each has its own native config dialect — Retort generates all of them from one spec. |
+
+## Two partition philosophies (the insight that reframes everything)
+
+A peer review surfaced a distinction that the rest of this doc had glossed over. The systems
+above don't just differ on layer — they differ on **how they cut the agent problem into named
+agents in the first place.**
+
+| Partition by… | Examples | What "an agent" means |
+|---------------|----------|------------------------|
+| **Domain** (what the code touches) | retort (`/team-frontend`, `/team-backend`, `/team-data`, `/team-infra`, …), cognitive-mesh (Foundation/Reasoning/Metacognitive/Agency/Business teams), oh-my-agent (frontend/backend/db/mobile/qa) | "A frontend specialist" — knows React, Tailwind, accessibility |
+| **Cognitive function** (what the agent does mentally) | oh-my-openagent (Prometheus plans, Metis analyzes gaps, Momus reviews, Atlas conducts, Sisyphus-Junior executes) | "A planner" — never executes; "A reviewer" — never plans |
+
+This is **not a stylistic difference**, it's a different theory of why multi-agent systems
+work. Domain partitioning is "give each specialist their lane and route work by topic."
+Cognitive-function partitioning is "no single agent should both plan and execute, because the
+plan-and-execute-in-one-breath failure mode is the dominant source of bad agent behavior."
+
+retort enforces the planner/executor split *informally* via convention (`/orchestrate` →
+`/plan` → `/team-*`). oh-my-openagent enforces it *prescriptively* — Atlas literally has no
+execute verb, Sisyphus-Junior literally has no plan verb. Both approaches work, but the
+prescriptive split is harder to violate.
+
+**For the PhoenixVC stack the practical implication is:** retort's team commands are domain-
+partitioned, but the underlying lifecycle (`/orchestrate` → `/plan` → `/team-*` → `/check`)
+already implements a soft cognitive-function partition. Making that split *hard* (so a team
+agent literally cannot call planning verbs and vice versa) would adopt one of OMO's most
+defensible design choices without abandoning retort's domain teams.
+
+## Five capabilities the PhoenixVC stack should consider stealing
+
+The peer analysis listed five concrete cross-pollination opportunities. I'm reproducing them
+here because they're the most actionable part of the comparison.
+
+1. **Wisdom accumulation / notepads** (from oh-my-openagent). OMO's `.sisyphus/notepads/{plan}/`
+   automatically extracts learnings after each task and feeds them to subsequent subagents —
+   prompt-level continuous learning. retort's `docs/history/` and `docs/handoffs/` are
+   human-authored after the fact; they don't propagate forward automatically. The closest
+   PhoenixVC analogue is cognitive-mesh's `MetacognitiveLayer/ContinuousLearning` — but at
+   runtime, not at the prompt level. **Action:** add `.claude/state/wisdom/{plan}/` to retort's
+   spec; have hookify post-task hooks extract learnings into it; have `/orchestrate` and `/plan`
+   inject the relevant wisdom file at session start.
+2. **Semantic categories for model routing** (from oh-my-openagent). OMO's category system
+   (`visual-engineering`, `ultrabrain`, `artistry`, `quick`, `deep`, `writing`) decouples intent
+   from model choice — `quick` can route to Haiku, `ultrabrain` to Opus, without hardcoding
+   model IDs in team specs. retort currently has team commands but no model-routing layer.
+   **Action:** add `category:` field to team specs; let the harness pick the model. This pairs
+   beautifully with sluice (L0), which is already an OpenAI-compatible router — a category
+   could become a sluice routing rule.
+3. **Hard plan/execute separation** (from oh-my-openagent). See [partition philosophies](#two-partition-philosophies-the-insight-that-reframes-everything)
+   above. **Action:** have retort's `/orchestrate` lifecycle prevent team agents from invoking
+   planning verbs, and prevent the planner from invoking execution verbs.
+4. **Durable-workflow semantics for retort task files** (from cognitive-mesh). retort's
+   `.claude/state/tasks/*.json` lifecycle is a state machine, but it lacks `DurableWorkflowEngine`'s
+   checkpoint/resume model. A mid-task crash leaves the JSON in `working` with no way to safely
+   resume. **Action:** adopt the cognitive-mesh checkpoint pattern at the JSON level — write
+   intermediate state on each tool call; on resume, replay from the last checkpoint.
+5. **Parity harness for retort sync output** (from claw-code). claw-code's parity-harness tests
+   that its CLI behavior matches reference Claude Code behavior. retort's `sync` produces 9+
+   tool-specific outputs and currently relies on drift detection at write time. **Action:** add
+   golden-reference snapshots for each generated config; CI fails if `retort sync` regresses.
+
+And the converse — five capabilities the L2 harness ecosystem could steal *from* the PhoenixVC
+stack:
+
+1. **Spec-driven multi-harness rendering** (from retort). retort is the only L1 tool that
+   targets multiple agent frontends from a single source. claw-code is harness-specific; OMO is
+   prompt-specific; cognitive-mesh is product-specific.
+2. **Generated-file discipline** (`<!-- GENERATED by Retort -->` headers + drift detection).
+   None of the L2 harnesses have an equivalent "spec is source of truth, output is derived"
+   story — they treat their config files as authoritative and editable.
+3. **Hookify runtime guards** (from retort). File-event and bash-event regex guards enforce
+   rules at tool-call time, not at review time. Most L2 harnesses have hooks but don't ship a
+   guard library on top of them.
+4. **5-phase lifecycle with explicit quality gates per transition** (from retort). cognitive-mesh
+   has the ingredients (MAKER benchmark, build hooks) but no explicit phase machinery. OMO has
+   Momus validation but no shipping phase.
+5. **AI data-plane separation** (from sluice). L2 harnesses talk to providers directly. sluice
+   teaches the rest of the ecosystem that LLM traffic is infrastructure that deserves its own
+   gateway, telemetry, and cost attribution. Pairs naturally with docket. Most L2 harnesses
+   have no equivalent — every install is its own siloed billing event.
+
+## State and continuity — the one axis I missed
+
+Persistence is the axis where the systems are most different and where I previously had nothing
+to say. Filling that gap:
+
+| System | Persistence mechanism | Lives where |
+|--------|----------------------|-------------|
+| **retort** | `.claude/state/tasks/*.json` lifecycle (submitted → accepted → working → completed), `AGENT_BACKLOG.md`, `docs/handoffs/`, `docs/history/` | Filesystem; human-authored after the fact for the longer-form docs |
+| **cognitive-mesh** | `DurableWorkflowEngine` checkpointing + `HybridMemoryStore` (Redis + DuckDB) | Runtime state, not session state |
+| **oh-my-openagent** | `boulder.json` (active plan + session history) + `.sisyphus/notepads/{plan}/` (wisdom accumulation across sessions) | **Strongest session-continuity story** — automatic, not human-authored |
+| **claw-code** | Inherits Claude Code's context model | In-session |
+| **deck** | Tauri local state + sidecar services | Per-operator desktop, not shared |
+| **phoenix-flow** | Bidirectional YAML ↔ Kanban sync | Shared between humans and agents — that's its entire purpose |
+| **sluice** | Redis state service | Per-request, not per-task |
+| **docket** | LLM spend telemetry | Per-call, not per-task |
+
+The takeaway: **OMO has the strongest prompt-level continuity story; cognitive-mesh has the
+strongest runtime checkpoint story; phoenix-flow has the strongest human-agent shared-state
+story; retort has the strongest spec-time state story.** None of them has all four. The combined
+PhoenixVC stack is the only ecosystem that ships three of them in one place — and could
+plausibly steal OMO's wisdom-notepad pattern to ship the fourth.
 
 ## Where they actually overlap
 
@@ -96,12 +245,16 @@ but with very different blast radius."
 | Quality gates | MAKER benchmark, ethical-reasoning checks | Lint/test/coverage in workflows | Lint, typecheck, unit tests, coverage ≥80%, drift detection — enforced at sync time | Mock-parity tests | 5-phase / 11-gate pipeline |
 | Memory | `HybridMemoryStore` (Redis + DuckDB), `ReasoningTransparency` | Workflow history (1000 entries) | None — stateless config tool | `CLAUDE.md`-style plain text | Plain text + skill folders |
 | Tool integration | `ToolIntegration/BaseTool.cs`, `ToolRegistry` | Entry-point registries for actions/integrations/providers | MCP/A2A config emission (`.mcp/servers.json`) | MCP-compatible | MCP, Exa, Context7, Grep.app, tmux |
-| Audit & determinism | Hexagonal ports, structured logging, MAKER scoring | Workflow history retention | Drift detection across 16 tool outputs | Mock parity harness | Observable dashboards |
+| Audit & determinism | Hexagonal ports, structured logging, MAKER scoring | Workflow history retention | Drift detection across 9+ tool outputs | Parity harness against reference Claude Code (`claw doctor`) | Observable dashboards |
+| **AI data plane (LLM gateway, cost)** | Calls providers directly today; in the PhoenixVC stack flows through **sluice** | Calls providers directly | Recommends **sluice** as standard gateway in spec output | Provider-agnostic harness; user wires in keys | Multi-provider routing client-side, no shared gateway |
+| **Operator control plane** | Operator UI lives in **deck** (Tauri) which surfaces all PhoenixVC services | Out of scope | Out of scope | Out of scope | Out of scope |
 
 The pattern is clear: **the coding-agent harnesses optimize for one developer at a keyboard**;
-**Cognitive Mesh + Codeflow-Engine optimize for production traffic**; **Retort + retort-plugins
-sit between them and make the L1 governance consistent both on disk and inside the IDE**. Treat
-the overlap as "common vocabulary, different production targets" rather than as competition.
+**cognitive-mesh + codeflow-engine + phoenix-flow optimize for production traffic**; **sluice +
+docket optimize for the LLM data plane underneath all of it**; **retort + retort-plugins +
+codeflow-plugins + mcp-org sit at build time and make all of it governable**; **deck wraps the
+whole thing in an operator pane of glass.** Treat the overlap as "common vocabulary, different
+production targets" rather than as competition.
 
 ## Extension surfaces — the parallel that makes the stack consistent
 
@@ -133,46 +286,74 @@ architectural property worth defending.
 
 ## The combined PhoenixVC stack — what you get
 
-Running all three PhoenixVC repos together gives you a developer-loop-to-production-runtime path
-that none of the individual harnesses provide:
+Running the full PhoenixVC ecosystem together gives you a path that no L2 harness can match
+because the path goes from operator desktop down to LLM gateway and back up to durable cognition:
 
 ```
-   Developer (IDE / CLI)
-        │
-        │  ↑ Retort renders .claude/, .cursor/, .windsurf/, etc.
-        │  ↑ Retort defines team scopes & quality gates
-        │
-        ▼
-   L2 harness (Claude Code / Claw Code / oh-my-agent)
-        │
-        │  ─→ commits, PRs
-        │
-        ▼
-   Codeflow-Engine
-        │  workflow validation, retries, event fan-out
-        │  GitHub/Linear/Slack/Axolo integration
-        │  AutoGen review agents
-        ▼
-   Cognitive Mesh AgencyLayer
-        │  MultiAgentOrchestrationEngine (ethics-checked)
-        │  DurableWorkflowEngine (checkpoint/replay)
-        │  MAKER benchmark, ConclAIve reasoning recipes
-        ▼
-   Production cognition serving end users
+                    ┌────────────────────┐
+                    │  deck (L6)         │  ← operator pane of glass
+                    │  Tauri desktop op  │
+                    └────────┬───────────┘
+                             │
+   ┌─────────────────────────┼──────────────────────────┐
+   │                         │                          │
+   ▼                         ▼                          ▼
+┌──────────┐           ┌──────────┐              ┌────────────┐
+│ retort   │           │ phoenix- │              │ cognitive- │
+│ +plugins │           │ flow     │              │ mesh       │  ← L4+L5
+│ (L1+L2.5)│           │ (L3+L5)  │              │            │
+└────┬─────┘           └────┬─────┘              └─────┬──────┘
+     │ generates             │ task graph              │
+     │ configs for           │ shared with             │
+     │ L2 harness            │ humans                  │
+     ▼                       ▼                         │
+┌────────────────────────────────────────────┐         │
+│  L2 harness                                │         │
+│  (Claude Code / Claw Code / oh-my-openagent)│        │
+└────────────────┬───────────────────────────┘         │
+                 │ commits, PRs                        │
+                 ▼                                     │
+            ┌──────────────┐                           │
+            │ codeflow-    │                           │
+            │ engine (L3)  │                           │
+            │ +plugins     │                           │
+            └──────┬───────┘                           │
+                   │                                   │
+                   └────────┐                          │
+                            ▼                          ▼
+                ┌──────────────────────────────────────┐
+                │  L0 — AI data plane                  │
+                │  ┌─────────┐  ┌─────────┐            │
+                │  │ sluice  │→ │ docket  │            │
+                │  │ gateway │  │ cost    │            │
+                │  └─────────┘  └─────────┘            │
+                │  All LLM traffic from above flows    │
+                │  through here; cost flows back up    │
+                └──────────────────────────────────────┘
 ```
 
 What this combination uniquely provides:
 
 1. **A single spec language across the dev loop and the runtime.** Retort YAML defines team
-   scopes; Cognitive Mesh ports/adapters define the production agent contracts. The same
+   scopes; cognitive-mesh ports/adapters define the production agent contracts. The same
    "team-quality" or "team-security" concept can exist in both.
-2. **Hand-off without rewrite.** A workflow drafted in Codeflow-Engine for PR review can graduate
-   to a `DurableWorkflowEngine` job in Cognitive Mesh once it needs replay, ethical checks, or
+2. **Hand-off without rewrite.** A workflow drafted in codeflow-engine for PR review can graduate
+   to a `DurableWorkflowEngine` job in cognitive-mesh once it needs replay, ethical checks, or
    crash recovery.
-3. **Governance you can audit.** Retort drift detection at L1, AutoGen workflow history at L3,
-   MAKER scores + `ReasoningTransparency` at L4 — three independent audit surfaces, not one.
-4. **Polyglot reach.** TypeScript at L1, Python at L3, .NET at L4. None of the harness ecosystems
-   span all three; most are TS- or Rust-only.
+3. **Governance you can audit at four layers.** Retort drift detection at L1, codeflow-engine
+   workflow history at L3, MAKER scores + `ReasoningTransparency` at L4, and **sluice + docket
+   per-call cost telemetry at L0** — four independent audit surfaces, not one.
+4. **Per-call cost attribution all the way down.** sluice intercepts every LLM call from every
+   PhoenixVC service and feeds docket. When a cognitive-mesh workflow runs hot, you can trace
+   spend back to the originating workflow without instrumenting cognitive-mesh.
+5. **Operator pane of glass.** deck surfaces L0–L5 from one Tauri desktop app, so operators
+   don't context-switch between terraform, kubectl, the cognitive-mesh dashboard, the docket
+   UI, and the phoenix-flow Kanban.
+6. **Polyglot reach across the whole stack.** TS/Node at L1, Python at L3 + L0 (sluice), .NET
+   at L4, Rust + TS + .NET at L6 (deck). HCL + Terraform at L0. No harness ecosystem spans
+   that breadth.
+7. **Two formal extension surfaces.** retort-plugins at L2.5 (IDE bridge) and
+   `UILayer/PluginAPI/IWidgetRegistry` at L5 (dashboard widgets) — see [Extension surfaces](#extension-surfaces--the-parallel-that-makes-the-stack-consistent).
 
 ## What the combined stack doesn't do (and what the harnesses do better)
 
@@ -260,7 +441,7 @@ on purpose.
    orchestrator, not a CLI harness. The latency profile, memory model, and tool registry are
    wrong for interactive use.
 2. **Treating Claw Code or OMO as a production runtime.** They're audit-grade *developer* tools.
-   They have no durable workflow story, no ethical-reasoning gate, no five-layer separation.
+   They have no durable workflow story, no ethical-reasoning gate, no L0 data plane separation.
 3. **Hand-maintaining `.claude/`, `.cursor/`, `.windsurf/` in parallel.** This is exactly what
    Retort exists to eliminate. If you have more than two harnesses, the manual cost compounds
    fast.
@@ -269,79 +450,112 @@ on purpose.
 5. **Letting harness slash commands and Retort team definitions drift.** If you adopt Retort,
    make `retort sync --diff` a required check, not a nice-to-have.
 
-## SWOT — PhoenixVC Ecosystem (Cognitive Mesh + Retort + Codeflow-Engine, combined)
+## SWOT — PhoenixVC Ecosystem (full 13-repo stack)
 
 ### Strengths
 
-- **Full-stack coverage** from L1 (spec/governance) through L2.5 (IDE bridge) and L3 (DevOps
-  automation) to L4 (production cognition) and L5 (operator UI). No single competing project
-  spans all five layers; the closest competitors are L2-only.
+- **Full-stack coverage** from L0 (AI data plane: sluice + docket) through L1 (retort, mcp-org)
+  and L2.5 (retort-plugins, codeflow-plugins) to L3 (codeflow-engine, phoenix-flow), L4
+  (cognitive-mesh), L5 (Cognitive Mesh UILayer + phoenix-flow Kanban) and L6 (deck operator
+  control plane). **Seven layers.** No single competing project spans more than two.
+- **Per-call cost attribution all the way down.** sluice intercepts every LLM call from every
+  PhoenixVC service; docket attributes spend back to originating workflows. No L2 harness
+  ecosystem has anything analogous.
 - **Two symmetric extension surfaces.** `retort-plugins` extends the spec layer into the IDE
   via TS/Kotlin/Rust extensions; `UILayer/PluginAPI/IWidgetRegistry` extends the runtime layer
   into the dashboard via versioned widget contracts. Same architectural pattern, both ends of
   the stack — see [Extension surfaces](#extension-surfaces--the-parallel-that-makes-the-stack-consistent).
-- **Polyglot reach by design.** TypeScript at L1 (Retort), Python at L3 (Codeflow-Engine), .NET at
-  L4 (Cognitive Mesh). Each language is the *right* one for its layer rather than a convenience
-  pick.
+- **Operator pane of glass.** deck (Tauri) gives operators a single desktop app that surfaces
+  L0–L5 — service management, infrastructure deploy, dashboards, test execution. No need to
+  context-switch between terraform, kubectl, the cognitive-mesh dashboard, the docket UI, and
+  the phoenix-flow Kanban.
+- **Build-time vs runtime separation done right.** retort + mcp-org + retort-plugins +
+  codeflow-plugins are pure compilers. sluice + docket + cognitive-mesh + codeflow-engine +
+  phoenix-flow + deck are pure runtimes. The boundary is explicit in the architecture, not
+  implicit in tooling.
+- **Polyglot reach across the whole stack.** TS/Node at L1 + L2.5 + L5, Python at L3 + L0,
+  .NET at L4 (and as the deck sidecar), Rust at L0 (sluice infra) + L6 (deck shell), Kotlin at
+  L2.5 (retort-plugins JetBrains), HCL/Terraform at L0 infra. Each layer uses the right
+  language; nothing is shoehorned.
 - **Audit-grade runtime semantics.** `DurableWorkflowEngine` checkpointing, ethical-reasoning
-  gates (Brandom + Floridi), MAKER benchmark, and `ReasoningTransparency` give three independent
-  audit surfaces — none of the harness-only stacks can produce equivalent forensic artifacts.
-- **Hexagonal architecture enforcement.** Layer dependencies are codified
-  (Foundation ← Reasoning ← Metacognitive ← Agency ← Business) and `TreatWarningsAsErrors=true`
-  forces interface hygiene.
-- **Graduation path.** Workflows can be prototyped in Codeflow-Engine and graduated to
-  Cognitive Mesh once they earn durability/ethics requirements — without rewriting the spec layer.
-- **Spec governance for free.** Once Retort is adopted, drift across `.claude/`, `.cursor/`,
-  `.windsurf/`, `.github/copilot-instructions.md`, etc. becomes a CI failure rather than a
-  manual chore.
+  gates (Brandom + Floridi), MAKER benchmark, and `ReasoningTransparency` give independent
+  audit surfaces — and now sluice/docket add per-call telemetry on top.
+- **Hexagonal architecture enforcement.** Layer dependencies in cognitive-mesh are codified
+  (Foundation ← Reasoning ← Metacognitive ← Agency ← Business ← UI) and
+  `TreatWarningsAsErrors=true` forces interface hygiene.
+- **Graduation path.** Workflows can be prototyped in codeflow-engine, surfaced to humans via
+  phoenix-flow, and graduated to a `DurableWorkflowEngine` job in cognitive-mesh once they
+  earn durability/ethics requirements — without rewriting the spec layer.
 - **First-class team metaphor.** The team-skill files in this repo (`team-foundation`,
   `team-agency`, `team-quality`, etc.) already match Retort's `teams.yaml` shape — the migration
   cost is near-zero.
 
 ### Weaknesses
 
-- **High onboarding cost.** Four repos, four runtimes (.NET / Node / Python / multi-language
-  IDE plugins), six layers, hexagonal architecture, ports/adapters, MAKER benchmark, two
-  separate plugin systems — a new contributor must absorb a lot before being productive.
-  Compared to "install Claw Code, type a prompt," the activation energy is an order of
-  magnitude higher.
-- **No L2 (coding-agent) story of its own.** PhoenixVC has L2.5 (retort-plugins) but not L2
-  proper — it doesn't ship a coding-agent harness. It bridges *into* whatever harness you
-  already use, but if Claude Code, Claw Code, or OMO change their tool-call protocol, retort-
-  plugins must follow. The runtime is still someone else's.
-- **Spec/runtime alignment is not yet automatic.** Retort spec teams and Cognitive Mesh ports
+- **Onboarding cost is now extreme.** *Thirteen repos.* Six runtimes (.NET / Node / Python /
+  Rust / multi-language IDE plugins / Tauri shell). Seven layers. Two plugin systems. Four
+  audit surfaces. A new contributor must absorb a lot before being productive. Compared to
+  "install Claw Code, type a prompt," the activation energy is two orders of magnitude higher.
+- **No L2 (coding-agent) story of its own.** PhoenixVC has L2.5 (retort-plugins, codeflow-plugins)
+  but not L2 proper — it doesn't ship a coding-agent harness. It bridges *into* whatever
+  harness you already use, but if Claude Code, Claw Code, or OMO change their tool-call
+  protocol, the L2.5 plugins must follow. The runtime is still someone else's.
+- **Partition philosophy is implicit, not enforced.** retort, cognitive-mesh, and oh-my-agent
+  all partition by domain. OMO partitions by cognitive function (planner/reviewer/executor)
+  and *enforces* the split. retort's `/orchestrate` lifecycle implies a soft cognitive-function
+  split but doesn't prevent a team agent from also planning. See
+  [Two partition philosophies](#two-partition-philosophies-the-insight-that-reframes-everything).
+- **Spec/runtime alignment is not yet automatic.** Retort spec teams and cognitive-mesh ports
   are conceptually parallel but not generated from each other. Drift between them is possible.
-- **Codeflow-Engine maturity gaps.** AutoGen is imported behind `try/except` and isn't declared
+- **No prompt-level wisdom accumulation.** OMO's `.sisyphus/notepads/{plan}/` automatic learning
+  extraction has no PhoenixVC analogue — `docs/history/` is human-authored after the fact, and
+  cognitive-mesh's `MetacognitiveLayer/ContinuousLearning` runs at runtime, not at the prompt
+  level. This is the single most copyable idea from OMO.
+- **No semantic-category model routing.** OMO's `visual-engineering` / `ultrabrain` / `quick`
+  category system decouples intent from model choice. retort has team commands but no routing
+  layer; sluice could *become* the routing implementation but doesn't have a category contract
+  yet.
+- **codeflow-engine maturity gaps.** AutoGen is imported behind `try/except` and isn't declared
   in base dependencies; max-concurrent enforcement is unverified; history retention is in-process
   only. (See [`codeflow-engine.md`](../02-internal-repos/codeflow-engine.md).)
 - **No hash-anchored editing, no LSP integration, no in-editor multi-provider routing.** OMO and
   similar L2 harnesses meaningfully out-execute the PhoenixVC stack on raw code-modification
-  precision.
+  precision. None of L0–L6 fixes that — only an L2 harness can.
 - **Build pipeline is strict.** `TreatWarningsAsErrors`, CS1591 enforcement, MAKER tests — great
-  for governance, painful for fast experiments. Codeflow-Engine in Python is the relief valve,
+  for governance, painful for fast experiments. codeflow-engine in Python is the relief valve,
   but the boundary must be explicit.
-- **Documentation surface is large but uneven.** This `docs/orchestration-evaluation/` tree alone
-  has 10+ subfolders; finding the "right" doc as a newcomer is non-trivial.
+- **Documentation surface is large and uneven.** This `docs/orchestration-evaluation/` tree alone
+  has 10+ subfolders; finding the "right" doc as a newcomer is non-trivial. This very file is
+  now ~700 lines and is the third revision in one session.
 
 ### Opportunities
 
-- **Codify the spec ↔ runtime contract.** Generate Cognitive Mesh agent ports directly from
-  `teams.yaml` (or the inverse), so adding a team in one place propagates everywhere. This is
-  the "missing middle" between Retort and Cognitive Mesh.
+- **Adopt OMO's wisdom-notepad pattern.** Add `.claude/state/wisdom/{plan}/` to retort's spec;
+  have hookify post-task hooks extract learnings; have `/orchestrate` and `/plan` inject the
+  relevant wisdom file at session start. Closes the single biggest gap vs OMO.
+- **Adopt OMO's semantic-category routing — and make sluice the implementation.** Add a
+  `category:` field to team specs; have sluice route by category to the cheapest model that
+  can handle the workload. This makes the L0 ↔ L1 boundary explicit and gives the whole
+  PhoenixVC stack OMO-grade routing without leaving the gateway.
+- **Make plan/execute separation prescriptive in retort.** Have `/orchestrate` lifecycle prevent
+  team agents from invoking planning verbs and prevent the planner from invoking execution
+  verbs. Adopts OMO's defensible Atlas/Sisyphus split without abandoning retort's domain teams.
+- **Codify the spec ↔ runtime contract.** Generate cognitive-mesh agent ports directly from
+  `teams.yaml` (or the inverse), so adding a team in one place propagates everywhere. The
+  "missing middle" between Retort and Cognitive Mesh.
 - **Package the MAKER benchmark as a Retort quality gate.** Harness configs that degrade
   reasoning scores fail spec drift. Turns L1 governance into a runtime quality control loop.
-- **Expose `DurableWorkflowEngine` checkpoints as a Codeflow-Engine integration target.** Python
-  workflows would gain the same checkpoint store as .NET workflows — closing the L3↔L4 boundary.
-- **Adopt OMO-style hash-anchored edits in any future internal coding harness.** Borrow what
-  the L2 ecosystem has solved well rather than reinventing it.
-- **Productize the graduation path.** "Prototype in Codeflow-Engine → graduate to Cognitive Mesh"
-  is a real and rare capability. Document it as a first-class workflow, not a footnote.
-- **Federation across PhoenixVC-style teams.** Retort already supports task delegation across
-  agents; extending that across orgs/repos via A2A/MCP would expand the spec layer without
-  changing the runtime.
+- **Add a parity-harness for `retort sync` output.** Borrow claw-code's pattern: golden-reference
+  snapshots for each generated config; CI fails if `retort sync` regresses.
+- **Adopt durable-workflow checkpointing for retort task files.** retort's
+  `.claude/state/tasks/*.json` lifecycle is a state machine but lacks `DurableWorkflowEngine`'s
+  checkpoint/resume model. Adopt cognitive-mesh's checkpoint pattern at the JSON level.
+- **Productize the graduation path.** "Prototype in codeflow-engine → surface in phoenix-flow
+  → graduate to cognitive-mesh" is a rare capability. Document it as a first-class workflow.
 - **Reference deployment.** Ship a one-command bootstrap (`./scripts/bootstrap-phoenixvc.sh`)
-  that wires Retort + a chosen harness + Codeflow-Engine + Cognitive Mesh together. Lowers the
-  onboarding cost dramatically.
+  that wires retort + a chosen harness + sluice + docket + codeflow-engine + cognitive-mesh +
+  deck together. Lowers the onboarding cost dramatically — probably the single highest-leverage
+  weakness fix.
 
 ### Threats
 
@@ -349,20 +563,26 @@ on purpose.
   primitives (hash-anchored edits, LSP integration, parallel subagents) become baseline
   expectations, and the PhoenixVC stack inherits them only via whichever L2 it integrates with.
 - **Vendor harnesses (Claude Code, Cursor, Windsurf, Antigravity) consolidate L1.** If a single
-  vendor harness wins enough share, Retort's "16 outputs from one spec" value proposition
+  vendor harness wins enough share, retort's "9+ outputs from one spec" value proposition
   shrinks toward "one output from one spec."
-- **Standards displacement.** If A2A or MCP solidify a cross-tool team/skill schema, Retort's
-  bespoke YAML may need to migrate or risk becoming a parallel dialect.
-- **Talent fragmentation.** Maintaining a TypeScript + Python + .NET stack requires three
+- **Standards displacement.** If A2A or MCP solidify a cross-tool team/skill schema, retort's
+  bespoke YAML may need to migrate or risk becoming a parallel dialect. mcp-org partly hedges
+  against this but doesn't eliminate it.
+- **Talent fragmentation.** Maintaining TS + Python + .NET + Rust + Kotlin + HCL requires six
   skill sets. Smaller teams will struggle; this favors monoglot competitors.
 - **Determinism vs. capability tradeoff.** Strict ethical-reasoning and durable-workflow gates
   add friction. Competing systems (especially L2 harnesses) ship faster *because* they don't
   have those gates. In domains where regulators don't require them, the PhoenixVC stack looks
   expensive.
-- **Codeflow-Engine drift risk.** With AutoGen as an optional, undeclared dependency, a future
-  AutoGen breaking change could leave Codeflow-Engine in a half-broken state.
-- **Documentation drift.** Five-layer architectures with 10+ docs subfolders are notorious for
-  silent doc rot. This very file will be obsolete the moment a fourth PhoenixVC repo joins.
+- **codeflow-engine drift risk.** With AutoGen as an optional, undeclared dependency, a future
+  AutoGen breaking change could leave codeflow-engine in a half-broken state.
+- **sluice as single point of failure.** Once you route all org LLM traffic through one
+  gateway, the gateway is a high-value target and a hard outage. The benefits (cost
+  attribution, auth, semantic cache) are real, but the failure mode is now "no LLM traffic
+  anywhere" instead of "one service is down."
+- **Documentation drift.** Seven-layer architectures across thirteen repos with 10+ docs
+  subfolders are notorious for silent doc rot. This file will be obsolete the moment a
+  fourteenth PhoenixVC repo joins.
 
 ## Weighted comparison on key capabilities
 
@@ -389,7 +609,7 @@ Integration Ease 0.14 · Latency 0.10 · Scalability 0.08 · Throughput 0.07 · 
 | oh-my-openagent (OMO) | 3.5 | 3.5 | 3.0 | 4.5 | 4.5 | 3.5 | 4.5 | 4.0 |
 
 > **Why retort-plugins lifts the combined Integration Ease score from 4.0 to 4.5.** Retort
-> alone gets a 5.0 on Integration Ease (one YAML → 16 outputs). Adding the IDE bridge means
+> alone gets a 5.0 on Integration Ease (one YAML → 9+ harness outputs). Adding the IDE bridge means
 > developers don't have to leave their editor to invoke any of it — `@retort` Copilot Chat,
 > JetBrains tool window, Zed slash commands. The combined-stack Integration Ease was previously
 > dragged down by Cognitive Mesh's .NET ports/adapters surface (3.5); retort-plugins partly
@@ -439,7 +659,16 @@ throughput, or efficiency to score.
   place in the *combined* stack as the L3 graduation lane, not as a standalone.
 - **Retort doesn't fit the runtime scoring model at all** — it's a spec-time tool. Scoring
   it on Latency or Throughput would be a category error. Its 5.0 Integration Ease is real:
-  16 tool outputs from one spec is unmatched.
+  9+ harness outputs from one spec is unmatched.
+
+> **Caveat: this scoring table now lags the rest of the doc.** It scores four PhoenixVC
+> components against the L2 harness ecosystem, but the rest of this doc covers all 13 PhoenixVC
+> repos plus the build-time/runtime axis. A complete scoring would add rows for sluice (L0
+> data plane), docket (L0 cost telemetry), phoenix-flow (L3 + L5 shared task graph), deck (L6
+> control plane), mcp-org (L1 org context) — but most of those don't fit Profile 5's metric
+> shape (sluice/docket are infrastructure, deck is desktop UX, mcp-org is build-time). The
+> scoring above remains valid for the *runtime* subset; treat it as a partial measurement
+> rather than a complete one.
 
 ### How the score changes by profile
 
@@ -473,27 +702,64 @@ harnesses win on profiles where you'd be shipping a product to developers. Plan 
 
 ## Open questions (PRs welcome)
 
-- Should `cognitive-mesh` ship a `.agentkit/spec/` directory natively? See Shape A. The team-skill
-  files in this repo (`team-foundation`, `team-reasoning`, etc.) already imply the schema.
-- Is there a clean way to expose `DurableWorkflowEngine` checkpoints as a Codeflow-Engine
+- Should `cognitive-mesh` ship a `.agentkit/spec/` directory natively? The team-skill files in
+  this repo (`team-foundation`, `team-reasoning`, etc.) already imply the schema.
+- Is there a clean way to expose `DurableWorkflowEngine` checkpoints as a codeflow-engine
   integration target, so Python workflows can checkpoint into the same store as .NET workflows?
 - Could the MAKER benchmark be packaged as a Retort quality gate, so harnesses fail the spec
   drift check when their generated configs degrade reasoning scores?
+- Should sluice grow a `category:` routing contract that OMO-style semantic categories can
+  target? See [Five capabilities the PhoenixVC stack should consider stealing](#five-capabilities-the-phoenixvc-stack-should-consider-stealing)
+  item 2.
+- Should `.claude/state/wisdom/{plan}/` become a first-class part of retort's spec, mirroring
+  OMO's `.sisyphus/notepads/{plan}/` pattern? Item 1 in the same list.
+- Should phoenix-flow's bidirectional YAML ↔ Kanban sync become the canonical surface for
+  retort task-file lifecycle, so humans see what agents are doing without poking at JSON files
+  in `.claude/state/tasks/`?
+- Can mcp-org provide cross-repo wisdom propagation, so a learning extracted in one PhoenixVC
+  repo becomes available to agents in another?
 
 ## Sources
+
+### In-repo
 
 - [Cognitive Mesh — `src/AgencyLayer/README.md`](../../../src/AgencyLayer/README.md)
 - [Cognitive Mesh — `src/UILayer/PluginAPI/IWidgetRegistry.cs`](../../../src/UILayer/PluginAPI/IWidgetRegistry.cs)
 - [Cognitive Mesh — `.claude/rules/architecture.md`](../../../.claude/rules/architecture.md) (six-layer dependency rules)
 - [Cognitive Mesh — `CLAUDE.md`](../../../CLAUDE.md)
-- [Codeflow-Engine internal repo writeup](../02-internal-repos/codeflow-engine.md)
+- [codeflow-engine internal repo writeup](../02-internal-repos/codeflow-engine.md)
 - [`docs/orchestration-evaluation/03-external-engines/coding-agent-orchestration/fleet-orchestration.md`](../03-external-engines/coding-agent-orchestration/fleet-orchestration.md)
-- [`phoenixvc/retort`](https://github.com/phoenixvc/retort) — config-sync framework, 16 supported tools, CLI + Ink TUI
+
+### PhoenixVC ecosystem (13 repos)
+
+- [`phoenixvc/cognitive-mesh`](https://github.com/phoenixvc/cognitive-mesh) — enterprise agent/LLM platform (this repo)
+- [`phoenixvc/retort`](https://github.com/phoenixvc/retort) — Windows-first polyglot AI-orchestration framework, CLI + Ink TUI, 9+ harness outputs from one spec
 - [`phoenixvc/retort-plugins`](https://github.com/phoenixvc/retort-plugins) — IDE extensions for VS Code (TS), JetBrains (Kotlin), Zed (Rust)
 - [`phoenixvc/codeflow-engine`](https://github.com/phoenixvc/codeflow-engine) — Python multi-agent PR/DevOps automation
-- [`instructkr/claw-code`](https://github.com/instructkr/claw-code) — Rust clean-room rewrite of Claude Code harness
+- [`phoenixvc/codeflow-plugins`](https://github.com/phoenixvc/codeflow-plugins) — VS Code AutoPR + multi-agent assist (L2.5 bridge for L3)
+- [`phoenixvc/sluice`](https://github.com/phoenixvc/sluice) — OpenAI-compatible AI gateway on Azure Container Apps; LiteLLM, semantic cache, rate limit, telemetry
+- [`phoenixvc/docket`](https://github.com/phoenixvc/docket) — LLM spend tracking & cost analytics, sluice telemetry consumer
+- [`phoenixvc/phoenix-flow`](https://github.com/phoenixvc/phoenix-flow) — Human + agent shared task graph, React Kanban UI, MCP server, bidirectional YAML sync
+- [`phoenixvc/mcp-org`](https://github.com/phoenixvc/mcp-org) — Org-level MCP server for cross-repo tasks and roadmap management
+- [`phoenixvc/deck`](https://github.com/phoenixvc/deck) — Tauri operator control plane; surfaces sluice, docket, cognitive-mesh, phoenix-flow, retort, mcp-org
+- [`phoenixvc/mystira-workspace`](https://github.com/phoenixvc/mystira-workspace) — consumer of the stack ("AI-powered interactive storytelling for children")
+- [`phoenixvc/phoenix-website`](https://github.com/phoenixvc/phoenix-website) — public web presence
+- [`phoenixvc/.github`](https://github.com/phoenixvc/.github) — org metadata
+
+### L2 coding-agent harnesses
+
+- [`instructkr/claw-code`](https://github.com/instructkr/claw-code) — Rust clean-room rewrite of Claude Code harness; `claw doctor` parity-harness against reference Claude Code
 - [Claw Code launch coverage (24-7 Press Release)](https://www.24-7pressrelease.com/press-release/533389/claw-code-launches-open-source-ai-coding-agent-framework-with-72000-github-stars-in-first-days)
 - [`first-fluke/oh-my-agent`](https://github.com/first-fluke/oh-my-agent) — `.agents/`-based portable multi-agent harness
-- [`code-yeongyu/oh-my-openagent`](https://github.com/code-yeongyu/oh-my-openagent) — OpenCode plugin, hash-anchored edits, LSP integration
+- [`code-yeongyu/oh-my-openagent`](https://github.com/code-yeongyu/oh-my-openagent) — OpenCode plugin; Prometheus/Metis/Momus → Atlas → Sisyphus-Junior cognitive role hierarchy; `boulder.json` + `.sisyphus/notepads/{plan}/` wisdom accumulation; semantic-category model routing; hash-anchored edits + LSP
 - [`can1357/oh-my-pi`](https://github.com/can1357/oh-my-pi) — terminal AI agent with parallel execution
 - [Inside Claude Code architecture deep-dive](https://www.penligent.ai/hackinglabs/inside-claude-code-the-architecture-behind-tools-memory-hooks-and-mcp/)
+
+### External analyses incorporated
+
+- Peer AI comparative analysis of retort vs cognitive-mesh vs oh-my-openagent vs claw-code
+  (provided by user, April 2026) — supplied the build-time/runtime axis reframe, the partition-
+  philosophy (domain vs cognitive function) distinction, the wisdom-notepad cross-pollination
+  idea, the semantic-category routing idea, several factual corrections (claw-code's
+  72%-Rust split, OMO's six archetypes, retort's 9+ harness count, claw-code's parity-harness
+  story).
