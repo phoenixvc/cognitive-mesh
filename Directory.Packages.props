@@ -59,7 +59,7 @@
     <!-- Resilience -->
     <PackageVersion Include="Polly" Version="[8.6.6]" />
     <!-- YAML -->
-    <PackageVersion Include="YamlDotNet" Version="[16.3.0]" />
+    <PackageVersion Include="YamlDotNet" Version="[17.0.1]" />
     <!-- Entity Framework Core -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[10.0.5]" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Cosmos" Version="[10.0.5]" />
