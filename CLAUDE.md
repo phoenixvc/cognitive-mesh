@@ -133,3 +133,7 @@ The model's context is not version control. If a working solution exists only in
 - Don't keep important code only in conversation
 - Use descriptive commit messages that capture the "why"
 - The `stop-build-check.sh` hook verifies the build on every response — treat build failures as blockers
+
+## Baton Integration
+
+Baton is the shared task graph for cross-repo work. When the `baton` MCP server is available, agents should check for existing work with `task_check` at the start of meaningful tasks, create or claim visible work with `task_notify`/`log_agent_message`, update the task when significant new information becomes available, and log completion or blockers before handing off.
