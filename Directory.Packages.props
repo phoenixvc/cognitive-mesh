@@ -55,7 +55,7 @@
     <!-- Email -->
     <PackageVersion Include="SendGrid" Version="[9.29.3]" />
     <!-- Messaging -->
-    <PackageVersion Include="WolverineFx" Version="[5.23.0]" />
+    <PackageVersion Include="WolverineFx" Version="[5.30.0]" />
     <!-- Resilience -->
     <PackageVersion Include="Polly" Version="[8.6.6]" />
     <!-- YAML -->
