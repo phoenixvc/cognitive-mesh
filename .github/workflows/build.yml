@@ -115,7 +115,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22.22.2'
+          node-version: '22.22.3'
           cache: 'npm'
           cache-dependency-path: src/UILayer/web/package-lock.json
 
